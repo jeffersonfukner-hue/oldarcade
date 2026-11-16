@@ -1,0 +1,27 @@
+name: Verificar página provisória
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npm run build
+      - name: Verificar a página neutra e a proteção de indexação
+        run: |
+          test -f dist/index.html
+          test -f dist/robots.txt
+          grep -q 'noindex,nofollow,noarchive' dist/index.html
+          grep -q 'Disallow: /' dist/robots.txt
+          if grep -Eqi 'snake-canvas|jogar snake|jogo do dia' dist/index.html; then
+            echo 'A página neutra não deve conter o jogo.' >&2
+            exit 1
+          fi
