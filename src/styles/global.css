@@ -17,3 +17,6 @@ html,body{touch-action:manipulation}
 /* No tabuleiro, gestos são direcionais em vez de zoom/rolagem. */
 #game-screen,#snake-canvas{touch-action:none}
 .touch-controls button{touch-action:manipulation}
+
+/* O estilo .btn não deve sobrescrever hidden durante a contagem regressiva. */
+#start-btn[hidden]{display:none}

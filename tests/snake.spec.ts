@@ -16,6 +16,7 @@ test('Snake inicia, pausa e retoma com contagem honesta', async ({page}) => {
   await expect(page.locator('#plays')).toHaveText('0');
   await page.getByRole('button', {name:/Começar partida/}).click();
   await expect(page.locator('#countdown-value')).toHaveText('3');
+  await expect(page.locator('#start-btn')).toBeHidden();
   await expect(page.locator('#plays')).toHaveText('1');
   await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
   await page.getByRole('button', {name:'Pausar'}).click();
@@ -91,6 +92,7 @@ test('começar partida recentraliza o tabuleiro e aguarda countdown 3-2-1', asyn
  await page.getByRole('button',{name:/Começar partida/}).click();
  await expect(page.locator('#overlay-text')).toHaveText('A partida começa em:');
  await expect(page.locator('#countdown-value')).toHaveText('3');
+ await expect(page.locator('#start-btn')).toBeHidden();
  await expect.poll(()=>page.evaluate(()=>{
   const r=document.querySelector('#game-screen')!.getBoundingClientRect();
   return Math.abs((r.top+r.height/2)-window.innerHeight/2)<Math.max(35,(r.height-window.innerHeight)/2+35);
