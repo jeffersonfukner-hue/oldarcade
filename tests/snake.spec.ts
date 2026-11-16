@@ -377,7 +377,7 @@ test('erro de confirmação nunca mantém recorde provisório como oficial',asyn
  await expect(page.locator('#hud-global-best')).toHaveText('0');
 });
 
-test('hero publica contadores reais e não confunde jogos jogados com partidas',async({page})=>{
+test('hero apresenta jogos disponíveis, visitas e partidas sem indicador redundante',async({page})=>{
  let posts=0;
  await page.route('**/api/site/stats',r=>{
   if(r.request().method()==='POST')posts++;
@@ -386,7 +386,7 @@ test('hero publica contadores reais e não confunde jogos jogados com partidas',
  await page.goto('/');
  await expect(page.locator('#hero-published-games')).toHaveText('1');
  await expect(page.locator('#hero-site-visits')).toHaveText('1.523');
- await expect(page.locator('#hero-games-played')).toHaveText('1');
+ await expect(page.locator('#hero-games-played')).toHaveCount(0);
  await expect(page.locator('#hero-total-plays')).toHaveText('4.599');
  expect(posts).toBe(1);
  await page.reload();

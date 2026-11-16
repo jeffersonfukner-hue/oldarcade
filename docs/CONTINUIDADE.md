@@ -8,6 +8,8 @@
 
 
 ## ESTADO ATUAL — 16/11/2026 (leia antes das seções históricas abaixo)
+- **Hero validada e simplificada:** exibir apenas Jogos disponíveis, Visitas ao site e Total de partidas, em faixa fluida sem cartões. Removido indicador `Jogos jogados` por redundância com Jogos disponíveis, sem apagar registros existentes do D1. O backend pode continuar a computar o indicador para uso administrativo futuro, mas a hero não o consulta nem exibe.
+
 - **Padrão de centralização do tabuleiro:** utilitário único `src/scripts/gameViewport.ts`, adotado por Clássico e Aventura. Ao iniciar, ao retomar e ao sair da tela cheia, reposiciona tabuleiro no centro visível quando possível, com proteção para fullscreen e sem modificar a partida; jogo mantém countdown 3–2–1 após fullscreen. Nunca reinventar esse comportamento a cada jogo. CSS fullscreen com `min-height:0` para caber nas alturas limitadas; testes mobile associados.
 
 - **Padrão obrigatório por jogo/modo competitivo:** ao criar um jogo ou modo novo, reaproveitar desde o primeiro Preview: Top 10 por conta, podium individual, desempate cronológico, recorde pessoal, recorde global, liderança provisória durante partida, confirmação após registrar ao fim, cadastro/login opcional na tela pós-partida, resultados distintos por modo, HUD responsivo, compartilhamento, versionamento, contadores aplicáveis, testes desktop/mobile e acessibilidade. Não esperar o usuário lembrar essas funcionalidades; avaliar exceções documentadas quando não fizerem sentido. O modo Clássico continua intacto.
