@@ -1,5 +1,12 @@
 # OldArcade — continuidade obrigatória
 
+## BACKLOG — modos do Snake e Desafio Diário (registrado em 16/11/2026)
+- **Clássico:** preservar a mecânica aprovada, sem misturar itens, barreiras ou progressão dos modos alternativos.
+- **Aventura:** partida contínua com níveis, missões, frutas e poderes; evoluir por etapas, incluindo barreiras progressivas e eventuais itens que ajudem ou atrapalhem. A implementação e os testes de cada etapa serão tratados separadamente.
+- **Desafio:** modalidade própria com mapas, barreiras e dificuldades, com classificação separada do Clássico e do Aventura. Planejamento somente; definir regras e escopo antes de codificar.
+- **Desafio Diário:** modalidade futura com **o mesmo mapa/desafio para todos os participantes no mesmo dia** e **ranking diário independente**. Definir antes de implementar a geração determinística do desafio, fuso/data de virada, regras de tentativas, desempate, antifraude e custo de consultas/gravações no D1. Não ativar automaticamente nem apresentar como funcionalidade disponível.
+- **Ordem de trabalho:** concluir e validar o Aventura em etapas; depois revisar e priorizar os demais modos, inclusive Desafio e Desafio Diário, um por vez com aprovação do proprietário. Não iniciar o jogo #002 nem publicar novos modos por conta própria.
+
 ## BACKLOG — indicações rastreáveis e recompensas futuras (registrado em 16/11/2026)
 - Ideia do proprietário: cada jogador poderá compartilhar **um código/link de indicação próprio** em convites, para identificar quem mais trouxe amigos ao OldArcade e eventualmente premiar bons indicadores, **se o projeto crescer**. Isso é somente backlog: não ativar agora, não prometer prêmios, não gastar D1 ou gerar rastreamento sem aprovação específica.
 - Diferenciar convites compartilhados (impossíveis de confirmar por app), cliques recebidos, novos jogadores que realmente jogaram e contas novas válidas. Não atribuir indicação apenas por abrir link. Preferir **contas autenticadas** e identificador de referência aleatório/opaco, nunca nome, e-mail ou ID sequencial no endereço.
