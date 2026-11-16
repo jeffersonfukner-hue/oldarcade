@@ -1,5 +1,9 @@
 import {currentPlayer,reply,sameOrigin,parseBody} from '../../_lib/auth.js';
 const eligibleGames=new Set(['snake','snake-adventure']);
+export function validGameScore(game,score){
+ const scoreStep=game==='snake-adventure'?5:10;
+ return eligibleGames.has(game)&&Number.isSafeInteger(score)&&score>=0&&score<=4000&&score%scoreStep===0;
+}
 async function standings(db,request,game){
  const result=await db.prepare(
   'SELECT a.nickname,r.best_score,r.achieved_at_ms FROM player_game_records r JOIN player_accounts a ON a.id=r.player_id WHERE r.game=? ORDER BY r.best_score DESC,r.achieved_at_ms ASC,r.player_id ASC LIMIT 10'
@@ -39,8 +43,7 @@ export async function onRequestPost(ctx){
  const data=await parseBody(ctx.request);
  const game=String(ctx.params.game);
  // Clássico soma 10 por maçã; Aventura soma 10/50/15/20 conforme os itens.
- const scoreStep=game==='snake-adventure'?5:10;
- if(!Number.isSafeInteger(data?.score)||data.score<0||data.score>4000||data.score%scoreStep!==0)return reply({error:'Pontuação inválida'},400);
+ if(!validGameScore(game,data?.score))return reply({error:'Pontuação inválida'},400);
  try{
   const player=await currentPlayer(db,ctx.request);
   if(!player)return reply({error:'Entre ou crie uma conta para registrar recordes'},401);
