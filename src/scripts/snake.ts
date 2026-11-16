@@ -56,6 +56,17 @@ function beginCountdown(){
  }
  step();
 }
+// Restaura o foco visual do tabuleiro quando o navegador sai da tela cheia.
+function centerGameAfterExit(){
+ if(document.fullscreenElement===stage||fallbackFullscreen)return;
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  if(document.fullscreenElement===stage||fallbackFullscreen)return;
+  const board=document.querySelector<HTMLElement>('#game-screen')!;
+  const rect=board.getBoundingClientRect();
+  const target=window.scrollY+rect.top+(rect.height-window.innerHeight)/2;
+  window.scrollTo({top:Math.max(0,target),behavior:'instant'});
+ }));
+}
 function fullActive(){return document.fullscreenElement===stage||fallbackFullscreen}
 function updateFullButton(){
  fullscreenBtn.textContent=fullActive()?'⤢ Sair da tela cheia (F)':'⛶ Tela cheia (F)';
@@ -75,6 +86,7 @@ async function toggleFullscreen(){
   }
  }finally{
   changingFullscreen=false;wasNativeFullscreen=document.fullscreenElement===stage;updateFullButton();
+  if(!fullActive())centerGameAfterExit();
   if(resume)beginCountdown();
  }
 }
@@ -87,6 +99,9 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='p
 fullscreenBtn.addEventListener('click',()=>{void toggleFullscreen()});
 document.addEventListener('fullscreenchange',()=>{
  const nativeNow=document.fullscreenElement===stage;
+ if(!changingFullscreen&&wasNativeFullscreen&&!nativeNow){
+  centerGameAfterExit();
+ }
  if(!changingFullscreen&&wasNativeFullscreen&&!nativeNow&&(state==='playing'||state==='countdown')){
   cancelCountdown();window.clearTimeout(timer);state='paused';beginCountdown();
  }

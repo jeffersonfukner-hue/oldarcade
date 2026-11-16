@@ -70,3 +70,17 @@ test('HUD acompanha a pontuação e atalho F alterna tela cheia com 3 2 1', asyn
  await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id||'')).toBe('');
  await expect(page.locator('#countdown-value')).toBeVisible();
 });
+
+test('ao sair da tela cheia o tabuleiro volta centralizado sem mouse', async ({page}) => {
+ await page.goto('/jogos/snake/');
+ await page.locator('#fullscreen-btn').click();
+ await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id||'')).toBe('game-stage');
+ await page.locator('#fullscreen-btn').click();
+ await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id||'')).toBe('');
+ await expect.poll(()=>page.evaluate(()=>{
+  const r=document.querySelector('#game-screen')!.getBoundingClientRect();
+  const boardCenter=r.top+r.height/2;
+  const available=window.innerHeight;
+  return Math.abs(boardCenter-available/2)<Math.max(35,(r.height-available)/2+35);
+ })).toBe(true);
+});

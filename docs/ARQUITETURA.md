@@ -48,3 +48,8 @@ O arquivo robots.txt nesta fundação bloqueia crawlers de propósito. Alterar a
 - Botões de toque e fallback de tela cheia precisam de validação em aparelhos reais.
 - Reutilizar este contrato e CSS para os próximos jogos, substituindo somente a lógica da partida.
 - Contadores globais seguem pendentes: exigem backend compartilhado no Cloudflare; métricas locais não devem ser rotuladas como globais.
+
+## Retorno ao modo janela — padrão aprovado
+- Ao sair da tela cheia, recentralizar automaticamente a área jogável na viewport, sem exigir mouse ou rolagem manual.
+- Preservar countdown de 3–2–1 na entrada e saída; ambos foram aprovados visualmente pelo usuário.
+- Validar a centralização em desktop e mobile; o componente genérico será extraído após a certificação do jogo piloto.

@@ -33,6 +33,11 @@ O usuário criou o projeto Pages `oldarcade` conectado ao GitHub, com domínio t
 - Contadores globais continuam pendentes de backend Cloudflare; nunca anunciar métricas locais como globais.
 - Preview já criado na Cloudflare: https://3ebc7d78.oldarcade-17c.pages.dev/jogos/snake/ (URL da versão anterior, não usar como evidência de novo build).
 
+## Validação do usuário e novo ajuste
+- Usuário aprovou HUD, atalho F e as duas contagens regressivas 3–2–1 em Preview.
+- Problema identificado: ao sair do modo tela cheia, o scroll posicionava textos acima do tabuleiro; jogador tinha de usar o mouse.
+- Ajuste na branch: centralização programática do tabuleiro ao sair do modo tela cheia, preservando a contagem regressiva. Confirmar CI e validação manual no Preview antes de encerrar.
+
 ## Pendências prioritárias
 1. Confirmar novo deploy Cloudflare Pages **Preview** da branch `feat/fundacao-snake` e recuperar URL gerada; não inventar URL.
 2. Validar Snake no navegador humano, especialmente tecla Esc, mobile, ranking local e conteúdo.
