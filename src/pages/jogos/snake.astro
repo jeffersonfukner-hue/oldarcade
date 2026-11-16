@@ -1,5 +1,5 @@
 ---
-import Base from '../../layouts/Base.astro';
+import GamePage from '../../components/GamePage.astro';
 import { gameRegistry } from '../../data/gameRegistry';
 import GameShare from '../../components/GameShare.astro';
 const release = gameRegistry.snake;
@@ -7,8 +7,7 @@ const title='Jogar Snake online grátis — Regras, recordes e história | OldAr
 const description='Jogue Snake, a cobrinha clássica, grátis e em tela cheia. Aprenda os controles, acompanhe seu recorde local e descubra as origens do gênero em 1976.';
 const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:'Snake — versão OldArcade', description, inLanguage:'pt-BR', genre:['Arcade','Estratégia'], gamePlatform:'Web browser', applicationCategory:'Game', isAccessibleForFree:true, operatingSystem:'Any', author:{'@type':'Organization',name:'OldArcade'} };
 ---
-<Base title={title} description={description} path="/jogos/snake/">
-  <script type="application/ld+json" set:html={JSON.stringify(structured)} />
+<GamePage modeId="snake" title={title} description={description} structured={structured}>
   <div class="shell">
     <section class="hero" style="padding-bottom:18px"><div class="eyebrow">Arcade · Estratégia · Jogo gratuito</div><h1>Snake: o jogo da <span class="accent">cobrinha</span></h1><p class="lede">Controle a cobrinha, colete frutas e tente bater seu próprio recorde. Sem cadastro, sem instalação — comece quando quiser.</p><a class="btn secondary" href="/jogos/snake/aventura/">✨ Experimentar o modo Aventura</a></section>
     <section class="game-layout" aria-label="Jogo Snake e estatísticas">
@@ -80,4 +79,4 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
   <script>
     import '../../scripts/snake.ts';
   </script>
-</Base>
+</GamePage>
