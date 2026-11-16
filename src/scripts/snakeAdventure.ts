@@ -1,7 +1,7 @@
 import {centerGameBoard} from './gameViewport';
 type Direction='up'|'down'|'left'|'right';
 type Point={x:number;y:number};
-type ItemKind='apple'|'gold'|'ice';
+type ItemKind='apple'|'gold'|'ice'|'speed';
 type Item={at:Point;kind:ItemKind;ticks?:number};
 const canvas=document.querySelector<HTMLCanvasElement>('#adventure-canvas')!;
 const ctx=canvas.getContext('2d')!;
@@ -19,7 +19,7 @@ let best=0,highest=1,plays=0;
 try{
  const saved=JSON.parse(localStorage.getItem(key)||'{}') as {best?:number;highest?:number;plays?:number};
  if(Number.isSafeInteger(saved.best)&&saved.best!>=0)best=saved.best!;
- if(Number.isSafeInteger(saved.highest)&&saved.highest!>=1)highest=Math.min(3,saved.highest!);
+ if(Number.isSafeInteger(saved.highest)&&saved.highest!>=1)highest=saved.highest!;
  if(Number.isSafeInteger(saved.plays)&&saved.plays!>=0)plays=saved.plays!;
 }catch{}
 function save(){try{localStorage.setItem(key,JSON.stringify({best,highest,plays}))}catch{}}
@@ -34,14 +34,15 @@ function setBarriers(count:number){
 
 let food:Item={kind:'apple',at:{x:14,y:10}},special:Item|null=null;
 let direction:Direction='right',next:Direction='right';
-let score=0,level=1,apples=0,golds=0,level3Specials=0,normalSinceSpecial=0,iceTicks=0;
-let completed=false;
+let score=0,level=1,apples=0,golds=0,level3Specials=0,normalSinceSpecial=0,iceTicks=0,speedTicks=0,levelApples=0;
 let globalTarget:number|null=null;
 let globalProvisional=false;
 let state:'ready'|'countdown'|'playing'|'paused'|'over'='ready';
 let gameTimer:number|undefined,countdownTimer:number|undefined,bannerTimer:number|undefined;
 let changingFullscreen=false;
 const missions=[{label:'Colete 5 maçãs',target:5,minimum:50},{label:'Colete 1 fruta dourada',target:1,minimum:150},{label:'Colete 3 itens especiais',target:3,minimum:300}];
+function goal(){return missions[level-1]??{label:'Colete '+(level+1)+' maçãs',target:level+1,minimum:300+(level-3)*150}}
+
 function byId(id:string){return document.getElementById(id)!}
 function text(id:string,value:string){byId(id).textContent=value}
 function same(a:Point,b:Point){return a.x===b.x&&a.y===b.y}
@@ -55,9 +56,11 @@ function freeCell():Point|null{
 }
 function drawItem(item:Item){
  const x=(item.at.x+.5)*cell,y=(item.at.y+.5)*cell;
- ctx.fillStyle=item.kind==='gold'?'#ffd56e':item.kind==='ice'?'#83d7ff':'#ff657c';
+ ctx.fillStyle=item.kind==='gold'?'#ffd56e':item.kind==='ice'?'#83d7ff':item.kind==='speed'?'#ff9a52':'#ff657c';
  ctx.beginPath();
- if(item.kind==='ice'){
+ if(item.kind==='speed'){
+  ctx.moveTo(x-12,y-11);ctx.lineTo(x+3,y-11);ctx.lineTo(x-3,y-2);ctx.lineTo(x+12,y-2);ctx.lineTo(x-7,y+13);ctx.lineTo(x-2,y+3);ctx.lineTo(x-12,y+3);ctx.closePath();
+ }else if(item.kind==='ice'){
   ctx.moveTo(x,y-12);ctx.lineTo(x+12,y);ctx.lineTo(x,y+12);ctx.lineTo(x-12,y);ctx.closePath();
  }else ctx.arc(x,y,item.kind==='gold'?12:10,0,Math.PI*2);
  ctx.fill();
@@ -88,7 +91,7 @@ function notify(message:string){
  banner.textContent=message;banner.hidden=false;window.clearTimeout(bannerTimer);
  bannerTimer=window.setTimeout(()=>{banner.hidden=true},2300);
 }
-function missionProgress(){return level===1?apples:level===2?golds:level3Specials}
+function missionProgress(){return level===1?apples:level===2?golds:level===3?level3Specials:levelApples}
 function update(){
  text('adventure-status',state==='playing'?'● Jogando':state==='countdown'?'● Preparando':state==='paused'?'● Pausado':state==='over'?'● Fim de jogo':'● Pronto');
  text('adventure-level',String(level));text('adventure-score',String(score));
@@ -96,36 +99,32 @@ function update(){
  byId('adventure-hud-provisional').hidden=!globalProvisional;
  text('adventure-best',String(best));text('adventure-sidebar-best',String(best));
  text('adventure-highest',String(highest));text('adventure-plays',String(plays));
- text('adventure-effect',iceTicks>0?'Gelo ativo':'Nenhum');
- const goal=missions[level-1],progress=Math.min(goal.target,missionProgress());
- if(completed){
-  text('adventure-mission','Três níveis concluídos — continue sobrevivendo!');
-  text('adventure-mission-progress','✓');
-  (byId('adventure-progress-fill') as HTMLElement).style.width='100%';
- }else{
-  text('adventure-mission',goal.label+' · mínimo '+goal.minimum+' pontos');
-  text('adventure-mission-progress',progress+'/'+goal.target);
-  (byId('adventure-progress-fill') as HTMLElement).style.width=Math.round(100*Math.min(progress/goal.target,score/goal.minimum))+'%';
- }
+ text('adventure-effect',speedTicks>0?'Velocidade ativa':iceTicks>0?'Gelo ativo':'Nenhum');
+ const mission=goal(),progress=Math.min(mission.target,missionProgress());
+ text('adventure-mission',mission.label+' · mínimo '+mission.minimum+' pontos');
+ text('adventure-mission-progress',progress+'/'+mission.target);
+ (byId('adventure-progress-fill') as HTMLElement).style.width=Math.round(100*Math.min(progress/mission.target,score/mission.minimum))+'%';
 }
-function spawn(kind:'gold'|'ice'){
+function spawn(kind:'gold'|'ice'|'speed'){
  if(special)return;
  const pos=freeCell();if(pos)special={at:pos,kind,ticks:52};
 }
 function advance(){
- if(level===1&&apples>=5&&score>=50){
-  level=2;highest=Math.max(highest,2);save();spawn('gold');setBarriers(2);notify('Nível 2! Duas barreiras — procure a fruta dourada.');
- }else if(level===2&&golds>=1&&score>=150){
-  level=3;level3Specials=0;highest=3;save();if(!special)spawn('ice');setBarriers(4);notify('Nível 3! Quatro barreiras e cristal de gelo.');
- }else if(level===3&&!completed&&level3Specials>=3&&score>=300){
-  completed=true;notify('Três níveis concluídos! Continue e supere seu recorde.');
- }
+ const mission=goal();
+ if(missionProgress()<mission.target||score<mission.minimum)return;
+ level++;levelApples=0;level3Specials=0;
+ highest=Math.max(highest,level);save();
+ if(level===2){spawn('gold');setBarriers(2);}
+ else if(level===3){if(!special)spawn('ice');setBarriers(4);}
+ else if(level===4){if(!special)spawn('speed');setBarriers(5);}
+ else setBarriers(Math.min(8,level+1));
+ notify('Nível '+level+'! '+(level===4?'Nova fruta de velocidade!':'Novo desafio desbloqueado.'));
 }
 function schedule(){
  window.clearTimeout(gameTimer);
  if(state!=='playing')return;
- const base=level===1?165:level===2?145:125;
- gameTimer=window.setTimeout(tick,Math.max(90,Math.round(base*(iceTicks>0?1.25:1))));
+ const base=level===1?165:level===2?145:Math.max(100,145-level*7);
+ gameTimer=window.setTimeout(tick,Math.max(90,Math.round(base*(speedTicks>0?.75:iceTicks>0?1.25:1))));
 }
 function tick(){
  if(state!=='playing')return;
@@ -138,25 +137,27 @@ function tick(){
  snake.unshift(head);
  if(collected){
   if(collected.kind==='apple'){
-   score+=10;apples++;normalSinceSpecial++;
+   score+=10;apples++;levelApples++;normalSinceSpecial++;
    const pos=freeCell();if(pos)food={at:pos,kind:'apple'};else{finish();return;}
   }else{
-   score+=collected.kind==='gold'?50:collected.kind==='ice'?15:10;
+   score+=collected.kind==='gold'?50:collected.kind==='ice'?15:collected.kind==='speed'?20:10;
    if(collected.kind==='gold')golds++;
    if(level===3)level3Specials++;
-   if(collected.kind==='ice')iceTicks=35;
+   if(collected.kind==='ice'){iceTicks=35;speedTicks=0;}
+   if(collected.kind==='speed'){speedTicks=35;iceTicks=0;}
    special=null;normalSinceSpecial=0;
   }
-  floatPoints(head,collected.kind==='gold'?50:collected.kind==='ice'?15:10);
+  floatPoints(head,collected.kind==='gold'?50:collected.kind==='ice'?15:collected.kind==='speed'?20:10);
   if(score>best){best=score;save()}
   document.dispatchEvent(new CustomEvent('oldarcade:game-score',{detail:{game:'snake-adventure',score}}));
   advance();
   if(level>=2&&!special&&normalSinceSpecial>=2){
-   spawn(level===2?'gold':Math.random()<.5?'ice':'gold');normalSinceSpecial=0;
+   spawn(level===2?'gold':level===3?(Math.random()<.5?'ice':'gold'):(['ice','gold','speed'] as const)[Math.floor(Math.random()*3)]);normalSinceSpecial=0;
   }
  }else snake.pop();
  if(special&&--special.ticks!<=0){special=null;normalSinceSpecial=1;}
  if(iceTicks>0)iceTicks--;
+ if(speedTicks>0)speedTicks--;
  update();draw();schedule();
 }
 function turn(d:Direction){
@@ -186,7 +187,7 @@ function start(){
  floatLayer.replaceChildren();
  snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';
  food={at:{x:14,y:10},kind:'apple'};special=null;
- score=0;level=1;apples=0;golds=0;level3Specials=0;normalSinceSpecial=0;iceTicks=0;completed=false;globalProvisional=false;setBarriers(0);
+ score=0;level=1;apples=0;golds=0;level3Specials=0;normalSinceSpecial=0;iceTicks=0;speedTicks=0;levelApples=0;globalProvisional=false;setBarriers(0);
  document.dispatchEvent(new CustomEvent('oldarcade:game-started',{detail:{game:'snake-adventure'}}));
  plays++;save();window.clearTimeout(bannerTimer);banner.hidden=true;draw();update();centerGameBoard(screen,stage);beginCountdown(true);
 }
@@ -194,7 +195,10 @@ function finish(){
  state='over';window.clearTimeout(gameTimer);window.clearTimeout(bannerTimer);
  banner.hidden=true;save();
  document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'snake-adventure',score}}));
- show('Fim da Aventura','Você marcou '+score+' pontos e chegou ao nível '+level+'. '+(completed?'Três níveis concluídos!':'A missão continua na próxima tentativa.'),'▶ Jogar novamente');
+ const target=globalTarget!==null&&globalTarget>score?globalTarget:best>score?best:null;
+ const missing=target===null?null:target-score;
+ const encouragement=missing!==null&&missing<=50?'Faltaram apenas '+missing+' pontos para alcançar '+(globalTarget!==null&&target===globalTarget?'o recorde global':'seu recorde')+'! Tente novamente.':'Continue tentando superar seus recordes!';
+ show('Fim da Aventura','Você marcou '+score+' pontos e chegou ao nível '+level+'. '+encouragement,'▶ Jogar novamente');
  update();
 }
 function pause(){
