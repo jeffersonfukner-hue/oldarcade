@@ -193,7 +193,7 @@ function start(){
  plays++;save();window.clearTimeout(bannerTimer);banner.hidden=true;draw();update();centerGameBoard(screen,stage);beginCountdown(true);
 }
 function finish(){
- state='over';window.clearTimeout(gameTimer);window.clearTimeout(bannerTimer);
+ state='over';globalProvisional=false;window.clearTimeout(gameTimer);window.clearTimeout(bannerTimer);
  banner.hidden=true;save();
  document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'snake-adventure',score}}));
  const target=globalTarget!==null&&globalTarget>score?globalTarget:best>score?best:null;
