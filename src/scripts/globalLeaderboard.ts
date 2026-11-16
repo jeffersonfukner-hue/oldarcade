@@ -23,6 +23,7 @@ export function setupGlobalLeaderboard(){
  function draw(data:Board){
   body.replaceChildren();
   drawMine(data.mine);
+  document.dispatchEvent(new CustomEvent('oldarcade:personal-record',{detail:{score:data.mine?.score||0}}));
   if(!data.available||!Array.isArray(data.top)){
    best.textContent='—';status.textContent='Ranking global indisponível neste ambiente.';
    challenge.textContent='Bata seu recorde e desafie os melhores jogadores.';return;

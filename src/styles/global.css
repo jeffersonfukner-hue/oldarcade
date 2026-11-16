@@ -68,3 +68,6 @@ html,body{touch-action:manipulation}
 #record-copy-code{padding:8px;border-radius:8px}
 .ranking{display:block;overflow-x:auto}.ranking th,.ranking td{white-space:nowrap}
 @media(max-width:580px){.record-modal-inner{max-height:93%;padding:14px}.record-modal-inner h2{font-size:1.27rem}}
+
+/* Feedback de recorde instantâneo nos dois placares sem reordenar a página. */
+#hud-best,#best{font-variant-numeric:tabular-nums;transition:color .18s ease}

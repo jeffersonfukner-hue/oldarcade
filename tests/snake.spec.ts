@@ -196,3 +196,22 @@ test('página de conta mostra cadastro com e-mail opcional e não exige conta pa
  await page.goto('/jogos/snake/');
  await expect(page.getByRole('button',{name:/Começar partida/})).toBeVisible();
 });
+
+test('recorde pessoal fica sincronizado entre HUD e lateral ao carregar dados locais',async({page})=>{
+ await page.addInitScript(()=>{
+  localStorage.setItem('oldarcade:snake:v1',JSON.stringify({best:300,plays:1,visits:1,nickname:'',scores:[]}));
+ });
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#hud-best')).toHaveText('300');
+ await expect(page.locator('#best')).toHaveText('300');
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#hud-best')).toHaveText('300');
+ await expect(page.locator('#best')).toHaveText('300');
+});
+test('recorde de conta vindo do servidor aparece nos dois placares',async({page})=>{
+ await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Líder',score:300,rank:1,place:1,achievedAt:'2026-11-16T16:00:00.000Z'}],mine:{nickname:'Teste',score:280,rank:98,achievedAt:'2026-11-16T15:00:00.000Z'}})}));
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#hud-best')).toHaveText('280');
+ await expect(page.locator('#best')).toHaveText('280');
+ await expect(page.locator('#my-global-position')).toHaveText('98º lugar');
+});

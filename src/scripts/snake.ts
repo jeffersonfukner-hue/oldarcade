@@ -18,8 +18,14 @@ const countValue = document.querySelector<HTMLElement>('#countdown-value')!;
 const globalCounters=setupGlobalGameCounters('snake');
 const leaderboard=setupGlobalLeaderboard();
 const recordModal=document.querySelector<HTMLElement>('#record-modal')!;
-const recordForm=document.querySelector<HTMLFormElement>('#record-form')!;
-const recordNick=document.querySelector<HTMLInputElement>('#record-nickname')!;
+const registerForm=document.querySelector<HTMLFormElement>('#record-register')!;
+const loginForm=document.querySelector<HTMLFormElement>('#record-login')!;
+const recordTabs=document.querySelector<HTMLElement>('#record-auth-tabs')!;
+const recordSigned=document.querySelector<HTMLElement>('#record-signed')!;
+const recoveryPanel=document.querySelector<HTMLElement>('#record-recovery')!;
+let account:{nickname:string}|null=null;
+let personalCloudBest=0;
+let recoveryCode='';
 const recordStatus=document.querySelector<HTMLElement>('#record-modal-status')!;
 let modalOpen=false;
 const size=20, cell=canvas.width/size;
@@ -40,15 +46,20 @@ let fallbackFullscreen=false;
 let wasNativeFullscreen=false;
 function setStatus(value:string){hud.textContent='● '+value}
 function text(id:string,value:string){const el=document.getElementById(id);if(el)el.textContent=value}
-function refresh(){text('score',String(score));text('best',String(saved.best));text('hud-score',String(score));text('hud-best',String(saved.best));text('plays',String(saved.plays));text('visits',String(saved.visits));const body=document.getElementById('rank-body')!;body.replaceChildren();if(!saved.scores.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=3;td.textContent='Salve um nickname e jogue uma partida para aparecer no ranking.';tr.append(td);body.append(tr)}else saved.scores.slice(0,10).forEach((entry,i)=>{const tr=document.createElement('tr');[String(i+1),entry.name,String(entry.score)].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td)});body.append(tr)})}
+function refresh(){const best=Math.max(saved.best,personalCloudBest);text('score',String(score));text('best',String(best));text('hud-score',String(score));text('hud-best',String(best));text('plays',String(saved.plays));text('visits',String(saved.visits));const body=document.getElementById('rank-body')!;body.replaceChildren();if(!saved.scores.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=3;td.textContent='Salve um nickname e jogue uma partida para aparecer no ranking.';tr.append(td);body.append(tr)}else saved.scores.slice(0,10).forEach((entry,i)=>{const tr=document.createElement('tr');[String(i+1),entry.name,String(entry.score)].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td)});body.append(tr)})}
 function draw(){ctx.fillStyle='#071a20';ctx.fillRect(0,0,600,600);ctx.strokeStyle='#122c32';ctx.lineWidth=1;for(let n=0;n<=size;n++){ctx.beginPath();ctx.moveTo(n*cell,0);ctx.lineTo(n*cell,600);ctx.moveTo(0,n*cell);ctx.lineTo(600,n*cell);ctx.stroke()}ctx.fillStyle='#ff657c';ctx.beginPath();ctx.arc(food.x*cell+cell/2,food.y*cell+cell/2,cell*.35,0,Math.PI*2);ctx.fill();snake.forEach((piece,i)=>{ctx.fillStyle=i===0?'#a0ffd0':'#46dca2';ctx.fillRect(piece.x*cell+2,piece.y*cell+2,cell-4,cell-4)});}
 function placeFood(){const free:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y});if(!free.length){end(true);return}food=free[Math.floor(Math.random()*free.length)]}
 function schedule(){window.clearTimeout(timer);if(state==='playing')timer=window.setTimeout(tick,Math.max(75,155-Math.floor(score/50)*8))}
-function tick(){if(state!=='playing')return;direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const head={x:snake[0].x+d.x,y:snake[0].y+d.y};const eating=head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if(head.x<0||head.x>=size||head.y<0||head.y>=size||body.some(p=>p.x===head.x&&p.y===head.y)){end(false);return}snake.unshift(head);if(eating){score+=10;placeFood();if(state!=='playing'){draw();return}}else snake.pop();draw();refresh();schedule()}
+function tick(){if(state!=='playing')return;direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const head={x:snake[0].x+d.x,y:snake[0].y+d.y};const eating=head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if(head.x<0||head.x>=size||head.y<0||head.y>=size||body.some(p=>p.x===head.x&&p.y===head.y)){end(false);return}snake.unshift(head);if(eating){score+=10;if(score>saved.best){saved.best=score;store()}placeFood();if(state!=='playing'){draw();return}}else snake.pop();draw();refresh();schedule()}
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 function start(){cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};saved.plays++;store();globalCounters.recordPlay();draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
-function end(won:boolean){state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);if(score>saved.best)saved.best=score;if(saved.nickname.trim()){saved.scores.push({name:saved.nickname.trim(),score,at:Date.now()});saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20)}store();refresh();show(won?'Tabuleiro completo!':'Fim de jogo',`Você marcou ${score} pontos. Que tal tentar novamente?`,'▶ Jogar novamente');openRecordModal()}
+function end(won:boolean){state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
+ if(score>saved.best)saved.best=score;
+ if(saved.nickname.trim()){saved.scores.push({name:saved.nickname.trim(),score,at:Date.now()});saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20)}
+ store();refresh();show(won?'Tabuleiro completo!':'Fim de jogo',`Você marcou ${score} pontos. Que tal tentar novamente?`,'▶ Jogar novamente');
+ if(account){void saveRecord(false)}else{void checkAccount().then(()=>{if(account)void saveRecord(false);else openRecordModal()})}
+}
 function pause(){if(state==='playing'){state='paused';window.clearTimeout(timer);show('Jogo pausado','A partida está preservada.','▶ Continuar');setStatus('Pausado');pauseBtn.textContent='Continuar'}else if(state==='paused'){state='playing';overlay.hidden=true;pauseBtn.textContent='Pausar';setStatus('Jogando');schedule()}}
 function turn(d:Direction){if(state!=='playing')return;const opposite:Record<Direction,Direction>={up:'down',down:'up',left:'right',right:'left'};if(d!==opposite[direction])next=d}
 
@@ -123,37 +134,106 @@ gameScreen.addEventListener('touchend',event=>{
 },{passive:false});
 gameScreen.addEventListener('touchcancel',()=>{gestureStart=null});
 
+function setModalStatus(value:string){recordStatus.textContent=value}
+function showAuth(which:'register'|'login'){
+ const login=which==='login';
+ registerForm.hidden=login;loginForm.hidden=!login;
+ document.querySelector<HTMLButtonElement>('#record-tab-register')!.setAttribute('aria-pressed',String(!login));
+ document.querySelector<HTMLButtonElement>('#record-tab-login')!.setAttribute('aria-pressed',String(login));
+ setModalStatus('');
+}
+async function checkAccount(){
+ try{
+  const res=await fetch('/api/auth/me',{cache:'no-store'});
+  if(!res.ok){account=null;return}
+  const result=await res.json() as {player?:{nickname:string}|null};
+  account=result.player||null;
+  if(account)document.querySelector<HTMLElement>('#record-signed-nick')!.textContent=account.nickname;
+ }catch{account=null}
+}
+async function saveRecord(showModalOnError=true){
+ try{
+  await leaderboard.submit(score);
+  if(account){saved.nickname=account.nickname;store();refresh()}
+  if(modalOpen&&!recoveryCode)closeRecordModal();
+ }catch(error){
+  const message=error instanceof Error?error.message:'Não foi possível registrar.';
+  if(showModalOnError&&!modalOpen)openRecordModal();
+  if(modalOpen)setModalStatus(message);
+ }
+}
 function openRecordModal(){
- recordNick.value=saved.nickname;
- recordStatus.textContent='';
+ recordTabs.hidden=!!account;registerForm.hidden=!!account;loginForm.hidden=true;recordSigned.hidden=!account;
+ if(account)document.querySelector<HTMLElement>('#record-signed-nick')!.textContent=account.nickname;
+ showAuth('register');
+ if(account){recordTabs.hidden=true;registerForm.hidden=true;recordSigned.hidden=false}
+ else{recordTabs.hidden=false;registerForm.hidden=false;recordSigned.hidden=true}
+ recoveryPanel.hidden=true;recoveryCode='';setModalStatus('');
  text('record-modal-score',`Você marcou ${score} pontos. Quer tentar o ranking global?`);
  recordModal.hidden=false;modalOpen=true;
- recordNick.focus({preventScroll:true});
+ document.querySelector<HTMLElement>('#record-modal-title')!.focus({preventScroll:true});
 }
 function closeRecordModal(){
  recordModal.hidden=true;modalOpen=false;
  startBtn.focus({preventScroll:true});
 }
 document.querySelector<HTMLButtonElement>('#record-skip')!.addEventListener('click',closeRecordModal);
-recordForm.addEventListener('submit',async event=>{
- event.preventDefault();
- const nickname=recordNick.value.trim();
- if(!nickname){recordStatus.textContent='Informe um nickname.';return}
- const submit=recordForm.querySelector<HTMLButtonElement>('button[type="submit"]')!;
- submit.disabled=true;recordStatus.textContent='Registrando no Cloudflare…';
+document.querySelector<HTMLButtonElement>('#record-tab-register')!.addEventListener('click',()=>showAuth('register'));
+document.querySelector<HTMLButtonElement>('#record-tab-login')!.addEventListener('click',()=>showAuth('login'));
+document.querySelector<HTMLButtonElement>('#record-save')!.addEventListener('click',()=>{void saveRecord()});
+async function authAndRecord(kind:'register'|'login',fields:Record<string,string|boolean>,form:HTMLFormElement){
+ const button=form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+ button.disabled=true;setModalStatus('Validando seus dados…');
  try{
-  await leaderboard.submit(nickname,score);
-  if(!saved.nickname.trim()){
-   saved.scores.push({name:nickname,score,at:Date.now()});
-   saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);
-   saved.scores=saved.scores.slice(0,20);
+  const response=await fetch('/api/auth/'+kind,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fields)});
+  const result=await response.json() as {error?:string;player?:{nickname:string};recoveryCode?:string};
+  if(!response.ok||!result.player)throw Error(result.error||'Falha na autenticação');
+  account=result.player;saved.nickname=account.nickname;store();refresh();
+  recordTabs.hidden=true;registerForm.hidden=true;loginForm.hidden=true;recordSigned.hidden=false;
+  document.querySelector<HTMLElement>('#record-signed-nick')!.textContent=account.nickname;
+  if(result.recoveryCode){
+   recoveryCode=result.recoveryCode;
+   recoveryPanel.hidden=false;
+   document.querySelector<HTMLElement>('#record-recovery-code')!.textContent=recoveryCode;
   }
-  saved.nickname=nickname;store();refresh();
-  document.querySelector<HTMLInputElement>('#nickname')!.value=nickname;
-  closeRecordModal();
- }catch(error){recordStatus.textContent=error instanceof Error?error.message:'Falha ao registrar.'}
- finally{submit.disabled=false}
+  setModalStatus('Conta conectada. Registrando seu resultado…');
+  await leaderboard.submit(score);
+  await leaderboard.refresh();
+  setModalStatus(result.recoveryCode?'Recorde registrado! Guarde o código antes de continuar.':'Recorde registrado!');
+  if(!recoveryCode)closeRecordModal();
+  form.reset();
+ }catch(error){setModalStatus(error instanceof Error?error.message:'Falha ao entrar ou registrar')}
+ finally{button.disabled=false}
+}
+registerForm.addEventListener('submit',e=>{
+ e.preventDefault();
+ void authAndRecord('register',{
+  nickname:document.querySelector<HTMLInputElement>('#record-register-nick')!.value,
+  email:document.querySelector<HTMLInputElement>('#record-register-email')!.value,
+  password:document.querySelector<HTMLInputElement>('#record-register-pass')!.value,
+  recordEmailOptIn:document.querySelector<HTMLInputElement>('#record-register-alert')!.checked
+ },registerForm);
 });
+loginForm.addEventListener('submit',e=>{
+ e.preventDefault();
+ void authAndRecord('login',{
+  nickname:document.querySelector<HTMLInputElement>('#record-login-nick')!.value,
+  password:document.querySelector<HTMLInputElement>('#record-login-pass')!.value
+ },loginForm);
+});
+document.querySelector<HTMLButtonElement>('#record-copy-code')!.addEventListener('click',async()=>{
+ try{await navigator.clipboard.writeText(recoveryCode);setModalStatus('Código copiado. Guarde-o em local seguro.')}
+ catch{setModalStatus('Copie o código manualmente e guarde-o em local seguro.')}
+});
+document.querySelector<HTMLButtonElement>('#record-recovery-done')!.addEventListener('click',()=>{
+ recoveryCode='';recoveryPanel.hidden=true;document.querySelector<HTMLElement>('#record-recovery-code')!.textContent='';closeRecordModal();
+});
+document.addEventListener('oldarcade:personal-record',event=>{
+ const detail=(event as CustomEvent<{score:number}>).detail;
+ personalCloudBest=Number(detail?.score)||0;
+ refresh();
+});
+void checkAccount();
 
 startBtn.addEventListener('click',()=>state==='paused'?pause():start());
 pauseBtn.addEventListener('click',pause);
