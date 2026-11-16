@@ -9,6 +9,7 @@ const {game,name}=Astro.props;
  <div class="ranking-overflow"><table class="ranking"><thead><tr><th>Posição</th><th>Nickname</th><th>Pontos</th><th>Data e hora</th></tr></thead><tbody data-rank-body><tr><td colspan="4">Carregando…</td></tr></tbody></table></div>
  <p data-rank-mine hidden></p><p data-rank-status class="small muted" role="status">Consultando classificação…</p>
  <p data-rank-summary class="record-end-summary" role="status" aria-live="polite"></p>
+ <button data-rank-retry type="button" class="btn secondary" hidden>Tentar registrar novamente</button>
  <button data-rank-auth-button type="button" class="btn secondary">Entrar ou criar conta para registrar recordes</button>
  <div class="mode-account-modal" data-rank-modal role="dialog" aria-modal="true" aria-label="Registrar recorde" hidden>
   <div class="mode-account-inner">
