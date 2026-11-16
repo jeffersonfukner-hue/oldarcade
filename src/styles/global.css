@@ -39,3 +39,11 @@ html,body{touch-action:manipulation}
 .contact-panel form textarea{resize:vertical}.contact-panel .contact-note{border-left:3px solid #a795ff;background:#19223e;padding:14px 18px;border-radius:8px}
 .contact-panel .contact-note p{margin:8px 0}.contact-panel .contact-note[hidden]{display:none}
 .contact-panel form .btn{justify-self:start}
+
+.account-panel{max-width:650px;margin-inline:auto}
+.account-panel form{display:grid;gap:12px}.account-panel input{width:100%;min-width:0;background:#0b1222;color:#edf2ff;border:1px solid #465478;border-radius:10px;padding:12px}
+.account-panel form .btn{justify-self:start}.account-tabs{display:flex;gap:10px;margin:0 0 24px}
+.account-tabs button{padding:11px 18px;background:#1c2542;color:#fff;border-radius:10px;border:1px solid #465478}
+.account-tabs button[aria-pressed="true"]{background:#6548e7;border-color:#967fff}
+.account-panel [hidden]{display:none!important}.account-panel .contact-note{background:#19223e;border-left:3px solid #a795ff;padding:16px;margin:22px 0}
+.recovery-code{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}.recovery-code code{overflow-wrap:anywhere;font-size:1.07rem;font-weight:700}.recovery-code button{border:1px solid #536387;border-radius:9px;padding:10px;color:#fff;background:#273454}

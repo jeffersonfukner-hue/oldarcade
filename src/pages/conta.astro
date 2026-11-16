@@ -1,0 +1,107 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Minha conta — OldArcade" description="Crie sua conta de jogador com nickname único, e-mail opcional e senha, ou entre na sua conta OldArcade." path="/conta/">
+ <div class="shell">
+  <section class="hero text-content"><span class="eyebrow">Comunidade OldArcade</span>
+   <h1>Seu nickname, seus desafios.</h1>
+   <p class="lede">Jogar é sempre grátis e não exige conta. O cadastro permite reservar seu nickname para participar dos futuros recordes vinculados à sua identidade.</p>
+  </section>
+  <section class="section panel account-panel" aria-labelledby="account-heading">
+   <h2 id="account-heading">Acesse ou crie sua conta</h2>
+   <div id="account-state" hidden><p>Conectado como <strong id="account-name"></strong>.</p><p class="small muted">Seu nickname está reservado nesta conta. A vinculação aos recordes ainda está em preparação.</p><button type="button" class="btn secondary" id="account-logout">Sair da conta</button></div>
+   <div id="account-forms">
+    <div class="account-tabs" aria-label="Escolha o formulário"><button id="tab-login" type="button" aria-pressed="true">Entrar</button><button id="tab-register" type="button" aria-pressed="false">Criar conta</button></div>
+    <form id="account-login">
+     <label for="login-nick">Nickname</label><input id="login-nick" autocomplete="username" minlength="3" maxlength="18" required/>
+     <label for="login-password">Senha</label><input id="login-password" autocomplete="current-password" type="password" minlength="12" required/>
+     <button class="btn" type="submit">Entrar</button>
+    </form>
+    <form id="account-register" hidden>
+     <label for="register-nick">Escolha um nickname único</label><input id="register-nick" autocomplete="username" minlength="3" maxlength="18" pattern="[A-Za-zÀ-ÿ0-9_.-]+" required/>
+     <label for="register-email">E-mail <span class="muted">(opcional)</span></label><input id="register-email" type="email" autocomplete="email" maxlength="254"/>
+     <p class="small muted">No futuro, o e-mail poderá ajudar a recuperar sua conta depois de confirmado. Ainda não enviamos mensagens automáticas.</p>
+     <label for="register-password">Senha (mínimo de 12 caracteres)</label><input id="register-password" autocomplete="new-password" type="password" minlength="12" maxlength="128" required/>
+     <button class="btn" type="submit">Criar minha conta</button>
+    </form>
+   </div>
+   <p id="account-message" class="small" role="status" aria-live="polite"></p>
+   <div id="recovery-box" class="contact-note" hidden>
+    <h3>Código de recuperação — guarde agora</h3>
+    <p>Este código aparece apenas uma vez. Guarde-o em um lugar seguro; não compartilhe com ninguém.</p>
+    <div class="recovery-code"><code id="recovery-code"></code><button type="button" id="recovery-copy">Copiar código</button></div>
+    <p class="small muted">A opção de recuperar o acesso com o código será adicionada em uma próxima etapa. Enquanto isso, não perca sua senha.</p>
+    <button type="button" class="btn secondary" id="recovery-dismiss">Já guardei meu código</button>
+   </div>
+   <p class="small muted">Esqueceu sua senha? <a class="accent" href="/contato/">Fale com o suporte</a>. Ainda não existe redefinição automática nesta versão de testes; não envie senhas nem códigos pelo WhatsApp.</p>
+  </section>
+ </div>
+ <script>
+  const login=document.querySelector<HTMLFormElement>('#account-login')!;
+  const register=document.querySelector<HTMLFormElement>('#account-register')!;
+  const loginTab=document.querySelector<HTMLButtonElement>('#tab-login')!;
+  const registerTab=document.querySelector<HTMLButtonElement>('#tab-register')!;
+  const forms=document.querySelector<HTMLElement>('#account-forms')!;
+  const state=document.querySelector<HTMLElement>('#account-state')!;
+  const message=document.querySelector<HTMLElement>('#account-message')!;
+  const box=document.querySelector<HTMLElement>('#recovery-box')!;
+  let code='';
+  function tab(which:'login'|'register'){
+   const isLogin=which==='login';
+   login.hidden=!isLogin;register.hidden=isLogin;
+   loginTab.setAttribute('aria-pressed',String(isLogin));
+   registerTab.setAttribute('aria-pressed',String(!isLogin));
+   message.textContent='';
+  }
+  loginTab.addEventListener('click',()=>tab('login'));
+  registerTab.addEventListener('click',()=>tab('register'));
+  function showPlayer(player:{nickname:string}|null){
+   forms.hidden=!!player;state.hidden=!player;
+   if(player)document.querySelector<HTMLElement>('#account-name')!.textContent=player.nickname;
+  }
+  async function send(action:'register'|'login'|'logout',body?:Record<string,string>){
+   const response=await fetch('/api/auth/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
+   const result=await response.json() as {ok?:boolean;error?:string;player?:{nickname:string};recoveryCode?:string};
+   if(!response.ok)throw Error(result.error||'Serviço indisponível');
+   return result;
+  }
+  async function submit(form:HTMLFormElement,action:'register'|'login',fields:Record<string,string>){
+   const button=form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+   button.disabled=true;message.textContent='Verificando os dados…';
+   try{
+    const result=await send(action,fields);
+    showPlayer(result.player||null);
+    message.textContent=action==='register'?'Conta criada! Guarde o código de recuperação.':'Bem-vindo de volta!';
+    if(result.recoveryCode){
+     code=result.recoveryCode;document.querySelector<HTMLElement>('#recovery-code')!.textContent=code;
+     box.hidden=false;
+    }
+    form.reset();
+   }catch(error){message.textContent=error instanceof Error?error.message:'Não foi possível concluir o acesso.'}
+   finally{button.disabled=false}
+  }
+  login.addEventListener('submit',event=>{
+   event.preventDefault();
+   void submit(login,'login',{nickname:(document.querySelector<HTMLInputElement>('#login-nick')!).value,password:(document.querySelector<HTMLInputElement>('#login-password')!).value});
+  });
+  register.addEventListener('submit',event=>{
+   event.preventDefault();
+   void submit(register,'register',{nickname:(document.querySelector<HTMLInputElement>('#register-nick')!).value,email:(document.querySelector<HTMLInputElement>('#register-email')!).value,password:(document.querySelector<HTMLInputElement>('#register-password')!).value});
+  });
+  document.querySelector<HTMLButtonElement>('#account-logout')!.addEventListener('click',async()=>{
+   try{await send('logout');box.hidden=true;code='';showPlayer(null);message.textContent='Você saiu da conta.'}
+   catch{message.textContent='Não foi possível sair. Tente novamente.'}
+  });
+  document.querySelector<HTMLButtonElement>('#recovery-copy')!.addEventListener('click',async()=>{
+   try{await navigator.clipboard.writeText(code);message.textContent='Código copiado.'}
+   catch{message.textContent='Selecione o código acima para copiá-lo.'}
+  });
+  document.querySelector<HTMLButtonElement>('#recovery-dismiss')!.addEventListener('click',()=>{box.hidden=true;code=''});
+  void (async()=>{
+   try{const response=await fetch('/api/auth/me',{cache:'no-store'});if(!response.ok)return;
+    const result=await response.json() as {player?:{nickname:string}|null};
+    if(result.player)showPlayer(result.player);
+   }catch{}
+  })();
+ </script>
+</Base>

@@ -91,3 +91,9 @@ O arquivo robots.txt nesta fundação bloqueia crawlers de propósito. Alterar a
 - E-mail **opcional** no cadastro, persistido apenas com consentimento para recuperação. Código de recuperação gerado pelo servidor uma única vez na criação da conta, com hash guardado no banco.
 - Se houver e-mail confirmado, recuperação por link ou código temporário de uso único emitido pelo servidor e enviado ao e-mail cadastrado. Nunca revelar conta ou senha apenas com dados do formulário ou chamada ao WhatsApp. Solicitação administrativa não autoriza reset manual sem verificação.
 - Formulário de contato abre WhatsApp do suporte (número configurado em `src/config/support.ts`); painel administrativo poderá editar o destino no futuro. Enquanto não houver infraestrutura de contas/e-mail, formulário informa que recuperação automatizada ainda não existe.
+
+## Conta de jogador (primeira etapa)
+- Tabela `player_accounts` reserva nickname sem distinção entre maiúsculas e minúsculas; e-mail opcional ainda sem verificação. Contas não são necessárias para jogar.
+- Senhas derivadas via WebCrypto/PBKDF2 com salt e sessões em cookies HttpOnly. Código de recuperação apenas hash no banco, exibição uma única vez.
+- Recuperação por e-mail NÃO ativada até existir prova de controle do endereço; contatos via WhatsApp não conferem acesso.
+- O ranking global recreativo ainda é legado por instalação, e não está vinculado às contas. Vincular numa etapa separada com bloqueio da publicação anônima e validação de abuso.
