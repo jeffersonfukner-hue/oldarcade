@@ -157,6 +157,7 @@ function showAuth(which:'register'|'login'){
  document.querySelector<HTMLButtonElement>('#record-tab-register')!.setAttribute('aria-pressed',String(!login));
  document.querySelector<HTMLButtonElement>('#record-tab-login')!.setAttribute('aria-pressed',String(login));
  setModalStatus('');
+ if(modalOpen)document.querySelector<HTMLInputElement>(login?'#record-login-nick':'#record-register-nick')!.focus({preventScroll:true});
 }
 async function checkAccount(){
  try{
@@ -187,8 +188,21 @@ function openRecordModal(){
  recoveryPanel.hidden=true;recoveryCode='';setModalStatus('');
  text('record-modal-score',`Você marcou ${score} pontos. Quer tentar o ranking global?`);
  recordModal.hidden=false;modalOpen=true;
- document.querySelector<HTMLElement>('#record-modal-title')!.focus({preventScroll:true});
+ (account?document.querySelector<HTMLButtonElement>('#record-save'):document.querySelector<HTMLInputElement>('#record-register-nick'))!.focus({preventScroll:true});
 }
+
+// Mantém o foco somente nos controles do modal enquanto ele estiver aberto.
+recordModal.addEventListener('keydown',event=>{
+ if(event.key!=='Tab'||!modalOpen)return;
+ const focusable=Array.from(recordModal.querySelectorAll<HTMLElement>(
+  'button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]'
+ )).filter(el=>!el.closest('[hidden]')&&el.getClientRects().length>0);
+ if(!focusable.length)return;
+ const first=focusable[0],last=focusable[focusable.length-1];
+ if(event.shiftKey&&(document.activeElement===first||!recordModal.contains(document.activeElement))){event.preventDefault();last.focus()}
+ else if(!event.shiftKey&&(document.activeElement===last||!recordModal.contains(document.activeElement))){event.preventDefault();first.focus()}
+});
+
 function closeRecordModal(){
  recordModal.hidden=true;modalOpen=false;
  startBtn.focus({preventScroll:true});
