@@ -30,3 +30,13 @@ async function run(){
  }
 }
 void run();
+
+// O Clássico já registra partidas pelo próprio módulo. O Aventura usa o evento compartilhado.
+document.addEventListener('oldarcade:game-started',event=>{
+ const detail=(event as CustomEvent<{game?:string}>).detail;
+ if(detail?.game!=='snake-adventure')return;
+ void fetch('/api/games/snake-adventure/stats',{
+  method:'POST',headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({kind:'play',eventId:crypto.randomUUID()})
+ }).catch(()=>{});
+});
