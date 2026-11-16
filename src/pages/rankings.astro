@@ -1,9 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-const modes=[
- {key:'snake',name:'Snake Clássico',tagline:'O desafio original',url:'/jogos/snake/',symbol:'🐍',description:'Cada fruta vale 10 pontos. Supere a maior pontuação registrada.'},
- {key:'snake-adventure',name:'Snake Aventura',tagline:'Missões e níveis contínuos',url:'/jogos/snake/aventura/',symbol:'🍎',description:'Frutas especiais, novas missões e ranking exclusivo deste modo.'}
-];
+import {gameModes} from '../data/gameModes.js';
+const modes=Object.entries(gameModes).filter(([,mode])=>mode.competitive).map(([key,mode])=>({key,...mode}));
 ---
 <Base title="Rankings OldArcade — Líderes, recordes e desafios" description="Confira o Top 3 e o Top 10 do Snake Clássico e Aventura no OldArcade. Veja os recordes e desafie os líderes em cada modo." path="/rankings/">
  <div class="shell rankings-page">
