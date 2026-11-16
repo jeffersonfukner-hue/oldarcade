@@ -316,3 +316,29 @@ test('resumo no fim destaca quem ultrapassou e há quanto tempo',async({page})=>
  await expect(page.locator('#record-end-summary')).toContainText('alonso assumiu a liderança com 150 pontos há 30 segundos');
  expect(calls).toBe(2);
 });
+
+test('animação do recorde pessoal é acionada ao superar o próprio valor',async({page})=>{
+ await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Líder',score:100,rank:1,achievedAt:'2026-11-16T12:00:00.000Z'}],mine:null})}));
+ await page.goto('/jogos/snake/');
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
+ await expect(page.locator('#hud-score')).toHaveText('10',{timeout:5000});
+ await expect(page.locator('#hud-best')).toHaveText('10');
+ await expect(page.locator('#record-live-alert')).toContainText('Recorde pessoal superado');
+ await expect(page.locator('#record-celebration-layer .record-spark.personal').first()).toBeAttached();
+});
+test('animação global é distinta e não solicita ranking extra',async({page})=>{
+ let gets=0;
+ await page.route('**/api/games/snake/leaderboard',r=>{
+  if(r.request().method()==='GET')gets++;
+  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Líder',score:0,rank:1,achievedAt:'2026-11-16T12:00:00.000Z'}],mine:null})});
+ });
+ await page.goto('/jogos/snake/');
+ await expect.poll(()=>gets).toBe(1);
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
+ await expect(page.locator('#hud-score')).toHaveText('10',{timeout:5000});
+ await expect(page.locator('#record-live-alert')).toContainText('Recorde global ultrapassado');
+ await expect(page.locator('#record-celebration-layer .record-spark.global').first()).toBeAttached();
+ expect(gets).toBe(1);
+});

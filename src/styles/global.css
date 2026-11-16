@@ -91,3 +91,21 @@ html,body{touch-action:manipulation}
 @media(prefers-reduced-motion:reduce){.record-live-alert{animation:none}}
 
 .record-end-summary:not(:empty){border:1px solid #a3a4ff;background:#222950;color:#f1edff;padding:12px 15px;border-radius:10px;font-weight:750;line-height:1.5;margin:12px 0}
+
+/* Snake: celebrações visuais por recorde. Sem bloquear gestos ou controles. */
+.record-celebration-layer{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
+.record-spark{position:absolute;left:var(--x);top:var(--y);width:9px;height:9px;border-radius:2px;background:#77f7b9;opacity:0;box-shadow:0 0 12px #67eeb990;animation:record-spark-flight 1.35s ease-out var(--delay) both;pointer-events:none}
+.record-spark.global{width:12px;height:6px;background:#ffd778;box-shadow:0 0 15px #ffbb4ba6;animation-duration:1.7s}
+@keyframes record-spark-flight{0%{opacity:0;transform:translate(0,0) rotate(0deg) scale(.35)}13%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(245deg) scale(.8)}}
+.screen-wrap.celebrate-personal{animation:personal-record-glow 1.6s ease-out}
+.screen-wrap.celebrate-global{animation:global-record-glow 2.2s ease-out}
+#hud-best.celebrate-personal{animation:personal-record-pulse 1.6s ease-out}
+#hud-global-best.celebrate-global{animation:global-record-pulse 2.2s ease-out}
+@keyframes personal-record-glow{0%,100%{box-shadow:none}22%,48%{box-shadow:inset 0 0 40px #34db9955,0 0 24px #34db9944}}
+@keyframes global-record-glow{0%,100%{box-shadow:none}18%,42%{box-shadow:inset 0 0 60px #ffd16672,0 0 38px #ffd16670}68%{box-shadow:0 0 17px #ffd1664c}}
+@keyframes personal-record-pulse{0%,100%{color:inherit;filter:none}30%{color:#84ffca;filter:drop-shadow(0 0 9px #65efaa)}}
+@keyframes global-record-pulse{0%,100%{filter:none}30%,60%{color:#ffeaa0;filter:drop-shadow(0 0 15px #ffc44f)}}
+@media(prefers-reduced-motion:reduce){
+ .record-spark{display:none!important;animation:none!important}
+ .screen-wrap.celebrate-personal,.screen-wrap.celebrate-global,#hud-best.celebrate-personal,#hud-global-best.celebrate-global{animation:none!important}
+}

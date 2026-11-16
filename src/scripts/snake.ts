@@ -43,6 +43,44 @@ function announceRecord(message:string,type:'personal'|'global'|'rival'){
  alertNode.hidden=false;
  alertTimeout=window.setTimeout(()=>{alertNode.hidden=true;alertNode.textContent='';currentAlertPriority=0},3600);
 }
+const celebrationLayer=document.querySelector<HTMLElement>('#record-celebration-layer')!;
+let celebrationTokens:number[]=[];
+function celebrate(kind:'personal'|'global'){
+ const boardClass='celebrate-'+kind;
+ gameScreen.classList.remove(boardClass);
+ const target=document.querySelector<HTMLElement>(kind==='global'?'#hud-global-best':'#hud-best')!;
+ target.classList.remove(boardClass);
+ // Reinicia a animação mesmo em partidas consecutivas.
+ void gameScreen.offsetWidth;
+ gameScreen.classList.add(boardClass);target.classList.add(boardClass);
+ const duration=kind==='global'?2200:1600;
+ const timeout=window.setTimeout(()=>{
+  gameScreen.classList.remove(boardClass);target.classList.remove(boardClass);
+ },duration);
+ celebrationTokens.push(timeout);
+ // Efeito exclusivamente visual, sem requests, com modo de movimento reduzido respeitado.
+ if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const count=kind==='global'?22:11;
+ for(let i=0;i<count;i++){
+  const spark=document.createElement('i');
+  spark.className='record-spark '+kind;
+  spark.style.setProperty('--x',(12+Math.random()*76).toFixed(1)+'%');
+  spark.style.setProperty('--y',(14+Math.random()*50).toFixed(1)+'%');
+  spark.style.setProperty('--dx',((Math.random()-.5)*170).toFixed(0)+'px');
+  spark.style.setProperty('--dy',(-35-Math.random()*100).toFixed(0)+'px');
+  spark.style.setProperty('--delay',Math.round(Math.random()*340)+'ms');
+  celebrationLayer.append(spark);
+  spark.addEventListener('animationend',()=>spark.remove(),{once:true});
+  celebrationTokens.push(window.setTimeout(()=>spark.remove(),duration+300));
+ }
+}
+function resetCelebrations(){
+ celebrationTokens.forEach(t=>window.clearTimeout(t));celebrationTokens=[];
+ celebrationLayer.replaceChildren();
+ gameScreen.classList.remove('celebrate-personal','celebrate-global');
+ document.querySelector('#hud-best')?.classList.remove('celebrate-personal');
+ document.querySelector('#hud-global-best')?.classList.remove('celebrate-global');
+}
 function resetAnnouncements(){window.clearTimeout(alertTimeout);alertNode.hidden=true;alertNode.textContent='';currentAlertPriority=0}
 const recordStatus=document.querySelector<HTMLElement>('#record-modal-status')!;
 let modalOpen=false;
@@ -87,10 +125,12 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
  if(score>saved.best){saved.best=score;store()}
  if(!didCelebratePersonal&&score>roundPersonalTarget){
   didCelebratePersonal=true;
+  celebrate('personal');
   announceRecord('🏅 Recorde pessoal superado!','personal');
  }
  if(globalBest!==null&&score>globalBest&&(lastCelebratedGlobalTarget===null||globalBest>lastCelebratedGlobalTarget)){
   lastCelebratedGlobalTarget=globalBest;
+  celebrate('global');
   announceRecord('🏆 Recorde global ultrapassado! Registre seu resultado ao terminar.','global');
  }
  placeFood();if(state!=='playing'){draw();return}}else snake.pop();draw();refresh();schedule()}
@@ -98,7 +138,7 @@ function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 function start(){cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
  didCelebratePersonal=false;lastCelebratedGlobalTarget=null;
- resetAnnouncements();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();saved.plays++;store();globalCounters.recordPlay();draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
+ resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();saved.plays++;store();globalCounters.recordPlay();draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){
  state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
  if(score>saved.best)saved.best=score;
