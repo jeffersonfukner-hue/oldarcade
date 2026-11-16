@@ -1,0 +1,75 @@
+---
+import Base from '../../../layouts/Base.astro';
+import GameShare from '../../../components/GameShare.astro';
+const title='Snake Aventura — Níveis e desafios contínuos | OldArcade';
+const description='Snake Aventura gratuito: uma única partida, três níveis, missões, fruta dourada e cristal de gelo. Avance sem reiniciar o tabuleiro.';
+---
+<Base title={title} description={description} path="/jogos/snake/aventura/">
+ <div class="shell">
+  <section class="hero adventure-hero">
+   <span class="eyebrow">Snake · Modo Aventura · Protótipo</span>
+   <h1>Uma partida. <span class="accent">Novos desafios.</span></h1>
+   <p class="lede">Cumpra missões, encontre itens especiais e evolua em três níveis sem reiniciar a cobrinha ou a pontuação. Recordes deste modo são separados do Clássico.</p>
+   <a class="btn secondary" href="/jogos/snake/">← Voltar ao Clássico</a>
+  </section>
+  <section class="game-layout" aria-label="Jogar Snake Aventura">
+   <div class="panel game-stage" id="adventure-stage">
+    <div class="game-topline">
+     <strong>◼ SNAKE <span class="muted">· Aventura</span></strong>
+     <div class="actions"><button id="adventure-pause" type="button">Pausar</button><button id="adventure-fullscreen" type="button" aria-label="Alternar tela cheia do modo Aventura">⛶ Tela cheia (F)</button></div>
+    </div>
+    <div class="game-hud">
+     <span id="adventure-status" role="status">● Pronto</span>
+     <span>Nível: <strong id="adventure-level">1</strong></span>
+     <span>Pontos: <strong id="adventure-score">0</strong></span>
+     <span>Recorde: <strong id="adventure-best">0</strong></span>
+    </div>
+    <div class="adventure-progress">
+     <div class="adventure-mission-line"><strong id="adventure-mission">Colete 5 maçãs</strong><span id="adventure-mission-progress">0/5</span></div>
+     <div class="adventure-progress-track"><div id="adventure-progress-fill"></div></div>
+    </div>
+    <div class="screen-wrap" id="adventure-screen">
+     <canvas id="adventure-canvas" width="600" height="600" aria-label="Tabuleiro do Snake Aventura com vinte linhas e vinte colunas"></canvas>
+     <div id="adventure-banner" class="adventure-banner" role="status" aria-live="polite" hidden></div>
+     <div class="game-overlay" id="adventure-overlay">
+      <h2 id="adventure-overlay-title">Preparado para a aventura?</h2>
+      <p id="adventure-overlay-text">Use as setas, WASD, deslize o dedo no tabuleiro ou use os botões de direção.</p>
+      <strong id="adventure-countdown" class="countdown-value" hidden aria-live="assertive"></strong>
+      <button id="adventure-start" class="btn" type="button">▶ Começar Aventura</button>
+     </div>
+    </div>
+    <div class="touch-controls" aria-label="Controles de direção no modo Aventura">
+     <button class="up" data-adventure-direction="up" aria-label="Cima">↑</button>
+     <button class="left" data-adventure-direction="left" aria-label="Esquerda">←</button>
+     <button class="down" data-adventure-direction="down" aria-label="Baixo">↓</button>
+     <button class="right" data-adventure-direction="right" aria-label="Direita">→</button>
+    </div>
+   </div>
+   <aside class="panel adventure-sidebar" aria-label="Progresso da Aventura">
+    <span class="eyebrow">Sua jornada</span>
+    <h2>Progresso</h2>
+    <div class="stats-list">
+     <div class="stat-row"><span>Melhor pontuação</span><strong id="adventure-sidebar-best">0</strong></div>
+     <div class="stat-row"><span>Maior nível alcançado</span><strong id="adventure-highest">1</strong></div>
+     <div class="stat-row"><span>Partidas neste navegador</span><strong id="adventure-plays">0</strong></div>
+     <div class="stat-row"><span>Item ativo</span><strong id="adventure-effect">Nenhum</strong></div>
+    </div>
+    <h3>Missões por nível</h3>
+    <ol class="adventure-level-list">
+     <li><strong>1 · Aquecimento</strong><span>5 maçãs e 50 pontos</span></li>
+     <li><strong>2 · Caça ao tesouro</strong><span>1 dourada e 150 pontos</span></li>
+     <li><strong>3 · Reflexos</strong><span>3 itens especiais e 300 pontos</span></li>
+    </ol>
+    <p class="small muted">Protótipo de três níveis. Depois do terceiro, a partida continua em modo sobrevivência. Barreiras e itens negativos virão após a validação. Seus resultados são locais e não entram no ranking do Clássico.</p>
+   </aside>
+  </section>
+  <GameShare gameSlug="snake-adventure" gameName="Snake Aventura" gamePath="/jogos/snake/aventura/" />
+  <section class="section panel text-content">
+   <h2>Como funciona</h2>
+   <p>Uma única partida para todos os níveis. Você só avança quando completa a missão e alcança a pontuação mínima. A cobrinha não reinicia ao mudar de nível.</p>
+   <p><strong>Maçã vermelha:</strong> 10 pontos. <strong>Fruta dourada:</strong> 50 pontos, disponível por um período curto. <strong>Cristal de gelo:</strong> 10 pontos e deixa a cobrinha mais lenta temporariamente. Cada item coletado faz crescer uma célula.</p>
+   <p>O nível 2 apresenta a dourada; o nível 3 apresenta o gelo. A velocidade aumenta progressivamente, mas tem limite. Se perder, você reinicia no primeiro nível e mantém os melhores resultados salvos neste navegador.</p>
+  </section>
+ </div>
+ <script>import '../../../scripts/snakeAdventure.ts';</script>
+</Base>
