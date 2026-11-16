@@ -635,6 +635,7 @@ test('nickname conectado aparece no header e sidebar, saindo da conta reverte',a
  await page.locator('#login-nick').fill('Vovo do 3D');
  await page.locator('#login-password').fill('senha-teste');
  await page.locator('#account-login button[type=submit]').click();
+ await expect(page.locator('#account-message')).toContainText('Bem-vindo de volta!');
  await expect(page.locator('.site-header [data-player-name]')).toHaveText('Vovo do 3D');
  await page.goto('/');
  await expect(page.locator('.arcade-side-nav [data-player-name]')).toHaveText('Vovo do 3D');
