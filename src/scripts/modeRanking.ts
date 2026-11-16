@@ -11,6 +11,10 @@ if(root){
  const login=get<HTMLFormElement>('login-form'),register=get<HTMLFormElement>('register-form'),authStatus=get<HTMLElement>('auth-status');
  const recovery=get<HTMLElement>('recovery'),recoveryCode=get<HTMLElement>('code');
  let top:number|null=null,score=0,played=false,provisionalRecord=false,account:string|null=null;
+ let pendingScore:number|null=null,round=0;
+ const retry=get<HTMLButtonElement>('retry');
+ function setPending(points:number){pendingScore=points;retry.hidden=false;retry.textContent='Tentar registrar '+points+' pontos novamente'}
+ function clearPending(){pendingScore=null;retry.hidden=true}
  const fmt=(iso?:string)=>iso&&Number.isFinite(Date.parse(iso))?new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'medium'}).format(new Date(iso)):'—';
  function render(data:Board){
   if(!data.available){status.textContent='Ranking indisponível neste ambiente.';return}
@@ -45,8 +49,8 @@ if(root){
  function announce(data:Board,points:number){
   const leader=data.top?.[0];
   if(!leader)return 'Nenhum líder registrado.';
-  if(data.mine?.rank===1)return '🏆 Sua liderança foi confirmada! '+data.mine.score+' pontos.';
-  if(leader.score>points)return '⚡ Você fez '+points+', mas '+leader.nickname+' lidera com '+leader.score+' pontos.';
+  if(data.mine?.rank===1&&data.mine.score>=points)return '🏆 Novo campeão! Sua liderança foi confirmada com '+data.mine.score+' pontos.';
+  if(leader.score>points)return '⚡ '+leader.nickname+' lidera com '+leader.score+' pontos. Faltaram '+(leader.score-points)+' pontos para alcançar a liderança. Tente novamente!';
   if(leader.score===points)return 'Empate! '+leader.nickname+' registrou primeiro.';
   return 'Líder atual: '+leader.nickname+' · '+leader.score+' pontos.';
  }
@@ -74,7 +78,7 @@ if(root){
     const data=await r.json() as {player?:{nickname:string};error?:string;recoveryCode?:string};
     if(!r.ok||!data.player)throw Error(data.error||'Falha no acesso');
     connect(data.player.nickname);
-    if(played){const result=await submit(score);summary.textContent=announce(result,score)}
+    if(played){try{const result=await submit(score);clearPending();summary.textContent=announce(result,score)}catch(err){setPending(score);summary.textContent='Seus '+score+' pontos estão preservados nesta página. '+(err instanceof Error?err.message:'Falha ao registrar')+'. Tente novamente.';throw err}}
     authStatus.textContent=played?'Resultado registrado.':'Conta conectada.';
     if(data.recoveryCode){get<HTMLElement>('code').textContent=data.recoveryCode;recovery.hidden=false}else close();
    }catch(err){authStatus.textContent=err instanceof Error?err.message:'Falha no acesso'}
@@ -83,7 +87,7 @@ if(root){
  }
  document.addEventListener('oldarcade:game-started',event=>{
   const d=(event as CustomEvent<{game:string}>).detail;if(d?.game!==game)return;
-  played=false;score=0;provisionalRecord=false;summary.textContent='';provisional.hidden=true;global.textContent=String(top??'—');
+  round++;played=false;score=0;provisionalRecord=false;clearPending();summary.textContent='';provisional.hidden=true;global.textContent=String(top??'—');
  });
  document.addEventListener('oldarcade:game-score',event=>{
   const d=(event as CustomEvent<Result>).detail;
@@ -91,21 +95,33 @@ if(root){
   if(top!==null&&score>top){
    global.textContent=String(score);provisional.hidden=false;
    if(!provisionalRecord){provisionalRecord=true;document.dispatchEvent(new CustomEvent('oldarcade:mode-record-provisional',{detail:{game,score}}))}
-  }
+  }else if(provisionalRecord){provisionalRecord=false;provisional.hidden=true;global.textContent=String(top??'—')}
  });
- document.addEventListener('oldarcade:game-finished',async event=>{
-  const d=(event as CustomEvent<Result>).detail;if(d?.game!==game)return;
-  score=d.score;played=true;
+ async function finishResult(points:number,sequence:number){
   await accountPromise;
+  if(sequence!==round)return;
   if(account){
-   try{const data=await submit(score);summary.textContent=announce(data,score)}
-   catch(err){summary.textContent='Não foi possível confirmar seu resultado: '+(err instanceof Error?err.message:'erro')}
+   try{const data=await submit(points);if(sequence!==round)return;clearPending();summary.textContent=announce(data,points)}
+   catch(err){if(sequence!==round)return;setPending(points);summary.textContent='Seus '+points+' pontos foram preservados nesta página. Não foi possível confirmar o registro: '+(err instanceof Error?err.message:'erro desconhecido')+'. Tente novamente.'}
   }else{
-   const data=await refresh();
-   summary.textContent=data?'Você marcou '+score+' pontos. '+announce(data,score)+' Faça login para registrar o resultado.':'Você marcou '+score+' pontos. Ranking indisponível; resultado não registrado.';
+   const data=await refresh();if(sequence!==round)return;
+   summary.textContent=data?'Você marcou '+points+' pontos. '+announce(data,points)+' Faça login para registrar o resultado.':'Você marcou '+points+' pontos. Ranking indisponível; resultado não registrado.';
    open();
   }
   provisionalRecord=false;provisional.hidden=true;global.textContent=String(top??'—');
+ }
+ retry.addEventListener('click',async()=>{
+  if(pendingScore===null)return;
+  const points=pendingScore;retry.disabled=true;retry.textContent='Registrando…';
+  try{
+   const data=await submit(points);clearPending();summary.textContent=announce(data,points)
+  }catch(err){setPending(points);summary.textContent='Registro ainda pendente: '+(err instanceof Error?err.message:'erro desconhecido')}
+  finally{retry.disabled=false}
+ });
+ document.addEventListener('oldarcade:game-finished',event=>{
+  const d=(event as CustomEvent<Result>).detail;if(d?.game!==game)return;
+  score=d.score;played=true;
+  void finishResult(score,round);
  });
  const accountPromise=accountCheck();void refresh();
 }
