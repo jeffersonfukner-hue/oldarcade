@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 const { title, description, path = '/', type = 'website' } = Astro.props;
-const configured = import.meta.env.SITE_URL;
+const configured = Astro.site?.hostname !== 'example.invalid';
 const base = new URL(Astro.site ?? 'https://example.invalid');
 const canonical = new URL(path, base).toString();
 const version = import.meta.env.PUBLIC_APP_VERSION || '0.1.0-dev';
