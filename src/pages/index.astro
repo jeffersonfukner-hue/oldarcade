@@ -2,7 +2,8 @@
 import Base from '../layouts/Base.astro';
 import {gameRegistry} from '../data/gameRegistry';
 import {gameModes} from '../data/gameModes.js';
-const snakeModes=Object.entries(gameModes).filter(([,mode])=>mode.title==='snake');
+const gameNames=Object.fromEntries(Object.entries(gameRegistry).map(([id,entry])=>[id,entry.name]));
+const featuredModes=Object.entries(gameModes).filter(([,mode])=>Object.hasOwn(gameRegistry,mode.title));
 const title='OldArcade — Jogos clássicos grátis para jogar online';
 const availableGames=Object.keys(gameRegistry).length;
 const description='Jogue Snake clássico e Aventura gratuitamente, acompanhe os rankings de cada modo e conheça a história dos videogames clássicos.';
@@ -41,14 +42,14 @@ const description='Jogue Snake clássico e Aventura gratuitamente, acompanhe os 
           <div class="arcade-activity-item"><span aria-hidden="true">🏁</span><strong id="hero-total-plays">—</strong><span>Total de partidas</span></div>
         </div>
         <section class="arcade-games" id="destaques" aria-labelledby="games-heading">
-          <div class="arcade-games-heading"><div><span class="eyebrow">Biblioteca de jogos</span><h2 id="games-heading">Escolha seu desafio</h2></div><span class="pill">{availableGames} jogo · {snakeModes.length} modos</span></div>
+          <div class="arcade-games-heading"><div><span class="eyebrow">Biblioteca de jogos</span><h2 id="games-heading">Escolha seu desafio</h2></div><span class="pill">{availableGames} jogo · {featuredModes.length} modos</span></div>
           <div class="arcade-mode-grid">
-            {snakeModes.map(([id,mode],index)=><article class="arcade-mode-card">
+            {featuredModes.map(([id,mode],index)=><article class="arcade-mode-card">
               <div class={'arcade-mode-image '+(index===0?'arcade-mode-classic':'arcade-mode-adventure')} aria-hidden="true">
                 {index===0?<div class="pixel-snake"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>:<span class="arcade-mode-fruits">🍎 <span>✦</span> ❄</span>}
                 <span>{String(index+1).padStart(2,'0')} / {index===0?'CLÁSSICO':'AVENTURA'}</span>
               </div>
-              <div class="arcade-mode-detail"><span class="eyebrow">{gameRegistry.snake.name} · {mode.name}</span><h3>{mode.tagline}</h3><p>{mode.description}</p><a class={index===0?'btn':'btn secondary'} href={mode.url}>▶ Jogar {index===0?'Clássico':'Aventura'}</a></div>
+              <div class="arcade-mode-detail"><span class="eyebrow">{gameNames[mode.title]} · {mode.name}</span><h3>{mode.tagline}</h3><p>{mode.description}</p><a class={index===0?'btn':'btn secondary'} href={mode.url}>▶ Jogar {mode.name}</a></div>
             </article>)}
           </div>
         </section>
