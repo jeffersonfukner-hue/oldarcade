@@ -21,7 +21,7 @@ html,body{touch-action:manipulation}
 /* O estilo .btn não deve sobrescrever hidden durante a contagem regressiva. */
 #start-btn[hidden]{display:none}
 
-.global-stats{margin:20px 0;border-block:1px solid #32405f;padding:18px 0}.global-stats h3{font-size:1rem;margin-bottom:12px}.global-stats p{margin:12px 0 0}
+.global-stats{margin:16px 0 20px;border-bottom:1px solid #32405f;padding:0 0 18px}.global-stats h3{font-size:1rem;margin-bottom:12px}.global-stats p{margin:12px 0 0}
 
 .game-stage{position:relative}
 .record-modal[hidden]{display:none}
