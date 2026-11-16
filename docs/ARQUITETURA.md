@@ -85,3 +85,9 @@ O arquivo robots.txt nesta fundação bloqueia crawlers de propósito. Alterar a
 - Ranking público Top 10 e recorde global destacado, provocando o jogador a superar o recorde.
 - Uma melhor pontuação por ID aleatório de instalação. Nickname não é conta, pontuação enviada pelo cliente não é verificável: ranking recreativo, sem garantia de autenticidade.
 - Antes da liberação pública é necessário reforçar antifraude, limites de envio, moderação e política de retenção.
+
+## Requisitos de identidade e recuperação (a implementar)
+- O jogo não exige login; apenas registro de recordes futuros será associado a uma conta autenticada de nickname único e senha.
+- E-mail **opcional** no cadastro, persistido apenas com consentimento para recuperação. Código de recuperação gerado pelo servidor uma única vez na criação da conta, com hash guardado no banco.
+- Se houver e-mail confirmado, recuperação por link ou código temporário de uso único emitido pelo servidor e enviado ao e-mail cadastrado. Nunca revelar conta ou senha apenas com dados do formulário ou chamada ao WhatsApp. Solicitação administrativa não autoriza reset manual sem verificação.
+- Formulário de contato abre WhatsApp do suporte (número configurado em `src/config/support.ts`); painel administrativo poderá editar o destino no futuro. Enquanto não houver infraestrutura de contas/e-mail, formulário informa que recuperação automatizada ainda não existe.

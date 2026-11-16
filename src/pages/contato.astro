@@ -1,0 +1,67 @@
+---
+import Base from '../layouts/Base.astro';
+import { support } from '../config/support';
+---
+<Base title="Contato e suporte — OldArcade" description="Envie dúvidas, sugestões e solicitação de recuperação de conta ao suporte do OldArcade pelo WhatsApp." path="/contato/">
+ <div class="shell">
+  <section class="hero text-content">
+   <span class="eyebrow">Suporte</span><h1>Como podemos ajudar?</h1>
+   <p class="lede">Escolha o assunto e preencha a mensagem. O WhatsApp será aberto para você confirmar o envio.</p>
+  </section>
+  <section class="section panel contact-panel">
+   <h2>Entre em contato</h2>
+   <form id="contact-form" data-whatsapp={support.whatsapp}>
+    <label for="contact-subject">Motivo do contato</label>
+    <select id="contact-subject" required>
+     <option value="">Selecione uma opção</option>
+     {support.subjects.map(s=><option value={s.key}>{s.label}</option>)}
+    </select>
+    <div id="recovery-info" class="contact-note" hidden>
+     <strong>Recuperação de nickname ou senha</strong>
+     <p>Informe o e-mail cadastrado, e o nickname se lembrar. O suporte analisará a solicitação. A recuperação exigirá abrir o e-mail cadastrado e utilizar um link de redefinição ou código temporário de uso único.</p>
+     <p class="small muted">O cadastro de contas e o envio de links ainda não estão disponíveis nesta versão de testes. Não compartilhe senhas nem códigos pelo WhatsApp.</p>
+    </div>
+    <label for="contact-nickname">Nickname <span class="muted">(opcional)</span></label>
+    <input id="contact-nickname" maxlength="18" autocomplete="nickname" placeholder="Seu nickname, se lembrar"/>
+    <label for="contact-email">E-mail <span id="email-description" class="muted">(opcional)</span></label>
+    <input id="contact-email" type="email" maxlength="254" autocomplete="email" placeholder="voce@exemplo.com"/>
+    <label for="contact-message">Mensagem <span class="muted">(opcional)</span></label>
+    <textarea id="contact-message" rows="4" maxlength="1000" placeholder="Descreva sua dúvida ou solicitação"></textarea>
+    <p class="small muted">Os dados são usados para compor a mensagem e não são salvos pelo OldArcade. O WhatsApp só enviará a mensagem após sua confirmação.</p>
+    <button type="submit" class="btn">Abrir WhatsApp</button>
+    <p id="contact-status" class="small" role="status" aria-live="polite"></p>
+   </form>
+  </section>
+ </div>
+ <script>
+  const form=document.querySelector<HTMLFormElement>('#contact-form')!;
+  const subject=document.querySelector<HTMLSelectElement>('#contact-subject')!;
+  const email=document.querySelector<HTMLInputElement>('#contact-email')!;
+  const hint=document.querySelector<HTMLElement>('#email-description')!;
+  const info=document.querySelector<HTMLElement>('#recovery-info')!;
+  const status=document.querySelector<HTMLElement>('#contact-status')!;
+  subject.addEventListener('change',()=>{
+   const recovery=subject.value==='recuperacao';
+   info.hidden=!recovery;
+   email.required=recovery;
+   hint.textContent=recovery?'(obrigatório para recuperação)':'(opcional)';
+  });
+  form.addEventListener('submit',event=>{
+   event.preventDefault();
+   if(!form.reportValidity())return;
+   const reason=subject.selectedOptions[0]?.textContent?.trim()||'Contato';
+   const nickname=document.querySelector<HTMLInputElement>('#contact-nickname')!.value.trim();
+   const message=document.querySelector<HTMLTextAreaElement>('#contact-message')!.value.trim();
+   const lines=['OldArcade — solicitação de suporte','Assunto: '+reason];
+   if(nickname)lines.push('Nickname: '+nickname);
+   if(email.value.trim())lines.push('E-mail informado: '+email.value.trim());
+   if(message)lines.push('Mensagem: '+message);
+   if(subject.value==='recuperacao')lines.push('Solicito orientação para recuperar acesso por e-mail cadastrado.');
+   const whatsapp=form.dataset.whatsapp;
+   if(!whatsapp)return;
+   const url='https://wa.me/'+whatsapp+'?text='+encodeURIComponent(lines.join('\n'));
+   status.textContent='Abrindo WhatsApp para você revisar e enviar a mensagem.';
+   window.open(url,'_blank','noopener,noreferrer');
+  });
+ </script>
+</Base>

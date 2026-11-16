@@ -32,3 +32,10 @@ html,body{touch-action:manipulation}
 .record-modal-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 #record-skip{border:1px solid #465378;border-radius:10px;padding:10px 14px;background:#232d49;color:#fff}
 .challenge-text{margin:18px 0 14px;color:#c6b6ff;font-weight:700;line-height:1.5}
+
+/* Contato: formulário responsivo e campos acessíveis. */
+.contact-panel{max-width:720px;margin-inline:auto}.contact-panel form{display:grid;gap:12px}
+.contact-panel form label{font-weight:650}.contact-panel form input,.contact-panel form select,.contact-panel form textarea{width:100%;border-radius:10px;padding:12px;color:#edf2ff;background:#0b1222;border:1px solid #465478;min-width:0}
+.contact-panel form textarea{resize:vertical}.contact-panel .contact-note{border-left:3px solid #a795ff;background:#19223e;padding:14px 18px;border-radius:8px}
+.contact-panel .contact-note p{margin:8px 0}.contact-panel .contact-note[hidden]{display:none}
+.contact-panel form .btn{justify-self:start}
