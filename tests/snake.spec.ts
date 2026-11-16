@@ -657,3 +657,37 @@ test('atalho único Rankings da home e navegação da página sem scroll horizon
  const size=await page.evaluate(()=>({doc:document.documentElement.scrollWidth,screen:innerWidth}));
  expect(size.doc).toBeLessThanOrEqual(size.screen+1);
 });
+
+test('Aventura: Espaço reinicia após fim, não rola página e mantém pausa/retomada',async({page})=>{
+ await page.goto('/jogos/snake/aventura/');
+ await page.keyboard.press('Space');
+ await expect(page.locator('#adventure-countdown')).toHaveText('3');
+ await expect(page.locator('#adventure-overlay')).toBeHidden({timeout:5000});
+ await page.keyboard.press('Space');
+ await expect(page.locator('#adventure-overlay-title')).toHaveText('Jogo pausado');
+ await page.keyboard.press('Space');
+ await expect(page.locator('#adventure-countdown')).toHaveText('3');
+ await expect(page.locator('#adventure-overlay')).toBeHidden({timeout:5000});
+ await page.keyboard.press('ArrowUp');
+ await expect(page.locator('#adventure-overlay-title')).toHaveText('Fim da Aventura',{timeout:9000});
+ await page.evaluate(()=>window.scrollTo(0,Math.min(180,document.documentElement.scrollHeight-innerHeight)));
+ const before=await page.evaluate(()=>scrollY);
+ await page.keyboard.press('Space');
+ await expect(page.locator('#adventure-countdown')).toHaveText('3');
+ expect(await page.evaluate(()=>scrollY)).toBe(before);
+});
+
+test('Clássico: Espaço reinicia após fim sem rolar página',async({page})=>{
+ await page.goto('/jogos/snake/');
+ await page.keyboard.press('Space');
+ await expect(page.locator('#countdown-value')).toHaveText('3');
+ await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
+ await page.keyboard.press('ArrowUp');
+ await expect(page.locator('#game-overlay')).toBeVisible({timeout:9000});
+ await expect(page.locator('#hud-status')).toContainText('Fim');
+ await page.evaluate(()=>window.scrollTo(0,Math.min(180,document.documentElement.scrollHeight-innerHeight)));
+ const before=await page.evaluate(()=>scrollY);
+ await page.keyboard.press('Space');
+ await expect(page.locator('#countdown-value')).toHaveText('3');
+ expect(await page.evaluate(()=>scrollY)).toBe(before);
+});
