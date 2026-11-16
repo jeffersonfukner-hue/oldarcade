@@ -1,5 +1,5 @@
-type Entry={nickname:string;score:number;place?:number;achievedAt?:string};
-type Board={available:boolean;top?:Entry[];verified?:boolean;registeredOnly?:boolean};
+type Entry={nickname:string;score:number;place?:number;rank?:number;achievedAt?:string};
+type Board={available:boolean;top?:Entry[];mine?:Entry|null;verified?:boolean;registeredOnly?:boolean};
 function localDate(iso?:string){
  if(!iso)return 'Data indisponível';
  const dt=new Date(iso);if(Number.isNaN(dt.getTime()))return 'Data indisponível';
@@ -11,8 +11,18 @@ export function setupGlobalLeaderboard(){
  const best=document.querySelector<HTMLElement>('#global-best')!;
  const challenge=document.querySelector<HTMLElement>('#challenge-text')!;
  const endpoint='/api/games/snake/leaderboard';
+ const myResult=document.querySelector<HTMLElement>('#my-global-rank')!;
+ const myPosition=document.querySelector<HTMLElement>('#my-global-position')!;
+ const myDetail=document.querySelector<HTMLElement>('#my-global-detail')!;
+ function drawMine(mine?:Entry|null){
+  myResult.hidden=!mine;
+  if(!mine){myPosition.textContent='—';myDetail.textContent='';return}
+  myPosition.textContent=(mine.rank||'—')+'º lugar';
+  myDetail.textContent=mine.nickname+' · '+mine.score+' pontos · '+localDate(mine.achievedAt);
+ }
  function draw(data:Board){
   body.replaceChildren();
+  drawMine(data.mine);
   if(!data.available||!Array.isArray(data.top)){
    best.textContent='—';status.textContent='Ranking global indisponível neste ambiente.';
    challenge.textContent='Bata seu recorde e desafie os melhores jogadores.';return;
