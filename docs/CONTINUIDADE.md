@@ -2,6 +2,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## ATUALIZAÇÃO — integração de páginas e CI (16/11/2026)
+- **CI verde comprovado**: run 43981972989, commit b5e88ae (tipos, build, testes de API e navegador). Os commits posteriores exigem novo CI verde.
+- Home agora usa `gameModes.js` para montar cartões do Snake e continua contando títulos por `gameRegistry.ts` (não soma modos como jogos).
+- `src/components/GamePage.astro` é a estrutura compartilhada para SEO real, JSON-LD, caminho canônico e exigência de modalidade/título cadastrados. As duas páginas Snake a consomem, preservando HTML e scripts de jogabilidade existentes.
+- Teste novo `tests-api/game-page-contract.test.mjs` verifica páginas de modos e presença do contrato SEO. Último commit conhecido: a107adcf. Validar seu CI antes de declarar pronto.
+- Próximas pendências: HUD e integração de partida em componentes reutilizáveis sem alterar comportamento aprovado; integração de conta/compartilhamento por contrato; Preview visual desktop/mobile e API Clássico após D1 0006. Não iniciar jogo #002 sem aprovação, não alterar produção ou D1.
+
+
 ## ATUALIZAÇÃO — padronização para próximos jogos (16/11/2026)
 - Migração 0006 executada **pelo proprietário somente no D1 Preview**. Consulta após migração: Snake Clássico 3 jogadores/maior 320; Aventura 3 jogadores/maior 395. Preview `7eb40424.oldarcade-17c.pages.dev` exibiu Top 3 Aventura (395, 360, 350). Não foi realizado POST decimal real nem validado o Clássico após migração; não modificar dados para testar.
 - CI anterior do Snake: run 43979027142, commit 8658fa1, **success**. A refatoração posterior tem CI independente pendente.
