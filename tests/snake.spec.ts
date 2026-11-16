@@ -258,7 +258,7 @@ test('modal de registro inicia no campo e não foca o título',async({page})=>{
  await expect(page.locator('#record-register-nick')).toBeFocused();
 });
 
-test('avisos de recorde atualizam no jogo e consulta live não altera pontuação',async({page})=>{
+test('avisos de adversários aguardam o encerramento da partida',async({page})=>{
  await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Líder',score:40,rank:1,achievedAt:'2026-11-16T10:00:00.000Z'}],mine:null})}));
  await page.goto('/jogos/snake/');
  await expect(page.locator('#hud-global-best')).toHaveText('40');
@@ -268,7 +268,7 @@ test('avisos de recorde atualizam no jogo e consulta live não altera pontuaçã
  // Mudança simulada vinda do D1 em outra sessão: atualização do placar em partida ativa.
  await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:global-record',{detail:{score:90,previousScore:40,changed:true,source:'poll'}})));
  await expect(page.locator('#hud-global-best')).toHaveText('90');
- await expect(page.locator('#record-live-alert')).toContainText('Alguém assumiu a liderança');
+ await expect(page.locator('#record-live-alert')).not.toContainText('Alguém assumiu a liderança');
 });
 
 test('limite da consulta live evita polling constante no plano gratuito',async({page})=>{
