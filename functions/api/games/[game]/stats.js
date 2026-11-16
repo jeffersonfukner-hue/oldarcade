@@ -9,12 +9,12 @@ async function counts(db,g){
  return {available:true,visits,plays};
 }
 export async function onRequestGet(context){
- if(game(context)!=='snake')return reply({error:'Jogo desconhecido'},404);
+ if(!['snake','snake-adventure'].includes(game(context)))return reply({error:'Jogo desconhecido'},404);
  const db=getDB(context);if(!db)return reply({available:false,error:'Banco ainda não vinculado'},503);
  try{return reply(await counts(db,game(context)))}catch{return reply({available:false,error:'Serviço indisponível'},503)}
 }
 export async function onRequestPost(context){
- if(game(context)!=='snake')return reply({error:'Jogo desconhecido'},404);
+ if(!['snake','snake-adventure'].includes(game(context)))return reply({error:'Jogo desconhecido'},404);
  const url=new URL(context.request.url);
  if(context.request.headers.get('Origin')!==url.origin)return reply({error:'Origem não autorizada'},403);
  if(context.request.headers.get('Content-Type')?.split(';')[0].trim()!=='application/json')return reply({error:'Formato inválido'},415);
