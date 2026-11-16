@@ -1,4 +1,4 @@
-import {gameMode} from '../../../../src/data/gameModes.js';
+import {gameMode} from '../../../src/data/gameModes.js';
 const reply=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
 const validId=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 function getDB(context){return context.env?.OLDARCADE_STATS_DB;}
