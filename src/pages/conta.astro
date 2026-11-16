@@ -59,6 +59,7 @@ import Base from '../layouts/Base.astro';
   function showPlayer(player:{nickname:string}|null){
    forms.hidden=!!player;state.hidden=!player;
    if(player)document.querySelector<HTMLElement>('#account-name')!.textContent=player.nickname;
+   document.dispatchEvent(new CustomEvent('oldarcade:account-changed',{detail:{player}}));
   }
   async function send(action:'register'|'login'|'logout',body?:Record<string,string|boolean>){
    const response=await fetch('/api/auth/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
