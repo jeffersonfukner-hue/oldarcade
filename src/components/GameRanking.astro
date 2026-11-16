@@ -2,7 +2,7 @@
 interface Props {game:string;name:string}
 const {game,name}=Astro.props;
 ---
-<section class="section panel mode-ranking" data-mode-ranking data-game={game} aria-label={`Ranking global do ${name}`}>
+<section class="section panel mode-ranking" id={"ranking-"+game} data-mode-ranking data-game={game} aria-label={`Ranking global do ${name}`}>
  <div class="section-head"><div><span class="eyebrow">Desafio OldArcade</span><h2>Ranking global — {name}</h2></div><span class="pill">Top 10 · Contas cadastradas</span></div>
  <div class="mode-ranking-hero"><span>🏆 Global: <strong data-rank-global>—</strong><em data-rank-provisional hidden> (provisório)</em></span><span>⭐ Seu recorde: <strong data-rank-personal>—</strong></span></div>
  <p class="small muted">Cada jogador ocupa uma posição. Em empate, vence quem registrou primeiro. Resultados ainda não são verificados contra a partida.</p>
