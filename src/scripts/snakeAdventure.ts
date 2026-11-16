@@ -217,7 +217,10 @@ window.addEventListener('keydown',e=>{
  const map:Record<string,Direction>={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',a:'left',s:'down',d:'right'};
  const d=map[e.key]||map[e.key.toLowerCase()];
  if(d&&state==='playing'){e.preventDefault();turn(d)}
- if(e.code==='Space'&&(state==='playing'||state==='paused')){e.preventDefault();pause()}
+ if(e.code==='Space'&&!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey){
+   if(state==='over'||state==='ready'){e.preventDefault();start()}
+   else if(state==='playing'||state==='paused'){e.preventDefault();pause()}
+  }
  if(e.key.toLowerCase()==='f'&&!e.repeat&&!e.ctrlKey&&!e.metaKey){e.preventDefault();void toggleFullscreen()}
 });
 let touch:Point|null=null;
