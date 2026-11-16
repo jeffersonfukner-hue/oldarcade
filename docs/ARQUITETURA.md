@@ -40,3 +40,11 @@ O arquivo robots.txt nesta fundação bloqueia crawlers de propósito. Alterar a
 - Versão individual do jogo é independente da versão geral do portal no rodapé.
 - Exibir ao final da página, em seção discreta e expansível, sem competir com a área jogável e sem confundir a história do jogo original com a história da nossa implementação.
 - Registrar mudanças relevantes após aprovação e testes; não chamar versão de lançamento público antes do deploy.
+
+## Padrão UX de jogabilidade — piloto Snake
+- HUD visível em janela e tela cheia: estado (pronto/jogando/pausado/contagem/fim), pontos e recorde.
+- Tecla `F` alterna tela cheia sem desviar dos controles; botão visível oferece operação equivalente.
+- Durante uma partida, mudar o modo pausa a simulação e retoma automaticamente somente após contagem visível 3–2–1; trocar de aba mantém pausa.
+- Botões de toque e fallback de tela cheia precisam de validação em aparelhos reais.
+- Reutilizar este contrato e CSS para os próximos jogos, substituindo somente a lógica da partida.
+- Contadores globais seguem pendentes: exigem backend compartilhado no Cloudflare; métricas locais não devem ser rotuladas como globais.

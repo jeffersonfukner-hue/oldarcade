@@ -26,6 +26,13 @@ O usuário criou o projeto Pages `oldarcade` conectado ao GitHub, com domínio t
 - A atualização desta documentação na branch de feature é destinada a disparar o primeiro build automático do Preview. Confirmar se Cloudflare registrou a nova implantação; se não, investigar opções de deployments antes de alterar a configuração.
 - Não fazer merge da PR #1 e não adicionar domínio personalizado.
 
+## Nova etapa: jogabilidade como padrão reutilizável
+- Usuário aprovou a estética atual do Snake e solicitou HUD dentro da tela cheia, atalho F, pausa ao alternar modos e contagem 3–2–1.
+- Implementação enviada na branch de desenvolvimento; validar CI, Preview Cloudflare e comportamento real antes de considerar aprovada.
+- Mobile: layout responsivo e testes Chromium existem, mas ainda falta validação em telefone real.
+- Contadores globais continuam pendentes de backend Cloudflare; nunca anunciar métricas locais como globais.
+- Preview já criado na Cloudflare: https://3ebc7d78.oldarcade-17c.pages.dev/jogos/snake/ (URL da versão anterior, não usar como evidência de novo build).
+
 ## Pendências prioritárias
 1. Confirmar novo deploy Cloudflare Pages **Preview** da branch `feat/fundacao-snake` e recuperar URL gerada; não inventar URL.
 2. Validar Snake no navegador humano, especialmente tecla Esc, mobile, ranking local e conteúdo.

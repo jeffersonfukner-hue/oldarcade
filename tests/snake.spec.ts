@@ -54,3 +54,19 @@ test('botão amplia apenas o painel do Snake', async ({page}) => {
   await page.locator('#fullscreen-btn').click();
   await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id||'')).toBe('');
 });
+
+test('HUD acompanha a pontuação e atalho F alterna tela cheia com 3 2 1', async ({page}) => {
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#hud-score')).toHaveText('0');
+ await expect(page.locator('#hud-best')).toHaveText('0');
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await page.keyboard.press('f');
+ await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id||'')).toBe('game-stage');
+ await expect(page.locator('#countdown-value')).toHaveText('3');
+ await expect(page.locator('#countdown-value')).toHaveText('2',{timeout:2500});
+ await expect(page.locator('#countdown-value')).toHaveText('1',{timeout:2500});
+ await expect(page.locator('#game-overlay')).toBeHidden({timeout:2500});
+ await page.keyboard.press('f');
+ await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id||'')).toBe('');
+ await expect(page.locator('#countdown-value')).toBeVisible();
+});
