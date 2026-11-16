@@ -1,43 +1,55 @@
-type Board={available:boolean;top?:{nickname:string;score:number}[];verified?:boolean};
+type Entry={nickname:string;score:number;place?:number;achievedAt?:string};
+type Board={available:boolean;top?:Entry[];verified?:boolean;registeredOnly?:boolean};
+function localDate(iso?:string){
+ if(!iso)return 'Data indisponível';
+ const dt=new Date(iso);if(Number.isNaN(dt.getTime()))return 'Data indisponível';
+ return new Intl.DateTimeFormat('pt-BR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(dt);
+}
 export function setupGlobalLeaderboard(){
  const body=document.querySelector<HTMLElement>('#global-rank-body')!;
  const status=document.querySelector<HTMLElement>('#global-rank-status')!;
  const best=document.querySelector<HTMLElement>('#global-best')!;
  const challenge=document.querySelector<HTMLElement>('#challenge-text')!;
  const endpoint='/api/games/snake/leaderboard';
- const key='oldarcade:snake:player-id';
- let playerId:string;
- try{playerId=localStorage.getItem(key)||crypto.randomUUID();localStorage.setItem(key,playerId)}
- catch{playerId=crypto.randomUUID()}
  function draw(data:Board){
   body.replaceChildren();
   if(!data.available||!Array.isArray(data.top)){
    best.textContent='—';status.textContent='Ranking global indisponível neste ambiente.';
-   challenge.textContent='Bata seu recorde e desafie os melhores jogadores.';
-   return;
+   challenge.textContent='Bata seu recorde e desafie os melhores jogadores.';return;
   }
   best.textContent=data.top.length?String(data.top[0].score):'—';
   challenge.textContent=data.top.length?'Bata seu recorde ou os '+data.top[0].score+' pontos do líder global!':'Seja o primeiro a registrar um recorde global!';
-  status.textContent='Ranking recreativo: pontuações declaradas, ainda não verificadas.';
+  status.textContent='Top 10 de contas cadastradas. Empates: conquista mais antiga primeiro. Horários exibidos no seu fuso. Pontuações ainda não verificadas contra a partida.';
   if(!data.top.length){
-   const row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=3;cell.textContent='Nenhum recorde registrado. Seja o primeiro!';row.append(cell);body.append(row);
+   const row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=4;
+   cell.textContent='Nenhum recorde de conta registrado. Seja o primeiro!';row.append(cell);body.append(row);return;
   }
-  data.top.slice(0,10).forEach((item,i)=>{
+  let lastScore:number|undefined,place=0;
+  data.top.slice(0,10).forEach((item)=>{
+   if(item.score!==lastScore){place++;lastScore=item.score}
+   const level=item.place||place;
    const row=document.createElement('tr');
-   [String(i+1),item.nickname,String(item.score)].forEach(value=>{const cell=document.createElement('td');cell.textContent=value;row.append(cell)});
-   body.append(row);
+   row.className=level<=3?'leaderboard-podium podium-'+level:'';
+   const pos=document.createElement('td');
+   pos.className='leaderboard-position';
+   const icon=level===1?'🥇':level===2?'🥈':level===3?'🥉':'';
+   pos.textContent=icon+' '+level+'º';
+   const nick=document.createElement('td');nick.textContent=item.nickname;
+   const score=document.createElement('td');score.textContent=String(item.score);
+   const date=document.createElement('td');date.textContent=localDate(item.achievedAt);
+   date.className='leaderboard-timestamp';
+   row.append(pos,nick,score,date);body.append(row);
   });
  }
  async function refresh(){
   try{const r=await fetch(endpoint);if(!r.ok)throw Error('API indisponível');draw(await r.json() as Board)}
   catch{draw({available:false})}
  }
- async function submit(nickname:string,score:number){
-  const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({playerId,nickname,score})});
+ async function submit(score:number){
+  const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score})});
   const data=await r.json() as Board&{error?:string};
   if(!r.ok||!data.available)throw Error(data.error||'Não foi possível registrar');
   draw(data);
  }
- void refresh();
- return {refresh,submit};
+ void refresh();return {refresh,submit};
 }
