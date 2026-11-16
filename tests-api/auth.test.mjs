@@ -38,3 +38,9 @@ test('sessão usa cookie inacessível ao JavaScript e restrito ao site',()=>{
  assert.equal(sessionCookie({headers:new Headers({Cookie:'oldarcade_session='+token})}),token);
  assert.equal(sessionCookie({headers:new Headers({Cookie:'outro=1'})}),null);
 });
+
+test('PBKDF2 respeita o limite do Cloudflare Workers',async()=>{
+ const hash=await passwordHash('senhateste123','00112233445566778899aabbccddeeff');
+ assert.equal(hash.length,64);
+ assert.equal(hash,await passwordHash('senhateste123','00112233445566778899aabbccddeeff'));
+});

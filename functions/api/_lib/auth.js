@@ -1,6 +1,7 @@
 const encoder=new TextEncoder();
 const uuidPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const rounds=210000;
+// Cloudflare Workers WebCrypto limita PBKDF2 a 100.000 iterações.
+const rounds=100000;
 export function normalizeNickname(value){
  if(typeof value!=='string')return null;
  const nickname=value.trim().normalize('NFKC').replace(/\s+/gu,' ');
