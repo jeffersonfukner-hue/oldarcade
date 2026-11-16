@@ -28,10 +28,10 @@ O usuário está na tela de **Cloudflare Pages: Set up builds and deployments** 
 - Root directory: padrão
 - Botão `Save and Deploy` **ainda não clicado**.
 
-**Decisão de segurança:** não autorizar o botão enquanto não houver um plano real para a primeira implantação. `main` contém apenas README e **não tem aplicação Astro**. Conectar esse repositório sem preparar a branch base pode falhar no primeiro build. Não transferir a produção para a branch de desenvolvimento para "facilitar". Não vincular domínio. A próxima etapa técnica deve resolver a implantação inicial isolada e explicar o impacto ao usuário antes de qualquer clique.
+**Situação após preparação:** `main` agora contém Astro com página provisória neutra; o Snake permanece apenas em `feat/fundacao-snake`. O usuário autorizou explicitamente publicar a página neutra somente na URL técnica `pages.dev`, sem domínio próprio. Antes de clicar `Save and Deploy`, confirmar CI verde e que Cloudflare mantém `main`, `Astro`, `npm run build`, `dist`; depois o usuário poderá executar esse clique. Não vincular domínio.
 
 ## Pendências prioritárias
-1. Preparar a implantação inicial do Pages sem publicar Snake na branch `main` e sem domínio de produção. Uma opção é criar uma **página provisória neutra** em `main` após autorização do usuário para essa publicação inicial em `pages.dev`, mantendo Snake somente na branch `feat/fundacao-snake`. Não confundir URL `pages.dev` de produção técnica com o domínio de produção do usuário.
+1. **Concluído no GitHub:** após autorização expressa do usuário, a branch `main` recebeu página provisória Astro neutra, sem Snake, com `noindex` e `robots.txt` bloqueando rastreamento. Commit `68230bb51e5b4ddb9f587038bd1cedfa04ebba4b`; CI [Actions #43782366004](https://github.com/jeffersonfukner-hue/oldarcade/actions/runs/43782366004). A publicação técnica em `pages.dev` foi autorizada, mas ainda depende do clique do usuário no Cloudflare.
 2. Completar conexão do Pages e confirmar URL de **branch preview** sem deploy da branch de desenvolvimento como produção.
 3. Validar Snake no navegador humano, especialmente tecla Esc, mobile, ranking local e conteúdo.
 4. Futuro: métricas/rankings globais com Cloudflare, administração segura, revisão de privacidade/SEO/AdSense. Não antecipar implementação sem validar jogo piloto.
