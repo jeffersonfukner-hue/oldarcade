@@ -245,4 +245,4 @@ document.addEventListener('fullscreenchange',()=>{
  }
  if(document.fullscreenElement!==stage)centerGameBoard(screen,stage);
 });
-setBarriers(0);update();draw();
+setBarriers(0);setBarriers(0);update();draw();
