@@ -217,7 +217,7 @@ async function finishRound(){
  }
 }
 
-function pause(){if(state==='playing'){state='paused';window.clearTimeout(timer);show('Jogo pausado','A partida está preservada.','▶ Continuar');setStatus('Pausado');pauseBtn.textContent='Continuar'}else if(state==='paused'){state='playing';overlay.hidden=true;pauseBtn.textContent='Pausar';setStatus('Jogando');schedule()}}
+function pause(){if(state==='playing'){state='paused';window.clearTimeout(timer);show('Jogo pausado','A partida está preservada.','▶ Continuar');setStatus('Pausado');pauseBtn.textContent='Continuar'}else if(state==='paused'){beginCountdown('A partida será retomada em:')}}
 function turn(d:Direction){if(state!=='playing')return;const opposite:Record<Direction,Direction>={up:'down',down:'up',left:'right',right:'left'};if(d!==opposite[direction])next=d}
 
 function beginCountdown(description='A partida será retomada em:'){

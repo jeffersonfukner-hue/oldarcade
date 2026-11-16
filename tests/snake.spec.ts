@@ -22,7 +22,10 @@ test('Snake inicia, pausa e retoma com contagem honesta', async ({page}) => {
   await page.getByRole('button', {name:'Pausar'}).click();
   await expect(page.getByRole('heading', {name:'Jogo pausado'})).toBeVisible();
   await page.getByRole('button', {name:/Continuar/}).last().click();
-  await expect(page.locator('#game-overlay')).toBeHidden();
+  await expect(page.locator('#countdown-value')).toHaveText('3');
+  await expect(page.locator('#start-btn')).toBeHidden();
+  await expect(page.locator('#game-overlay')).toBeVisible();
+  await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
   await page.reload();
   await expect(page.locator('#plays')).toHaveText('1');
   await expect(page.locator('#visits')).toHaveText('1');
@@ -426,4 +429,18 @@ test('sem login preserva ranking local no navegador',async({page})=>{
  await expect(page.locator('#results-heading')).toHaveText('Ranking local');
  await expect(page.locator('#local-results')).toBeVisible();
  await expect(page.locator('#account-results')).toBeHidden();
+});
+
+test('tecla Espaço para retomar também apresenta 3–2–1 e evita avanço imediato',async({page})=>{
+ await page.goto('/jogos/snake/');
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
+ await page.keyboard.press('Space');
+ await expect(page.getByRole('heading',{name:'Jogo pausado'})).toBeVisible();
+ const before=await page.locator('#hud-score').textContent();
+ await page.keyboard.press('Space');
+ await expect(page.locator('#countdown-value')).toHaveText('3');
+ await expect(page.locator('#game-overlay')).toBeVisible();
+ await expect(page.locator('#hud-score')).toHaveText(before||'0');
+ await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
 });

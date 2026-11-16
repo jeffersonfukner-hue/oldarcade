@@ -1,6 +1,7 @@
 # OldArcade — continuidade obrigatória
 
 ## ESTADO ATUAL — 16/11/2026 (leia antes das seções históricas abaixo)
+- **Retomada de pausa:** botão Continuar (do jogo ou sobreposição) e atalho Espaço agora sempre iniciam o countdown existente 3–2–1 antes de retomar movimento, preservando cobra, pontuação e partida; testes automatizados atualizados. Não há requisições adicionais nem alterações na produção.
 - **Fonte da verdade:** repositório `jeffersonfukner-hue/oldarcade`, branch `feat/fundacao-snake`, PR #1. A `main` é produção técnica neutra e **não deve ser mesclada nem publicada sem autorização atual**. Fluxo exclusivamente GitHub → CI → Cloudflare Preview → aprovação humana. Sem Lovable e sem créditos.
 - **Última etapa aprovada pelo usuário:** commit `522b836`: busca do ranking na entrada e na conclusão da partida, sem polling durante jogo; placar de contas; avisos de variação com horários fundamentados. Implementadas e testadas (ainda exigem aceite humano no Preview) animações verde para recorde pessoal e dourada para meta global no commit `3be8f7d`.
 - **Nova decisão expressa:** ultrapassar a meta global faz o HUD e lateral exibirem imediatamente o valor da partida como **provisório**. Ao término, a resposta ao POST autenticado determina se é líder oficial, empatou mas perdeu por ordem cronológica ou outro jogador tem pontuação superior. Para anônimos, somente o GET ao fim, sem reivindicar registro oficial. Sem consultas extras durante a partida. Efeito global dourado e pessoal verde preservados.
