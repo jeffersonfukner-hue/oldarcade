@@ -591,3 +591,67 @@ test('home dashboard celular não causa rolagem horizontal e oferece acesso aos 
  const dims=await page.evaluate(()=>({doc:document.documentElement.scrollWidth,viewport:innerWidth}));
  expect(dims.doc).toBeLessThanOrEqual(dims.viewport+1);
 });
+
+test('rankings reúne Top 3 e Top 10 distintos e desafia o líder real',async({page})=>{
+ const calls:{classic:number;adventure:number}={classic:0,adventure:0};
+ await page.route('**/api/games/snake/leaderboard',r=>{
+  calls.classic++;
+  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Lider',score:320,rank:1,achievedAt:'2026-11-15T16:00:00Z'},{nickname:'Segundo',score:210,rank:2}]})});
+ });
+ await page.route('**/api/games/snake-adventure/leaderboard',r=>{
+  calls.adventure++;
+  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Outra pessoa',score:480,rank:1}]})});
+ });
+ await page.goto('/rankings/');
+ await expect(page).toHaveTitle(/Rankings OldArcade/);
+ const classic=page.locator('[data-rank-page-mode="snake"]');
+ const adventure=page.locator('[data-rank-page-mode="snake-adventure"]');
+ await expect(classic.locator('[data-rank-leader-name]')).toHaveText('Lider');
+ await expect(classic.locator('[data-rank-leader-score]')).toHaveText('320 pontos');
+ await expect(classic.locator('.rankings-podium-card')).toHaveCount(2);
+ await expect(classic.locator('[data-rank-challenge]')).toHaveAttribute('href','/jogos/snake/');
+ await classic.locator('.rankings-top10 summary').click();
+ await expect(classic.locator('[data-rank-table]')).toContainText('Segundo');
+ await expect(adventure.locator('[data-rank-leader-name]')).toHaveText('Outra pessoa');
+ await expect(adventure.locator('[data-rank-leader-score]')).toHaveText('480 pontos');
+ await expect(adventure.locator('[data-rank-challenge]')).toHaveAttribute('href','/jogos/snake/aventura/');
+ expect(calls).toEqual({classic:1,adventure:1});
+});
+test('rankings sem dados não inventa Top 3 nem pontuação',async({page})=>{
+ await page.route('**/api/games/**/leaderboard',r=>r.fulfill({status:503,contentType:'application/json',body:'{"available":false}'}));
+ await page.goto('/rankings/');
+ await expect(page.locator('[data-rank-page-mode="snake"] [data-rank-status]')).toContainText('indisponível');
+ await expect(page.locator('[data-rank-page-mode="snake"] [data-rank-leader-score]')).toHaveText('—');
+ await expect(page.locator('.rankings-podium-card')).toHaveCount(0);
+});
+test('nickname conectado aparece no header e sidebar, saindo da conta reverte',async({page})=>{
+ let connected=false;
+ await page.route('**/api/auth/me',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({player:connected?{nickname:'Vovo do 3D'}:null})}));
+ await page.route('**/api/auth/login',r=>{connected=true;return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({player:{nickname:'Vovo do 3D'}})})});
+ await page.route('**/api/auth/logout',r=>{connected=false;return r.fulfill({status:200,contentType:'application/json',body:'{"ok":true}'})});
+ await page.goto('/');
+ await expect(page.locator('.site-header [data-player-name]')).toHaveText('Minha conta');
+ await page.goto('/conta/');
+ await page.locator('#login-nick').fill('Vovo do 3D');
+ await page.locator('#login-password').fill('senha-teste');
+ await page.locator('#account-login button[type=submit]').click();
+ await expect(page.locator('.site-header [data-player-name]')).toHaveText('Vovo do 3D');
+ await page.goto('/');
+ await expect(page.locator('.arcade-side-nav [data-player-name]')).toHaveText('Vovo do 3D');
+ await expect(page.locator('.site-header [data-player-name]')).toHaveText('Vovo do 3D');
+ await page.goto('/conta/');
+ await page.locator('#account-logout').click();
+ await expect(page.locator('.site-header [data-player-name]')).toHaveText('Minha conta');
+ await page.goto('/');
+ await expect(page.locator('.arcade-side-nav [data-player-name]')).toHaveText('Minha conta');
+});
+test('atalho único Rankings da home e navegação da página sem scroll horizontal',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.goto('/');
+ await expect(page.locator('.arcade-side-nav a[href="/rankings/"]')).toHaveCount(1);
+ await expect(page.locator('.arcade-side-nav a[href*="#global-rank"]')).toHaveCount(0);
+ await page.locator('.arcade-side-nav a[href="/rankings/"]').click();
+ await expect(page).toHaveURL(/\/rankings\/$/);
+ const size=await page.evaluate(()=>({doc:document.documentElement.scrollWidth,screen:innerWidth}));
+ expect(size.doc).toBeLessThanOrEqual(size.screen+1);
+});

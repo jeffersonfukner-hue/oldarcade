@@ -131,3 +131,7 @@ O arquivo robots.txt nesta fundação bloqueia crawlers de propósito. Alterar a
 
 ## Centralização de jogos: padrão obrigatório e reutilizável
 - Use `centerGameBoard` em `src/scripts/gameViewport.ts` para manter tabuleiro no centro vertical da viewport durante início, retomada e saída de fullscreen, como já validado no Clássico. Componentes de jogo não devem replicar manualmente lógica de scroll e correções fullscreen. Aplicar testes em viewport mobile, inclusive ao sair de fullscreen e depois do countdown; não alterar regras do jogo por causa de posicionamento.
+
+## Padrões de navegação — rankings e identidade de jogador
+- Navegação única `Rankings` leva a `/rankings/`, onde cada jogo/modo competitivo é apresentado em seção com líder, Top 3, Top 10 expansível, horário e botão Jogar/Desafiar. Dados vêm da API existente do modo; ausência de banco mostra indisponibilidade, sem números fictícios. Ao introduzir novos jogos, acrescentar sua classificação ao catálogo da página.
+- Header e sidebar devem exibir nickname da sessão autenticada por `accountIdentity.ts`, nunca valor inventado ou enviado pelo navegador como parâmetro da URL. Sincronizar após login/cadastro/logout pelo evento de conta, e após navegação usando `/api/auth/me`. Não expor e-mail ou IDs.

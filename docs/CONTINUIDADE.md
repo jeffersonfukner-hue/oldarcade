@@ -8,6 +8,9 @@
 
 
 ## ESTADO ATUAL — 16/11/2026 (leia antes das seções históricas abaixo)
+- **Rankings centralizados:** home agora possui um único menu `Rankings` e link `/rankings/`. Página dedicada compara Snake Clássico e Aventura em seções independentes com líder real, pontuação a superar, Top 3, Top 10 expansível, botão direto para desafiar o recorde. Usa a API existente apenas 1 GET por modo; sem polling, sem dados fictícios, nenhum D1 extra.
+- **Nickname global:** `accountIdentity.ts` lê `/api/auth/me` ao carregar páginas e atualiza `[data-player-name]` no header e no card lateral; conta emite `oldarcade:account-changed` após login/cadastro/logout para refletir estado sem refresh. Sem login conserva "Minha conta". Não expõe dados além do nickname da própria sessão.
+
 - **Home aprovada pelo usuário para implementação: opção 3 — foco no jogador.** Dashboard com menu lateral para jogos/rankings/conta, hero reduzida, dois cards reais para os modos Clássico/Aventura do único Snake (#001), três contadores compactos na mesma faixa, links para recordes e história. Não anunciar conquistas/novos jogos que não existem, não inventar ranking geral. Design responsivo com navegação horizontal no mobile, jogos visíveis sem rolagem excessiva. Nenhum ajuste em D1 e produção.
 
 - **Hero validada e simplificada:** exibir apenas Jogos disponíveis, Visitas ao site e Total de partidas, em faixa fluida sem cartões. Removido indicador `Jogos jogados` por redundância com Jogos disponíveis, sem apagar registros existentes do D1. O backend pode continuar a computar o indicador para uso administrativo futuro, mas a hero não o consulta nem exibe.
