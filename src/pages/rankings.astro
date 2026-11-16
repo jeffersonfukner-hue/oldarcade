@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+const modes=[
+ {key:'snake',name:'Snake Clássico',tagline:'O desafio original',url:'/jogos/snake/',symbol:'🐍',description:'Cada fruta vale 10 pontos. Supere a maior pontuação registrada.'},
+ {key:'snake-adventure',name:'Snake Aventura',tagline:'Missões e níveis contínuos',url:'/jogos/snake/aventura/',symbol:'🍎',description:'Frutas especiais, novas missões e ranking exclusivo deste modo.'}
+];
+---
+<Base title="Rankings OldArcade — Líderes, recordes e desafios" description="Confira o Top 3 e o Top 10 do Snake Clássico e Aventura no OldArcade. Veja os recordes e desafie os líderes em cada modo." path="/rankings/">
+ <div class="shell rankings-page">
+  <header class="rankings-hero">
+   <div><span class="eyebrow">Competição OldArcade</span><h1>Rankings e <span class="accent">desafios</span></h1><p>Veja quem lidera cada modo e tente superar a marca do primeiro colocado. Os rankings são independentes.</p></div>
+   <a class="btn secondary" href="/#destaques">🎮 Escolher jogo</a>
+  </header>
+  <nav class="rankings-jump" aria-label="Navegação entre rankings">
+   {modes.map(mode=><a href={'#ranking-'+mode.key}>{mode.symbol} {mode.name}</a>)}
+  </nav>
+  <div class="rankings-list">
+  {modes.map(mode=><section class="rankings-panel" id={'ranking-'+mode.key} data-rank-page-mode={mode.key} aria-label={'Ranking do '+mode.name}>
+   <div class="rankings-panel-heading">
+    <div><span class="eyebrow">{mode.tagline}</span><h2>{mode.symbol} {mode.name}</h2><p>{mode.description}</p></div>
+    <a class="btn" data-rank-challenge href={mode.url}>🎮 Jogar e desafiar</a>
+   </div>
+   <div class="rankings-leader">
+    <div><span class="eyebrow">Líder atual</span><strong data-rank-leader-name>Consultando…</strong><span data-rank-leader-score>—</span></div>
+    <p data-rank-challenge-message>Consegue superar o primeiro colocado?</p>
+   </div>
+   <h3>🏆 Pódio — Top 3</h3>
+   <div class="rankings-podium" data-rank-podium><p class="small muted">Consultando classificação…</p></div>
+   <details class="rankings-top10">
+    <summary>Ver classificação completa (Top 10)</summary>
+    <div class="ranking-overflow"><table class="ranking">
+     <thead><tr><th>#</th><th>Jogador</th><th>Pontos</th><th>Registrado em</th></tr></thead>
+     <tbody data-rank-table><tr><td colspan="4">Consultando ranking…</td></tr></tbody>
+    </table></div>
+   </details>
+   <p class="small muted" data-rank-status role="status">Aguardando classificação real do servidor.</p>
+  </section>)}
+  </div>
+  <p class="rankings-disclaimer small muted">Classificações baseadas nas melhores pontuações registradas por contas. Em caso de empate, vence quem alcançou a pontuação primeiro. Os resultados ainda não são validados pelo servidor contra a partida. Em caso de indisponibilidade, não exibimos números fictícios.</p>
+ </div>
+ <script>import '../scripts/rankingsPage.ts';</script>
+</Base>
