@@ -29,14 +29,14 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
               <input id="record-register-nick" minlength="3" maxlength="18" required autocomplete="username" placeholder="Seu nickname"/>
               <label for="record-register-email">E-mail (opcional)</label>
               <input id="record-register-email" type="email" maxlength="254" autocomplete="email" placeholder="seu@email.com"/>
-              <label for="record-register-pass">Senha (mínimo de 12 caracteres)</label>
-              <input id="record-register-pass" type="password" minlength="12" maxlength="128" required autocomplete="new-password"/>
+              <label for="record-register-pass">Senha (mínimo de 8 caracteres)</label>
+              <input id="record-register-pass" type="password" minlength="8" maxlength="128" required autocomplete="new-password"/>
               <label class="email-opt-in"><input id="record-register-alert" type="checkbox"/> Receber e-mail quando alguém superar meu recorde <span class="muted">(em construção)</span></label>
               <button type="submit" class="btn">Criar conta e registrar recorde</button>
             </form>
             <form id="record-login" hidden>
               <label for="record-login-nick">Nickname</label><input id="record-login-nick" minlength="3" maxlength="18" required autocomplete="username"/>
-              <label for="record-login-pass">Senha</label><input id="record-login-pass" type="password" minlength="12" required autocomplete="current-password"/>
+              <label for="record-login-pass">Senha</label><input id="record-login-pass" type="password" minlength="8" required autocomplete="current-password"/>
               <button type="submit" class="btn">Entrar e registrar</button>
             </form>
             <div id="record-signed" hidden>

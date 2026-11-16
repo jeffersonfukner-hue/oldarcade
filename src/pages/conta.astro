@@ -14,14 +14,14 @@ import Base from '../layouts/Base.astro';
     <div class="account-tabs" aria-label="Escolha o formulário"><button id="tab-login" type="button" aria-pressed="true">Entrar</button><button id="tab-register" type="button" aria-pressed="false">Criar conta</button></div>
     <form id="account-login">
      <label for="login-nick">Nickname</label><input id="login-nick" autocomplete="username" minlength="3" maxlength="18" required/>
-     <label for="login-password">Senha</label><input id="login-password" autocomplete="current-password" type="password" minlength="12" required/>
+     <label for="login-password">Senha</label><input id="login-password" autocomplete="current-password" type="password" minlength="8" required/>
      <button class="btn" type="submit">Entrar</button>
     </form>
     <form id="account-register" hidden>
-     <label for="register-nick">Escolha um nickname único</label><input id="register-nick" autocomplete="username" minlength="3" maxlength="18" pattern="[A-Za-zÀ-ÿ0-9_.-]+" required/>
+     <label for="register-nick">Escolha um nickname único</label><input id="register-nick" autocomplete="username" minlength="3" maxlength="18" pattern="[A-Za-zÀ-ÿ0-9_. -]+" required/>
      <label for="register-email">E-mail <span class="muted">(opcional)</span></label><input id="register-email" type="email" autocomplete="email" maxlength="254"/>
      <p class="small muted">No futuro, o e-mail poderá ajudar a recuperar sua conta depois de confirmado. Ainda não enviamos mensagens automáticas.</p>
-     <label for="register-password">Senha (mínimo de 12 caracteres)</label><input id="register-password" autocomplete="new-password" type="password" minlength="12" maxlength="128" required/>
+     <label for="register-password">Senha (mínimo de 8 caracteres)</label><input id="register-password" autocomplete="new-password" type="password" minlength="8" maxlength="128" required/>
      <label class="email-opt-in"><input id="register-alerts" type="checkbox"/> Receber e-mail quando alguém superar meu recorde <span class="muted">(em construção)</span></label>
      <button class="btn" type="submit">Criar minha conta</button>
     </form>

@@ -5,7 +5,8 @@ import {normalizeNickname,normalizeEmail,validPassword,passwordHash,randomToken,
 test('nickname único é normalizado e valida caracteres',()=>{
  assert.deepEqual(normalizeNickname('  Vovo3D '),{nickname:'Vovo3D',key:'vovo3d'});
  assert.equal(normalizeNickname(''),null);
- assert.equal(normalizeNickname('a b'),null);
+ assert.deepEqual(normalizeNickname('Vovo do 3D'),{nickname:'Vovo do 3D',key:'vovo do 3d'});
+ assert.deepEqual(normalizeNickname('  Vovo  do   3D '),{nickname:'Vovo do 3D',key:'vovo do 3d'});
  assert.equal(normalizeNickname('<script>'),null);
  assert.equal(normalizeNickname('Jogador muito muito grande'),null);
 });
@@ -14,6 +15,8 @@ test('e-mail é opcional e senha exige comprimento mínimo',()=>{
  assert.equal(normalizeEmail('  Teste@Example.com '),'teste@example.com');
  assert.equal(normalizeEmail('texto-sem-email'),false);
  assert.equal(validPassword('abc'),false);
+ assert.equal(validPassword('1234567'),false);
+ assert.equal(validPassword('12345678'),true);
  assert.equal(validPassword('senha-muito-longa'),true);
 });
 test('hash de senha usa salt, não armazena senha em claro e é verificável',async()=>{

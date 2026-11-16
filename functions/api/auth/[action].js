@@ -18,27 +18,32 @@ export async function onRequestPost(ctx){
  }
  const body=await parseBody(ctx.request);if(!body||typeof body!=='object')return reply({error:'Dados inválidos'},400);
  const nick=normalizeNickname(body.nickname);
- if(!nick)return reply({error:'Nickname inválido (3–18 caracteres: letras, números, _, - ou ponto)'},400);
- if(!validPassword(body.password))return reply({error:'Senha deve conter de 12 a 128 caracteres'},400);
+ if(!nick)return reply({error:'Nickname inválido (3–18 caracteres: letras, números, espaços, _, - ou ponto)'},400);
+ if(!validPassword(body.password))return reply({error:'Senha deve conter de 8 a 128 caracteres'},400);
  if(action==='register'){
   const email=normalizeEmail(body.email);
   if(email===false)return reply({error:'E-mail inválido'},400);
+  let registerStep='nickname';
   try{
    const exists=await db.prepare('SELECT id FROM player_accounts WHERE nickname_key=?').bind(nick.key).first();
    if(exists)return reply({error:'Nickname já utilizado'},409);
    const alerts=body.recordEmailOptIn===true?1:0;
    if(body.recordEmailOptIn!==undefined&&typeof body.recordEmailOptIn!=='boolean')return reply({error:'Preferência inválida'},400);
+   registerStep='hash';
    const id=crypto.randomUUID(),salt=randomToken(16),hash=await passwordHash(body.password,salt);
    const recovery=randomToken(20);
+   registerStep='insert_account';
    await db.prepare('INSERT INTO player_accounts(id,nickname,nickname_key,email,password_hash,password_salt,recovery_hash,record_email_opt_in) VALUES (?,?,?,?,?,?,?,?)')
     .bind(id,nick.nickname,nick.key,email,hash,salt,await digest(recovery),alerts).run();
+   registerStep='session';
    const session=randomToken(),sessionHash=await digest(session);
    await db.prepare('INSERT INTO player_sessions(token_hash,player_id,expires_at) VALUES (?,?,?)')
     .bind(sessionHash,id,Math.floor(Date.now()/1000)+30*DAY).run();
    return reply({ok:true,player:{id,nickname:nick.nickname,email,emailVerified:false,recordEmailOptIn:Boolean(alerts)},recoveryCode:recovery},201,{'Set-Cookie':cookieHeader(session)});
   }catch(e){
+   console.error('oldarcade register failed',registerStep,e instanceof Error?e.message:String(e));
    if(String(e).includes('UNIQUE')||String(e).includes('unique'))return reply({error:'Nickname já utilizado'},409);
-   return reply({error:'Não foi possível criar a conta'},503);
+   return reply({error:'Não foi possível criar a conta',code:'REGISTER_'+registerStep.toUpperCase()},503);
   }
  }
  try{

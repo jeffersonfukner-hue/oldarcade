@@ -3,8 +3,8 @@ const uuidPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[
 const rounds=210000;
 export function normalizeNickname(value){
  if(typeof value!=='string')return null;
- const nickname=value.trim().normalize('NFKC');
- if(nickname.length<3||nickname.length>18||!(/^[\p{L}\p{N}_.-]+$/u).test(nickname))return null;
+ const nickname=value.trim().normalize('NFKC').replace(/\s+/gu,' ');
+ if(nickname.length<3||nickname.length>18||!(/^[\p{L}\p{N}_. -]+$/u).test(nickname))return null;
  return {nickname,key:nickname.toLocaleLowerCase('und')};
 }
 export function normalizeEmail(value){
@@ -14,7 +14,7 @@ export function normalizeEmail(value){
  return email.length<=254&&/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)?email:false;
 }
 export function validPassword(value){
- return typeof value==='string'&&value.length>=12&&value.length<=128&&encoder.encode(value).length<=256;
+ return typeof value==='string'&&value.length>=8&&value.length<=128&&encoder.encode(value).length<=256;
 }
 function hex(bytes){return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('')}
 export function randomToken(n=32){return hex(crypto.getRandomValues(new Uint8Array(n)))}

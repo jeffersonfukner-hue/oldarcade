@@ -191,7 +191,7 @@ test('página de conta mostra cadastro com e-mail opcional e não exige conta pa
  await expect(page.getByRole('heading',{name:/Seu nickname, seus desafios/})).toBeVisible();
  await page.getByRole('button',{name:'Criar conta'}).click();
  await expect(page.locator('#register-email')).not.toHaveAttribute('required');
- await expect(page.locator('#register-password')).toHaveAttribute('minlength','12');
+ await expect(page.locator('#register-password')).toHaveAttribute('minlength','8');
  await expect(page.locator('#account-register')).toBeVisible();
  await page.goto('/jogos/snake/');
  await expect(page.getByRole('button',{name:/Começar partida/})).toBeVisible();
@@ -214,4 +214,15 @@ test('recorde de conta vindo do servidor aparece nos dois placares',async({page}
  await expect(page.locator('#hud-best')).toHaveText('280');
  await expect(page.locator('#best')).toHaveText('280');
  await expect(page.locator('#my-global-position')).toHaveText('98º lugar');
+});
+
+test('cadastro dentro do Snake aceita nickname com espaços e senha de oito caracteres',async({page})=>{
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#record-register-nick')).toHaveAttribute('maxlength','18');
+ await expect(page.locator('#record-register-pass')).toHaveAttribute('minlength','8');
+ await page.evaluate(()=>{document.querySelector<HTMLElement>('#record-modal')!.hidden=false});
+ await page.locator('#record-register-nick').fill('Vovo do 3D');
+ await page.locator('#record-register-pass').fill('12345678');
+ await expect(page.locator('#record-register-nick')).toHaveValue('Vovo do 3D');
+ await expect(page.locator('#record-register-pass')).toBeValid();
 });
