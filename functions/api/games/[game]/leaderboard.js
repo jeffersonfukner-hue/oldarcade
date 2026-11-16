@@ -1,4 +1,4 @@
-import {currentPlayer,reply,sameOrigin,parseBody} from '../../../_lib/auth.js';
+import {currentPlayer,reply,sameOrigin,parseBody} from '../../_lib/auth.js';
 async function standings(db,request){
  const result=await db.prepare(
   'SELECT a.nickname,r.best_score,r.achieved_at_ms FROM player_game_records r JOIN player_accounts a ON a.id=r.player_id WHERE r.game=? ORDER BY r.best_score DESC,r.achieved_at_ms ASC,r.player_id ASC LIMIT 10'

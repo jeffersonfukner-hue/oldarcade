@@ -30,7 +30,7 @@ export function setupGlobalLeaderboard(){
   }
   best.textContent=data.top.length?String(data.top[0].score):'—';
   challenge.textContent=data.top.length?'Bata seu recorde ou os '+data.top[0].score+' pontos do líder global!':'Seja o primeiro a registrar um recorde global!';
-  status.textContent='Top 10 de contas cadastradas. Empates: conquista mais antiga primeiro. Horários exibidos no seu fuso. Pontuações ainda não verificadas contra a partida.';
+  status.textContent='Cada jogador ocupa uma posição: maior pontuação primeiro; se houver empate, quem atingiu o recorde antes fica acima. Horário local. Pontuações ainda não verificadas contra a partida.';
   if(!data.top.length){
    const row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=4;
    cell.textContent='Nenhum recorde de conta registrado. Seja o primeiro!';row.append(cell);body.append(row);return;
@@ -38,7 +38,7 @@ export function setupGlobalLeaderboard(){
   let lastScore:number|undefined,place=0;
   data.top.slice(0,10).forEach((item)=>{
    if(item.score!==lastScore){place++;lastScore=item.score}
-   const level=item.place||place;
+   const level=item.rank||place;
    const row=document.createElement('tr');
    row.className=level<=3?'leaderboard-podium podium-'+level:'';
    const pos=document.createElement('td');

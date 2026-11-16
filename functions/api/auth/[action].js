@@ -26,14 +26,16 @@ export async function onRequestPost(ctx){
   try{
    const exists=await db.prepare('SELECT id FROM player_accounts WHERE nickname_key=?').bind(nick.key).first();
    if(exists)return reply({error:'Nickname já utilizado'},409);
+   const alerts=body.recordEmailOptIn===true?1:0;
+   if(body.recordEmailOptIn!==undefined&&typeof body.recordEmailOptIn!=='boolean')return reply({error:'Preferência inválida'},400);
    const id=crypto.randomUUID(),salt=randomToken(16),hash=await passwordHash(body.password,salt);
    const recovery=randomToken(20);
-   await db.prepare('INSERT INTO player_accounts(id,nickname,nickname_key,email,password_hash,password_salt,recovery_hash) VALUES (?,?,?,?,?,?,?)')
-    .bind(id,nick.nickname,nick.key,email,hash,salt,await digest(recovery)).run();
+   await db.prepare('INSERT INTO player_accounts(id,nickname,nickname_key,email,password_hash,password_salt,recovery_hash,record_email_opt_in) VALUES (?,?,?,?,?,?,?,?)')
+    .bind(id,nick.nickname,nick.key,email,hash,salt,await digest(recovery),alerts).run();
    const session=randomToken(),sessionHash=await digest(session);
    await db.prepare('INSERT INTO player_sessions(token_hash,player_id,expires_at) VALUES (?,?,?)')
     .bind(sessionHash,id,Math.floor(Date.now()/1000)+30*DAY).run();
-   return reply({ok:true,player:{id,nickname:nick.nickname,email,emailVerified:false},recoveryCode:recovery},201,{'Set-Cookie':cookieHeader(session)});
+   return reply({ok:true,player:{id,nickname:nick.nickname,email,emailVerified:false,recordEmailOptIn:Boolean(alerts)},recoveryCode:recovery},201,{'Set-Cookie':cookieHeader(session)});
   }catch(e){
    if(String(e).includes('UNIQUE')||String(e).includes('unique'))return reply({error:'Nickname já utilizado'},409);
    return reply({error:'Não foi possível criar a conta'},503);
