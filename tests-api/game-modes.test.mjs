@@ -9,7 +9,7 @@ test('catálogo central mantém Snake Clássico e Aventura isolados e com URLs p
  assert.notEqual(gameModes.snake.url,gameModes['snake-adventure'].url);
  for(const id of gameModeIds){
   assert.equal(gameMode(id)?.competitive,true);
-  assert.match(gameMode(id).url,/^\\/jogos\\//);
+  assert.ok(gameMode(id).url.startsWith('/jogos/'));
   assert.equal(validGameScore(id,395.875),true);
  }
  assert.equal(gameMode('__proto__'),null);
