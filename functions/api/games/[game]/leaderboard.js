@@ -9,11 +9,6 @@ async function standings(db,request){
   if(!scores.has(score))scores.set(score,scores.size+1);
   return {nickname:row.nickname,score,place:scores.get(score),rank:i+1,achievedAt:new Date(row.achieved_at_ms).toISOString()};
  });
- let historicalBest=null;
- try {
-  const old=await db.prepare('SELECT MAX(best_score) AS score FROM game_leaderboard WHERE game=?').bind('snake').first();
-  if(typeof old?.score==='number')historicalBest=old.score;
- }catch{ /* Historical rankings are optional. */ }
  const player=await currentPlayer(db,request);
  let mine=null;
  if(player){
@@ -25,7 +20,7 @@ async function standings(db,request){
    mine={nickname:player.nickname,score:own.best_score,rank:Number(ahead?.count||0)+1,achievedAt:new Date(own.achieved_at_ms).toISOString()};
   }
  }
- return {available:true,top,mine,historicalBest,verified:false,registeredOnly:true};
+ return {available:true,top,mine,verified:false,registeredOnly:true};
 }
 export async function onRequestGet(ctx){
  if(ctx.params?.game!=='snake')return reply({error:'Jogo não encontrado'},404);

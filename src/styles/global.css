@@ -81,3 +81,11 @@ html,body{touch-action:manipulation}
 .historical-record[hidden]{display:none}
 #global-best{font-variant-numeric:tabular-nums}
 @media(prefers-reduced-motion:reduce){.score-float{animation:none}}
+
+/* Avisos de recorde; não impedem interação e respeitam redução de movimento. */
+.record-live-alert{position:absolute;z-index:8;top:12px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 24px);padding:12px 18px;border-radius:12px;background:#203c37eF;border:1px solid #64e2ac;color:#f6fff8;box-shadow:0 9px 35px #0009;text-align:center;font-weight:850;pointer-events:none;animation:record-appear .24s ease-out}
+.record-live-alert[data-kind="global"]{background:#5d451bdE;border-color:#ffd579;color:#fff5c8}
+.record-live-alert[data-kind="rival"]{background:#32345bdE;border-color:#a9adff;color:#f4f2ff}
+.record-live-alert[hidden]{display:none}
+@keyframes record-appear{from{opacity:0;transform:translate(-50%,-14px)}to{opacity:1;transform:translate(-50%,0)}}
+@media(prefers-reduced-motion:reduce){.record-live-alert{animation:none}}

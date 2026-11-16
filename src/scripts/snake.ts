@@ -27,6 +27,23 @@ let account:{nickname:string}|null=null;
 let personalCloudBest=0;
 let globalBest:number|null=null;
 let recoveryCode='';
+let roundPersonalTarget=0;
+let didCelebratePersonal=false;
+let lastCelebratedGlobalTarget:number|null=null;
+const alertNode=document.querySelector<HTMLElement>('#record-live-alert')!;
+let alertTimeout:number|undefined;
+let currentAlertPriority=0;
+function announceRecord(message:string,type:'personal'|'global'|'rival'){
+ const priority=type==='global'?3:type==='rival'?2:1;
+ if(!alertNode.hidden&&priority<currentAlertPriority)return;
+ window.clearTimeout(alertTimeout);
+ currentAlertPriority=priority;
+ alertNode.textContent=message;
+ alertNode.dataset.kind=type;
+ alertNode.hidden=false;
+ alertTimeout=window.setTimeout(()=>{alertNode.hidden=true;alertNode.textContent='';currentAlertPriority=0},3600);
+}
+function resetAnnouncements(){window.clearTimeout(alertTimeout);alertNode.hidden=true;alertNode.textContent='';currentAlertPriority=0}
 const recordStatus=document.querySelector<HTMLElement>('#record-modal-status')!;
 let modalOpen=false;
 const size=20, cell=canvas.width/size;
@@ -66,10 +83,22 @@ function floatPoints(at:Point,amount:number){
 }
 function placeFood(){const free:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y});if(!free.length){end(true);return}food=free[Math.floor(Math.random()*free.length)]}
 function schedule(){window.clearTimeout(timer);if(state==='playing')timer=window.setTimeout(tick,Math.max(75,155-Math.floor(score/50)*8))}
-function tick(){if(state!=='playing')return;direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const head={x:snake[0].x+d.x,y:snake[0].y+d.y};const eating=head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if(head.x<0||head.x>=size||head.y<0||head.y>=size||body.some(p=>p.x===head.x&&p.y===head.y)){end(false);return}snake.unshift(head);if(eating){score+=10;floatPoints(head,10);if(score>saved.best){saved.best=score;store()}placeFood();if(state!=='playing'){draw();return}}else snake.pop();draw();refresh();schedule()}
+function tick(){if(state!=='playing')return;direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const head={x:snake[0].x+d.x,y:snake[0].y+d.y};const eating=head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if(head.x<0||head.x>=size||head.y<0||head.y>=size||body.some(p=>p.x===head.x&&p.y===head.y)){end(false);return}snake.unshift(head);if(eating){score+=10;floatPoints(head,10);
+ if(score>saved.best){saved.best=score;store()}
+ if(!didCelebratePersonal&&score>roundPersonalTarget){
+  didCelebratePersonal=true;
+  announceRecord('🏅 Recorde pessoal superado!','personal');
+ }
+ if(globalBest!==null&&score>globalBest&&(lastCelebratedGlobalTarget===null||globalBest>lastCelebratedGlobalTarget)){
+  lastCelebratedGlobalTarget=globalBest;
+  announceRecord('🏆 Recorde global ultrapassado! Registre seu resultado ao terminar.','global');
+ }
+ placeFood();if(state!=='playing'){draw();return}}else snake.pop();draw();refresh();schedule()}
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
-function start(){cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};floatLayer.replaceChildren();saved.plays++;store();globalCounters.recordPlay();draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
+function start(){cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
+ didCelebratePersonal=false;lastCelebratedGlobalTarget=null;
+ resetAnnouncements();floatLayer.replaceChildren();saved.plays++;store();globalCounters.recordPlay();draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
  if(score>saved.best)saved.best=score;
  if(saved.nickname.trim()){saved.scores.push({name:saved.nickname.trim(),score,at:Date.now()});saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20)}
@@ -259,9 +288,16 @@ document.querySelector<HTMLButtonElement>('#record-recovery-done')!.addEventList
  recoveryCode='';recoveryPanel.hidden=true;document.querySelector<HTMLElement>('#record-recovery-code')!.textContent='';closeRecordModal();
 });
 document.addEventListener('oldarcade:global-record',event=>{
- const value=(event as CustomEvent<{score:number|null}>).detail?.score;
+ const detail=(event as CustomEvent<{score:number|null;previousScore:number|null;changed:boolean;source:string}>).detail;
+ const value=detail?.score;
  globalBest=typeof value==='number'&&Number.isFinite(value)?value:null;
  refresh();
+ // Alteração externa: não anunciar uma atualização feita pelo próprio jogador.
+ if(state==='playing'&&detail.source==='poll'&&detail.changed&&globalBest!==null
+   &&(detail.previousScore===null||globalBest>detail.previousScore)
+   &&globalBest>score){
+  announceRecord('⚡ Alguém assumiu a liderança com '+globalBest+' pontos. Continue jogando!','rival');
+ }
 });
 document.addEventListener('oldarcade:personal-record',event=>{
  const detail=(event as CustomEvent<{score:number}>).detail;
@@ -269,6 +305,14 @@ document.addEventListener('oldarcade:personal-record',event=>{
  refresh();
 });
 void checkAccount();
+// Consulta leve e somente enquanto há uma partida ativa na aba visível.
+// Atualiza placar dos demais jogadores, sem gravar resultado provisório no D1.
+window.setInterval(()=>{
+ if(state==='playing'&&!document.hidden)void leaderboard.refresh('poll');
+},10000);
+document.addEventListener('visibilitychange',()=>{
+ if(!document.hidden&&state==='playing')void leaderboard.refresh('poll');
+});
 
 startBtn.addEventListener('click',()=>state==='paused'?pause():start());
 pauseBtn.addEventListener('click',pause);

@@ -1,5 +1,5 @@
 type Entry={nickname:string;score:number;place?:number;rank?:number;achievedAt?:string};
-type Board={available:boolean;top?:Entry[];mine?:Entry|null;historicalBest?:number|null;verified?:boolean;registeredOnly?:boolean};
+type Board={available:boolean;top?:Entry[];mine?:Entry|null;verified?:boolean;registeredOnly?:boolean};
 function localDate(iso?:string){
  if(!iso)return 'Data indisponível';
  const dt=new Date(iso);if(Number.isNaN(dt.getTime()))return 'Data indisponível';
@@ -10,9 +10,10 @@ export function setupGlobalLeaderboard(){
  const status=document.querySelector<HTMLElement>('#global-rank-status')!;
  const best=document.querySelector<HTMLElement>('#global-best')!;
  const challenge=document.querySelector<HTMLElement>('#challenge-text')!;
- const historical=document.querySelector<HTMLElement>('#historical-rank')!;
- const historicalValue=document.querySelector<HTMLElement>('#historical-best')!;
  const endpoint='/api/games/snake/leaderboard';
+ let lastGlobalScore:number|null=null;
+ let loadedGlobal=false;
+ let loading=false;
  const myResult=document.querySelector<HTMLElement>('#my-global-rank')!;
  const myPosition=document.querySelector<HTMLElement>('#my-global-position')!;
  const myDetail=document.querySelector<HTMLElement>('#my-global-detail')!;
@@ -22,22 +23,24 @@ export function setupGlobalLeaderboard(){
   myPosition.textContent=(mine.rank||'—')+'º lugar';
   myDetail.textContent=mine.nickname+' · '+mine.score+' pontos · '+localDate(mine.achievedAt);
  }
- function draw(data:Board){
+ function draw(data:Board,source:'initial'|'poll'|'submit'='initial'){
   body.replaceChildren();
   drawMine(data.mine);
   const globalScore=data.available&&data.top?.length?data.top[0].score:null;
-  document.dispatchEvent(new CustomEvent('oldarcade:global-record',{detail:{score:globalScore}}));
-  const hasLegacy=data.available&&typeof data.historicalBest==='number'&&Number.isFinite(data.historicalBest);
-  historical.hidden=!hasLegacy;
-  historicalValue.textContent=hasLegacy?String(data.historicalBest):'—';
+  if(data.available){
+   const previousScore=lastGlobalScore;
+   const changed=loadedGlobal&&globalScore!==previousScore;
+   lastGlobalScore=globalScore;loadedGlobal=true;
+   document.dispatchEvent(new CustomEvent('oldarcade:global-record',{detail:{score:globalScore,previousScore,changed,source}}));
+  }
   document.dispatchEvent(new CustomEvent('oldarcade:personal-record',{detail:{score:data.mine?.score||0}}));
   if(!data.available||!Array.isArray(data.top)){
    best.textContent='—';status.textContent='Ranking global indisponível neste ambiente.';
    challenge.textContent='Bata seu recorde e desafie os melhores jogadores.';return;
   }
   best.textContent=data.top.length?String(data.top[0].score):'—';
-  challenge.textContent=data.top.length?'Bata seu recorde ou os '+data.top[0].score+' pontos do líder global!':(typeof data.historicalBest==='number'?'Os recordes antigos continuam registrados. Seja o primeiro no novo ranking com conta!':'Seja o primeiro a registrar um recorde global com conta!');
-  status.textContent='Cada jogador ocupa uma posição. Em empate, vence quem chegou antes. Horário local. Recordes antigos sem conta são mantidos separadamente. Pontuações ainda não verificadas contra a partida.';
+  challenge.textContent=data.top.length?'Bata seu recorde ou os '+data.top[0].score+' pontos do líder global!':'Seja o primeiro a registrar um recorde global com conta!';
+  status.textContent='Cada jogador ocupa uma posição. Em empate, vence quem chegou antes. Horário local. Pontuações ainda não verificadas contra a partida.';
   if(!data.top.length){
    const row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=4;
    cell.textContent='Nenhum recorde de conta registrado. Seja o primeiro!';row.append(cell);body.append(row);return;
@@ -59,15 +62,20 @@ export function setupGlobalLeaderboard(){
    row.append(pos,nick,score,date);body.append(row);
   });
  }
- async function refresh(){
-  try{const r=await fetch(endpoint);if(!r.ok)throw Error('API indisponível');draw(await r.json() as Board)}
-  catch{draw({available:false})}
+ async function refresh(source:'initial'|'poll'='initial'){
+  if(loading)return;
+  loading=true;
+  try{
+   const r=await fetch(endpoint,{cache:'no-store'});if(!r.ok)throw Error('API indisponível');
+   draw(await r.json() as Board,source);
+  }catch{if(!loadedGlobal)draw({available:false})}
+  finally{loading=false}
  }
  async function submit(score:number){
   const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score})});
   const data=await r.json() as Board&{error?:string};
   if(!r.ok||!data.available)throw Error(data.error||'Não foi possível registrar');
-  draw(data);
+  draw(data,'submit');
  }
  void refresh();return {refresh,submit};
 }

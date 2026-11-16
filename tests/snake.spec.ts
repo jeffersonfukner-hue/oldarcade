@@ -228,21 +228,20 @@ test('cadastro dentro do Snake aceita nickname com espaços e senha de oito cara
 });
 
 test('HUD mostra recordes pessoal e global lado a lado',async({page})=>{
- await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Líder',score:350,rank:1,achievedAt:'2026-11-16T10:00:00.000Z'}],historicalBest:300,mine:null})}));
+ await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Líder',score:350,rank:1,achievedAt:'2026-11-16T10:00:00.000Z'}],mine:null})}));
  await page.goto('/jogos/snake/');
  await expect(page.locator('#hud-global-best')).toHaveText('350');
  await expect(page.locator('#global-best')).toHaveText('350');
- await expect(page.locator('#historical-best')).toHaveText('300');
- await expect(page.locator('#historical-rank')).toBeVisible();
+ await expect(page.locator('#historical-rank')).toHaveCount(0);
  await expect(page.locator('#score-float-layer')).toHaveCount(1);
 });
-test('sem conta cadastrada, recorde antigo ainda aparece com indicação adequada',async({page})=>{
- await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[],historicalBest:300,mine:null})}));
+test('recordes legados não aparecem no novo ranking',async({page})=>{
+ await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[],mine:null})}));
  await page.goto('/jogos/snake/');
  await expect(page.locator('#global-best')).toHaveText('—');
  await expect(page.locator('#hud-global-best')).toHaveText('—');
- await expect(page.locator('#historical-best')).toHaveText('300');
- await expect(page.locator('#challenge-text')).toContainText('recordes antigos');
+ await expect(page.locator('#historical-rank')).toHaveCount(0);
+ await expect(page.locator('#challenge-text')).toContainText('primeiro a registrar');
 });
 
 test('modal de registro inicia no campo e não foca o título',async({page})=>{
@@ -257,4 +256,17 @@ test('modal de registro inicia no campo e não foca o título',async({page})=>{
  await expect(page.locator('#record-login-nick')).toBeFocused();
  await page.locator('#record-tab-register').click();
  await expect(page.locator('#record-register-nick')).toBeFocused();
+});
+
+test('avisos de recorde atualizam no jogo e consulta live não altera pontuação',async({page})=>{
+ await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Líder',score:40,rank:1,achievedAt:'2026-11-16T10:00:00.000Z'}],mine:null})}));
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#hud-global-best')).toHaveText('40');
+ await expect(page.locator('#record-live-alert')).toBeHidden();
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
+ // Mudança simulada vinda do D1 em outra sessão: atualização do placar em partida ativa.
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:global-record',{detail:{score:90,previousScore:40,changed:true,source:'poll'}})));
+ await expect(page.locator('#hud-global-best')).toHaveText('90');
+ await expect(page.locator('#record-live-alert')).toContainText('Alguém assumiu a liderança');
 });
