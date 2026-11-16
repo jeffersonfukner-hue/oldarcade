@@ -1,3 +1,4 @@
+import {gameMode} from '../../../../src/data/gameModes.js';
 const reply=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
 const validId=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 function getDB(context){return context.env?.OLDARCADE_STATS_DB;}
@@ -9,12 +10,12 @@ async function counts(db,g){
  return {available:true,visits,plays};
 }
 export async function onRequestGet(context){
- if(!['snake','snake-adventure'].includes(game(context)))return reply({error:'Jogo desconhecido'},404);
+ if(!gameMode(game(context)))return reply({error:'Jogo desconhecido'},404);
  const db=getDB(context);if(!db)return reply({available:false,error:'Banco ainda não vinculado'},503);
  try{return reply(await counts(db,game(context)))}catch{return reply({available:false,error:'Serviço indisponível'},503)}
 }
 export async function onRequestPost(context){
- if(!['snake','snake-adventure'].includes(game(context)))return reply({error:'Jogo desconhecido'},404);
+ if(!gameMode(game(context)))return reply({error:'Jogo desconhecido'},404);
  const url=new URL(context.request.url);
  if(context.request.headers.get('Origin')!==url.origin)return reply({error:'Origem não autorizada'},403);
  if(context.request.headers.get('Content-Type')?.split(';')[0].trim()!=='application/json')return reply({error:'Formato inválido'},415);
