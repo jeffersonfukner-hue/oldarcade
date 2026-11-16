@@ -185,3 +185,14 @@ test('recorde global é exibido como desafio e ranking usa texto seguro',async({
  await expect(page.locator('#global-rank-body')).toContainText('<img src=x');
  await expect(page.locator('#global-rank-body img')).toHaveCount(0);
 });
+
+test('página de conta mostra cadastro com e-mail opcional e não exige conta para jogar',async({page})=>{
+ await page.goto('/conta/');
+ await expect(page.getByRole('heading',{name:/Seu nickname, seus desafios/})).toBeVisible();
+ await page.getByRole('button',{name:'Criar conta'}).click();
+ await expect(page.locator('#register-email')).not.toHaveAttribute('required');
+ await expect(page.locator('#register-password')).toHaveAttribute('minlength','12');
+ await expect(page.locator('#account-register')).toBeVisible();
+ await page.goto('/jogos/snake/');
+ await expect(page.getByRole('button',{name:/Começar partida/})).toBeVisible();
+});
