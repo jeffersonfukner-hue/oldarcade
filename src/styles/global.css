@@ -273,3 +273,17 @@ html,body{touch-action:manipulation}
 [data-player-name]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:700px){.rankings-hero{align-items:start;flex-direction:column}.rankings-panel{padding:16px}.rankings-leader{align-items:start;flex-direction:column}.rankings-podium{gap:7px}.rankings-podium-card{padding:12px 9px;font-size:.78rem}}
 @media(max-width:430px){.rankings-podium{grid-template-columns:1fr}.rankings-podium-card{flex-direction:row;align-items:center;gap:9px}.rankings-podium-card>span:first-child{font-size:1.3rem}}
+
+/* Cabeçalho adaptável sem scroll horizontal da página quando há nickname longo. */
+.header-inner{min-width:0}
+.header-inner nav{min-width:0}
+.header-inner nav a{min-width:0}
+.header-inner [data-player-account-link]{max-width:160px;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:740px){
+ .header-inner{gap:12px}
+ .header-inner .logo{flex:0 0 auto}
+ .header-inner nav{flex:1 1 auto;overflow-x:auto;white-space:nowrap;gap:13px;scrollbar-width:none}
+ .header-inner nav::-webkit-scrollbar{display:none}
+ .header-inner nav a{flex:0 0 auto}
+ .header-inner [data-player-account-link]{max-width:125px}
+}
