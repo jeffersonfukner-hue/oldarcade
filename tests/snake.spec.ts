@@ -476,3 +476,37 @@ test('compartilhamento adiciona placar real somente depois da partida',async({pa
  expect(facebook.searchParams.get('text')).toBeNull();
  expect(facebook.searchParams.get('u')).toContain('/jogos/snake/');
 });
+
+test('modo Aventura tem níveis e recordes locais separados do Clássico',async({page})=>{
+ let rankCalls=0;
+ await page.route('**/api/games/snake/leaderboard',r=>{rankCalls++;return r.fulfill({status:200,contentType:'application/json',body:'{"available":true,"top":[],"mine":null}'})});
+ await page.goto('/jogos/snake/aventura/');
+ await expect(page).toHaveTitle(/Snake Aventura/);
+ await expect(page.locator('#adventure-level')).toHaveText('1');
+ await expect(page.locator('#adventure-mission')).toContainText('Colete 5 maçãs');
+ await expect(page.locator('#adventure-score')).toHaveText('0');
+ await expect(page.locator('#adventure-highest')).toHaveText('1');
+ expect(rankCalls).toBe(0);
+ await page.getByRole('button',{name:/Começar Aventura/}).click();
+ await expect(page.locator('#adventure-countdown')).toHaveText('3');
+ await expect(page.locator('#adventure-start')).toBeHidden();
+ await expect(page.locator('#adventure-overlay')).toBeHidden({timeout:5000});
+ await expect(page.locator('#adventure-score')).toHaveText('10',{timeout:5000});
+ await expect(page.locator('#adventure-best')).toHaveText('10');
+ await page.getByRole('button',{name:'Pausar'}).click();
+ await expect(page.locator('#adventure-overlay-title')).toHaveText('Jogo pausado');
+ await page.locator('#adventure-start').click();
+ await expect(page.locator('#adventure-countdown')).toHaveText('3');
+ await expect(page.locator('#adventure-overlay')).toBeHidden({timeout:5000});
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#hud-score')).toHaveText('0');
+ expect(rankCalls).toBe(1);
+});
+test('Aventura compartilha link próprio sem afirmar recorde global',async({page})=>{
+ await page.goto('/jogos/snake/aventura/');
+ const share=page.locator('[data-game-share]');
+ const whatsapp=new URL(await share.locator('[data-share-network="whatsapp"]').getAttribute('href')||'');
+ expect(whatsapp.searchParams.get('text')).toContain('/jogos/snake/aventura/');
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'snake-adventure',score:60}})));
+ await expect(share.locator('[data-share-message]')).toContainText('Fiz 60 pontos');
+});

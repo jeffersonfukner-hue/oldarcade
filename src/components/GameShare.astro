@@ -1,8 +1,8 @@
 ---
-interface Props { gameSlug:string; gameName:string }
-const {gameSlug,gameName}=Astro.props;
+interface Props { gameSlug:string; gameName:string; gamePath?:string }
+const {gameSlug,gameName,gamePath='/jogos/'+gameSlug+'/'}=Astro.props;
 ---
-<section class="section game-share" aria-label={`Compartilhar ${gameName}`} data-game-share data-game-slug={gameSlug} data-game-name={gameName}>
+<section class="section game-share" aria-label={`Compartilhar ${gameName}`} data-game-share data-game-slug={gameSlug} data-game-name={gameName} data-game-path={gamePath}>
  <div class="game-share-intro">
   <div><span class="eyebrow">Convide seus amigos</span><h2>Quem consegue superar seu resultado?</h2><p data-share-message>Compartilhe o {gameName} e desafie alguém a jogar.</p></div>
   <button class="btn secondary share-native" type="button" data-share-native>Compartilhar <span aria-hidden="true">↗</span></button>

@@ -4,7 +4,8 @@ document.querySelectorAll<HTMLElement>('[data-game-share]').forEach(section=>{
  const name=section.dataset.gameName||'Jogo';
  if(!/^[a-z0-9-]+$/.test(slug))return;
  // Usa o endereço real do ambiente atual. Preview não é divulgado como domínio de produção.
- const url=new URL('/jogos/'+slug+'/',window.location.origin).toString();
+ const path=section.dataset.gamePath||'/jogos/'+slug+'/';
+ const url=new URL(path,window.location.origin).toString();
  let score:number|null=null;
  const feedback=section.querySelector<HTMLElement>('[data-share-feedback]');
  const copy=section.querySelector<HTMLButtonElement>('[data-share-copy]');

@@ -8,6 +8,9 @@
 
 
 ## ESTADO ATUAL — 16/11/2026 (leia antes das seções históricas abaixo)
+- **Snake Aventura em implementação/Preview, não publicado:** rota isolada `/jogos/snake/aventura/`, três níveis contínuos na mesma partida (1: cinco maçãs e 50 pontos; 2: uma dourada e 150 pontos; 3: três itens especiais e 300 pontos; depois sobrevivência). Maçã +10, dourada +50 e cristal +10 com lentidão temporária. Evolução exige simultaneamente missão e pontuação, mantém cobrinha/pontos, usa countdown 3–2–1 ao iniciar/retomar, teclado/gesto/toque, progresso local separado (`oldarcade:snake:adventure:v1`). Sem POST de recorde global nem alteração da mecânica do Clássico; **modo experimental não conta como um segundo jogo publicado**. Barreiras, veneno, dados globais do Aventura e modalidades de treino ficam para fases seguintes.
+- **Compartilhamento:** o componente GameShare aceita `gamePath` opcional para apontar ao endereço correto de cada modo, sem incluir o código de indicação futuro. Aventura compartilha apenas seu resultado local, sem alegar recorde oficial.
+
 - **Compartilhar/desafiar amigos:** componente reutilizável `src/components/GameShare.astro` + `src/scripts/gameShare.ts`, instalado no Snake. Oferece Web Share API, WhatsApp, Telegram, Facebook, X, Reddit, Bluesky e copiar convite. Antes do fim, convite genérico; após fim, inclui pontos **reais da partida**, sem afirmar verificação global ou expor apelido/conta. Usa URL da página do ambiente atual, incluindo Preview; não presume domínio de produção. Não adiciona requisições para servidor ou scripts sociais. Testes E2E cobrem URLs, score e orçamento de consultas.
 
 - **Retomada de pausa:** botão Continuar (do jogo ou sobreposição) e atalho Espaço agora sempre iniciam o countdown existente 3–2–1 antes de retomar movimento, preservando cobra, pontuação e partida; testes automatizados atualizados. Não há requisições adicionais nem alterações na produção.
