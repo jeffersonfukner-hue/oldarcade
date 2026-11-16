@@ -485,6 +485,7 @@ test('modo Aventura tem níveis e recordes locais separados do Clássico',async(
  await page.goto('/jogos/snake/aventura/');
  await expect(page).toHaveTitle(/Snake Aventura/);
  await expect(page.locator('#adventure-level')).toHaveText('1');
+ await expect(page.locator('#adventure-stage')).toHaveAttribute('data-barrier-count','0');
  await expect(page.locator('#adventure-mission')).toContainText('Colete 5 maçãs');
  await expect(page.locator('#adventure-score')).toHaveText('0');
  await expect(page.locator('#adventure-highest')).toHaveText('1');
