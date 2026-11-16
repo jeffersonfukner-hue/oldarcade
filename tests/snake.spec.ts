@@ -51,6 +51,6 @@ test('botão amplia apenas o painel do Snake', async ({page}) => {
   await page.goto('/jogos/snake/');
   await page.locator('#fullscreen-btn').click();
   await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id||'')).toBe('game-stage');
-  await page.keyboard.press('Escape');
+  await page.locator('#fullscreen-btn').click();
   await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id||'')).toBe('');
 });
