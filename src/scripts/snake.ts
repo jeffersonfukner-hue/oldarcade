@@ -1,3 +1,4 @@
+import { setupGlobalGameCounters } from './globalGameCounters';
 type Direction = 'up'|'down'|'left'|'right';
 type Point = {x:number;y:number};
 type Score = {name:string;score:number;at:number};
@@ -13,6 +14,7 @@ const stage = document.querySelector<HTMLElement>('#game-stage')!;
 const gameScreen = document.querySelector<HTMLElement>('#game-screen')!;
 const hud = document.querySelector<HTMLElement>('#hud-status')!;
 const countValue = document.querySelector<HTMLElement>('#countdown-value')!;
+const globalCounters=setupGlobalGameCounters('snake');
 const size=20, cell=canvas.width/size;
 const key='oldarcade:snake:v1';
 type Saved={best:number;plays:number;visits:number;nickname:string;scores:Score[];lastVisit:string};
@@ -38,7 +40,7 @@ function schedule(){window.clearTimeout(timer);if(state==='playing')timer=window
 function tick(){if(state!=='playing')return;direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const head={x:snake[0].x+d.x,y:snake[0].y+d.y};const eating=head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if(head.x<0||head.x>=size||head.y<0||head.y>=size||body.some(p=>p.x===head.x&&p.y===head.y)){end(false);return}snake.unshift(head);if(eating){score+=10;placeFood();if(state!=='playing'){draw();return}}else snake.pop();draw();refresh();schedule()}
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
-function start(){cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};saved.plays++;store();draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
+function start(){cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};saved.plays++;store();globalCounters.recordPlay();draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);if(score>saved.best)saved.best=score;saved.scores.push({name:saved.nickname||'Anônimo',score,at:Date.now()});saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20);store();refresh();show(won?'Tabuleiro completo!':'Fim de jogo',`Você marcou ${score} pontos. Que tal tentar novamente?`,'▶ Jogar novamente')}
 function pause(){if(state==='playing'){state='paused';window.clearTimeout(timer);show('Jogo pausado','A partida está preservada.','▶ Continuar');setStatus('Pausado');pauseBtn.textContent='Continuar'}else if(state==='paused'){state='playing';overlay.hidden=true;pauseBtn.textContent='Pausar';setStatus('Jogando');schedule()}}
 function turn(d:Direction){if(state!=='playing')return;const opposite:Record<Direction,Direction>={up:'down',down:'up',left:'right',right:'left'};if(d!==opposite[direction])next=d}

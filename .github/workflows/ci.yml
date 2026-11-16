@@ -19,6 +19,8 @@ jobs:
         run: npm run check
       - name: Gerar site estático
         run: npm run build
+      - name: Testar API dos contadores
+        run: npm run test:api
       - name: Instalar Chromium de testes
         run: npx playwright install --with-deps chromium
       - name: Testar experiência real no navegador

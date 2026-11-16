@@ -64,3 +64,11 @@ O arquivo robots.txt nesta fundação bloqueia crawlers de propósito. Alterar a
 - Tabuleiro captura swipe vertical/horizontal com limiar de movimento e impede rolagem durante a jogada; botões direcionais continuam disponíveis.
 - Gestos fora do tabuleiro mantêm rolagem normal; não desabilitar pinça de acessibilidade globalmente.
 - Testar em iPhone real; testes em Chromium emulado não comprovam comportamento do Safari iOS.
+
+## Contadores globais (piloto, somente Preview)
+- Pages Function em functions/api/games/[game]/stats.js, acessando D1 pela variável OLDARCADE_STATS_DB.
+- Migração em migrations/0001_game_events.sql, aplicada somente no banco de Preview.
+- Visitas uma por sessão/aba, token aleatório em sessionStorage e UNIQUE no D1; partidas por início real, sem duplicar ao retomar.
+- Se API indisponível, não inventar valores; mostrar traço e status.
+- Nenhum IP/nickname/cookie persistente é armazenado no D1; tokens aleatórios e timestamp dos eventos ficam armazenados.
+- Idempotência e validação de origem não equivalem a proteção antifraude; reforçar antes de lançamento público.

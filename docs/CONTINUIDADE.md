@@ -52,6 +52,13 @@ O usuário criou o projeto Pages `oldarcade` conectado ao GitHub, com domínio t
 ## Ajuste de visibilidade durante countdown (16/11/2026)
 - Usuário solicitou que botão Começar/Jogar novamente fique oculto durante 3–2–1. O JavaScript já usava atributo hidden, mas a classe CSS .btn podia prevalecer; adicionado seletor específico `#start-btn[hidden]{display:none}` e teste automatizado.
 
+
+## Contadores globais do Snake — 16/11/2026
+- Código de UI, Pages Functions, migração D1 e testes implementados somente em feat/fundacao-snake.
+- Banco Cloudflare não foi criado automaticamente. Próximo passo: criar D1 oldarcade-stats-preview, aplicar migrations/0001_game_events.sql e vincular a variável OLDARCADE_STATS_DB na configuração **Preview**, nunca produção.
+- Sem binding, números exibidos como indisponíveis; nenhuma métrica fictícia. IDs aleatórios sem login e eventos armazenados sem IP; antifraude robusto e retenção a definir.
+- Não dar merge nem adicionar domínio; após CI, orientar uma ação por turno no Cloudflare.
+
 ## Pendências prioritárias
 1. Confirmar novo deploy Cloudflare Pages **Preview** da branch `feat/fundacao-snake` e recuperar URL gerada; não inventar URL.
 2. Validar Snake no navegador humano, especialmente tecla Esc, mobile, ranking local e conteúdo.

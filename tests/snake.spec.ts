@@ -36,7 +36,7 @@ test('nickname é opcional, ranking não se anuncia como global', async ({page})
   await page.reload();
   await expect(page.locator('#nickname')).toHaveValue('Jogador teste');
   await expect(page.getByRole('heading', {name:'Ranking local'})).toBeVisible();
-  await expect(page.getByText('Rankings e contadores globais não estão habilitados.')).toBeVisible();
+  await expect(page.getByText(/Recordes e ranking locais continuam/)).toBeVisible();
 });
 
 test('área jogável e controles são exibidos em desktop e celular', async ({page}) => {
@@ -119,4 +119,27 @@ test('mobile: deslizar no tabuleiro controla direção e não permite zoom duplo
   el.dispatchEvent(new TouchEvent('touchend',{bubbles:true,cancelable:true,touches:[],targetTouches:[],changedTouches:[end]}));
  });
  await expect(page.locator('#hud-status')).toContainText('Jogando');
+});
+
+test('contadores globais indisponíveis não viram zeros inventados',async({page})=>{
+ await page.route('**/api/games/snake/stats',r=>r.fulfill({status:503,contentType:'application/json',body:'{"available":false}'}));
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#global-visits')).toHaveText('—');
+ await expect(page.locator('#global-stats-status')).toContainText('indisponíveis');
+});
+test('visita mantém ID ao atualizar e partida envia novo ID',async({page})=>{
+ const events=[];
+ await page.route('**/api/games/snake/stats',async route=>{
+  events.push(route.request().postDataJSON());
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,visits:1,plays:events.filter(e=>e.kind==='play').length})});
+ });
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#global-visits')).toHaveText('1');
+ await page.reload();
+ await expect(page.locator('#global-visits')).toHaveText('1');
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#global-plays')).toHaveText('1');
+ const seen=events.filter(e=>e.kind==='visit');
+ expect(seen).toHaveLength(2);
+ expect(seen[0].eventId).toBe(seen[1].eventId);
 });
