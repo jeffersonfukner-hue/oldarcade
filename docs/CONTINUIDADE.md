@@ -208,3 +208,11 @@ O usuário criou o projeto Pages `oldarcade` conectado ao GitHub, com domínio t
 - Conquista de recorde pessoal: brilho verde no tabuleiro/HUD, partículas verdes e mensagem existente de recorde pessoal. Conquista de meta global: brilho dourado mais forte e partículas douradas, mensagem de recorde global ultrapassado. Quando ambos coincidem, os dois efeitos são disparados, mantendo prioridade do aviso global.
 - Efeitos são client-side, não alteram placar, registros ou consultas de Cloudflare; movimentos são suprimidos quando usuário seleciona `prefers-reduced-motion: reduce`; overlays não capturam toque/click.
 - Reutilizar os gatilhos já existentes (somente ao ultrapassar valores, uma vez por limiar na rodada); limpar timers e partículas ao reiniciar.
+
+## Pontuações decimais — desenvolvimento em 16/11/2026
+- Aprovado pelo proprietário: até três casas decimais para todos os jogos, sem restrição de múltiplos no D1.
+- Migração **0006_decimal_scores.sql preparada, NÃO EXECUTADA**: troca `best_score INTEGER` por `best_score_milli INTEGER` (milésimos exatos); copia registros existentes multiplicando por 1000; preserva jogador, modalidade, timestamp, PK, FK e índice. Aplicar somente em `oldarcade-stats-preview` após backup e conferência. Migração 0005 foi aplicada manualmente no Preview; não repetir.
+- API de leaderboard reconhece esquema antigo e novo via PRAGMA, permitindo rankings inteiros existentes até executar 0006. No novo esquema converte milésimos em número decimal na resposta e usa milésimos para ordenação e empate. Até a migração, valores fracionários são recusados explicitamente; pontuações inteiras dos Snake continuam funcionais.
+- Validação de entrada numérica até 3 casas e intervalo 0–4000 (limite provisório de API atual, revisar por jogo futuro); a pontuação segue autodeclarada pelo cliente, não é antifraude.
+- Componente compartilhado `modeRanking.ts` recebe decimais; testes de contrato e migração atualizados.
+- **Pendente:** conferir GitHub Actions e E2E, backup e execução manual 0006 no D1 Preview, validação de preservação e valores decimais no ambiente real. Não executar em produção nem publicar/merge sem autorização.
