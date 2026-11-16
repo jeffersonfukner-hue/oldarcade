@@ -1,5 +1,6 @@
 /** Contrato compartilhado: um início real de partida por jogo/modo. */
-export type GameModeId='snake'|'snake-adventure';
+import {gameModes} from '../data/gameModes.js';
+export type GameModeId=keyof typeof gameModes;
 export function recordGameStart(game:GameModeId){
  const eventId=crypto.randomUUID();
  document.dispatchEvent(new CustomEvent('oldarcade:game-started',{detail:{game,eventId}}));
