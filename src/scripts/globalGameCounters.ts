@@ -1,8 +1,8 @@
 type Totals={available:boolean;visits?:number;plays?:number};
-export function setupGlobalGameCounters(game:string){
- const visits=document.getElementById('global-visits')!;
- const plays=document.getElementById('global-plays')!;
- const info=document.getElementById('global-stats-status')!;
+export function setupGlobalGameCounters(game:string,prefix='global'){
+ const visits=document.getElementById(prefix+'-visits')!;
+ const plays=document.getElementById(prefix+'-plays')!;
+ const info=document.getElementById(prefix+'-stats-status')!;
  const endpoint='/api/games/'+encodeURIComponent(game)+'/stats';
  let mostRecent=0;
  async function send(kind:'visit'|'play',eventId:string){
