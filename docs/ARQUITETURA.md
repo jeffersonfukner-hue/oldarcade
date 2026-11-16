@@ -33,3 +33,10 @@ Desktop 1440/1024, mobile 390/320, teclado, toque, fullscreen/Esc, pausa em troc
 
 ## Observações
 O arquivo robots.txt nesta fundação bloqueia crawlers de propósito. Alterar apenas quando houver domínio e autorização de publicação. O site não tem integração AdSense nem backend público ativo.
+
+## Registro permanente por jogo
+- Cada jogo recebe um número sequencial fixo, identificador estável e data do primeiro commit de implementação.
+- Manter `src/data/gameRegistry.ts` como fonte única de versão, criação e notas históricas. Não editar registros antigos, somente acrescentar novas entradas datadas.
+- Versão individual do jogo é independente da versão geral do portal no rodapé.
+- Exibir ao final da página, em seção discreta e expansível, sem competir com a área jogável e sem confundir a história do jogo original com a história da nossa implementação.
+- Registrar mudanças relevantes após aprovação e testes; não chamar versão de lançamento público antes do deploy.
