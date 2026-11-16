@@ -10,3 +10,7 @@ A implementação está na branch feat/fundacao-snake; ainda não há backend at
 6. Testar uma visita por sessão e uma partida por iniciar, sem incremento ao trocar modo tela cheia.
 
 O código não coleta IP, nickname, email ou identificador persistente de usuário. Tokens de eventos aleatórios e horário ficam no D1. A idempotência evita duplicidade acidental, mas não impede manipulação deliberada. Antes de lançar em produção, revisar privacidade, proteção contra abuso e política de retenção.
+
+## Configuração após criação manual do banco
+O banco `oldarcade-stats-preview` foi criado, e o Console confirmou a tabela `game_events`.
+O `wrangler.jsonc` contém o UUID do banco apenas em `env.preview`, com `env.production.d1_databases` vazio, para evitar conectar o Preview à produção. Nenhuma alteração de binding foi salva pelo dashboard. Verificar na API pública do próximo deploy Preview: `GET /api/games/snake/stats`; resposta `available:true` indica vínculo D1 funcional. Se retornar 503 ou 404, investigar logs do deploy e aplicação da configuração, sem mudar produção.

@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "oldarcade",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-11-16",
+  "env": {
+    "preview": {
+      "d1_databases": [
+        {
+          "binding": "OLDARCADE_STATS_DB",
+          "database_name": "oldarcade-stats-preview",
+          "database_id": "2e849e43-9441-4ef0-8a24-e5a7d2dff074"
+        }
+      ]
+    },
+    "production": {
+      "d1_databases": []
+    }
+  }
+}

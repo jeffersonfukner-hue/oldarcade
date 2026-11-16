@@ -59,6 +59,14 @@ O usuário criou o projeto Pages `oldarcade` conectado ao GitHub, com domínio t
 - Sem binding, números exibidos como indisponíveis; nenhuma métrica fictícia. IDs aleatórios sem login e eventos armazenados sem IP; antifraude robusto e retenção a definir.
 - Não dar merge nem adicionar domínio; após CI, orientar uma ação por turno no Cloudflare.
 
+## Cloudflare D1 Preview — ID e configuração registrados
+- Usuário criou `oldarcade-stats-preview` e executou a migração SQL; confirmou `game_events` no Console.
+- Database ID informado pelo usuário: `2e849e43-9441-4ef0-8a24-e5a7d2dff074`.
+- A tela Settings > Bindings não mostrava seletor de Preview. Não salvamos nenhum binding pelo dashboard.
+- Adicionado `wrangler.jsonc` com `env.preview.d1_databases` definindo `OLDARCADE_STATS_DB`, e `env.production.d1_databases=[]`. Sem binding no nível raiz.
+- Cloudflare Pages usará a configuração deste arquivo como fonte de verdade no deploy da branch; verificar no deploy do Preview se a API `/api/games/snake/stats` retorna `available:true` antes de considerar vínculo concluído.
+- A publicação do `main` não foi acionada; não alterar produção.
+
 ## Pendências prioritárias
 1. Confirmar novo deploy Cloudflare Pages **Preview** da branch `feat/fundacao-snake` e recuperar URL gerada; não inventar URL.
 2. Validar Snake no navegador humano, especialmente tecla Esc, mobile, ranking local e conteúdo.
