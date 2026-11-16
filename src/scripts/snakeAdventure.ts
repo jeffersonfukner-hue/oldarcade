@@ -1,9 +1,11 @@
 import {centerGameBoard} from './gameViewport';
-import {recordGameStart,recordGlobalPlay} from './gameEvents';
+import {recordGameStart} from './gameEvents';
+import {setupGlobalGameCounters} from './globalGameCounters';
 type Direction='up'|'down'|'left'|'right';
 type Point={x:number;y:number};
 type ItemKind='apple'|'gold'|'ice'|'speed';
 type Item={at:Point;kind:ItemKind;ticks?:number};
+const adventureCounters=setupGlobalGameCounters('snake-adventure','adventure-global');
 const canvas=document.querySelector<HTMLCanvasElement>('#adventure-canvas')!;
 const ctx=canvas.getContext('2d')!;
 const stage=document.querySelector<HTMLElement>('#adventure-stage')!;
@@ -189,7 +191,7 @@ function start(){
  snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';
  food={at:{x:14,y:10},kind:'apple'};special=null;
  score=0;level=1;apples=0;golds=0;level3Specials=0;normalSinceSpecial=0;iceTicks=0;speedTicks=0;levelApples=0;globalProvisional=false;setBarriers(0);
- void recordGlobalPlay('snake-adventure',recordGameStart('snake-adventure'));
+ adventureCounters.recordPlay(recordGameStart('snake-adventure'));
  plays++;save();window.clearTimeout(bannerTimer);banner.hidden=true;draw();update();centerGameBoard(screen,stage);beginCountdown(true);
 }
 function finish(){
