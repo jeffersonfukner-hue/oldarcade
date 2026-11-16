@@ -97,14 +97,35 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 function start(){cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
- didCelebratePersonal=false;lastCelebratedGlobalTarget=null;liveChecks=0;
- resetAnnouncements();floatLayer.replaceChildren();saved.plays++;store();globalCounters.recordPlay();draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
-function end(won:boolean){state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
+ didCelebratePersonal=false;lastCelebratedGlobalTarget=null;
+ resetAnnouncements();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();saved.plays++;store();globalCounters.recordPlay();draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
+function end(won:boolean){
+ state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
  if(score>saved.best)saved.best=score;
- if(saved.nickname.trim()){saved.scores.push({name:saved.nickname.trim(),score,at:Date.now()});saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20)}
- store();refresh();show(won?'Tabuleiro completo!':'Fim de jogo',`Você marcou ${score} pontos. Que tal tentar novamente?`,'▶ Jogar novamente');
- if(account){void saveRecord(false)}else{void checkAccount().then(()=>{if(account)void saveRecord(false);else openRecordModal()})}
+ if(saved.nickname.trim()){
+  saved.scores.push({name:saved.nickname.trim(),score,at:Date.now()});
+  saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20);
+ }
+ store();refresh();show(won?'Tabuleiro completo!':'Fim de jogo',`Você marcou ${score} pontos. Conferindo a classificação atual…`,'▶ Jogar novamente');
+ void finishRound();
 }
+async function finishRound(){
+ if(!account)await checkAccount();
+ if(account){
+  try{
+   const result=await leaderboard.submit(score);
+   text('overlay-text',`Você marcou ${score} pontos. ${leaderboard.summary(result)}`);
+  }catch(error){
+   text('overlay-text',`Você marcou ${score} pontos. Não foi possível registrar: ${error instanceof Error?error.message:'erro de conexão'}.`);
+  }
+ }else{
+  const result=await leaderboard.refresh('end');
+  if(result)text('overlay-text',`Você marcou ${score} pontos. ${leaderboard.summary(result)}`);
+  openRecordModal();
+  if(result)text('record-end-summary',leaderboard.summary(result));
+ }
+}
+
 function pause(){if(state==='playing'){state='paused';window.clearTimeout(timer);show('Jogo pausado','A partida está preservada.','▶ Continuar');setStatus('Pausado');pauseBtn.textContent='Continuar'}else if(state==='paused'){state='playing';overlay.hidden=true;pauseBtn.textContent='Pausar';setStatus('Jogando');schedule()}}
 function turn(d:Direction){if(state!=='playing')return;const opposite:Record<Direction,Direction>={up:'down',down:'up',left:'right',right:'left'};if(d!==opposite[direction])next=d}
 
@@ -199,7 +220,8 @@ async function checkAccount(){
 }
 async function saveRecord(showModalOnError=true){
  try{
-  await leaderboard.submit(score);
+  const result=await leaderboard.submit(score);
+  text('record-end-summary',leaderboard.summary(result));
   if(account){saved.nickname=account.nickname;store();refresh()}
   if(modalOpen&&!recoveryCode)closeRecordModal();
  }catch(error){
@@ -256,8 +278,8 @@ async function authAndRecord(kind:'register'|'login',fields:Record<string,string
    document.querySelector<HTMLElement>('#record-recovery-code')!.textContent=recoveryCode;
   }
   setModalStatus('Conta conectada. Registrando seu resultado…');
-  await leaderboard.submit(score);
-  await leaderboard.refresh();
+  const result=await leaderboard.submit(score);
+  text('record-end-summary',leaderboard.summary(result));
   setModalStatus(result.recoveryCode?'Recorde registrado! Guarde o código antes de continuar.':'Recorde registrado!');
   if(!recoveryCode)closeRecordModal();
   form.reset();
@@ -287,22 +309,12 @@ document.querySelector<HTMLButtonElement>('#record-copy-code')!.addEventListener
 document.querySelector<HTMLButtonElement>('#record-recovery-done')!.addEventListener('click',()=>{
  recoveryCode='';recoveryPanel.hidden=true;document.querySelector<HTMLElement>('#record-recovery-code')!.textContent='';closeRecordModal();
 });
-document.addEventListener('oldarcade:rank-change',event=>{
- if(state!=='playing')return;
- const rank=(event as CustomEvent<{rank:number}>).detail.rank;
- announceRecord('⚡ Seu recorde caiu para '+rank+'º no ranking. Continue e recupere sua posição!','rival');
-});
 document.addEventListener('oldarcade:global-record',event=>{
  const detail=(event as CustomEvent<{score:number|null;previousScore:number|null;changed:boolean;source:string}>).detail;
  const value=detail?.score;
  globalBest=typeof value==='number'&&Number.isFinite(value)?value:null;
  refresh();
- // Alteração externa: não anunciar uma atualização feita pelo próprio jogador.
- if(state==='playing'&&detail.source==='poll'&&detail.changed&&globalBest!==null
-   &&(detail.previousScore===null||globalBest>detail.previousScore)
-   &&globalBest>score){
-  announceRecord('⚡ Alguém assumiu a liderança com '+globalBest+' pontos. Continue jogando!','rival');
- }
+
 });
 document.addEventListener('oldarcade:personal-record',event=>{
  const detail=(event as CustomEvent<{score:number}>).detail;
@@ -310,20 +322,7 @@ document.addEventListener('oldarcade:personal-record',event=>{
  refresh();
 });
 void checkAccount();
-// Consulta leve e somente enquanto há uma partida ativa na aba visível.
-// Atualiza placar dos demais jogadores, sem gravar resultado provisório no D1.
-// Versão piloto: somente duas consultas de atualização por partida, não um
-// polling ilimitado que consome a franquia gratuita da Cloudflare.
-let liveChecks=0;
-window.setInterval(()=>{
- if(state==='playing'&&!document.hidden&&liveChecks<2){
-  liveChecks++;
-  void leaderboard.refresh('poll');
- }
-},120000);
-document.addEventListener('visibilitychange',()=>{
- if(!document.hidden&&state==='playing'&&liveChecks<2){liveChecks++;void leaderboard.refresh('poll')}
-});
+// Consultar somente na entrada da página e ao final da partida.
 
 startBtn.addEventListener('click',()=>state==='paused'?pause():start());
 pauseBtn.addEventListener('click',pause);

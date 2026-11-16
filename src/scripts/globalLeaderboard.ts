@@ -1,5 +1,5 @@
 type Entry={nickname:string;score:number;place?:number;rank?:number;achievedAt?:string};
-type Board={available:boolean;top?:Entry[];mine?:Entry|null;verified?:boolean;registeredOnly?:boolean};
+type Board={available:boolean;top?:Entry[];mine?:Entry|null;serverNow?:string;verified?:boolean;registeredOnly?:boolean};
 function localDate(iso?:string){
  if(!iso)return 'Data indisponível';
  const dt=new Date(iso);if(Number.isNaN(dt.getTime()))return 'Data indisponível';
@@ -14,8 +14,8 @@ export function setupGlobalLeaderboard(){
  let lastGlobalScore:number|null=null;
  let loadedGlobal=false;
  let loading=false;
- let lastPersonalRank:number|null=null;
- let loadedPersonalRank=false;
+ let initialBoard:Board|null=null;
+ let roundStartBoard:Board|null=null;
  const myResult=document.querySelector<HTMLElement>('#my-global-rank')!;
  const myPosition=document.querySelector<HTMLElement>('#my-global-position')!;
  const myDetail=document.querySelector<HTMLElement>('#my-global-detail')!;
@@ -25,16 +25,10 @@ export function setupGlobalLeaderboard(){
   myPosition.textContent=(mine.rank||'—')+'º lugar';
   myDetail.textContent=mine.nickname+' · '+mine.score+' pontos · '+localDate(mine.achievedAt);
  }
- function draw(data:Board,source:'initial'|'poll'|'submit'='initial'){
+ function draw(data:Board,source:'initial'|'end'|'submit'='initial'){
+  if(data.available&&source==='initial')initialBoard=data;
   body.replaceChildren();
   drawMine(data.mine);
-  if(data.available){
-   const rank=data.mine?.rank??null;
-   if(source==='poll'&&loadedPersonalRank&&rank!==null&&lastPersonalRank!==null&&rank>lastPersonalRank){
-    document.dispatchEvent(new CustomEvent('oldarcade:rank-change',{detail:{rank,previousRank:lastPersonalRank}}));
-   }
-   lastPersonalRank=rank;loadedPersonalRank=true;
-  }
   const globalScore=data.available&&data.top?.length?data.top[0].score:null;
   if(data.available){
    const previousScore=lastGlobalScore;
@@ -71,20 +65,46 @@ export function setupGlobalLeaderboard(){
    row.append(pos,nick,score,date);body.append(row);
   });
  }
- async function refresh(source:'initial'|'poll'='initial'){
-  if(loading)return;
+ function markRoundStart(){roundStartBoard=initialBoard}
+ function relativeElapsed(now:string|undefined,when:string|undefined){
+  if(!now||!when)return '';
+  const seconds=Math.max(0,Math.floor((Date.parse(now)-Date.parse(when))/1000));
+  if(!Number.isFinite(seconds))return '';
+  if(seconds<60)return 'há '+seconds+' segundo'+(seconds===1?'':'s');
+  if(seconds<3600){const mins=Math.floor(seconds/60);return 'há '+mins+' minuto'+(mins===1?'':'s')}
+  const hours=Math.floor(seconds/3600);return 'há '+hours+' hora'+(hours===1?'':'s');
+ }
+ function summary(current:Board){
+  if(!current.available)return 'Não foi possível consultar a classificação.';
+  const previous=roundStartBoard;
+  const top=current.top?.[0],oldTop=previous?.top?.[0];
+  if(top&&(!oldTop||top.score>oldTop.score)){
+   const age=relativeElapsed(current.serverNow,top.achievedAt);
+   return top.nickname+' assumiu a liderança com '+top.score+' pontos'+(age?' '+age:'')+'.';
+  }
+  const wasRank=previous?.mine?.rank,nowRank=current.mine?.rank;
+  if(wasRank&&nowRank&&nowRank>wasRank&&previous?.mine?.score===current.mine?.score){
+   const n=nowRank-wasRank;
+   return 'Você caiu '+n+' posição'+(n===1?'':'ões')+' no ranking: agora está em '+nowRank+'º.';
+  }
+  if(top)return 'Líder atual: '+top.nickname+', '+top.score+' pontos.';
+  return 'Ainda não há recordes de contas cadastradas.';
+ }
+ async function refresh(source:'initial'|'end'='initial'):Promise<Board|null>{
+  if(loading)return null;
   loading=true;
   try{
    const r=await fetch(endpoint,{cache:'no-store'});if(!r.ok)throw Error('API indisponível');
-   draw(await r.json() as Board,source);
-  }catch{if(!loadedGlobal)draw({available:false})}
+   const data=await r.json() as Board;
+   draw(data,source);return data;
+  }catch{if(!loadedGlobal)draw({available:false});return null}
   finally{loading=false}
  }
- async function submit(score:number){
+ async function submit(score:number):Promise<Board>{
   const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score})});
   const data=await r.json() as Board&{error?:string};
   if(!r.ok||!data.available)throw Error(data.error||'Não foi possível registrar');
-  draw(data,'submit');
+  draw(data,'submit');return data;
  }
- void refresh();return {refresh,submit};
+ void refresh();return {refresh,submit,markRoundStart,summary};
 }

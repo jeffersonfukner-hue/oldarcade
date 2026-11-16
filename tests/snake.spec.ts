@@ -281,3 +281,20 @@ test('limite da consulta live evita polling constante no plano gratuito',async({
  await expect(page.locator('#global-rank-status')).toContainText('Cada jogador');
  await expect.poll(()=>calls).toBe(1);
 });
+
+test('ranking consulta na entrada e ao fim, nunca durante a partida',async({page})=>{
+ let calls=0;
+ await page.route('**/api/games/snake/leaderboard',route=>{
+  if(route.request().method()==='GET')calls++;
+  return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[],mine:null,serverNow:'2026-11-16T18:00:00.000Z'})});
+ });
+ await page.goto('/jogos/snake/');
+ await expect.poll(()=>calls).toBe(1);
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
+ await page.waitForTimeout(600);
+ expect(calls).toBe(1);
+ await page.keyboard.press('ArrowUp');
+ await expect(page.locator('#record-modal')).toBeVisible({timeout:8000});
+ await expect.poll(()=>calls).toBe(2);
+});

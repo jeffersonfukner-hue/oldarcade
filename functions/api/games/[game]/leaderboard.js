@@ -20,7 +20,7 @@ async function standings(db,request){
    mine={nickname:player.nickname,score:own.best_score,rank:Number(ahead?.count||0)+1,achievedAt:new Date(own.achieved_at_ms).toISOString()};
   }
  }
- return {available:true,top,mine,verified:false,registeredOnly:true};
+ return {available:true,top,mine,serverNow:new Date().toISOString(),verified:false,registeredOnly:true};
 }
 export async function onRequestGet(ctx){
  if(ctx.params?.game!=='snake')return reply({error:'Jogo não encontrado'},404);
