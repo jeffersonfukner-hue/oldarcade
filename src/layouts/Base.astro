@@ -1,0 +1,39 @@
+---
+import '../styles/global.css';
+const { title, description, path = '/', type = 'website' } = Astro.props;
+const configured = Astro.site?.hostname !== 'example.invalid';
+const base = new URL(Astro.site ?? 'https://example.invalid');
+const canonical = new URL(path, base).toString();
+const version = import.meta.env.PUBLIC_APP_VERSION || '0.1.0-dev';
+---
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0b1020" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <meta name="robots" content={configured ? 'index,follow,max-image-preview:large' : 'noindex,nofollow'} />
+  {configured && <link rel="canonical" href={canonical} />}
+  <meta property="og:locale" content="pt_BR" />
+  <meta property="og:type" content={type} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  {configured && <meta property="og:url" content={canonical} />}
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="logo" href="/" aria-label="OldArcade, página inicial"><span class="logo-symbol">▣</span><span>OLD<span class="accent">ARCADE</span></span></a>
+      <nav aria-label="Menu principal"><a href="/#destaques">Jogos</a><a href="/jogos/snake/">Snake</a><a href="/sobre/">Sobre</a></nav>
+    </div>
+  </header>
+  <main><slot /></main>
+  <footer class="site-footer">
+    <div class="shell footer-inner"><span>© {new Date().getFullYear()} OldArcade · Jogos clássicos, histórias reais.</span><div><a href="/sobre/">Sobre</a><a href="/privacidade/">Privacidade</a><span class="version" title="Versão da aplicação">v{version}</span></div></div>
+  </footer>
+</body>
+</html>

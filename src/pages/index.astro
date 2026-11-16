@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+const title='OldArcade — Jogos clássicos grátis para jogar online';
+const description='Jogue Snake grátis no navegador e descubra a história dos videogames clássicos, com regras, curiosidades e recordes locais.';
+---
+<Base title={title} description={description} path="/">
+  <div class="shell">
+    <section class="hero"><div class="eyebrow">O passado continua jogável</div><h1>Os clássicos nunca dão <span class="accent">game over.</span></h1><p class="lede">Entre para jogar, fique pela história. Jogos retrô gratuitos, sem instalação, com controles práticos e conteúdo editorial pesquisado.</p><a class="btn" href="/jogos/snake/">▶ Jogar Snake agora</a></section>
+    <section class="section" id="destaques">
+      <div class="section-head"><div><span class="eyebrow">Seleção inaugural</span><h2>Seu próximo desafio</h2></div><span class="pill">1 jogo disponível</span></div>
+      <div class="feature-grid">
+        <a class="game-card" href="/jogos/snake/"><div class="game-art"><div class="pixel-snake" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="details"><span class="eyebrow">Jogo do dia</span><h3>Snake — A cobrinha clássica</h3><p>Controle a direção, coma frutas e supere seu recorde.</p><span class="pill">▶ Jogar grátis</span></div></a>
+        <div class="panel"><span class="eyebrow">Mais jogado</span><h3>Snake</h3><p>Enquanto temos apenas um título, Snake é o único jogo elegível. A classificação global virá com as métricas do servidor.</p><a href="/jogos/snake/" class="btn secondary">Abrir jogo</a></div>
+        <div class="panel"><span class="eyebrow">Mais recente</span><h3>Snake</h3><p>Nosso primeiro lançamento jogável. Novos jogos só entram no catálogo depois de aprovados.</p><a href="/jogos/snake/" class="btn secondary">Conhecer Snake</a></div>
+      </div>
+    </section>
+    <section class="section"><div class="section-head"><h2>Nosso compromisso</h2></div><div class="feature-grid"><div class="panel"><h3>🎮 Jogar de verdade</h3><p>O jogo vem primeiro, sem páginas intermediárias confusas.</p></div><div class="panel"><h3>📚 História pesquisada</h3><p>Contexto, autoria e fontes em cada jogo — sem inventar fatos.</p></div><div class="panel"><h3>🏆 Recordes honestos</h3><p>Por enquanto, pontuações são locais. Rankings globais só depois de verificarmos o backend.</p></div></div></section>
+  </div>
+</Base>
