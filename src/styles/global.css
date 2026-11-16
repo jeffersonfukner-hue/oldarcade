@@ -22,3 +22,13 @@ html,body{touch-action:manipulation}
 #start-btn[hidden]{display:none}
 
 .global-stats{margin:20px 0;border-block:1px solid #32405f;padding:18px 0}.global-stats h3{font-size:1rem;margin-bottom:12px}.global-stats p{margin:12px 0 0}
+
+.game-stage{position:relative}
+.record-modal[hidden]{display:none}
+.record-modal{position:absolute;inset:0;z-index:50;display:grid;place-items:center;padding:12px;background:#030714e8;border-radius:18px}
+.record-modal-inner{width:min(100%,410px);max-height:96%;overflow:auto;border:1px solid #574ca4;border-radius:16px;padding:22px;background:#151e36;box-shadow:0 14px 70px #0009}
+.record-modal-inner h2{font-size:1.5rem;margin:10px 0}.record-modal-inner p{line-height:1.5}
+.record-modal-inner input{width:100%;padding:12px;background:#0b1222;border:1px solid #59668d;border-radius:10px;color:#fff;margin:8px 0}
+.record-modal-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+#record-skip{border:1px solid #465378;border-radius:10px;padding:10px 14px;background:#232d49;color:#fff}
+.challenge-text{margin:18px 0 14px;color:#c6b6ff;font-weight:700;line-height:1.5}

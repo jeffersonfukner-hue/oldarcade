@@ -1,3 +1,4 @@
+import { setupGlobalLeaderboard } from './globalLeaderboard';
 import { setupGlobalGameCounters } from './globalGameCounters';
 type Direction = 'up'|'down'|'left'|'right';
 type Point = {x:number;y:number};
@@ -15,6 +16,12 @@ const gameScreen = document.querySelector<HTMLElement>('#game-screen')!;
 const hud = document.querySelector<HTMLElement>('#hud-status')!;
 const countValue = document.querySelector<HTMLElement>('#countdown-value')!;
 const globalCounters=setupGlobalGameCounters('snake');
+const leaderboard=setupGlobalLeaderboard();
+const recordModal=document.querySelector<HTMLElement>('#record-modal')!;
+const recordForm=document.querySelector<HTMLFormElement>('#record-form')!;
+const recordNick=document.querySelector<HTMLInputElement>('#record-nickname')!;
+const recordStatus=document.querySelector<HTMLElement>('#record-modal-status')!;
+let modalOpen=false;
 const size=20, cell=canvas.width/size;
 const key='oldarcade:snake:v1';
 type Saved={best:number;plays:number;visits:number;nickname:string;scores:Score[];lastVisit:string};
@@ -41,7 +48,7 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 function start(){cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};saved.plays++;store();globalCounters.recordPlay();draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
-function end(won:boolean){state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);if(score>saved.best)saved.best=score;if(saved.nickname.trim()){saved.scores.push({name:saved.nickname.trim(),score,at:Date.now()});saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20)}store();refresh();show(won?'Tabuleiro completo!':'Fim de jogo',`Você marcou ${score} pontos. Que tal tentar novamente?`,'▶ Jogar novamente')}
+function end(won:boolean){state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);if(score>saved.best)saved.best=score;if(saved.nickname.trim()){saved.scores.push({name:saved.nickname.trim(),score,at:Date.now()});saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20)}store();refresh();show(won?'Tabuleiro completo!':'Fim de jogo',`Você marcou ${score} pontos. Que tal tentar novamente?`,'▶ Jogar novamente');openRecordModal()}
 function pause(){if(state==='playing'){state='paused';window.clearTimeout(timer);show('Jogo pausado','A partida está preservada.','▶ Continuar');setStatus('Pausado');pauseBtn.textContent='Continuar'}else if(state==='paused'){state='playing';overlay.hidden=true;pauseBtn.textContent='Pausar';setStatus('Jogando');schedule()}}
 function turn(d:Direction){if(state!=='playing')return;const opposite:Record<Direction,Direction>={up:'down',down:'up',left:'right',right:'left'};if(d!==opposite[direction])next=d}
 
@@ -116,10 +123,37 @@ gameScreen.addEventListener('touchend',event=>{
 },{passive:false});
 gameScreen.addEventListener('touchcancel',()=>{gestureStart=null});
 
+function openRecordModal(){
+ recordNick.value=saved.nickname;
+ recordStatus.textContent='';
+ text('record-modal-score',`Você marcou ${score} pontos. Quer tentar o ranking global?`);
+ recordModal.hidden=false;modalOpen=true;
+ recordNick.focus({preventScroll:true});
+}
+function closeRecordModal(){
+ recordModal.hidden=true;modalOpen=false;
+ startBtn.focus({preventScroll:true});
+}
+document.querySelector<HTMLButtonElement>('#record-skip')!.addEventListener('click',closeRecordModal);
+recordForm.addEventListener('submit',async event=>{
+ event.preventDefault();
+ const nickname=recordNick.value.trim();
+ if(!nickname){recordStatus.textContent='Informe um nickname.';return}
+ const submit=recordForm.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+ submit.disabled=true;recordStatus.textContent='Registrando no Cloudflare…';
+ try{
+  await leaderboard.submit(nickname,score);
+  saved.nickname=nickname;store();
+  document.querySelector<HTMLInputElement>('#nickname')!.value=nickname;
+  closeRecordModal();
+ }catch(error){recordStatus.textContent=error instanceof Error?error.message:'Falha ao registrar.'}
+ finally{submit.disabled=false}
+});
+
 startBtn.addEventListener('click',()=>state==='paused'?pause():start());
 pauseBtn.addEventListener('click',pause);
 document.querySelectorAll<HTMLButtonElement>('[data-direction]').forEach(btn=>btn.addEventListener('click',()=>turn(btn.dataset.direction as Direction)));
-window.addEventListener('keydown',e=>{if(e.target instanceof HTMLInputElement)return;const map:Record<string,Direction>={ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down',ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right'};if(e.key.toLowerCase()==='f'&&!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey){e.preventDefault();void toggleFullscreen()}else if(map[e.key]&&state==='playing'){e.preventDefault();turn(map[e.key])}else if(e.code==='Space'&&(state==='playing'||state==='paused')){e.preventDefault();pause()}});
+window.addEventListener('keydown',e=>{if(modalOpen)return;if(e.target instanceof HTMLInputElement)return;const map:Record<string,Direction>={ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down',ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right'};if(e.key.toLowerCase()==='f'&&!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey){e.preventDefault();void toggleFullscreen()}else if(map[e.key]&&state==='playing'){e.preventDefault();turn(map[e.key])}else if(e.code==='Space'&&(state==='playing'||state==='paused')){e.preventDefault();pause()}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')pause()});
 fullscreenBtn.addEventListener('click',()=>{void toggleFullscreen()});
 document.addEventListener('fullscreenchange',()=>{

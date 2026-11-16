@@ -78,3 +78,10 @@ O arquivo robots.txt nesta fundação bloqueia crawlers de propósito. Alterar a
 - Somente resultados de partidas com nickname não vazio entram no ranking **local**. Resultados antigos com nome Anônimo ou vazio são filtrados da visualização e dos dados salvos quando a página carregar.
 - Nickname digitado e salvo persiste neste navegador entre visitas, mas não é login nem identidade global. Alterar nickname não altera o nome já registrado em resultados anteriores.
 - Não publicar ranking global até existir mecanismo de pontuação verificável e proteção contra fraude.
+
+## Ranking global recreativo do Snake (Preview)
+- Migração D1 em migrations/0002_game_leaderboard.sql; usuário deve executar somente no D1 de Preview.
+- Modal após fim da partida pede registro opcional do resultado; nickname salvo previamente é preenchido.
+- Ranking público Top 10 e recorde global destacado, provocando o jogador a superar o recorde.
+- Uma melhor pontuação por ID aleatório de instalação. Nickname não é conta, pontuação enviada pelo cliente não é verificável: ranking recreativo, sem garantia de autenticidade.
+- Antes da liberação pública é necessário reforçar antifraude, limites de envio, moderação e política de retenção.

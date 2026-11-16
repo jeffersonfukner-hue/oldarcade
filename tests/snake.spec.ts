@@ -147,6 +147,8 @@ test('visita mantém ID ao atualizar e partida envia novo ID',async({page})=>{
 
 test('ranking local mostra somente jogadores com nickname e persiste apelido',async({page})=>{
  await page.addInitScript(()=>{
+  if(sessionStorage.getItem('oldarcade:seeded-test'))return;
+  sessionStorage.setItem('oldarcade:seeded-test','1');
   localStorage.setItem('oldarcade:snake:v1',JSON.stringify({
    best:60,plays:3,visits:1,nickname:'Jogador 12',
    scores:[

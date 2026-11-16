@@ -73,6 +73,13 @@ O usuário criou o projeto Pages `oldarcade` conectado ao GitHub, com domínio t
 - Partidas sem nickname continuam sendo contadas nos totais globais e recordes próprios. Não existe conta de usuário nem ranking global; isso exigiria identificação segura e validação de score.
 - Testes E2E atualizados para garantir filtragem e persistência. Ainda verificar CI e Preview.
 
+## Ranking global de recordes — etapa em desenvolvimento
+- Usuário confirmou os contadores reais D1 `visits:2, plays:1`, solicitou ranking global que incentive retorno, destaque o líder e modal de registro opcional no final do jogo.
+- Implementação preparou API, tabela D1, modal, Top 10 e mensagem de desafio, sem usar plano pago; requer executar `migrations/0002_game_leaderboard.sql` no banco Preview.
+- Nickname salvo no navegador e score autodeclarado; não é login/verificação de pontuação. Não mesclar em produção.
+- Corrigido teste E2E anterior que regravava localStorage em cada reload.
+- Após CI, verificar comportamento visual e orientar usuário com uma ação por vez.
+
 ## Pendências prioritárias
 1. Confirmar novo deploy Cloudflare Pages **Preview** da branch `feat/fundacao-snake` e recuperar URL gerada; não inventar URL.
 2. Validar Snake no navegador humano, especialmente tecla Esc, mobile, ranking local e conteúdo.
