@@ -38,6 +38,12 @@ O usuário criou o projeto Pages `oldarcade` conectado ao GitHub, com domínio t
 - Problema identificado: ao sair do modo tela cheia, o scroll posicionava textos acima do tabuleiro; jogador tinha de usar o mouse.
 - Ajuste na branch: centralização programática do tabuleiro ao sair do modo tela cheia, preservando a contagem regressiva. Confirmar CI e validação manual no Preview antes de encerrar.
 
+## Ajuste: início da partida (16/11/2026)
+- O usuário confirmou que centralizar ao sair da tela cheia funcionou, e elogiou os dois countdowns.
+- Solicitou centralização também ao clicar em **Começar partida**, sem tela cheia, e contagem 3–2–1 no início de toda partida.
+- Implementação adiciona chamada de centralização existente e reutiliza beginCountdown com mensagem diferenciada para primeira partida. CI e Preview ainda precisam de confirmação.
+- Cloudflare Pages registra deploys e URLs específicas por implantação, permite rollback de deploy de produção, mas não de preview (docs oficiais); não há limpeza automática configurada por nós.
+
 ## Pendências prioritárias
 1. Confirmar novo deploy Cloudflare Pages **Preview** da branch `feat/fundacao-snake` e recuperar URL gerada; não inventar URL.
 2. Validar Snake no navegador humano, especialmente tecla Esc, mobile, ranking local e conteúdo.

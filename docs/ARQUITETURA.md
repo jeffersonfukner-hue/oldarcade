@@ -53,3 +53,8 @@ O arquivo robots.txt nesta fundação bloqueia crawlers de propósito. Alterar a
 - Ao sair da tela cheia, recentralizar automaticamente a área jogável na viewport, sem exigir mouse ou rolagem manual.
 - Preservar countdown de 3–2–1 na entrada e saída; ambos foram aprovados visualmente pelo usuário.
 - Validar a centralização em desktop e mobile; o componente genérico será extraído após a certificação do jogo piloto.
+
+## Padrão adicional de início de partida
+- Todo clique em começar/recomeçar deve recentralizar o tabuleiro, inclusive fora de tela cheia.
+- Nova partida exibe 3–2–1 antes do primeiro tick, usando a mesma contagem das transições de fullscreen.
+- Não duplicar contagem de partidas ao efetuar apenas troca de modo ou retomada.

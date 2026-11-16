@@ -15,8 +15,9 @@ test('Snake inicia, pausa e retoma com contagem honesta', async ({page}) => {
   await expect(page.locator('#visits')).toHaveText('1');
   await expect(page.locator('#plays')).toHaveText('0');
   await page.getByRole('button', {name:/Começar partida/}).click();
-  await expect(page.locator('#game-overlay')).toBeHidden();
+  await expect(page.locator('#countdown-value')).toHaveText('3');
   await expect(page.locator('#plays')).toHaveText('1');
+  await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
   await page.getByRole('button', {name:'Pausar'}).click();
   await expect(page.getByRole('heading', {name:'Jogo pausado'})).toBeVisible();
   await page.getByRole('button', {name:/Continuar/}).last().click();
@@ -83,4 +84,19 @@ test('ao sair da tela cheia o tabuleiro volta centralizado sem mouse', async ({p
   const available=window.innerHeight;
   return Math.abs(boardCenter-available/2)<Math.max(35,(r.height-available)/2+35);
  })).toBe(true);
+});
+
+test('começar partida recentraliza o tabuleiro e aguarda countdown 3-2-1', async ({page}) => {
+ await page.goto('/jogos/snake/');
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#overlay-text')).toHaveText('A partida começa em:');
+ await expect(page.locator('#countdown-value')).toHaveText('3');
+ await expect.poll(()=>page.evaluate(()=>{
+  const r=document.querySelector('#game-screen')!.getBoundingClientRect();
+  return Math.abs((r.top+r.height/2)-window.innerHeight/2)<Math.max(35,(r.height-window.innerHeight)/2+35);
+ })).toBe(true);
+ await expect(page.locator('#countdown-value')).toHaveText('2',{timeout:2500});
+ await expect(page.locator('#countdown-value')).toHaveText('1',{timeout:2500});
+ await expect(page.locator('#game-overlay')).toBeHidden({timeout:2500});
+ await expect(page.locator('#hud-status')).toContainText('Jogando');
 });
