@@ -1,7 +1,7 @@
 /** Fonte única de IDs de modalidades, regras de pontuação e competição. */
 export const gameModes = Object.freeze({
-  snake: Object.freeze({title:'snake',name:'Snake Clássico',competitive:true,maxScore:4000,scoreDecimals:3}),
-  'snake-adventure': Object.freeze({title:'snake',name:'Snake Aventura',competitive:true,maxScore:4000,scoreDecimals:3})
+  snake: Object.freeze({title:'snake',name:'Snake Clássico',tagline:'O desafio original',url:'/jogos/snake/',symbol:'🐍',description:'Cada fruta vale 10 pontos. Supere a maior pontuação registrada.',competitive:true,maxScore:4000,scoreDecimals:3}),
+  'snake-adventure': Object.freeze({title:'snake',name:'Snake Aventura',tagline:'Missões e níveis contínuos',url:'/jogos/snake/aventura/',symbol:'🍎',description:'Frutas especiais, novas missões e ranking exclusivo deste modo.',competitive:true,maxScore:4000,scoreDecimals:3})
 });
 export const gameModeIds=Object.freeze(Object.keys(gameModes));
 export function gameMode(id){return Object.hasOwn(gameModes,id)?gameModes[id]:null;}
