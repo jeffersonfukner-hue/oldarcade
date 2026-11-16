@@ -24,5 +24,5 @@ export function setupGlobalGameCounters(game:string){
  try{token=sessionStorage.getItem(key)||crypto.randomUUID();sessionStorage.setItem(key,token)}
  catch{token=crypto.randomUUID()}
  void send('visit',token);
- return {recordPlay:()=>{void send('play',crypto.randomUUID())}};
+ return {recordPlay:(eventId:string)=>{void send('play',eventId)}};
 }
