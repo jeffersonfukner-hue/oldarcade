@@ -1,4 +1,4 @@
-import {normalizeNickname,normalizeEmail,validPassword,randomToken,digest,passwordHash,equalFixed,reply,cookieHeader,clearCookie,sessionCookie,currentPlayer,sameOrigin,parseBody,playerResponse} from '../../_lib/auth.js';
+import {normalizeNickname,normalizeEmail,validPassword,randomToken,digest,passwordHash,equalFixed,reply,cookieHeader,clearCookie,sessionCookie,currentPlayer,sameOrigin,parseBody,playerResponse} from '../_lib/auth.js';
 const DAY=86400;
 export async function onRequestGet(ctx){
  if(ctx.params?.action!=='me')return reply({error:'Endpoint inválido'},404);
