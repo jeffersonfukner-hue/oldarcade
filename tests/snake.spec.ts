@@ -547,3 +547,22 @@ test('Aventura apresenta recorde provisório e consulta apenas entrada e fim',as
  await expect(page.locator('[data-rank-modal]')).toBeVisible();
  await expect(page.locator('[data-rank-global]')).toHaveText('0');
 });
+
+test('Aventura centraliza tabuleiro ao iniciar e ao sair da tela cheia',async({page})=>{
+ await page.setViewportSize({width:390,height:720});
+ await page.goto('/jogos/snake/aventura/');
+ await page.getByRole('button',{name:/Começar Aventura/}).click();
+ await expect(page.locator('#adventure-overlay')).toBeHidden({timeout:5000});
+ const position=await page.locator('#adventure-screen').evaluate(el=>{
+  const r=el.getBoundingClientRect();return r.top+r.height/2;
+ });
+ expect(Math.abs(position-360)).toBeLessThan(220);
+ await page.locator('#adventure-fullscreen').click();
+ await expect(page.locator('#adventure-countdown')).toHaveText('3',{timeout:5000});
+ await page.locator('#adventure-fullscreen').click();
+ await expect(page.locator('#adventure-overlay')).toBeHidden({timeout:5000});
+ const restored=await page.locator('#adventure-screen').evaluate(el=>{
+  const r=el.getBoundingClientRect();return r.top+r.height/2;
+ });
+ expect(Math.abs(restored-360)).toBeLessThan(220);
+});

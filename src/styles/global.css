@@ -163,7 +163,7 @@ html,body{touch-action:manipulation}
 .adventure-level-list li span{font-size:.82rem}
 #adventure-start[hidden],#adventure-countdown[hidden]{display:none!important}
 #adventure-stage:fullscreen{padding:18px;width:100%;height:100%;background:#080d17;display:flex;flex-direction:column;overflow:auto}
-#adventure-stage:fullscreen .screen-wrap{flex:1;min-height:200px}
+#adventure-stage:fullscreen .screen-wrap{flex:1;min-height:0}
 #adventure-stage:fullscreen canvas{width:auto;height:100%;max-width:100%;aspect-ratio:1}
 @media(max-width:580px){.adventure-mission-line{font-size:.78rem;align-items:start}.adventure-progress{padding:10px}}
 @media(prefers-reduced-motion:reduce){.adventure-banner{animation:none}#adventure-progress-fill{transition:none}}

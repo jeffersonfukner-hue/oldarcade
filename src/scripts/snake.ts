@@ -1,4 +1,5 @@
 import { setupGlobalLeaderboard } from './globalLeaderboard';
+import {centerGameBoard} from './gameViewport';
 import { setupGlobalGameCounters } from './globalGameCounters';
 type Direction = 'up'|'down'|'left'|'right';
 type Point = {x:number;y:number};
@@ -238,14 +239,7 @@ function beginCountdown(description='A partida será retomada em:'){
 }
 // Restaura o foco visual do tabuleiro quando o navegador sai da tela cheia.
 function centerGameAfterExit(){
- if(document.fullscreenElement===stage||fallbackFullscreen)return;
- requestAnimationFrame(()=>requestAnimationFrame(()=>{
-  if(document.fullscreenElement===stage||fallbackFullscreen)return;
-  const board=document.querySelector<HTMLElement>('#game-screen')!;
-  const rect=board.getBoundingClientRect();
-  const target=window.scrollY+rect.top+(rect.height-window.innerHeight)/2;
-  window.scrollTo({top:Math.max(0,target),behavior:'instant'});
- }));
+ centerGameBoard(gameScreen,stage,()=>fallbackFullscreen);
 }
 function fullActive(){return document.fullscreenElement===stage||fallbackFullscreen}
 function updateFullButton(){

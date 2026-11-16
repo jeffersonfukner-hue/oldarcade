@@ -1,3 +1,4 @@
+import {centerGameBoard} from './gameViewport';
 type Direction='up'|'down'|'left'|'right';
 type Point={x:number;y:number};
 type ItemKind='apple'|'gold'|'ice';
@@ -5,6 +6,7 @@ type Item={at:Point;kind:ItemKind;ticks?:number};
 const canvas=document.querySelector<HTMLCanvasElement>('#adventure-canvas')!;
 const ctx=canvas.getContext('2d')!;
 const stage=document.querySelector<HTMLElement>('#adventure-stage')!;
+const screen=document.querySelector<HTMLElement>('#adventure-screen')!;
 const overlay=document.querySelector<HTMLElement>('#adventure-overlay')!;
 const startBtn=document.querySelector<HTMLButtonElement>('#adventure-start')!;
 const pauseBtn=document.querySelector<HTMLButtonElement>('#adventure-pause')!;
@@ -29,6 +31,7 @@ let globalTarget:number|null=null;
 let globalProvisional=false;
 let state:'ready'|'countdown'|'playing'|'paused'|'over'='ready';
 let gameTimer:number|undefined,countdownTimer:number|undefined,bannerTimer:number|undefined;
+let changingFullscreen=false;
 const missions=[{label:'Colete 5 maçãs',target:5,minimum:50},{label:'Colete 1 fruta dourada',target:1,minimum:150},{label:'Colete 3 itens especiais',target:3,minimum:300}];
 function byId(id:string){return document.getElementById(id)!}
 function text(id:string,value:string){byId(id).textContent=value}
@@ -160,7 +163,7 @@ function start(){
  food={at:{x:14,y:10},kind:'apple'};special=null;
  score=0;level=1;apples=0;golds=0;level3Specials=0;normalSinceSpecial=0;iceTicks=0;completed=false;globalProvisional=false;
  document.dispatchEvent(new CustomEvent('oldarcade:game-started',{detail:{game:'snake-adventure'}}));
- plays++;save();window.clearTimeout(bannerTimer);banner.hidden=true;draw();update();beginCountdown(true);
+ plays++;save();window.clearTimeout(bannerTimer);banner.hidden=true;draw();update();centerGameBoard(screen,stage);beginCountdown(true);
 }
 function finish(){
  state='over';window.clearTimeout(gameTimer);window.clearTimeout(bannerTimer);
@@ -171,7 +174,7 @@ function finish(){
 }
 function pause(){
  if(state==='playing'){state='paused';window.clearTimeout(gameTimer);show('Jogo pausado','Sua partida está preservada.','▶ Continuar');update()}
- else if(state==='paused')beginCountdown(false);
+ else if(state==='paused'){centerGameBoard(screen,stage);beginCountdown(false);}
 }
 startBtn.addEventListener('click',()=>state==='paused'?pause():start());
 pauseBtn.addEventListener('click',pause);
@@ -206,13 +209,31 @@ document.addEventListener('oldarcade:mode-record-provisional',event=>{
  globalProvisional=true;notify('🏆 Meta global superada! Liderança provisória.');update();
 });
 async function toggleFullscreen(){
- if(document.fullscreenElement===stage){await document.exitFullscreen();return}
- if(document.fullscreenElement){await document.exitFullscreen();return}
- if(stage.requestFullscreen){try{await stage.requestFullscreen()}catch{}}
+ if(changingFullscreen)return;
+ changingFullscreen=true;
+ const resume=state==='playing'||state==='countdown';
+ if(resume){window.clearTimeout(gameTimer);window.clearTimeout(countdownTimer);state='paused';}
+ try{
+  if(document.fullscreenElement===stage)await document.exitFullscreen();
+  else if(document.fullscreenElement)await document.exitFullscreen();
+  else if(stage.requestFullscreen)await stage.requestFullscreen();
+ }catch{
+  // Fullscreen pode ser negado por política do navegador; o jogo continua seguro.
+ }finally{
+  changingFullscreen=false;
+  fullscreenBtn.textContent=document.fullscreenElement===stage?'⤢ Sair da tela cheia (F)':'⛶ Tela cheia (F)';
+  if(document.fullscreenElement!==stage)centerGameBoard(screen,stage);
+  if(resume)beginCountdown(false);
+ }
 }
 fullscreenBtn.addEventListener('click',()=>{void toggleFullscreen()});
 document.addEventListener('fullscreenchange',()=>{
  fullscreenBtn.textContent=document.fullscreenElement===stage?'⤢ Sair da tela cheia (F)':'⛶ Tela cheia (F)';
- if(state==='playing')pause();
+ if(changingFullscreen)return;
+ if(state==='playing'||state==='countdown'){
+  window.clearTimeout(gameTimer);window.clearTimeout(countdownTimer);state='paused';
+  beginCountdown(false);
+ }
+ if(document.fullscreenElement!==stage)centerGameBoard(screen,stage);
 });
 update();draw();
