@@ -44,14 +44,25 @@ export async function onRequestPost(ctx){
  const game=String(ctx.params.game);
  // Clássico soma 10 por maçã; Aventura soma 10/50/15/20 conforme os itens.
  if(!validGameScore(game,data?.score))return reply({error:'Pontuação inválida'},400);
+ let player;
+ try{player=await currentPlayer(db,ctx.request)}
+ catch(error){console.error('leaderboard.auth',error);return reply({available:false,code:'AUTH_LOOKUP_FAILED',error:'Não foi possível verificar sua sessão. Tente novamente.'},503)}
+ if(!player)return reply({error:'Entre ou crie uma conta para registrar recordes'},401);
+ const now=Date.now();
  try{
-  const player=await currentPlayer(db,ctx.request);
-  if(!player)return reply({error:'Entre ou crie uma conta para registrar recordes'},401);
-  const now=Date.now();
-  // Atualização condicional: score menor ou igual nunca altera o instante da conquista.
-  await db.prepare(
+  const result=await db.prepare(
    'INSERT INTO player_game_records(game,player_id,best_score,achieved_at_ms) VALUES (?,?,?,?) ON CONFLICT(game,player_id) DO UPDATE SET best_score=excluded.best_score,achieved_at_ms=excluded.achieved_at_ms WHERE excluded.best_score>player_game_records.best_score'
-  ).bind(String(ctx.params.game),player.id,data.score,now).run();
-  return reply(await standings(db,ctx.request,String(ctx.params.game)));
- }catch{return reply({available:false,error:'Falha ao registrar recorde'},503)}
+  ).bind(game,player.id,data.score,now).run();
+  if(result?.success===false)throw Error('D1 returned success=false');
+ }catch(error){
+  console.error('leaderboard.write',error);
+  return reply({available:false,saved:false,code:'RECORD_WRITE_FAILED',error:'O banco não confirmou a gravação do recorde. Não envie novamente até verificar o ranking.'},503);
+ }
+ try{
+  const board=await standings(db,ctx.request,game);
+  return reply({...board,saved:true});
+ }catch(error){
+  console.error('leaderboard.read_after_write',error);
+  return reply({available:false,saved:true,code:'RANKING_REFRESH_FAILED',error:'O banco aceitou a gravação, mas não foi possível atualizar o ranking. Consulte novamente antes de reenviar.'},503);
+ }
 }
