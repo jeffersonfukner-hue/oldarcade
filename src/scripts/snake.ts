@@ -26,10 +26,12 @@ const recoveryPanel=document.querySelector<HTMLElement>('#record-recovery')!;
 let account:{nickname:string}|null=null;
 let personalCloudBest=0;
 let globalBest:number|null=null;
+let globalKnown=false;
+let provisionalGlobal=false;
+let provisionalRoundScore=0;
 let recoveryCode='';
 let roundPersonalTarget=0;
 let didCelebratePersonal=false;
-let lastCelebratedGlobalTarget:number|null=null;
 const alertNode=document.querySelector<HTMLElement>('#record-live-alert')!;
 let alertTimeout:number|undefined;
 let currentAlertPriority=0;
@@ -103,7 +105,12 @@ let wasNativeFullscreen=false;
 const floatLayer=document.querySelector<HTMLElement>('#score-float-layer')!;
 function setStatus(value:string){hud.textContent='● '+value}
 function text(id:string,value:string){const el=document.getElementById(id);if(el)el.textContent=value}
-function refresh(){const best=Math.max(saved.best,personalCloudBest);text('hud-global-best',globalBest===null?'—':String(globalBest));text('score',String(score));text('best',String(best));text('hud-score',String(score));text('hud-best',String(best));text('plays',String(saved.plays));text('visits',String(saved.visits));const body=document.getElementById('rank-body')!;body.replaceChildren();if(!saved.scores.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=3;td.textContent='Salve um nickname e jogue uma partida para aparecer no ranking.';tr.append(td);body.append(tr)}else saved.scores.slice(0,10).forEach((entry,i)=>{const tr=document.createElement('tr');[String(i+1),entry.name,String(entry.score)].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td)});body.append(tr)})}
+function refresh(){const best=Math.max(saved.best,personalCloudBest);
+ const shownGlobal=provisionalGlobal?score:globalBest;
+ text('hud-global-best',shownGlobal===null?'—':String(shownGlobal));
+ text('global-best',shownGlobal===null?'—':String(shownGlobal));
+ text('hud-global-label',provisionalGlobal?'Recorde global (provisório):':'Recorde global:');
+ text('global-best-label',provisionalGlobal?'Recorde global (provisório)':'Recorde global (contas)');text('score',String(score));text('best',String(best));text('hud-score',String(score));text('hud-best',String(best));text('plays',String(saved.plays));text('visits',String(saved.visits));const body=document.getElementById('rank-body')!;body.replaceChildren();if(!saved.scores.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=3;td.textContent='Salve um nickname e jogue uma partida para aparecer no ranking.';tr.append(td);body.append(tr)}else saved.scores.slice(0,10).forEach((entry,i)=>{const tr=document.createElement('tr');[String(i+1),entry.name,String(entry.score)].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td)});body.append(tr)})}
 function draw(){ctx.fillStyle='#071a20';ctx.fillRect(0,0,600,600);ctx.strokeStyle='#122c32';ctx.lineWidth=1;for(let n=0;n<=size;n++){ctx.beginPath();ctx.moveTo(n*cell,0);ctx.lineTo(n*cell,600);ctx.moveTo(0,n*cell);ctx.lineTo(600,n*cell);ctx.stroke()}ctx.fillStyle='#ff657c';ctx.beginPath();ctx.arc(food.x*cell+cell/2,food.y*cell+cell/2,cell*.35,0,Math.PI*2);ctx.fill();snake.forEach((piece,i)=>{ctx.fillStyle=i===0?'#a0ffd0':'#46dca2';ctx.fillRect(piece.x*cell+2,piece.y*cell+2,cell-4,cell-4)});}
 function floatPoints(at:Point,amount:number){
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
@@ -128,16 +135,17 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
   celebrate('personal');
   announceRecord('🏅 Recorde pessoal superado!','personal');
  }
- if(globalBest!==null&&score>globalBest&&(lastCelebratedGlobalTarget===null||globalBest>lastCelebratedGlobalTarget)){
-  lastCelebratedGlobalTarget=globalBest;
+ if(globalKnown&&(globalBest===null||score>globalBest)&&!provisionalGlobal){
+  provisionalGlobal=true;
+  provisionalRoundScore=score;
   celebrate('global');
-  announceRecord('🏆 Recorde global ultrapassado! Registre seu resultado ao terminar.','global');
+  announceRecord('🏆 Você superou a meta global! Liderança provisória.','global');
  }
  placeFood();if(state!=='playing'){draw();return}}else snake.pop();draw();refresh();schedule()}
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 function start(){cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
- didCelebratePersonal=false;lastCelebratedGlobalTarget=null;
+ didCelebratePersonal=false;provisionalGlobal=false;provisionalRoundScore=0;
  resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();saved.plays++;store();globalCounters.recordPlay();draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){
  state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
@@ -149,18 +157,42 @@ function end(won:boolean){
  store();refresh();show(won?'Tabuleiro completo!':'Fim de jogo',`Você marcou ${score} pontos. Conferindo a classificação atual…`,'▶ Jogar novamente');
  void finishRound();
 }
+function confirmedResult(result:ReturnType<typeof leaderboard.snapshot>,submittedScore:number,wasProvisional:boolean){
+ provisionalGlobal=false;
+ refresh();
+ if(!result||!result.available)return 'Não foi possível confirmar a classificação.';
+ const leader=result.top?.[0];
+ if(!leader)return 'Ainda não há líder registrado.';
+ const mine=result.mine;
+ if(mine?.rank===1&&mine.score===leader.score&&mine.nickname===leader.nickname){
+  return wasProvisional&&leader.score===submittedScore
+   ?'🏆 Novo recorde global confirmado! Você assumiu a liderança com '+leader.score+' pontos!'
+   :'🏆 Você continua em 1º lugar com '+leader.score+' pontos.';
+ }
+ if(wasProvisional){
+  const ago=leaderboard.elapsed(result.serverNow,leader.achievedAt);
+  if(leader.score>submittedScore)return '⚡ Você fez '+submittedScore+' pontos, mas '+leader.nickname+' chegou a '+leader.score+(ago?' '+ago:'')+'. Continue tentando!';
+  if(leader.score===submittedScore)return '⚡ Empate em '+submittedScore+' pontos! '+leader.nickname+' permanece à frente por ter registrado primeiro.';
+ }
+ return leaderboard.summary(result);
+}
+
 async function finishRound(){
  if(!account)await checkAccount();
  if(account){
   try{
+   const wasProvisional=provisionalGlobal;
    const result=await leaderboard.submit(score);
-   text('overlay-text',`Você marcou ${score} pontos. ${leaderboard.summary(result)}`);
+   text('overlay-text',confirmedResult(result,score,wasProvisional));
   }catch(error){
-   text('overlay-text',`Você marcou ${score} pontos. Não foi possível registrar: ${error instanceof Error?error.message:'erro de conexão'}.`);
+   provisionalGlobal=false;refresh();
+   text('overlay-text',`Você marcou ${score} pontos, mas não foi possível confirmar o recorde: ${error instanceof Error?error.message:'erro de conexão'}.`);
   }
  }else{
+  const wasProvisional=provisionalGlobal;
   const result=await leaderboard.refresh('end');
-  if(result)text('overlay-text',`Você marcou ${score} pontos. ${leaderboard.summary(result)}`);
+  provisionalGlobal=false;refresh();
+  if(result)text('overlay-text',wasProvisional?'Você superou a meta durante a partida, mas precisa cadastrar uma conta para registrar o resultado. '+leaderboard.summary(result):`Você marcou ${score} pontos. ${leaderboard.summary(result)}`);
   openRecordModal();
   if(result)text('record-end-summary',leaderboard.summary(result));
  }
@@ -260,8 +292,9 @@ async function checkAccount(){
 }
 async function saveRecord(showModalOnError=true){
  try{
+  const wasProvisional=provisionalGlobal;
   const result=await leaderboard.submit(score);
-  text('record-end-summary',leaderboard.summary(result));
+  text('record-end-summary',confirmedResult(result,score,wasProvisional));
   if(account){saved.nickname=account.nickname;store();refresh()}
   if(modalOpen&&!recoveryCode)closeRecordModal();
  }catch(error){
@@ -318,8 +351,9 @@ async function authAndRecord(kind:'register'|'login',fields:Record<string,string
    document.querySelector<HTMLElement>('#record-recovery-code')!.textContent=recoveryCode;
   }
   setModalStatus('Conta conectada. Registrando seu resultado…');
+  const wasProvisional=provisionalGlobal;
   const rankingResult=await leaderboard.submit(score);
-  text('record-end-summary',leaderboard.summary(rankingResult));
+  text('record-end-summary',confirmedResult(rankingResult,score,wasProvisional));
   setModalStatus(result.recoveryCode?'Recorde registrado! Guarde o código antes de continuar.':'Recorde registrado!');
   if(!recoveryCode)closeRecordModal();
   form.reset();
@@ -353,6 +387,7 @@ document.addEventListener('oldarcade:global-record',event=>{
  const detail=(event as CustomEvent<{score:number|null;previousScore:number|null;changed:boolean;source:string}>).detail;
  const value=detail?.score;
  globalBest=typeof value==='number'&&Number.isFinite(value)?value:null;
+ globalKnown=true;
  refresh();
 
 });

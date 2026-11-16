@@ -97,3 +97,9 @@ O arquivo robots.txt nesta fundação bloqueia crawlers de propósito. Alterar a
 - Senhas derivadas via WebCrypto/PBKDF2 com salt e sessões em cookies HttpOnly. Código de recuperação apenas hash no banco, exibição uma única vez.
 - Recuperação por e-mail NÃO ativada até existir prova de controle do endereço; contatos via WhatsApp não conferem acesso.
 - O ranking global recreativo ainda é legado por instalação, e não está vinculado às contas. Vincular numa etapa separada com bloqueio da publicação anônima e validação de abuso.
+
+## Padrão atual de recordes do Snake (novembro/2026)
+- Ranking oficial exclusivamente por conta no D1 Preview: POST do fim da partida e tabela `player_game_records`, sem migrar recordes anônimos legados.
+- Durante a partida, ultrapassar o recorde global conhecido apresenta **meta global provisoriamente superada**, com número do placar sendo atualizado localmente e animação dourada. A confirmação de liderança é exclusivamente com resultado da API ao fim da partida.
+- Se outra pessoa lidera por maior score, mostrar nome/score e tempo desde o registro quando disponível; em empate, respeitar ordem da conquista no servidor. Um anônimo nunca tem liderança oficial, mesmo que ultrapasse a meta local.
+- Sem polling no jogo nem nova requisição para o efeito; apenas consulta na entrada e encerramento (POST único para autenticados, GET se anônimos).

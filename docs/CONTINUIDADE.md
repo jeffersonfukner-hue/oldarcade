@@ -1,5 +1,16 @@
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL — 16/11/2026 (leia antes das seções históricas abaixo)
+- **Fonte da verdade:** repositório `jeffersonfukner-hue/oldarcade`, branch `feat/fundacao-snake`, PR #1. A `main` é produção técnica neutra e **não deve ser mesclada nem publicada sem autorização atual**. Fluxo exclusivamente GitHub → CI → Cloudflare Preview → aprovação humana. Sem Lovable e sem créditos.
+- **Última etapa aprovada pelo usuário:** commit `522b836`: busca do ranking na entrada e na conclusão da partida, sem polling durante jogo; placar de contas; avisos de variação com horários fundamentados. Implementadas e testadas (ainda exigem aceite humano no Preview) animações verde para recorde pessoal e dourada para meta global no commit `3be8f7d`.
+- **Nova decisão expressa:** ultrapassar a meta global faz o HUD e lateral exibirem imediatamente o valor da partida como **provisório**. Ao término, a resposta ao POST autenticado determina se é líder oficial, empatou mas perdeu por ordem cronológica ou outro jogador tem pontuação superior. Para anônimos, somente o GET ao fim, sem reivindicar registro oficial. Sem consultas extras durante a partida. Efeito global dourado e pessoal verde preservados.
+- **Ranking:** Top 10 único por conta e posição pessoal fora do Top 10, desempate cronológico por milissegundos do servidor. Recordes legados anônimos são testes antigos, ignorar em UI; não apagar D1 por conta própria.
+- **Cadastro:** nickname permite espaço (`Vovo do 3D`), senha mínima 8, e-mail opcional, hash PBKDF2 de 100 mil iterações. Migrações `0003` e `0004` foram aplicadas pelo usuário ao D1 de Preview; teste real com conta e gravação deve ser revalidado quando houver alteração. Nenhuma migração nova desta etapa.
+- **Produto:** Snake clássico sem alteração da lógica; +10 flutua ao comer fruta; HUD pessoal/global; efeitos de recorde; cadastro pelo modal de game-over. Backlog: modos, níveis, dificuldade, frutas e obstáculos em modos adicionais; não misturar ao clássico.
+- **Pendência:** verificar o CI da alteração atual e validar o Preview, especialmente ultrapassagem provisória, confirmação da própria liderança, empate cronológico e ultrapassagem por outro usuário. Não afirmar deploy ou produção sem evidência.
+- **Retomada em outra conversa:** ler `AGENTS.md`, este arquivo, `docs/ARQUITETURA.md` e `docs/VERSIONAMENTO_E_PUBLICACAO.md` da branch `feat/fundacao-snake`. Conferir HEAD e Actions antes de agir. Pedir apenas uma ação humana por vez. Conteúdo abaixo é **histórico**, pode conter status desatualizados; esta seção prevalece.
+
+
 > Leia este arquivo e `AGENTS.md` ao retomar. **Verifique o estado real no GitHub antes de considerar informações abaixo atuais.**
 
 **Repositório:** `jeffersonfukner-hue/oldarcade`  

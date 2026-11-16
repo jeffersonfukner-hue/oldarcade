@@ -106,5 +106,6 @@ export function setupGlobalLeaderboard(){
   if(!r.ok||!data.available)throw Error(data.error||'Não foi possível registrar');
   draw(data,'submit');return data;
  }
- void refresh();return {refresh,submit,markRoundStart,summary};
+ function snapshot():Board|null{return latestBoard}
+ void refresh();return {refresh,submit,markRoundStart,summary,elapsed:relativeElapsed,snapshot};
 }

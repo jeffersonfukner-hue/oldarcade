@@ -342,3 +342,34 @@ test('animação global é distinta e não solicita ranking extra',async({page})
  await expect(page.locator('#record-celebration-layer .record-spark.global').first()).toBeAttached();
  expect(gets).toBe(1);
 });
+
+test('placar mostra meta global provisória ao atingir pontuação e volta ao oficial no fim',async({page})=>{
+ let gets=0;
+ await page.route('**/api/games/snake/leaderboard',r=>{
+  gets++;
+  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Alonso',score:0,rank:1,achievedAt:'2026-11-16T09:00:00.000Z'}],mine:null})});
+ });
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#hud-global-best')).toHaveText('0');
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
+ await expect(page.locator('#hud-score')).toHaveText('10',{timeout:5000});
+ await expect(page.locator('#hud-global-label')).toContainText('provisório');
+ await expect(page.locator('#hud-global-best')).toHaveText('10');
+ await expect(page.locator('#global-best')).toHaveText('10');
+ expect(gets).toBe(1);
+ await page.keyboard.press('ArrowUp');
+ await expect(page.locator('#record-modal')).toBeVisible({timeout:8000});
+ await expect(page.locator('#hud-global-best')).toHaveText('0');
+ await expect(page.locator('#hud-global-label')).not.toContainText('provisório');
+});
+test('erro de confirmação nunca mantém recorde provisório como oficial',async({page})=>{
+ await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Rival',score:0,rank:1}],mine:null})}));
+ await page.goto('/jogos/snake/');
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
+ await expect(page.locator('#hud-global-best')).toHaveText('10',{timeout:5000});
+ await page.keyboard.press('ArrowUp');
+ await expect(page.locator('#record-modal')).toBeVisible({timeout:8000});
+ await expect(page.locator('#hud-global-best')).toHaveText('0');
+});

@@ -109,3 +109,8 @@ html,body{touch-action:manipulation}
  .record-spark{display:none!important;animation:none!important}
  .screen-wrap.celebrate-personal,.screen-wrap.celebrate-global,#hud-best.celebrate-personal,#hud-global-best.celebrate-global{animation:none!important}
 }
+
+/* A liderança da rodada só é provisória até a resposta oficial do D1. */
+#hud-global-label,#global-best-label{transition:color .2s ease}
+.game-hud:has(#hud-global-label) #hud-global-label{white-space:nowrap}
+#hud-global-label:not(:empty),#global-best-label:not(:empty){font-variant-numeric:tabular-nums}
