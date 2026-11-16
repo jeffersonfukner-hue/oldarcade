@@ -2,6 +2,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## ATUALIZAÇÃO — HUD compartilhado e contagem correta (16/11/2026)
+- Contagem inequívoca: **1 jogo (#001 Snake), 2 modos (Clássico e Aventura)**. Jogo #002 e jogo #003 não iniciados; meta são 3 títulos distintos antes de migração do domínio.
+- CI comprovado do commit b5e88ae: run 43981972989 **success**. Run 43983568736 (commit 680fb357) estava em execução na última consulta; commits posteriores precisam de CI próprio.
+- `src/components/GameHud.astro` criado e adotado nas duas páginas do Snake, mantendo IDs e scripts existentes; teste de contrato adicionado em `tests-api/game-page-contract.test.mjs`.
+- Home passa a obter modalidades e nomes de todos os títulos cadastrados, sem filtro fixo para Snake. O número de jogos disponíveis continua baseado em `gameRegistry.ts`.
+- Próximos passos: confirmar CI do commit mais recente, verificar visual e interações no Preview, consolidar interface de eventos/conta/compartilhamento sem mexer nas regras dos modos. Sem SQL, produção, merge, deploy ou Lovable.
+
+
 ## ATUALIZAÇÃO — integração de páginas e CI (16/11/2026)
 - **CI verde comprovado**: run 43981972989, commit b5e88ae (tipos, build, testes de API e navegador). Os commits posteriores exigem novo CI verde.
 - Home agora usa `gameModes.js` para montar cartões do Snake e continua contando títulos por `gameRegistry.ts` (não soma modos como jogos).
