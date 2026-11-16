@@ -8,6 +8,8 @@
 
 
 ## ESTADO ATUAL — 16/11/2026 (leia antes das seções históricas abaixo)
+- **Home aprovada pelo usuário para implementação: opção 3 — foco no jogador.** Dashboard com menu lateral para jogos/rankings/conta, hero reduzida, dois cards reais para os modos Clássico/Aventura do único Snake (#001), três contadores compactos na mesma faixa, links para recordes e história. Não anunciar conquistas/novos jogos que não existem, não inventar ranking geral. Design responsivo com navegação horizontal no mobile, jogos visíveis sem rolagem excessiva. Nenhum ajuste em D1 e produção.
+
 - **Hero validada e simplificada:** exibir apenas Jogos disponíveis, Visitas ao site e Total de partidas, em faixa fluida sem cartões. Removido indicador `Jogos jogados` por redundância com Jogos disponíveis, sem apagar registros existentes do D1. O backend pode continuar a computar o indicador para uso administrativo futuro, mas a hero não o consulta nem exibe.
 
 - **Padrão de centralização do tabuleiro:** utilitário único `src/scripts/gameViewport.ts`, adotado por Clássico e Aventura. Ao iniciar, ao retomar e ao sair da tela cheia, reposiciona tabuleiro no centro visível quando possível, com proteção para fullscreen e sem modificar a partida; jogo mantém countdown 3–2–1 após fullscreen. Nunca reinventar esse comportamento a cada jogo. CSS fullscreen com `min-height:0` para caber nas alturas limitadas; testes mobile associados.

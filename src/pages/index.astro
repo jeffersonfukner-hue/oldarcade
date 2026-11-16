@@ -1,28 +1,64 @@
 ---
 import Base from '../layouts/Base.astro';
-const title='OldArcade — Jogos clássicos grátis para jogar online';
 import {gameRegistry} from '../data/gameRegistry';
+const title='OldArcade — Jogos clássicos grátis para jogar online';
 const availableGames=Object.keys(gameRegistry).length;
-const description='Jogue Snake grátis no navegador, acompanhe os recordes globais e descubra a história dos videogames clássicos.';
+const description='Jogue Snake clássico e Aventura gratuitamente, acompanhe os rankings de cada modo e conheça a história dos videogames clássicos.';
 ---
 <Base title={title} description={description} path="/">
-  <div class="shell">
-    <section class="hero"><div class="eyebrow">O passado continua jogável</div><h1>Os clássicos nunca dão <span class="accent">game over.</span></h1><p class="lede">Entre para jogar, fique pela história. Jogos retrô gratuitos, sem instalação, com controles práticos e conteúdo editorial pesquisado.</p><a class="btn" href="/jogos/snake/">▶ Jogar Snake agora</a>
-      <div class="hero-metrics" aria-label="Estatísticas reais do OldArcade">
-        <div class="hero-metric"><span class="hero-metric-icon" aria-hidden="true">🎮</span><strong id="hero-published-games">{availableGames}</strong><span>Jogos disponíveis</span></div>
-        <div class="hero-metric"><span class="hero-metric-icon" aria-hidden="true">👥</span><strong id="hero-site-visits">—</strong><span>Visitas ao site</span></div>
-        <div class="hero-metric"><span class="hero-metric-icon" aria-hidden="true">🏁</span><strong id="hero-total-plays">—</strong><span>Total de partidas</span></div>
+  <div class="shell arcade-home">
+    <div class="arcade-dashboard">
+      <aside class="arcade-sidebar" aria-label="Atalhos do jogador">
+        <div class="arcade-sidebar-heading"><span class="eyebrow">Seu espaço</span><strong>Pronto para jogar?</strong><p>Seu próximo desafio está a um clique.</p></div>
+        <nav class="arcade-side-nav" aria-label="Navegação da página inicial">
+          <a class="active" href="#destaques" aria-current="location"><span aria-hidden="true">🎮</span> Jogos</a>
+          <a href="/jogos/snake/#global-rank-title"><span aria-hidden="true">🏆</span> Ranking Clássico</a>
+          <a href="/jogos/snake/aventura/#ranking-aventura"><span aria-hidden="true">⭐</span> Ranking Aventura</a>
+          <a href="/conta/"><span aria-hidden="true">👤</span> Minha conta</a>
+        </nav>
+        <div class="arcade-side-foot">
+          <span class="eyebrow">Sua jornada</span>
+          <p>Guarde seus melhores resultados na conta e desafie amigos nos dois modos do Snake.</p>
+          <a href="/conta/">Ver minha conta <span aria-hidden="true">→</span></a>
+        </div>
+      </aside>
+      <div class="arcade-dashboard-main">
+        <section class="arcade-welcome" aria-labelledby="home-heading">
+          <div class="arcade-welcome-copy">
+            <span class="eyebrow">Seu fliperama online</span>
+            <h1 id="home-heading">Os clássicos nunca dão <span class="accent">game over.</span></h1>
+            <p>Jogue, supere recordes e descubra novos desafios. Grátis e direto no navegador.</p>
+            <a class="btn" href="/jogos/snake/">▶ Jogar Snake agora</a>
+          </div>
+          <div class="arcade-welcome-art" aria-hidden="true">
+            <div class="arcade-screen"><div class="arcade-screen-label">OLD ARCADE</div><div class="pixel-snake"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="arcade-screen-bottom">● PLAY ●</div></div>
+          </div>
+        </section>
+        <div class="arcade-activity" aria-label="Estatísticas reais do OldArcade">
+          <div class="arcade-activity-item"><span aria-hidden="true">🎮</span><strong id="hero-published-games">{availableGames}</strong><span>Jogos disponíveis</span></div>
+          <div class="arcade-activity-item"><span aria-hidden="true">👥</span><strong id="hero-site-visits">—</strong><span>Visitas ao site</span></div>
+          <div class="arcade-activity-item"><span aria-hidden="true">🏁</span><strong id="hero-total-plays">—</strong><span>Total de partidas</span></div>
+          <p id="hero-stats-status" class="arcade-activity-note" role="status">Consultando contadores globais…</p>
+        </div>
+        <section class="arcade-games" id="destaques" aria-labelledby="games-heading">
+          <div class="arcade-games-heading"><div><span class="eyebrow">Biblioteca de jogos</span><h2 id="games-heading">Escolha seu desafio</h2></div><span class="pill">{availableGames} jogo · 2 modos</span></div>
+          <div class="arcade-mode-grid">
+            <article class="arcade-mode-card">
+              <div class="arcade-mode-image arcade-mode-classic" aria-hidden="true"><div class="pixel-snake"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span>01 / CLÁSSICO</span></div>
+              <div class="arcade-mode-detail"><span class="eyebrow">Snake · Modo clássico</span><h3>O desafio original</h3><p>Coma frutas, controle a cobrinha e dispute o ranking global.</p><a class="btn" href="/jogos/snake/">▶ Jogar Clássico</a></div>
+            </article>
+            <article class="arcade-mode-card">
+              <div class="arcade-mode-image arcade-mode-adventure" aria-hidden="true"><span class="arcade-mode-fruits">🍎 <span>✦</span> ❄</span><span>02 / AVENTURA</span></div>
+              <div class="arcade-mode-detail"><span class="eyebrow">Snake · Modo Aventura</span><h3>Uma partida, novos níveis</h3><p>Três níveis contínuos com missões, frutas especiais e ranking próprio.</p><a class="btn secondary" href="/jogos/snake/aventura/">▶ Jogar Aventura</a></div>
+            </article>
+          </div>
+        </section>
+        <section class="arcade-footer-links" aria-label="Descubra mais">
+          <a href="/jogos/snake/#global-rank-title"><strong>🏆 Ranking Clássico</strong><span>Confira os melhores jogadores <span aria-hidden="true">→</span></span></a>
+          <a href="/conta/"><strong>👤 Meus recordes</strong><span>Entre na sua conta <span aria-hidden="true">→</span></span></a>
+          <a href="/sobre/"><strong>📚 História do arcade</strong><span>Conheça nosso projeto <span aria-hidden="true">→</span></span></a>
+        </section>
       </div>
-      <p id="hero-stats-status" class="hero-stats-note" role="status">Consultando contadores globais da Cloudflare…</p>
-    </section>
-    <section class="section" id="destaques">
-      <div class="section-head"><div><span class="eyebrow">Seleção inaugural</span><h2>Seu próximo desafio</h2></div><span class="pill">{availableGames} jogo disponível</span></div>
-      <div class="feature-grid">
-        <a class="game-card" href="/jogos/snake/"><div class="game-art"><div class="pixel-snake" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="details"><span class="eyebrow">Jogo do dia</span><h3>Snake — A cobrinha clássica</h3><p>Controle a direção, coma frutas e supere seu recorde.</p><span class="pill">▶ Jogar grátis</span></div></a>
-        <div class="panel"><span class="eyebrow">Mais jogado</span><h3>Snake</h3><p>Enquanto temos apenas um título, Snake é o único jogo elegível. A classificação global virá com as métricas do servidor.</p><a href="/jogos/snake/" class="btn secondary">Abrir jogo</a><p class="small"><a class="accent" href="/jogos/snake/aventura/">Experimentar o modo Aventura (3 níveis) →</a></p></div>
-        <div class="panel"><span class="eyebrow">Mais recente</span><h3>Snake</h3><p>Nosso primeiro lançamento jogável. Novos jogos só entram no catálogo depois de aprovados.</p><a href="/jogos/snake/" class="btn secondary">Conhecer Snake</a></div>
-      </div>
-    </section>
-    <section class="section"><div class="section-head"><h2>Nosso compromisso</h2></div><div class="feature-grid"><div class="panel"><h3>🎮 Jogar de verdade</h3><p>O jogo vem primeiro, sem páginas intermediárias confusas.</p></div><div class="panel"><h3>📚 História pesquisada</h3><p>Contexto, autoria e fontes em cada jogo — sem inventar fatos.</p></div><div class="panel"><h3>🏆 Recordes honestos</h3><p>Por enquanto, pontuações são locais. Rankings globais só depois de verificarmos o backend.</p></div></div></section>
+    </div>
   </div>
 </Base>

@@ -566,3 +566,26 @@ test('Aventura centraliza tabuleiro ao iniciar e ao sair da tela cheia',async({p
  });
  expect(Math.abs(restored-360)).toBeLessThan(220);
 });
+
+test('home estilo foco no jogador mantém jogos visíveis e três contadores compactos',async({page})=>{
+ await page.setViewportSize({width:1280,height:800});
+ await page.goto('/');
+ await expect(page.locator('.arcade-sidebar')).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Escolha seu desafio'})).toBeVisible();
+ await expect(page.getByRole('link',{name:/Jogar Clássico/})).toHaveAttribute('href','/jogos/snake/');
+ await expect(page.getByRole('link',{name:/Jogar Aventura/})).toHaveAttribute('href','/jogos/snake/aventura/');
+ await expect(page.locator('.arcade-activity-item')).toHaveCount(3);
+ await expect(page.locator('#hero-games-played')).toHaveCount(0);
+ const top=await page.locator('.arcade-mode-grid').evaluate(el=>el.getBoundingClientRect().top);
+ expect(top).toBeLessThan(800);
+ await expect(page.locator('.arcade-sidebar a[href="/conta/"]')).toBeVisible();
+});
+test('home dashboard celular não causa rolagem horizontal e oferece acesso aos modos',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.goto('/');
+ await expect(page.locator('.arcade-side-nav')).toBeVisible();
+ await expect(page.locator('.arcade-mode-grid')).toBeVisible();
+ await expect(page.locator('#hero-site-visits')).toBeVisible();
+ const dims=await page.evaluate(()=>({doc:document.documentElement.scrollWidth,viewport:innerWidth}));
+ expect(dims.doc).toBeLessThanOrEqual(dims.viewport+1);
+});
