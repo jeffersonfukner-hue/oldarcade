@@ -670,9 +670,10 @@ test('Aventura: Espaço reinicia após fim, não rola página e mantém pausa/re
  await expect(page.locator('#adventure-overlay')).toBeHidden({timeout:5000});
  await page.keyboard.press('ArrowUp');
  await expect(page.locator('#adventure-overlay-title')).toHaveText('Fim da Aventura',{timeout:9000});
- await page.evaluate(()=>{(window as any).__spacePrevented=false;window.addEventListener('keydown',e=>{if(e.code==='Space')(window as any).__spacePrevented=e.defaultPrevented},{once:true})});
+ await page.evaluate(()=>{document.activeElement instanceof HTMLElement&&document.activeElement.blur();window.scrollTo(0,0)});
+ const beforeScroll=await page.evaluate(()=>window.scrollY);
  await page.keyboard.press('Space');
- expect(await page.evaluate(()=>(window as any).__spacePrevented)).toBe(true);
+ await expect.poll(()=>page.evaluate(()=>window.scrollY)).toBe(beforeScroll);
  await expect(page.locator('#adventure-countdown')).toHaveText('3');
 });
 
@@ -684,8 +685,9 @@ test('Clássico: Espaço reinicia após fim sem rolar página',async({page})=>{
  await page.keyboard.press('ArrowUp');
  await expect(page.locator('#game-overlay')).toBeVisible({timeout:9000});
  await expect(page.locator('#hud-status')).toContainText('Fim');
- await page.evaluate(()=>{(window as any).__spacePrevented=false;window.addEventListener('keydown',e=>{if(e.code==='Space')(window as any).__spacePrevented=e.defaultPrevented},{once:true})});
+ await page.evaluate(()=>{document.activeElement instanceof HTMLElement&&document.activeElement.blur();window.scrollTo(0,0)});
+ const beforeScroll=await page.evaluate(()=>window.scrollY);
  await page.keyboard.press('Space');
- expect(await page.evaluate(()=>(window as any).__spacePrevented)).toBe(true);
+ await expect.poll(()=>page.evaluate(()=>window.scrollY)).toBe(beforeScroll);
  await expect(page.locator('#countdown-value')).toHaveText('3');
 });
