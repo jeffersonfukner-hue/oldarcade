@@ -278,8 +278,8 @@ async function authAndRecord(kind:'register'|'login',fields:Record<string,string
    document.querySelector<HTMLElement>('#record-recovery-code')!.textContent=recoveryCode;
   }
   setModalStatus('Conta conectada. Registrando seu resultado…');
-  const result=await leaderboard.submit(score);
-  text('record-end-summary',leaderboard.summary(result));
+  const rankingResult=await leaderboard.submit(score);
+  text('record-end-summary',leaderboard.summary(rankingResult));
   setModalStatus(result.recoveryCode?'Recorde registrado! Guarde o código antes de continuar.':'Recorde registrado!');
   if(!recoveryCode)closeRecordModal();
   form.reset();
