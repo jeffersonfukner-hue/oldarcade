@@ -37,7 +37,10 @@ export async function onRequestPost(ctx){
  if(!sameOrigin(ctx.request))return reply({error:'Origem inválida'},403);
  const db=ctx.env?.OLDARCADE_STATS_DB;if(!db)return reply({available:false,error:'Ranking indisponível'},503);
  const data=await parseBody(ctx.request);
- if(!Number.isSafeInteger(data?.score)||data.score<0||data.score>4000||data.score%10!==0)return reply({error:'Pontuação inválida'},400);
+ const game=String(ctx.params.game);
+ // Clássico soma 10 por maçã; Aventura soma 10/50/15/20 conforme os itens.
+ const scoreStep=game==='snake-adventure'?5:10;
+ if(!Number.isSafeInteger(data?.score)||data.score<0||data.score>4000||data.score%scoreStep!==0)return reply({error:'Pontuação inválida'},400);
  try{
   const player=await currentPlayer(db,ctx.request);
   if(!player)return reply({error:'Entre ou crie uma conta para registrar recordes'},401);
