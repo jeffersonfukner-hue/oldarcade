@@ -22,6 +22,7 @@ import Base from '../layouts/Base.astro';
      <label for="register-email">E-mail <span class="muted">(opcional)</span></label><input id="register-email" type="email" autocomplete="email" maxlength="254"/>
      <p class="small muted">No futuro, o e-mail poderá ajudar a recuperar sua conta depois de confirmado. Ainda não enviamos mensagens automáticas.</p>
      <label for="register-password">Senha (mínimo de 12 caracteres)</label><input id="register-password" autocomplete="new-password" type="password" minlength="12" maxlength="128" required/>
+     <label class="email-opt-in"><input id="register-alerts" type="checkbox"/> Receber e-mail quando alguém superar meu recorde <span class="muted">(em construção)</span></label>
      <button class="btn" type="submit">Criar minha conta</button>
     </form>
    </div>
@@ -59,13 +60,13 @@ import Base from '../layouts/Base.astro';
    forms.hidden=!!player;state.hidden=!player;
    if(player)document.querySelector<HTMLElement>('#account-name')!.textContent=player.nickname;
   }
-  async function send(action:'register'|'login'|'logout',body?:Record<string,string>){
+  async function send(action:'register'|'login'|'logout',body?:Record<string,string|boolean>){
    const response=await fetch('/api/auth/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
    const result=await response.json() as {ok?:boolean;error?:string;player?:{nickname:string};recoveryCode?:string};
    if(!response.ok)throw Error(result.error||'Serviço indisponível');
    return result;
   }
-  async function submit(form:HTMLFormElement,action:'register'|'login',fields:Record<string,string>){
+  async function submit(form:HTMLFormElement,action:'register'|'login',fields:Record<string,string|boolean>){
    const button=form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
    button.disabled=true;message.textContent='Verificando os dados…';
    try{
@@ -86,7 +87,7 @@ import Base from '../layouts/Base.astro';
   });
   register.addEventListener('submit',event=>{
    event.preventDefault();
-   void submit(register,'register',{nickname:(document.querySelector<HTMLInputElement>('#register-nick')!).value,email:(document.querySelector<HTMLInputElement>('#register-email')!).value,password:(document.querySelector<HTMLInputElement>('#register-password')!).value});
+   void submit(register,'register',{nickname:(document.querySelector<HTMLInputElement>('#register-nick')!).value,email:(document.querySelector<HTMLInputElement>('#register-email')!).value,password:(document.querySelector<HTMLInputElement>('#register-password')!).value,recordEmailOptIn:(document.querySelector<HTMLInputElement>('#register-alerts')!).checked});
   });
   document.querySelector<HTMLButtonElement>('#account-logout')!.addEventListener('click',async()=>{
    try{await send('logout');box.hidden=true;code='';showPlayer(null);message.textContent='Você saiu da conta.'}
