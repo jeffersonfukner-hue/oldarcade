@@ -80,6 +80,11 @@ O usuário criou o projeto Pages `oldarcade` conectado ao GitHub, com domínio t
 - Corrigido teste E2E anterior que regravava localStorage em cada reload.
 - Após CI, verificar comportamento visual e orientar usuário com uma ação por vez.
 
+## Complemento e orçamento
+- Usuário definiu que a primeira meta do AdSense é ao menos cobrir hospedagem, domínio e banco. Sem upgrade pago agora; avaliar se a viralização justificar os US$ 5 ou uma migração futura.
+- No modal, se a partida acabou sem nickname anterior e o jogador registra o resultado global, a mesma pontuação passa também ao ranking local com o nickname informado.
+- Testes adicionais verificam desafio público e nickname renderizado como texto, sem HTML injetado.
+
 ## Pendências prioritárias
 1. Confirmar novo deploy Cloudflare Pages **Preview** da branch `feat/fundacao-snake` e recuperar URL gerada; não inventar URL.
 2. Validar Snake no navegador humano, especialmente tecla Esc, mobile, ranking local e conteúdo.

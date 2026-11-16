@@ -172,3 +172,16 @@ test('ranking local mostra somente jogadores com nickname e persiste apelido',as
  await expect(page.locator('#nickname')).toHaveValue('');
  await expect(page.locator('#rank-body tr')).toHaveCount(2);
 });
+
+test('recorde global é exibido como desafio e ranking usa texto seguro',async({page})=>{
+ await page.route('**/api/games/snake/leaderboard',route=>route.fulfill({
+  status:200,contentType:'application/json',
+  body:JSON.stringify({available:true,top:[{nickname:'Campeão',score:90},{nickname:'<img src=x onerror=alert(1)>',score:30}],verified:false})
+ }));
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#global-best')).toHaveText('90');
+ await expect(page.locator('#challenge-text')).toContainText('90 pontos');
+ await expect(page.locator('#global-rank-body tr')).toHaveCount(2);
+ await expect(page.locator('#global-rank-body')).toContainText('<img src=x');
+ await expect(page.locator('#global-rank-body img')).toHaveCount(0);
+});

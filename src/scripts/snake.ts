@@ -143,7 +143,12 @@ recordForm.addEventListener('submit',async event=>{
  submit.disabled=true;recordStatus.textContent='Registrando no Cloudflare…';
  try{
   await leaderboard.submit(nickname,score);
-  saved.nickname=nickname;store();
+  if(!saved.nickname.trim()){
+   saved.scores.push({name:nickname,score,at:Date.now()});
+   saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);
+   saved.scores=saved.scores.slice(0,20);
+  }
+  saved.nickname=nickname;store();refresh();
   document.querySelector<HTMLInputElement>('#nickname')!.value=nickname;
   closeRecordModal();
  }catch(error){recordStatus.textContent=error instanceof Error?error.message:'Falha ao registrar.'}
