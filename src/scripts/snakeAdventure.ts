@@ -152,6 +152,7 @@ function tick(){
   }
   floatPoints(head,collected.kind==='gold'?50:collected.kind==='ice'?15:collected.kind==='speed'?20:10);
   if(score>best){best=score;save()}
+  if(globalTarget!==null&&score>globalTarget)globalProvisional=true;
   document.dispatchEvent(new CustomEvent('oldarcade:game-score',{detail:{game:'snake-adventure',score}}));
   advance();
   if(level>=2&&!special&&normalSinceSpecial>=2){
