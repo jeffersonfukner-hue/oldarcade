@@ -141,13 +141,13 @@ function tick(){
    score+=10;apples++;normalSinceSpecial++;
    const pos=freeCell();if(pos)food={at:pos,kind:'apple'};else{finish();return;}
   }else{
-   score+=collected.kind==='gold'?50:10;
+   score+=collected.kind==='gold'?50:collected.kind==='ice'?15:10;
    if(collected.kind==='gold')golds++;
    if(level===3)level3Specials++;
    if(collected.kind==='ice')iceTicks=35;
    special=null;normalSinceSpecial=0;
   }
-  floatPoints(head,collected.kind==='gold'?50:10);
+  floatPoints(head,collected.kind==='gold'?50:collected.kind==='ice'?15:10);
   if(score>best){best=score;save()}
   document.dispatchEvent(new CustomEvent('oldarcade:game-score',{detail:{game:'snake-adventure',score}}));
   advance();
