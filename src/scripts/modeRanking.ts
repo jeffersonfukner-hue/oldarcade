@@ -1,5 +1,5 @@
 type Entry={nickname:string;score:number;rank?:number;achievedAt?:string};
-type Board={available:boolean;top?:Entry[];mine?:Entry|null;error?:string};
+type Board={available:boolean;top?:Entry[];mine?:Entry|null;error?:string;saved?:boolean;code?:string};
 type Result={game:string;score:number};
 const root=document.querySelector<HTMLElement>('[data-mode-ranking]');
 if(root){
@@ -43,7 +43,7 @@ if(root){
  async function submit(points:number){
   const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score:points})});
   const data=await r.json() as Board;
-  if(!r.ok||!data.available)throw Error(data.error||'Não foi possível registrar');
+  if(!r.ok||!data.available){if(data.saved){const updated=await refresh();if(updated?.available){render(updated);return updated}throw Error('Gravação aceita pelo banco, mas o ranking ainda não pôde ser consultado. Não reenvie a pontuação.')}throw Error(data.error||'Não foi possível registrar')}
   render(data);return data;
  }
  function announce(data:Board,points:number){
@@ -102,7 +102,7 @@ if(root){
   if(sequence!==round)return;
   if(account){
    try{const data=await submit(points);if(sequence!==round)return;clearPending();summary.textContent=announce(data,points)}
-   catch(err){if(sequence!==round)return;setPending(points);summary.textContent='Seus '+points+' pontos foram preservados nesta página. Não foi possível confirmar o registro: '+(err instanceof Error?err.message:'erro desconhecido')+'. Tente novamente.'}
+   catch(err){if(sequence!==round)return;const message=err instanceof Error?err.message:'erro desconhecido';if(message.includes('Não reenvie')){clearPending()}else{setPending(points)}summary.textContent='Seus '+points+' pontos foram preservados nesta página. Não foi possível confirmar o registro: '+message}
   }else{
    const data=await refresh();if(sequence!==round)return;
    summary.textContent=data?'Você marcou '+points+' pontos. '+announce(data,points)+' Faça login para registrar o resultado.':'Você marcou '+points+' pontos. Ranking indisponível; resultado não registrado.';
