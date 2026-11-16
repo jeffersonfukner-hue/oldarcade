@@ -1,8 +1,9 @@
 import {currentPlayer,reply,sameOrigin,parseBody} from '../../_lib/auth.js';
-async function standings(db,request){
+const eligibleGames=new Set(['snake','snake-adventure']);
+async function standings(db,request,game){
  const result=await db.prepare(
   'SELECT a.nickname,r.best_score,r.achieved_at_ms FROM player_game_records r JOIN player_accounts a ON a.id=r.player_id WHERE r.game=? ORDER BY r.best_score DESC,r.achieved_at_ms ASC,r.player_id ASC LIMIT 10'
- ).bind('snake').all();
+ ).bind(game).all();
  const scores=new Map();
  const top=(result.results||[]).map((row,i)=>{
   const score=row.best_score;
@@ -15,24 +16,24 @@ async function standings(db,request){
  if(player){
   const records=await db.prepare('SELECT game,best_score FROM player_game_records WHERE player_id=? ORDER BY game').bind(player.id).all();
   myGames=(records.results||[]).map(row=>({game:String(row.game),score:Number(row.best_score)})).filter(row=>Number.isSafeInteger(row.score)&&row.score>=0);
-  const own=await db.prepare('SELECT best_score,achieved_at_ms FROM player_game_records WHERE game=? AND player_id=?').bind('snake',player.id).first();
+  const own=await db.prepare('SELECT best_score,achieved_at_ms FROM player_game_records WHERE game=? AND player_id=?').bind(game,player.id).first();
   if(own){
    const ahead=await db.prepare(
     'SELECT COUNT(*) AS count FROM player_game_records WHERE game=? AND (best_score>? OR (best_score=? AND (achieved_at_ms<? OR (achieved_at_ms=? AND player_id<?))))'
-   ).bind('snake',own.best_score,own.best_score,own.achieved_at_ms,own.achieved_at_ms,player.id).first();
+   ).bind(game,own.best_score,own.best_score,own.achieved_at_ms,own.achieved_at_ms,player.id).first();
    mine={nickname:player.nickname,score:own.best_score,rank:Number(ahead?.count||0)+1,achievedAt:new Date(own.achieved_at_ms).toISOString()};
   }
  }
  return {available:true,top,mine,myGames,serverNow:new Date().toISOString(),verified:false,registeredOnly:true};
 }
 export async function onRequestGet(ctx){
- if(ctx.params?.game!=='snake')return reply({error:'Jogo não encontrado'},404);
+ if(!eligibleGames.has(String(ctx.params?.game||'')))return reply({error:'Jogo não encontrado'},404);
  const db=ctx.env?.OLDARCADE_STATS_DB;if(!db)return reply({available:false,error:'Ranking indisponível'},503);
- try{return reply(await standings(db,ctx.request))}
+ try{return reply(await standings(db,ctx.request,String(ctx.params.game)))}
  catch{return reply({available:false,error:'Ranking indisponível'},503)}
 }
 export async function onRequestPost(ctx){
- if(ctx.params?.game!=='snake')return reply({error:'Jogo não encontrado'},404);
+ if(!eligibleGames.has(String(ctx.params?.game||'')))return reply({error:'Jogo não encontrado'},404);
  if(!sameOrigin(ctx.request))return reply({error:'Origem inválida'},403);
  const db=ctx.env?.OLDARCADE_STATS_DB;if(!db)return reply({available:false,error:'Ranking indisponível'},503);
  const data=await parseBody(ctx.request);
@@ -44,7 +45,7 @@ export async function onRequestPost(ctx){
   // Atualização condicional: score menor ou igual nunca altera o instante da conquista.
   await db.prepare(
    'INSERT INTO player_game_records(game,player_id,best_score,achieved_at_ms) VALUES (?,?,?,?) ON CONFLICT(game,player_id) DO UPDATE SET best_score=excluded.best_score,achieved_at_ms=excluded.achieved_at_ms WHERE excluded.best_score>player_game_records.best_score'
-  ).bind('snake',player.id,data.score,now).run();
-  return reply(await standings(db,ctx.request));
+  ).bind(String(ctx.params.game),player.id,data.score,now).run();
+  return reply(await standings(db,ctx.request,String(ctx.params.game)));
  }catch{return reply({available:false,error:'Falha ao registrar recorde'},503)}
 }
