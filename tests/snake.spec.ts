@@ -224,5 +224,5 @@ test('cadastro dentro do Snake aceita nickname com espaços e senha de oito cara
  await page.locator('#record-register-nick').fill('Vovo do 3D');
  await page.locator('#record-register-pass').fill('12345678');
  await expect(page.locator('#record-register-nick')).toHaveValue('Vovo do 3D');
- await expect(page.locator('#record-register-pass')).toBeValid();
+ expect(await page.locator('#record-register-pass').evaluate((el:HTMLInputElement)=>el.checkValidity())).toBe(true);
 });
