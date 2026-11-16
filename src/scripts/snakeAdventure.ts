@@ -23,6 +23,14 @@ try{
 }catch{}
 function save(){try{localStorage.setItem(key,JSON.stringify({best,highest,plays}))}catch{}}
 let snake:Point[]=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];
+let barriers:Point[]=[];
+const barrierCandidates:Point[]=[{x:4,y:4},{x:15,y:15},{x:4,y:15},{x:15,y:4},{x:10,y:4},{x:10,y:15},{x:4,y:10},{x:15,y:10}];
+function setBarriers(count:number){
+ // Nunca gerar obstáculos sobre a cobra ou os itens presentes.
+ barriers=barrierCandidates.filter(p=>!snake.some(part=>same(part,p))&&!same(food.at,p)&&(!special||!same(special.at,p))).slice(0,count);
+ stage.dataset.barrierCount=String(barriers.length);
+}
+
 let food:Item={kind:'apple',at:{x:14,y:10}},special:Item|null=null;
 let direction:Direction='right',next:Direction='right';
 let score=0,level=1,apples=0,golds=0,level3Specials=0,normalSinceSpecial=0,iceTicks=0;
@@ -40,7 +48,7 @@ function freeCell():Point|null{
  const cells:Point[]=[];
  for(let x=0;x<boardSize;x++)for(let y=0;y<boardSize;y++){
   const p={x,y};
-  if(!snake.some(a=>same(a,p))&&!same(food.at,p)&&(!special||!same(special.at,p)))cells.push(p);
+  if(!snake.some(a=>same(a,p))&&!barriers.some(a=>same(a,p))&&!same(food.at,p)&&(!special||!same(special.at,p)))cells.push(p);
  }
  return cells.length?cells[Math.floor(Math.random()*cells.length)]:null;
 }
@@ -58,6 +66,7 @@ function draw(){
  ctx.fillStyle='#071a20';ctx.fillRect(0,0,600,600);
  ctx.strokeStyle='#19323c';ctx.lineWidth=1;
  for(let i=0;i<=boardSize;i++){ctx.beginPath();ctx.moveTo(i*cell,0);ctx.lineTo(i*cell,600);ctx.moveTo(0,i*cell);ctx.lineTo(600,i*cell);ctx.stroke()}
+ barriers.forEach(p=>{ctx.fillStyle='#71879b';ctx.fillRect(p.x*cell+2,p.y*cell+2,cell-4,cell-4);ctx.strokeStyle='#b6c6d5';ctx.strokeRect(p.x*cell+5,p.y*cell+5,cell-10,cell-10)});
  drawItem(food);if(special)drawItem(special);
  snake.forEach((p,i)=>{ctx.fillStyle=i===0?'#b4ffd8':'#48dca4';ctx.fillRect(p.x*cell+2,p.y*cell+2,cell-4,cell-4)});
 }
@@ -91,9 +100,9 @@ function spawn(kind:'gold'|'ice'){
 }
 function advance(){
  if(level===1&&apples>=5&&score>=50){
-  level=2;highest=Math.max(highest,2);save();notify('Nível 2! Procure a fruta dourada.');spawn('gold');
+  level=2;highest=Math.max(highest,2);save();spawn('gold');setBarriers(2);notify('Nível 2! Duas barreiras — procure a fruta dourada.');
  }else if(level===2&&golds>=1&&score>=150){
-  level=3;level3Specials=0;highest=3;save();notify('Nível 3! Cristal de gelo liberado.');if(!special)spawn('ice');
+  level=3;level3Specials=0;highest=3;save();if(!special)spawn('ice');setBarriers(4);notify('Nível 3! Quatro barreiras e cristal de gelo.');
  }else if(level===3&&!completed&&level3Specials>=3&&score>=300){
   completed=true;notify('Três níveis concluídos! Continue e supere seu recorde.');
  }
@@ -111,7 +120,7 @@ function tick(){
  const head={x:snake[0].x+offsets[direction].x,y:snake[0].y+offsets[direction].y};
  const collected:Item|null=same(head,food.at)?food:(special&&same(head,special.at)?special:null);
  const body=collected?snake:snake.slice(0,-1);
- if(head.x<0||head.y<0||head.x>=boardSize||head.y>=boardSize||body.some(p=>same(p,head))){finish();return;}
+ if(head.x<0||head.y<0||head.x>=boardSize||head.y>=boardSize||body.some(p=>same(p,head))||barriers.some(p=>same(p,head))){finish();return;}
  snake.unshift(head);
  if(collected){
   if(collected.kind==='apple'){
@@ -161,7 +170,7 @@ function beginCountdown(first:boolean){
 function start(){
  snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';
  food={at:{x:14,y:10},kind:'apple'};special=null;
- score=0;level=1;apples=0;golds=0;level3Specials=0;normalSinceSpecial=0;iceTicks=0;completed=false;globalProvisional=false;
+ score=0;level=1;apples=0;golds=0;level3Specials=0;normalSinceSpecial=0;iceTicks=0;completed=false;globalProvisional=false;setBarriers(0);
  document.dispatchEvent(new CustomEvent('oldarcade:game-started',{detail:{game:'snake-adventure'}}));
  plays++;save();window.clearTimeout(bannerTimer);banner.hidden=true;draw();update();centerGameBoard(screen,stage);beginCountdown(true);
 }
@@ -236,4 +245,4 @@ document.addEventListener('fullscreenchange',()=>{
  }
  if(document.fullscreenElement!==stage)centerGameBoard(screen,stage);
 });
-update();draw();
+setBarriers(0);update();draw();
