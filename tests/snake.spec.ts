@@ -298,3 +298,21 @@ test('ranking consulta na entrada e ao fim, nunca durante a partida',async({page
  await expect(page.locator('#record-modal')).toBeVisible({timeout:8000});
  await expect.poll(()=>calls).toBe(2);
 });
+
+test('resumo no fim destaca quem ultrapassou e há quanto tempo',async({page})=>{
+ let calls=0;
+ await page.route('**/api/games/snake/leaderboard',route=>{
+  calls++;
+  const first=calls===1;
+  const data={available:true,mine:null,serverNow:'2026-11-16T18:00:00.000Z',top:[{nickname:first?'caboclo':'alonso',score:first?100:150,rank:1,achievedAt:first?'2026-11-16T17:00:00.000Z':'2026-11-16T17:59:30.000Z'}]};
+  return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});
+ });
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#hud-global-best')).toHaveText('100');
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
+ await page.keyboard.press('ArrowUp');
+ await expect(page.locator('#record-modal')).toBeVisible({timeout:8000});
+ await expect(page.locator('#record-end-summary')).toContainText('alonso assumiu a liderança com 150 pontos há 30 segundos');
+ expect(calls).toBe(2);
+});

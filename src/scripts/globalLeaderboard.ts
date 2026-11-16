@@ -78,7 +78,7 @@ export function setupGlobalLeaderboard(){
   if(!current.available)return 'Não foi possível consultar a classificação.';
   const previous=roundStartBoard;
   const top=current.top?.[0],oldTop=previous?.top?.[0];
-  if(top&&(!oldTop||top.score>oldTop.score)){
+  if(top&&previous&&(!oldTop||top.score>oldTop.score)){
    const age=relativeElapsed(current.serverNow,top.achievedAt);
    return top.nickname+' assumiu a liderança com '+top.score+' pontos'+(age?' '+age:'')+'.';
   }

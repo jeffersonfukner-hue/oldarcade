@@ -89,3 +89,5 @@ html,body{touch-action:manipulation}
 .record-live-alert[hidden]{display:none}
 @keyframes record-appear{from{opacity:0;transform:translate(-50%,-14px)}to{opacity:1;transform:translate(-50%,0)}}
 @media(prefers-reduced-motion:reduce){.record-live-alert{animation:none}}
+
+.record-end-summary:not(:empty){border:1px solid #a3a4ff;background:#222950;color:#f1edff;padding:12px 15px;border-radius:10px;font-weight:750;line-height:1.5;margin:12px 0}
