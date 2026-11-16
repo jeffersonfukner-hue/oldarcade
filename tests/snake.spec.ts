@@ -128,7 +128,7 @@ test('contadores globais indisponíveis não viram zeros inventados',async({page
  await expect(page.locator('#global-stats-status')).toContainText('indisponíveis');
 });
 test('visita mantém ID ao atualizar e partida envia novo ID',async({page})=>{
- const events=[];
+ const events:{kind:'visit'|'play';eventId:string}[]=[];
  await page.route('**/api/games/snake/stats',async route=>{
   events.push(route.request().postDataJSON());
   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,visits:1,plays:events.filter(e=>e.kind==='play').length})});
