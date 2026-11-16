@@ -13,7 +13,7 @@ const fields={
  played:document.getElementById('hero-games-played'),
  plays:document.getElementById('hero-total-plays')
 };
-const status=document.getElementById('hero-stats-status');
+const statsNote=document.getElementById('hero-stats-status');
 async function run(){
  const isHome=Boolean(fields.visits);
  if(recorded&&!isHome)return;
@@ -27,10 +27,10 @@ async function run(){
    fields.visits!.textContent=data.siteVisits!.toLocaleString('pt-BR');
    fields.played!.textContent=data.gamesPlayed!.toLocaleString('pt-BR');
    fields.plays!.textContent=data.totalPlays!.toLocaleString('pt-BR');
-   if(status)status.textContent='Visitas por sessão; jogos jogados = títulos que já tiveram partidas.';
+   if(statsNote)statsNote.textContent='Visitas por sessão; jogos jogados = títulos que já tiveram partidas.';
   }
  }catch{
-  if(isHome&&status)status.textContent='Contadores indisponíveis neste ambiente. Não exibimos números estimados.';
+  if(isHome&&statsNote)statsNote.textContent='Contadores indisponíveis neste ambiente. Não exibimos números estimados.';
  }
 }
 void run();
