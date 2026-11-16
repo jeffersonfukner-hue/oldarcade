@@ -1,5 +1,12 @@
 # OldArcade — continuidade obrigatória
 
+## BACKLOG — indicações rastreáveis e recompensas futuras (registrado em 16/11/2026)
+- Ideia do proprietário: cada jogador poderá compartilhar **um código/link de indicação próprio** em convites, para identificar quem mais trouxe amigos ao OldArcade e eventualmente premiar bons indicadores, **se o projeto crescer**. Isso é somente backlog: não ativar agora, não prometer prêmios, não gastar D1 ou gerar rastreamento sem aprovação específica.
+- Diferenciar convites compartilhados (impossíveis de confirmar por app), cliques recebidos, novos jogadores que realmente jogaram e contas novas válidas. Não atribuir indicação apenas por abrir link. Preferir **contas autenticadas** e identificador de referência aleatório/opaco, nunca nome, e-mail ou ID sequencial no endereço.
+- Projetar deduplicação, limite de atribuição, prevenção de autoindicação/fraude/múltiplas contas, consentimento e privacidade LGPD, prazo de retenção e condições claras antes de quaisquer rankings ou recompensas. Não registrar IP/contato por padrão nem disparar tracking de terceiros. Vincular ao futuro painel de métricas somente após autorização.
+- Manter o compartilhamento atual sem códigos e sem rastreio de indicação; planejar evoluir o componente reutilizável GameShare apenas quando a etapa for aprovada.
+
+
 ## ESTADO ATUAL — 16/11/2026 (leia antes das seções históricas abaixo)
 - **Compartilhar/desafiar amigos:** componente reutilizável `src/components/GameShare.astro` + `src/scripts/gameShare.ts`, instalado no Snake. Oferece Web Share API, WhatsApp, Telegram, Facebook, X, Reddit, Bluesky e copiar convite. Antes do fim, convite genérico; após fim, inclui pontos **reais da partida**, sem afirmar verificação global ou expor apelido/conta. Usa URL da página do ambiente atual, incluindo Preview; não presume domínio de produção. Não adiciona requisições para servidor ou scripts sociais. Testes E2E cobrem URLs, score e orçamento de consultas.
 
