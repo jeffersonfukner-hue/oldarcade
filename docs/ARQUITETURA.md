@@ -1,3 +1,5 @@
+> **Contrato obrigatório para todo jogo/modo:** [PADROES_GLOBAIS_DOS_JOGOS.md](PADROES_GLOBAIS_DOS_JOGOS.md). Histórico abaixo não substitui os padrões globais vigentes.
+
 # OldArcade · Arquitetura e critérios de aceite
 
 ## Princípios
