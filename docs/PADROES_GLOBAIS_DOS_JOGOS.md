@@ -66,3 +66,8 @@ GitHub branch/PR → testes GitHub Actions → Cloudflare Preview → validaçã
 - Em 16/11/2026, foi identificado registro de partidas diferente entre Clássico e Aventura; a refatoração passa a usar `gameEvents.ts`.
 - Trechos antigos de `CONTINUIDADE.md` e `ARQUITETURA.md` descrevem protótipos já superados (três níveis, gelo +10, ranking indisponível). São históricos, não especificação vigente; regras atuais devem ser verificadas no código e registradas após validação.
 - A API de partidas usa allowlist explícita: incluir novo modo antes de lançá-lo. O agregado do portal é independente dessa lista e soma todos os eventos válidos.
+
+## Regra global de armazenamento de pontuações (16/11/2026)
+- A tabela D1 compartilhada de recordes deve aceitar qualquer pontuação inteira não negativa dentro do limite técnico acordado, sem `score % 5`, `score % 10` ou outra regra de incremento de um jogo no esquema SQL.
+- O jogo define como a pontuação é calculada; a API do modo valida a entrada e seus limites. Não confundir armazenamento genérico com a validação de cada modalidade.
+- A restrição de múltiplos de 10 na migração 0004 e sua substituição por múltiplos de 5 na 0005 são dívida técnica identificada. A migração 0005 já foi executada manualmente no D1 Preview: não reaplicá-la. Preparar uma migração subsequente, após backup, para retirar a regra de múltiplos do banco, preservando dados, chave, FK e índice. Não aplicar em produção sem aprovação.
