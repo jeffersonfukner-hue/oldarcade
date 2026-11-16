@@ -1,13 +1,23 @@
 ---
 import Base from '../layouts/Base.astro';
 const title='OldArcade — Jogos clássicos grátis para jogar online';
-const description='Jogue Snake grátis no navegador e descubra a história dos videogames clássicos, com regras, curiosidades e recordes locais.';
+import {gameRegistry} from '../data/gameRegistry';
+const availableGames=Object.keys(gameRegistry).length;
+const description='Jogue Snake grátis no navegador, acompanhe os recordes globais e descubra a história dos videogames clássicos.';
 ---
 <Base title={title} description={description} path="/">
   <div class="shell">
-    <section class="hero"><div class="eyebrow">O passado continua jogável</div><h1>Os clássicos nunca dão <span class="accent">game over.</span></h1><p class="lede">Entre para jogar, fique pela história. Jogos retrô gratuitos, sem instalação, com controles práticos e conteúdo editorial pesquisado.</p><a class="btn" href="/jogos/snake/">▶ Jogar Snake agora</a></section>
+    <section class="hero"><div class="eyebrow">O passado continua jogável</div><h1>Os clássicos nunca dão <span class="accent">game over.</span></h1><p class="lede">Entre para jogar, fique pela história. Jogos retrô gratuitos, sem instalação, com controles práticos e conteúdo editorial pesquisado.</p><a class="btn" href="/jogos/snake/">▶ Jogar Snake agora</a>
+      <div class="hero-metrics" aria-label="Estatísticas reais do OldArcade">
+        <div class="hero-metric"><span class="hero-metric-icon" aria-hidden="true">🎮</span><strong id="hero-published-games">{availableGames}</strong><span>Jogos disponíveis</span></div>
+        <div class="hero-metric"><span class="hero-metric-icon" aria-hidden="true">👥</span><strong id="hero-site-visits">—</strong><span>Visitas ao site</span></div>
+        <div class="hero-metric"><span class="hero-metric-icon" aria-hidden="true">🕹️</span><strong id="hero-games-played">—</strong><span>Jogos jogados</span></div>
+        <div class="hero-metric"><span class="hero-metric-icon" aria-hidden="true">🏁</span><strong id="hero-total-plays">—</strong><span>Total de partidas</span></div>
+      </div>
+      <p id="hero-stats-status" class="hero-stats-note" role="status">Consultando contadores globais da Cloudflare…</p>
+    </section>
     <section class="section" id="destaques">
-      <div class="section-head"><div><span class="eyebrow">Seleção inaugural</span><h2>Seu próximo desafio</h2></div><span class="pill">1 jogo disponível</span></div>
+      <div class="section-head"><div><span class="eyebrow">Seleção inaugural</span><h2>Seu próximo desafio</h2></div><span class="pill">{availableGames} jogo disponível</span></div>
       <div class="feature-grid">
         <a class="game-card" href="/jogos/snake/"><div class="game-art"><div class="pixel-snake" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="details"><span class="eyebrow">Jogo do dia</span><h3>Snake — A cobrinha clássica</h3><p>Controle a direção, coma frutas e supere seu recorde.</p><span class="pill">▶ Jogar grátis</span></div></a>
         <div class="panel"><span class="eyebrow">Mais jogado</span><h3>Snake</h3><p>Enquanto temos apenas um título, Snake é o único jogo elegível. A classificação global virá com as métricas do servidor.</p><a href="/jogos/snake/" class="btn secondary">Abrir jogo</a></div>

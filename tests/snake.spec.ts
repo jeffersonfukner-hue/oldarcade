@@ -338,7 +338,7 @@ test('animação global é distinta e não solicita ranking extra',async({page})
  await page.getByRole('button',{name:/Começar partida/}).click();
  await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
  await expect(page.locator('#hud-score')).toHaveText('10',{timeout:5000});
- await expect(page.locator('#record-live-alert')).toContainText('Recorde global ultrapassado');
+ await expect(page.locator('#record-live-alert')).toContainText('Liderança provisória');
  await expect(page.locator('#record-celebration-layer .record-spark.global').first()).toBeAttached();
  expect(gets).toBe(1);
 });
@@ -372,4 +372,34 @@ test('erro de confirmação nunca mantém recorde provisório como oficial',asyn
  await page.keyboard.press('ArrowUp');
  await expect(page.locator('#record-modal')).toBeVisible({timeout:8000});
  await expect(page.locator('#hud-global-best')).toHaveText('0');
+});
+
+test('hero publica contadores reais e não confunde jogos jogados com partidas',async({page})=>{
+ let posts=0;
+ await page.route('**/api/site/stats',r=>{
+  if(r.request().method()==='POST')posts++;
+  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,siteVisits:1523,gamesPlayed:1,totalPlays:4599})});
+ });
+ await page.goto('/');
+ await expect(page.locator('#hero-published-games')).toHaveText('1');
+ await expect(page.locator('#hero-site-visits')).toHaveText('1.523');
+ await expect(page.locator('#hero-games-played')).toHaveText('1');
+ await expect(page.locator('#hero-total-plays')).toHaveText('4.599');
+ expect(posts).toBe(1);
+ await page.reload();
+ await expect(page.locator('#hero-site-visits')).toHaveText('1.523');
+ expect(posts).toBe(1);
+});
+test('contador indisponível exibe traços e não dados fictícios',async({page})=>{
+ await page.route('**/api/site/stats',r=>r.fulfill({status:503,contentType:'application/json',body:'{"available":false}'}));
+ await page.goto('/');
+ await expect(page.locator('#hero-site-visits')).toHaveText('—');
+ await expect(page.locator('#hero-stats-status')).toContainText('indisponíveis');
+});
+test('versões de desenvolvimento do portal e Snake foram atualizadas separadamente',async({page})=>{
+ await page.goto('/');
+ await expect(page.locator('footer .version')).toContainText('v0.2.0-dev');
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#dev-history-title')).toBeVisible();
+ await expect(page.getByText('v0.2.0-dev').first()).toBeVisible();
 });

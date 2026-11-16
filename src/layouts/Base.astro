@@ -1,10 +1,11 @@
 ---
 import '../styles/global.css';
+import packageData from '../../package.json';
 const { title, description, path = '/', type = 'website' } = Astro.props;
 const configured = Astro.site?.hostname !== 'example.invalid';
 const base = new URL(Astro.site ?? 'https://example.invalid');
 const canonical = new URL(path, base).toString();
-const version = import.meta.env.PUBLIC_APP_VERSION || '0.1.0-dev';
+const version = packageData.version+'-dev';
 ---
 <!doctype html>
 <html lang="pt-BR">
@@ -35,5 +36,6 @@ const version = import.meta.env.PUBLIC_APP_VERSION || '0.1.0-dev';
   <footer class="site-footer">
     <div class="shell footer-inner"><span>© {new Date().getFullYear()} OldArcade · Jogos clássicos, histórias reais.</span><div><a href="/sobre/">Sobre</a><a href="/contato/">Contato</a><a href="/privacidade/">Privacidade</a><span class="version" title="Versão da aplicação">v{version}</span></div></div>
   </footer>
+  <script>import '../scripts/siteCounters.ts';</script>
 </body>
 </html>

@@ -28,7 +28,7 @@ let personalCloudBest=0;
 let globalBest:number|null=null;
 let globalKnown=false;
 let provisionalGlobal=false;
-let provisionalRoundScore=0;
+let roundBeatGlobal=false;
 let recoveryCode='';
 let roundPersonalTarget=0;
 let didCelebratePersonal=false;
@@ -137,7 +137,7 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
  }
  if(globalKnown&&(globalBest===null||score>globalBest)&&!provisionalGlobal){
   provisionalGlobal=true;
-  provisionalRoundScore=score;
+  roundBeatGlobal=true;
   celebrate('global');
   announceRecord('🏆 Você superou a meta global! Liderança provisória.','global');
  }
@@ -145,7 +145,7 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 function start(){cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
- didCelebratePersonal=false;provisionalGlobal=false;provisionalRoundScore=0;
+ didCelebratePersonal=false;provisionalGlobal=false;roundBeatGlobal=false;
  resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();saved.plays++;store();globalCounters.recordPlay();draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){
  state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
@@ -181,7 +181,7 @@ async function finishRound(){
  if(!account)await checkAccount();
  if(account){
   try{
-   const wasProvisional=provisionalGlobal;
+   const wasProvisional=roundBeatGlobal;
    const result=await leaderboard.submit(score);
    text('overlay-text',confirmedResult(result,score,wasProvisional));
   }catch(error){
@@ -189,7 +189,7 @@ async function finishRound(){
    text('overlay-text',`Você marcou ${score} pontos, mas não foi possível confirmar o recorde: ${error instanceof Error?error.message:'erro de conexão'}.`);
   }
  }else{
-  const wasProvisional=provisionalGlobal;
+  const wasProvisional=roundBeatGlobal;
   const result=await leaderboard.refresh('end');
   provisionalGlobal=false;refresh();
   if(result)text('overlay-text',wasProvisional?'Você superou a meta durante a partida, mas precisa cadastrar uma conta para registrar o resultado. '+leaderboard.summary(result):`Você marcou ${score} pontos. ${leaderboard.summary(result)}`);
@@ -292,7 +292,7 @@ async function checkAccount(){
 }
 async function saveRecord(showModalOnError=true){
  try{
-  const wasProvisional=provisionalGlobal;
+  const wasProvisional=roundBeatGlobal;
   const result=await leaderboard.submit(score);
   text('record-end-summary',confirmedResult(result,score,wasProvisional));
   if(account){saved.nickname=account.nickname;store();refresh()}
@@ -351,7 +351,7 @@ async function authAndRecord(kind:'register'|'login',fields:Record<string,string
    document.querySelector<HTMLElement>('#record-recovery-code')!.textContent=recoveryCode;
   }
   setModalStatus('Conta conectada. Registrando seu resultado…');
-  const wasProvisional=provisionalGlobal;
+  const wasProvisional=roundBeatGlobal;
   const rankingResult=await leaderboard.submit(score);
   text('record-end-summary',confirmedResult(rankingResult,score,wasProvisional));
   setModalStatus(result.recoveryCode?'Recorde registrado! Guarde o código antes de continuar.':'Recorde registrado!');

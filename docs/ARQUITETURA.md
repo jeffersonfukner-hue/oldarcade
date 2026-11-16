@@ -103,3 +103,8 @@ O arquivo robots.txt nesta fundação bloqueia crawlers de propósito. Alterar a
 - Durante a partida, ultrapassar o recorde global conhecido apresenta **meta global provisoriamente superada**, com número do placar sendo atualizado localmente e animação dourada. A confirmação de liderança é exclusivamente com resultado da API ao fim da partida.
 - Se outra pessoa lidera por maior score, mostrar nome/score e tempo desde o registro quando disponível; em empate, respeitar ordem da conquista no servidor. Um anônimo nunca tem liderança oficial, mesmo que ultrapasse a meta local.
 - Sem polling no jogo nem nova requisição para o efeito; apenas consulta na entrada e encerramento (POST único para autenticados, GET se anônimos).
+
+## Indicadores globais do portal e versões de desenvolvimento
+- Todos os indicadores de sessões/partidas são derivados de `game_events` no D1 de Preview. Visita do portal = 1 evento `site/visit` por sessão do navegador, registrado pela navegação em qualquer página; não representa pessoa única nem pageview. Partida = evento `play` no início de cada jogo; jogos jogados = quantidade de títulos distintos que têm ao menos uma partida. Jogos disponíveis = número de títulos efetivamente oferecidos no registro do site, não lançamentos em produção.
+- Página inicial não inventa números quando D1 indisponível; solicita dados via API própria e exibe ausência como traço.
+- Versões atuais de desenvolvimento: portal em package.json e Snake em gameRegistry, cada uma com versionamento independente; `-dev` indica não publicado oficialmente.
