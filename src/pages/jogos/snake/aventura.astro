@@ -1,11 +1,11 @@
 ---
-import Base from '../../../layouts/Base.astro';
+import GamePage from '../../../components/GamePage.astro';
 import GameShare from '../../../components/GameShare.astro';
 import GameRanking from '../../../components/GameRanking.astro';
 const title='Snake Aventura — Níveis e desafios contínuos | OldArcade';
 const description='Snake Aventura gratuito: uma única partida, níveis progressivos, missões, fruta dourada e cristal de gelo. Avance sem reiniciar o tabuleiro.';
 ---
-<Base title={title} description={description} path="/jogos/snake/aventura/">
+<GamePage modeId="snake-adventure" title={title} description={description}>
  <div class="shell">
   <section class="hero adventure-hero">
    <span class="eyebrow">Snake · Modo Aventura · Protótipo</span>
@@ -77,4 +77,4 @@ const description='Snake Aventura gratuito: uma única partida, níveis progress
   </section>
  </div>
  <script>import '../../../scripts/snakeAdventure.ts';</script>
-</Base>
+</GamePage>
