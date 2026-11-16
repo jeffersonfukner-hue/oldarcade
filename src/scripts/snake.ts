@@ -25,6 +25,7 @@ const recordSigned=document.querySelector<HTMLElement>('#record-signed')!;
 const recoveryPanel=document.querySelector<HTMLElement>('#record-recovery')!;
 let account:{nickname:string}|null=null;
 let personalCloudBest=0;
+let globalBest:number|null=null;
 let recoveryCode='';
 const recordStatus=document.querySelector<HTMLElement>('#record-modal-status')!;
 let modalOpen=false;
@@ -44,16 +45,31 @@ let countdownTimer:number|undefined;
 let changingFullscreen=false;
 let fallbackFullscreen=false;
 let wasNativeFullscreen=false;
+const floatLayer=document.querySelector<HTMLElement>('#score-float-layer')!;
 function setStatus(value:string){hud.textContent='● '+value}
 function text(id:string,value:string){const el=document.getElementById(id);if(el)el.textContent=value}
-function refresh(){const best=Math.max(saved.best,personalCloudBest);text('score',String(score));text('best',String(best));text('hud-score',String(score));text('hud-best',String(best));text('plays',String(saved.plays));text('visits',String(saved.visits));const body=document.getElementById('rank-body')!;body.replaceChildren();if(!saved.scores.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=3;td.textContent='Salve um nickname e jogue uma partida para aparecer no ranking.';tr.append(td);body.append(tr)}else saved.scores.slice(0,10).forEach((entry,i)=>{const tr=document.createElement('tr');[String(i+1),entry.name,String(entry.score)].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td)});body.append(tr)})}
+function refresh(){const best=Math.max(saved.best,personalCloudBest);text('hud-global-best',globalBest===null?'—':String(globalBest));text('score',String(score));text('best',String(best));text('hud-score',String(score));text('hud-best',String(best));text('plays',String(saved.plays));text('visits',String(saved.visits));const body=document.getElementById('rank-body')!;body.replaceChildren();if(!saved.scores.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=3;td.textContent='Salve um nickname e jogue uma partida para aparecer no ranking.';tr.append(td);body.append(tr)}else saved.scores.slice(0,10).forEach((entry,i)=>{const tr=document.createElement('tr');[String(i+1),entry.name,String(entry.score)].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td)});body.append(tr)})}
 function draw(){ctx.fillStyle='#071a20';ctx.fillRect(0,0,600,600);ctx.strokeStyle='#122c32';ctx.lineWidth=1;for(let n=0;n<=size;n++){ctx.beginPath();ctx.moveTo(n*cell,0);ctx.lineTo(n*cell,600);ctx.moveTo(0,n*cell);ctx.lineTo(600,n*cell);ctx.stroke()}ctx.fillStyle='#ff657c';ctx.beginPath();ctx.arc(food.x*cell+cell/2,food.y*cell+cell/2,cell*.35,0,Math.PI*2);ctx.fill();snake.forEach((piece,i)=>{ctx.fillStyle=i===0?'#a0ffd0':'#46dca2';ctx.fillRect(piece.x*cell+2,piece.y*cell+2,cell-4,cell-4)});}
+function floatPoints(at:Point,amount:number){
+ if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const board=canvas.getBoundingClientRect();
+ const container=gameScreen.getBoundingClientRect();
+ if(!board.width||!board.height)return;
+ const item=document.createElement('span');
+ item.className='score-float';
+ item.textContent='+'+amount;
+ item.style.left=(board.left-container.left+(at.x+.5)*(board.width/size))+'px';
+ item.style.top=(board.top-container.top+(at.y+.5)*(board.height/size))+'px';
+ floatLayer.append(item);
+ item.addEventListener('animationend',()=>item.remove(),{once:true});
+ window.setTimeout(()=>item.remove(),1100);
+}
 function placeFood(){const free:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y});if(!free.length){end(true);return}food=free[Math.floor(Math.random()*free.length)]}
 function schedule(){window.clearTimeout(timer);if(state==='playing')timer=window.setTimeout(tick,Math.max(75,155-Math.floor(score/50)*8))}
-function tick(){if(state!=='playing')return;direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const head={x:snake[0].x+d.x,y:snake[0].y+d.y};const eating=head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if(head.x<0||head.x>=size||head.y<0||head.y>=size||body.some(p=>p.x===head.x&&p.y===head.y)){end(false);return}snake.unshift(head);if(eating){score+=10;if(score>saved.best){saved.best=score;store()}placeFood();if(state!=='playing'){draw();return}}else snake.pop();draw();refresh();schedule()}
+function tick(){if(state!=='playing')return;direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const head={x:snake[0].x+d.x,y:snake[0].y+d.y};const eating=head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if(head.x<0||head.x>=size||head.y<0||head.y>=size||body.some(p=>p.x===head.x&&p.y===head.y)){end(false);return}snake.unshift(head);if(eating){score+=10;floatPoints(head,10);if(score>saved.best){saved.best=score;store()}placeFood();if(state!=='playing'){draw();return}}else snake.pop();draw();refresh();schedule()}
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
-function start(){cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};saved.plays++;store();globalCounters.recordPlay();draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
+function start(){cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};floatLayer.replaceChildren();saved.plays++;store();globalCounters.recordPlay();draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
  if(score>saved.best)saved.best=score;
  if(saved.nickname.trim()){saved.scores.push({name:saved.nickname.trim(),score,at:Date.now()});saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20)}
@@ -227,6 +243,11 @@ document.querySelector<HTMLButtonElement>('#record-copy-code')!.addEventListener
 });
 document.querySelector<HTMLButtonElement>('#record-recovery-done')!.addEventListener('click',()=>{
  recoveryCode='';recoveryPanel.hidden=true;document.querySelector<HTMLElement>('#record-recovery-code')!.textContent='';closeRecordModal();
+});
+document.addEventListener('oldarcade:global-record',event=>{
+ const value=(event as CustomEvent<{score:number|null}>).detail?.score;
+ globalBest=typeof value==='number'&&Number.isFinite(value)?value:null;
+ refresh();
 });
 document.addEventListener('oldarcade:personal-record',event=>{
  const detail=(event as CustomEvent<{score:number}>).detail;

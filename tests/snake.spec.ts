@@ -226,3 +226,21 @@ test('cadastro dentro do Snake aceita nickname com espaços e senha de oito cara
  await expect(page.locator('#record-register-nick')).toHaveValue('Vovo do 3D');
  expect(await page.locator('#record-register-pass').evaluate((el:HTMLInputElement)=>el.checkValidity())).toBe(true);
 });
+
+test('HUD mostra recordes pessoal e global lado a lado',async({page})=>{
+ await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Líder',score:350,rank:1,achievedAt:'2026-11-16T10:00:00.000Z'}],historicalBest:300,mine:null})}));
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#hud-global-best')).toHaveText('350');
+ await expect(page.locator('#global-best')).toHaveText('350');
+ await expect(page.locator('#historical-best')).toHaveText('300');
+ await expect(page.locator('#historical-rank')).toBeVisible();
+ await expect(page.locator('#score-float-layer')).toHaveCount(1);
+});
+test('sem conta cadastrada, recorde antigo ainda aparece com indicação adequada',async({page})=>{
+ await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[],historicalBest:300,mine:null})}));
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#global-best')).toHaveText('—');
+ await expect(page.locator('#hud-global-best')).toHaveText('—');
+ await expect(page.locator('#historical-best')).toHaveText('300');
+ await expect(page.locator('#challenge-text')).toContainText('recordes antigos');
+});

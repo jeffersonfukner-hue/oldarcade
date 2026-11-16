@@ -71,3 +71,13 @@ html,body{touch-action:manipulation}
 
 /* Feedback de recorde instantâneo nos dois placares sem reordenar a página. */
 #hud-best,#best{font-variant-numeric:tabular-nums;transition:color .18s ease}
+
+/* Floating points on fruit collection (cosmetic; original scoring unchanged). */
+.score-float-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2}
+.score-float{position:absolute;color:#e8ff99;font-size:clamp(1rem,2.5vw,1.45rem);font-weight:900;text-shadow:0 2px 12px #041314,0 0 7px #233a13;white-space:nowrap;transform:translate(-50%,-50%);animation:float-score 900ms ease-out forwards;will-change:transform,opacity}
+@keyframes float-score{0%{opacity:1;transform:translate(-50%,-50%) scale(.85)}35%{opacity:1;transform:translate(-50%,-100%) scale(1.16)}100%{opacity:0;transform:translate(-50%,-225%) scale(1)}}
+#hud-global-best{font-variant-numeric:tabular-nums;color:#f0d889}
+.historical-record{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;padding:10px 0;color:#8fa1be;font-size:.83rem}
+.historical-record[hidden]{display:none}
+#global-best{font-variant-numeric:tabular-nums}
+@media(prefers-reduced-motion:reduce){.score-float{animation:none}}
