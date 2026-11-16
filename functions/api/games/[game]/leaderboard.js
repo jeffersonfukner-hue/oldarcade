@@ -1,12 +1,11 @@
 import {currentPlayer,reply,sameOrigin,parseBody} from '../../_lib/auth.js';
 const eligibleGames=new Set(['snake','snake-adventure']);
 export function validGameScore(game,score){
- const scoreStep=game==='snake-adventure'?5:10;
- return eligibleGames.has(game)&&Number.isSafeInteger(score)&&score>=0&&score<=4000&&score%scoreStep===0;
+ return eligibleGames.has(game)&&typeof score==='number'&&Number.isFinite(score)&&score>=0&&score<=4000&&Number.isSafeInteger(Math.round(score*1000))&&Math.abs(score*1000-Math.round(score*1000))<1e-7;
 }
 async function standings(db,request,game){
  const result=await db.prepare(
-  'SELECT a.nickname,r.best_score,r.achieved_at_ms FROM player_game_records r JOIN player_accounts a ON a.id=r.player_id WHERE r.game=? ORDER BY r.best_score DESC,r.achieved_at_ms ASC,r.player_id ASC LIMIT 10'
+  'SELECT a.nickname,r.best_score_milli,r.achieved_at_ms FROM player_game_records r JOIN player_accounts a ON a.id=r.player_id WHERE r.game=? ORDER BY r.best_score DESC,r.achieved_at_ms ASC,r.player_id ASC LIMIT 10'
  ).bind(game).all();
  const scores=new Map();
  const top=(result.results||[]).map((row,i)=>{
@@ -24,7 +23,7 @@ async function standings(db,request,game){
   if(own){
    const ahead=await db.prepare(
     'SELECT COUNT(*) AS count FROM player_game_records WHERE game=? AND (best_score>? OR (best_score=? AND (achieved_at_ms<? OR (achieved_at_ms=? AND player_id<?))))'
-   ).bind(game,own.best_score,own.best_score,own.achieved_at_ms,own.achieved_at_ms,player.id).first();
+   ).bind(game,own.best_score_milli,own.best_score,own.achieved_at_ms,own.achieved_at_ms,player.id).first();
    mine={nickname:player.nickname,score:own.best_score,rank:Number(ahead?.count||0)+1,achievedAt:new Date(own.achieved_at_ms).toISOString()};
   }
  }
@@ -42,7 +41,7 @@ export async function onRequestPost(ctx){
  const db=ctx.env?.OLDARCADE_STATS_DB;if(!db)return reply({available:false,error:'Ranking indisponível'},503);
  const data=await parseBody(ctx.request);
  const game=String(ctx.params.game);
- // Clássico soma 10 por maçã; Aventura soma 10/50/15/20 conforme os itens.
+ // Contrato global: até 3 casas decimais; cada jogo calcula sua própria pontuação.
  if(!validGameScore(game,data?.score))return reply({error:'Pontuação inválida'},400);
  let player;
  try{player=await currentPlayer(db,ctx.request)}
@@ -52,7 +51,7 @@ export async function onRequestPost(ctx){
  try{
   const result=await db.prepare(
    'INSERT INTO player_game_records(game,player_id,best_score,achieved_at_ms) VALUES (?,?,?,?) ON CONFLICT(game,player_id) DO UPDATE SET best_score=excluded.best_score,achieved_at_ms=excluded.achieved_at_ms WHERE excluded.best_score>player_game_records.best_score'
-  ).bind(game,player.id,data.score,now).run();
+  ).bind(game,player.id,Math.round(data.score*1000),now).run();
   if(result?.success===false)throw Error('D1 returned success=false');
  }catch(error){
   console.error('leaderboard.write',error);
