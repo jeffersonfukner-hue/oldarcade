@@ -17,24 +17,19 @@ Criar do zero um site de jogos retrô com foco real em jogabilidade, história d
 - Astro estático e CI de build, tipos e Playwright desktop/mobile.
 - CI da implementação e registro histórico aprovado; pacote ZIP de Preview gerado pelo GitHub Actions em execução anterior. A URL pública de Preview **não** foi configurada.
 
-## Ambiente Cloudflare — posição exata da conversa
-O usuário está na tela de **Cloudflare Pages: Set up builds and deployments** com:
-- GitHub: `jeffersonfukner-hue/oldarcade`
-- Project name: `oldarcade` (URL sugerida `oldarcade-17c.pages.dev`)
-- Production branch: `main`
-- Framework preset: `Astro`
-- Build command: `npm run build`
-- Build output directory: `dist`
-- Root directory: padrão
-- Botão `Save and Deploy` **ainda não clicado**.
-
-**Situação após preparação:** `main` agora contém Astro com página provisória neutra; o Snake permanece apenas em `feat/fundacao-snake`. O usuário autorizou explicitamente publicar a página neutra somente na URL técnica `pages.dev`, sem domínio próprio. Antes de clicar `Save and Deploy`, confirmar CI verde e que Cloudflare mantém `main`, `Astro`, `npm run build`, `dist`; depois o usuário poderá executar esse clique. Não vincular domínio.
+## Ambiente Cloudflare — posição atual (15/11/2026, noite BRT)
+O usuário criou o projeto Pages `oldarcade` conectado ao GitHub, com domínio técnico `https://oldarcade-17c.pages.dev`, `main` como branch de produção e configuração de build Astro, `npm run build`, saída `dist`.
+- Deploy de produção técnica da `main` **concluído** na Cloudflare, exibindo exclusivamente página provisória neutra; não contém Snake e não utiliza domínio personalizado.
+- Aviso de Git desconectado foi resolvido pelo usuário ao reautorizar a integração GitHub/Cloudflare.
+- Em Settings > Branch control, usuário salvou `Custom branches` e `Include Preview branches = feat/fundacao-snake` (sem exclusões); produção continua em `main`.
+- A última captura da aba Deployments mostra **apenas** um deploy de `main`. Ainda não há Preview de `feat/fundacao-snake`.
+- A atualização desta documentação na branch de feature é destinada a disparar o primeiro build automático do Preview. Confirmar se Cloudflare registrou a nova implantação; se não, investigar opções de deployments antes de alterar a configuração.
+- Não fazer merge da PR #1 e não adicionar domínio personalizado.
 
 ## Pendências prioritárias
-1. **Concluído no GitHub:** após autorização expressa do usuário, a branch `main` recebeu página provisória Astro neutra, sem Snake, com `noindex` e `robots.txt` bloqueando rastreamento. Commit `68230bb51e5b4ddb9f587038bd1cedfa04ebba4b`; CI [Actions #43782366004](https://github.com/jeffersonfukner-hue/oldarcade/actions/runs/43782366004). A publicação técnica em `pages.dev` foi autorizada, mas ainda depende do clique do usuário no Cloudflare.
-2. Completar conexão do Pages e confirmar URL de **branch preview** sem deploy da branch de desenvolvimento como produção.
-3. Validar Snake no navegador humano, especialmente tecla Esc, mobile, ranking local e conteúdo.
-4. Futuro: métricas/rankings globais com Cloudflare, administração segura, revisão de privacidade/SEO/AdSense. Não antecipar implementação sem validar jogo piloto.
+1. Confirmar novo deploy Cloudflare Pages **Preview** da branch `feat/fundacao-snake` e recuperar URL gerada; não inventar URL.
+2. Validar Snake no navegador humano, especialmente tecla Esc, mobile, ranking local e conteúdo.
+3. Futuro: métricas/rankings globais com Cloudflare, administração segura, revisão de privacidade/SEO/AdSense. Não antecipar implementação sem validar jogo piloto.
 
 ## Formato obrigatório ao finalizar uma etapa
 **Feito:** ações concretas executadas.  
@@ -43,4 +38,4 @@ O usuário está na tela de **Cloudflare Pages: Set up builds and deployments** 
 **Próxima ação:** uma instrução operacional única para o usuário ou botão contextual "Continuar", nunca apenas "aguarde".
 
 ## Mensagem de retomada para novo chat
-> Continue o OldArcade em `jeffersonfukner-hue/oldarcade`. Antes de agir, leia `AGENTS.md`, `docs/CONTINUIDADE.md`, `docs/ARQUITETURA.md` e `docs/VERSIONAMENTO_E_PUBLICACAO.md` na branch `feat/fundacao-snake`; confira PR #1 e os GitHub Actions. Estamos configurando Cloudflare Pages, e o usuário está na tela de configuração com `main` como branch de produção e o botão Save and Deploy ainda não clicado. Respeite a regra de não publicar nem mesclar sem autorização, execute trabalhos de GitHub antes de pedir próximo passo e oriente a interface uma ação por resposta.
+> Continue o OldArcade em `jeffersonfukner-hue/oldarcade`. Antes de agir, leia `AGENTS.md`, `docs/CONTINUIDADE.md`, `docs/ARQUITETURA.md` e `docs/VERSIONAMENTO_E_PUBLICACAO.md` na branch `feat/fundacao-snake`; confira PR #1 e os GitHub Actions. Cloudflare Pages já publicou a página neutra na main e a opção Preview da branch feat/fundacao-snake está salva; verificar se o primeiro deploy Preview apareceu após o commit de documentação. Respeite a regra de não publicar nem mesclar sem autorização, execute trabalhos de GitHub antes de pedir próximo passo e oriente a interface uma ação por resposta.
