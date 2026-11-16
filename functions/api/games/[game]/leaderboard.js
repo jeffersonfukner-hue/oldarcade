@@ -1,8 +1,6 @@
 import {currentPlayer,reply,sameOrigin,parseBody} from '../../_lib/auth.js';
-const eligibleGames=new Set(['snake','snake-adventure']);
-export function validGameScore(game,score){
- return eligibleGames.has(game)&&typeof score==='number'&&Number.isFinite(score)&&score>=0&&score<=4000&&Number.isSafeInteger(Math.round(score*1000))&&Math.abs(score*1000-Math.round(score*1000))<1e-7;
-}
+import {competitiveGame,validGameScore} from '../../../../src/data/gameModes.js';
+export {validGameScore} from '../../../../src/data/gameModes.js';
 async function scoreColumn(db){
  const schema=await db.prepare("PRAGMA table_info('player_game_records')").all();
  return (schema.results||[]).some(row=>row.name==='best_score_milli')?'best_score_milli':'best_score';
@@ -35,13 +33,13 @@ async function standings(db,request,game){
  return {available:true,top,mine,myGames,serverNow:new Date().toISOString(),verified:false,registeredOnly:true};
 }
 export async function onRequestGet(ctx){
- if(!eligibleGames.has(String(ctx.params?.game||'')))return reply({error:'Jogo não encontrado'},404);
+ if(!competitiveGame(String(ctx.params?.game||'')))return reply({error:'Jogo não encontrado'},404);
  const db=ctx.env?.OLDARCADE_STATS_DB;if(!db)return reply({available:false,error:'Ranking indisponível'},503);
  try{return reply(await standings(db,ctx.request,String(ctx.params.game)))}
  catch{return reply({available:false,error:'Ranking indisponível'},503)}
 }
 export async function onRequestPost(ctx){
- if(!eligibleGames.has(String(ctx.params?.game||'')))return reply({error:'Jogo não encontrado'},404);
+ if(!competitiveGame(String(ctx.params?.game||'')))return reply({error:'Jogo não encontrado'},404);
  if(!sameOrigin(ctx.request))return reply({error:'Origem inválida'},403);
  const db=ctx.env?.OLDARCADE_STATS_DB;if(!db)return reply({available:false,error:'Ranking indisponível'},503);
  const data=await parseBody(ctx.request);
