@@ -10,7 +10,7 @@ test('todas as modalidades possuem página estática e dados SEO distintos',()=>
   urls.add(mode.url);
   assert.ok(mode.name&&mode.description&&mode.tagline);
   assert.ok(mode.url.startsWith('/jogos/'));
-  const path=mode.url==='/'?'src/pages/index.astro':'src/pages'+mode.url.replace(/\\/$/,'')+'.astro';
+  const path='src/pages'+mode.url.slice(0,-1)+'.astro';
   const source=file(path);
   assert.ok(source.includes('GamePage'),id+' deve reutilizar SEO');
   assert.ok(source.includes('modeId="'+id+'"'),id+' deve declarar seu ID');
