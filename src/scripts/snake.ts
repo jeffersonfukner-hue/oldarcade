@@ -97,7 +97,7 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 function start(){cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
- didCelebratePersonal=false;lastCelebratedGlobalTarget=null;
+ didCelebratePersonal=false;lastCelebratedGlobalTarget=null;liveChecks=0;
  resetAnnouncements();floatLayer.replaceChildren();saved.plays++;store();globalCounters.recordPlay();draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
  if(score>saved.best)saved.best=score;
@@ -312,11 +312,17 @@ document.addEventListener('oldarcade:personal-record',event=>{
 void checkAccount();
 // Consulta leve e somente enquanto há uma partida ativa na aba visível.
 // Atualiza placar dos demais jogadores, sem gravar resultado provisório no D1.
+// Versão piloto: somente duas consultas de atualização por partida, não um
+// polling ilimitado que consome a franquia gratuita da Cloudflare.
+let liveChecks=0;
 window.setInterval(()=>{
- if(state==='playing'&&!document.hidden)void leaderboard.refresh('poll');
-},10000);
+ if(state==='playing'&&!document.hidden&&liveChecks<2){
+  liveChecks++;
+  void leaderboard.refresh('poll');
+ }
+},120000);
 document.addEventListener('visibilitychange',()=>{
- if(!document.hidden&&state==='playing')void leaderboard.refresh('poll');
+ if(!document.hidden&&state==='playing'&&liveChecks<2){liveChecks++;void leaderboard.refresh('poll')}
 });
 
 startBtn.addEventListener('click',()=>state==='paused'?pause():start());

@@ -270,3 +270,14 @@ test('avisos de recorde atualizam no jogo e consulta live não altera pontuaçã
  await expect(page.locator('#hud-global-best')).toHaveText('90');
  await expect(page.locator('#record-live-alert')).toContainText('Alguém assumiu a liderança');
 });
+
+test('limite da consulta live evita polling constante no plano gratuito',async({page})=>{
+ let calls=0;
+ await page.route('**/api/games/snake/leaderboard',route=>{
+  calls++;
+  return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[],mine:null})});
+ });
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#global-rank-status')).toContainText('Cada jogador');
+ await expect.poll(()=>calls).toBe(1);
+});
