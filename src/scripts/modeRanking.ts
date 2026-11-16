@@ -91,7 +91,7 @@ if(root){
  });
  document.addEventListener('oldarcade:game-score',event=>{
   const d=(event as CustomEvent<Result>).detail;
-  if(d?.game!==game||!Number.isSafeInteger(d.score))return;score=d.score;
+  if(d?.game!==game||!Number.isFinite(d.score)||Math.abs(d.score*1000-Math.round(d.score*1000))>1e-7)return;score=d.score;
   if(top!==null&&score>top){
    global.textContent=String(score);provisional.hidden=false;
    if(!provisionalRecord){provisionalRecord=true;document.dispatchEvent(new CustomEvent('oldarcade:mode-record-provisional',{detail:{game,score}}))}
