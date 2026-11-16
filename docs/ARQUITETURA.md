@@ -112,3 +112,8 @@ O arquivo robots.txt nesta fundação bloqueia crawlers de propósito. Alterar a
 ## Histórico de recordes por conta no jogo
 - A sessão autenticada recebe lista de melhores pontuações por jogo via a mesma resposta do ranking atual, consultando `player_game_records` filtrada pelo jogador da sessão. O front-end exibe somente jogos existentes no catálogo editorial e oferece atalho para superar cada recorde; se nunca jogou, informa "Sem recorde". Nunca mostra recordes de outra conta nem simula recordes de jogos futuros.
 - Sem sessão válida, o ranking local do navegador permanece; sem consultas periódicas nem nova migração do D1.
+
+## Compartilhamento social por jogo
+- Cada jogo pode renderizar `GameShare.astro` com slug/nome, sem SDKs sociais e sem requerer login. URLs estáveis no caminho `/jogos/:slug/`, usando origem do ambiente aberto. Compartilhadores por URL: WhatsApp, Telegram, Facebook, X, Reddit e Bluesky; Web Share API nativa quando presente, além de copiar texto de convite.
+- Exibir score apenas quando notificado pelo evento local `oldarcade:game-finished` daquela partida. Esse score é autorrelatado/visual; **não** alegar recorde verificado, classificação nem identidade autenticada. Nunca incluir cookie/token/e-mail no convite.
+- Em Preview, o convite contém a URL do Preview. Substituir automaticamente pela URL do domínio de produção quando for publicado; garantir OG metadata antes do lançamento para cartões nas redes que não aceitam texto customizado.

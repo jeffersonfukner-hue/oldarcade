@@ -1,0 +1,21 @@
+---
+interface Props { gameSlug:string; gameName:string }
+const {gameSlug,gameName}=Astro.props;
+---
+<section class="section game-share" aria-label={`Compartilhar ${gameName}`} data-game-share data-game-slug={gameSlug} data-game-name={gameName}>
+ <div class="game-share-intro">
+  <div><span class="eyebrow">Convide seus amigos</span><h2>Quem consegue superar seu resultado?</h2><p data-share-message>Compartilhe o {gameName} e desafie alguém a jogar.</p></div>
+  <button class="btn secondary share-native" type="button" data-share-native>Compartilhar <span aria-hidden="true">↗</span></button>
+ </div>
+ <div class="game-share-actions" aria-label="Redes sociais">
+  <a data-share-network="whatsapp" href={`/jogos/${gameSlug}/`} target="_blank" rel="noopener noreferrer" aria-label="Desafiar pelo WhatsApp">WhatsApp</a>
+  <a data-share-network="telegram" href={`/jogos/${gameSlug}/`} target="_blank" rel="noopener noreferrer" aria-label="Desafiar pelo Telegram">Telegram</a>
+  <a data-share-network="facebook" href={`/jogos/${gameSlug}/`} target="_blank" rel="noopener noreferrer" aria-label="Compartilhar no Facebook">Facebook</a>
+  <a data-share-network="x" href={`/jogos/${gameSlug}/`} target="_blank" rel="noopener noreferrer" aria-label="Compartilhar no X">X</a>
+  <a data-share-network="reddit" href={`/jogos/${gameSlug}/`} target="_blank" rel="noopener noreferrer" aria-label="Compartilhar no Reddit">Reddit</a>
+  <a data-share-network="bluesky" href={`/jogos/${gameSlug}/`} target="_blank" rel="noopener noreferrer" aria-label="Compartilhar no Bluesky">Bluesky</a>
+  <button type="button" data-share-copy>Copiar convite</button>
+ </div>
+ <p class="small muted share-feedback" data-share-feedback role="status" aria-live="polite">O convite usa o endereço deste jogo e não divulga dados da sua conta.</p>
+</section>
+<script>import '../scripts/gameShare.ts';</script>

@@ -173,7 +173,9 @@ function end(won:boolean){
   saved.scores.push({name:saved.nickname.trim(),score,at:Date.now()});
   saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20);
  }
- store();refresh();show(won?'Tabuleiro completo!':'Fim de jogo',`Você marcou ${score} pontos. Conferindo a classificação atual…`,'▶ Jogar novamente');
+ store();refresh();
+ document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'snake',score}}));
+ show(won?'Tabuleiro completo!':'Fim de jogo',`Você marcou ${score} pontos. Conferindo a classificação atual…`,'▶ Jogar novamente');
  void finishRound();
 }
 function confirmedResult(result:ReturnType<typeof leaderboard.snapshot>,submittedScore:number,wasProvisional:boolean){

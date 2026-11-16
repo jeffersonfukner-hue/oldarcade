@@ -1,6 +1,8 @@
 # OldArcade — continuidade obrigatória
 
 ## ESTADO ATUAL — 16/11/2026 (leia antes das seções históricas abaixo)
+- **Compartilhar/desafiar amigos:** componente reutilizável `src/components/GameShare.astro` + `src/scripts/gameShare.ts`, instalado no Snake. Oferece Web Share API, WhatsApp, Telegram, Facebook, X, Reddit, Bluesky e copiar convite. Antes do fim, convite genérico; após fim, inclui pontos **reais da partida**, sem afirmar verificação global ou expor apelido/conta. Usa URL da página do ambiente atual, incluindo Preview; não presume domínio de produção. Não adiciona requisições para servidor ou scripts sociais. Testes E2E cobrem URLs, score e orçamento de consultas.
+
 - **Retomada de pausa:** botão Continuar (do jogo ou sobreposição) e atalho Espaço agora sempre iniciam o countdown existente 3–2–1 antes de retomar movimento, preservando cobra, pontuação e partida; testes automatizados atualizados. Não há requisições adicionais nem alterações na produção.
 - **Fonte da verdade:** repositório `jeffersonfukner-hue/oldarcade`, branch `feat/fundacao-snake`, PR #1. A `main` é produção técnica neutra e **não deve ser mesclada nem publicada sem autorização atual**. Fluxo exclusivamente GitHub → CI → Cloudflare Preview → aprovação humana. Sem Lovable e sem créditos.
 - **Última etapa aprovada pelo usuário:** commit `522b836`: busca do ranking na entrada e na conclusão da partida, sem polling durante jogo; placar de contas; avisos de variação com horários fundamentados. Implementadas e testadas (ainda exigem aceite humano no Preview) animações verde para recorde pessoal e dourada para meta global no commit `3be8f7d`.

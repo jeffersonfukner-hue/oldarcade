@@ -134,3 +134,15 @@ html,body{touch-action:manipulation}
 .account-record-action{display:inline-flex;align-items:center;justify-content:center;padding:8px 13px;border:1px solid #6655b8;border-radius:10px;background:#242044;color:#d8ccff;font-weight:800;font-size:.82rem;white-space:nowrap}
 .account-record-action:hover,.account-record-action:focus-visible{background:#392f70;color:#fff}
 @media(max-width:580px){.account-game-records th,.account-game-records td{padding:11px 6px}.account-record-action{white-space:normal;text-align:center;padding:7px 9px}}
+
+/* Componente compartilhável por jogo: links simples, sem SDKs nem trackers externos. */
+.game-share{padding:24px 28px;border:1px solid #35476b;border-radius:20px;background:linear-gradient(110deg,#151f36,#10172b)}
+.game-share-intro{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.game-share h2{margin:7px 0;font-size:clamp(1.35rem,2.7vw,1.9rem)}
+.game-share p{margin:0}
+.game-share-actions{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0 12px}
+.game-share-actions a,.game-share-actions button{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;min-height:42px;border-radius:10px;border:1px solid #445779;background:#1b2b49;color:#e5ecff;font-weight:700;font-size:.87rem;text-decoration:none;cursor:pointer}
+.game-share-actions a:hover,.game-share-actions button:hover{border-color:#ab96ff;background:#293b62}
+.game-share-actions a:focus-visible,.game-share-actions button:focus-visible,.share-native:focus-visible{outline:3px solid #c5b2ff;outline-offset:3px}
+.game-share .share-feedback{font-size:.78rem;color:#9fb0cd}
+@media(max-width:580px){.game-share{padding:20px 15px}.game-share-intro .share-native{width:100%}.game-share-actions a,.game-share-actions button{flex:1 1 calc(50% - 10px)}}

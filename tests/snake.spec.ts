@@ -444,3 +444,35 @@ test('tecla Espaço para retomar também apresenta 3–2–1 e evita avanço ime
  await expect(page.locator('#hud-score')).toHaveText(before||'0');
  await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
 });
+
+test('compartilhamento de Snake abre redes sem login nem novas consultas de ranking',async({page})=>{
+ let leaderboardGets=0;
+ await page.route('**/api/games/snake/leaderboard',r=>{
+  leaderboardGets++;
+  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[],mine:null})});
+ });
+ await page.goto('/jogos/snake/');
+ await expect.poll(()=>leaderboardGets).toBe(1);
+ const share=page.locator('[data-game-share]');
+ await expect(share.getByRole('heading',{name:/Quem consegue superar seu resultado/})).toBeVisible();
+ const whatsapp=new URL(await share.locator('[data-share-network="whatsapp"]').getAttribute('href')||'');
+ expect(whatsapp.hostname).toBe('wa.me');
+ expect(whatsapp.searchParams.get('text')).toContain('/jogos/snake/');
+ const telegram=new URL(await share.locator('[data-share-network="telegram"]').getAttribute('href')||'');
+ expect(telegram.hostname).toBe('t.me');
+ expect(telegram.searchParams.get('url')).toContain('/jogos/snake/');
+ const facebook=new URL(await share.locator('[data-share-network="facebook"]').getAttribute('href')||'');
+ expect(facebook.searchParams.get('u')).toContain('/jogos/snake/');
+ expect(leaderboardGets).toBe(1);
+});
+test('compartilhamento adiciona placar real somente depois da partida',async({page})=>{
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('[data-share-message]')).toContainText('Compartilhe');
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'snake',score:170}})));
+ await expect(page.locator('[data-share-message]')).toContainText('Fiz 170 pontos');
+ const whatsapp=new URL(await page.locator('[data-share-network="whatsapp"]').getAttribute('href')||'');
+ expect(whatsapp.searchParams.get('text')).toContain('170 pontos');
+ const facebook=new URL(await page.locator('[data-share-network="facebook"]').getAttribute('href')||'');
+ expect(facebook.searchParams.get('text')).toBeNull();
+ expect(facebook.searchParams.get('u')).toContain('/jogos/snake/');
+});
