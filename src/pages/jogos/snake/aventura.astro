@@ -31,6 +31,7 @@ const description='Snake Aventura gratuito: uma única partida, três níveis, m
     </div>
     <div class="screen-wrap" id="adventure-screen">
      <canvas id="adventure-canvas" width="600" height="600" aria-label="Tabuleiro do Snake Aventura com vinte linhas e vinte colunas"></canvas>
+     <div id="adventure-score-float-layer" class="score-float-layer" aria-hidden="true"></div>
      <div id="adventure-banner" class="adventure-banner" role="status" aria-live="polite" hidden></div>
      <div class="game-overlay" id="adventure-overlay">
       <h2 id="adventure-overlay-title">Preparado para a aventura?</h2>
@@ -61,7 +62,7 @@ const description='Snake Aventura gratuito: uma única partida, três níveis, m
      <li><strong>2 · Caça ao tesouro</strong><span>1 dourada e 150 pontos</span></li>
      <li><strong>3 · Reflexos</strong><span>3 itens especiais e 300 pontos</span></li>
     </ol>
-    <p class="small muted">Protótipo de três níveis. Depois do terceiro, a partida continua em modo sobrevivência. Barreiras e itens negativos virão após a validação. Seus resultados locais ficam separados do Clássico. Com uma conta conectada, também entram no ranking exclusivo do Aventura.</p>
+    <p class="small muted">Protótipo de três níveis. Depois do terceiro, a partida continua em modo sobrevivência. Barreiras surgem progressivamente nos níveis 2 e 3; itens negativos ficam para uma etapa futura. Seus resultados locais ficam separados do Clássico. Com uma conta conectada, também entram no ranking exclusivo do Aventura.</p>
    </aside>
   </section>
   <GameRanking game="snake-adventure" name="Snake Aventura" />
