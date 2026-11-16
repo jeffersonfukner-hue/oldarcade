@@ -510,3 +510,40 @@ test('Aventura compartilha link próprio sem afirmar recorde global',async({page
  await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'snake-adventure',score:60}})));
  await expect(share.locator('[data-share-message]')).toContainText('Fiz 60 pontos');
 });
+
+test('ranking do Aventura mostra Top 10 independente do clássico e posição pessoal',async({page})=>{
+ let classicCalls=0,adventureCalls=0;
+ await page.route('**/api/games/snake/leaderboard',r=>{classicCalls++;return r.fulfill({status:200,contentType:'application/json',body:'{"available":true,"top":[]}'})});
+ await page.route('**/api/games/snake-adventure/leaderboard',r=>{
+  adventureCalls++;
+  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Alonso',score:280,rank:1,achievedAt:'2026-11-16T15:00:00Z'},{nickname:'Vovo do 3D',score:220,rank:2}],mine:{nickname:'Vovo do 3D',score:220,rank:2}})});
+ });
+ await page.goto('/jogos/snake/aventura/');
+ await expect(page.locator('[data-rank-body]')).toContainText('Alonso');
+ await expect(page.locator('[data-rank-body]')).toContainText('Vovo do 3D');
+ await expect(page.locator('[data-rank-global]')).toHaveText('280');
+ await expect(page.locator('[data-rank-personal]')).toHaveText('220');
+ await expect(page.locator('[data-rank-mine]')).toContainText('2º');
+ expect(classicCalls).toBe(0);expect(adventureCalls).toBe(1);
+});
+test('Aventura apresenta recorde provisório e consulta apenas entrada e fim',async({page})=>{
+ let gets=0;
+ await page.route('**/api/auth/me',r=>r.fulfill({status:200,contentType:'application/json',body:'{"player":null}'}));
+ await page.route('**/api/games/snake-adventure/leaderboard',r=>{
+  if(r.request().method()==='GET')gets++;
+  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Rival',score:0,rank:1}],mine:null})});
+ });
+ await page.goto('/jogos/snake/aventura/');
+ await expect(page.locator('[data-rank-global]')).toHaveText('0');
+ await page.getByRole('button',{name:/Começar Aventura/}).click();
+ await expect(page.locator('#adventure-overlay')).toBeHidden({timeout:5000});
+ await expect(page.locator('#adventure-score')).toHaveText('10',{timeout:5000});
+ await expect(page.locator('[data-rank-provisional]')).toBeVisible();
+ await expect(page.locator('[data-rank-global]')).toHaveText('10');
+ expect(gets).toBe(1);
+ await page.keyboard.press('ArrowUp');
+ await expect(page.locator('#adventure-overlay-title')).toHaveText('Fim da Aventura',{timeout:8000});
+ await expect.poll(()=>gets).toBe(2);
+ await expect(page.locator('[data-rank-modal]')).toBeVisible();
+ await expect(page.locator('[data-rank-global]')).toHaveText('0');
+});

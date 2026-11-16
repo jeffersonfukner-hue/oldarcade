@@ -167,3 +167,22 @@ html,body{touch-action:manipulation}
 #adventure-stage:fullscreen canvas{width:auto;height:100%;max-width:100%;aspect-ratio:1}
 @media(max-width:580px){.adventure-mission-line{font-size:.78rem;align-items:start}.adventure-progress{padding:10px}}
 @media(prefers-reduced-motion:reduce){.adventure-banner{animation:none}#adventure-progress-fill{transition:none}}
+
+.mode-ranking-hero{display:flex;flex-wrap:wrap;gap:12px 28px;padding:13px 16px;border-radius:12px;background:#101e35;border:1px solid #334969;margin:14px 0}
+.mode-ranking-hero strong{font-size:1.22rem;color:#f9e2a5;font-variant-numeric:tabular-nums}
+.mode-ranking-hero em,#adventure-hud-provisional{font-size:.75rem;color:#ffdf9b;font-style:normal}
+.mode-rank-mine{padding:12px;border-radius:10px;background:#15283e;color:#acfacf;font-weight:700}
+.mode-ranking .record-end-summary:not(:empty){display:block;margin:16px 0}
+.mode-account-modal{position:fixed;inset:0;z-index:1000;background:#030713d9;display:grid;place-items:center;padding:14px;overflow:auto}
+.mode-account-modal[hidden]{display:none}
+.mode-account-inner{max-width:480px;width:100%;max-height:calc(100vh - 28px);overflow-y:auto;background:#141e33;border:1px solid #475875;border-radius:16px;padding:24px}
+.mode-account-inner h3{color:#fff;font-size:1.35rem}
+.mode-account-inner form{display:grid;gap:13px;margin:15px 0}
+.mode-account-inner form[hidden],.mode-account-inner [data-rank-recovery][hidden]{display:none}
+.mode-account-inner label{display:grid;gap:5px;color:#d6e1f3;font-size:.86rem}
+.mode-account-inner input{background:#0a1426;border:1px solid #465676;color:#fff;border-radius:8px;padding:10px;width:100%}
+.mode-account-inner .account-tabs{display:flex;gap:8px}
+.mode-account-inner .account-tabs button{padding:9px;border-radius:8px;border:1px solid #465676;background:#1d2a47;color:#fff}
+.mode-account-inner [data-rank-close]{margin-top:12px}
+.ranking-overflow{overflow-x:auto}
+.mode-account-inner [data-rank-code]{overflow-wrap:anywhere;display:block;margin:8px 0}

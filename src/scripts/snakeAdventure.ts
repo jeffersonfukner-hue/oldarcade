@@ -25,6 +25,8 @@ let food:Item={kind:'apple',at:{x:14,y:10}},special:Item|null=null;
 let direction:Direction='right',next:Direction='right';
 let score=0,level=1,apples=0,golds=0,level3Specials=0,normalSinceSpecial=0,iceTicks=0;
 let completed=false;
+let globalTarget:number|null=null;
+let globalProvisional=false;
 let state:'ready'|'countdown'|'playing'|'paused'|'over'='ready';
 let gameTimer:number|undefined,countdownTimer:number|undefined,bannerTimer:number|undefined;
 const missions=[{label:'Colete 5 maçãs',target:5,minimum:50},{label:'Colete 1 fruta dourada',target:1,minimum:150},{label:'Colete 3 itens especiais',target:3,minimum:300}];
@@ -64,6 +66,8 @@ function missionProgress(){return level===1?apples:level===2?golds:level3Special
 function update(){
  text('adventure-status',state==='playing'?'● Jogando':state==='countdown'?'● Preparando':state==='paused'?'● Pausado':state==='over'?'● Fim de jogo':'● Pronto');
  text('adventure-level',String(level));text('adventure-score',String(score));
+ text('adventure-hud-global',String(globalProvisional?score:globalTarget??'—'));
+ byId('adventure-hud-provisional').hidden=!globalProvisional;
  text('adventure-best',String(best));text('adventure-sidebar-best',String(best));
  text('adventure-highest',String(highest));text('adventure-plays',String(plays));
  text('adventure-effect',iceTicks>0?'Gelo ativo':'Nenhum');
@@ -118,6 +122,7 @@ function tick(){
    special=null;normalSinceSpecial=0;
   }
   if(score>best){best=score;save()}
+  document.dispatchEvent(new CustomEvent('oldarcade:game-score',{detail:{game:'snake-adventure',score}}));
   advance();
   if(level>=2&&!special&&normalSinceSpecial>=2){
    spawn(level===2?'gold':Math.random()<.5?'ice':'gold');normalSinceSpecial=0;
@@ -153,7 +158,8 @@ function beginCountdown(first:boolean){
 function start(){
  snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';
  food={at:{x:14,y:10},kind:'apple'};special=null;
- score=0;level=1;apples=0;golds=0;level3Specials=0;normalSinceSpecial=0;iceTicks=0;completed=false;
+ score=0;level=1;apples=0;golds=0;level3Specials=0;normalSinceSpecial=0;iceTicks=0;completed=false;globalProvisional=false;
+ document.dispatchEvent(new CustomEvent('oldarcade:game-started',{detail:{game:'snake-adventure'}}));
  plays++;save();window.clearTimeout(bannerTimer);banner.hidden=true;draw();update();beginCountdown(true);
 }
 function finish(){
@@ -187,6 +193,18 @@ canvas.addEventListener('touchend',e=>{
  e.preventDefault();turn(Math.abs(dx)>Math.abs(dy)?dx>0?'right':'left':dy>0?'down':'up');
 },{passive:false});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')pause()});
+document.addEventListener('oldarcade:mode-ranking-updated',event=>{
+ const d=(event as CustomEvent<{game:string;global:number|null}>).detail;
+ if(d?.game!=='snake-adventure')return;
+ globalTarget=d.global;
+ if(state!=='playing'&&state!=='countdown')globalProvisional=false;
+ update();
+});
+document.addEventListener('oldarcade:mode-record-provisional',event=>{
+ const d=(event as CustomEvent<{game:string;score:number}>).detail;
+ if(d?.game!=='snake-adventure')return;
+ globalProvisional=true;notify('🏆 Meta global superada! Liderança provisória.');update();
+});
 async function toggleFullscreen(){
  if(document.fullscreenElement===stage){await document.exitFullscreen();return}
  if(document.fullscreenElement){await document.exitFullscreen();return}
