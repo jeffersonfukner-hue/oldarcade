@@ -11,7 +11,10 @@ async function standings(db,request){
  });
  const player=await currentPlayer(db,request);
  let mine=null;
+ let myGames=[];
  if(player){
+  const records=await db.prepare('SELECT game,best_score FROM player_game_records WHERE player_id=? ORDER BY game').bind(player.id).all();
+  myGames=(records.results||[]).map(row=>({game:String(row.game),score:Number(row.best_score)})).filter(row=>Number.isSafeInteger(row.score)&&row.score>=0);
   const own=await db.prepare('SELECT best_score,achieved_at_ms FROM player_game_records WHERE game=? AND player_id=?').bind('snake',player.id).first();
   if(own){
    const ahead=await db.prepare(
@@ -20,7 +23,7 @@ async function standings(db,request){
    mine={nickname:player.nickname,score:own.best_score,rank:Number(ahead?.count||0)+1,achievedAt:new Date(own.achieved_at_ms).toISOString()};
   }
  }
- return {available:true,top,mine,serverNow:new Date().toISOString(),verified:false,registeredOnly:true};
+ return {available:true,top,mine,myGames,serverNow:new Date().toISOString(),verified:false,registeredOnly:true};
 }
 export async function onRequestGet(ctx){
  if(ctx.params?.game!=='snake')return reply({error:'Jogo não encontrado'},404);

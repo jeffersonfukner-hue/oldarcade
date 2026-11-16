@@ -127,3 +127,10 @@ html,body{touch-action:manipulation}
 .hero-stats-note{font-size:.78rem;color:#93a5c8;margin:11px 0 0;line-height:1.5}
 @media(max-width:820px){.hero-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:400px){.hero-metrics{gap:24px 14px;margin-top:34px}.hero-metric strong{font-size:2.1rem}}
+
+/* Recordes por jogo da conta, substituindo o ranking local ao conectar. */
+#local-results[hidden],#account-results[hidden]{display:none!important}
+.account-game-records td{vertical-align:middle}
+.account-record-action{display:inline-flex;align-items:center;justify-content:center;padding:8px 13px;border:1px solid #6655b8;border-radius:10px;background:#242044;color:#d8ccff;font-weight:800;font-size:.82rem;white-space:nowrap}
+.account-record-action:hover,.account-record-action:focus-visible{background:#392f70;color:#fff}
+@media(max-width:580px){.account-game-records th,.account-game-records td{padding:11px 6px}.account-record-action{white-space:normal;text-align:center;padding:7px 9px}}

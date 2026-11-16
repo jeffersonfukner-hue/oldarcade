@@ -25,6 +25,25 @@ const recordSigned=document.querySelector<HTMLElement>('#record-signed')!;
 const recoveryPanel=document.querySelector<HTMLElement>('#record-recovery')!;
 let account:{nickname:string}|null=null;
 let personalCloudBest=0;
+let accountGameRecords:{game:string;score:number}[]=[];
+function drawAccountResults(){
+ const signed=Boolean(account);
+ const local=document.querySelector<HTMLElement>('#local-results')!;
+ const cloud=document.querySelector<HTMLElement>('#account-results')!;
+ local.hidden=signed;cloud.hidden=!signed;
+ text('results-heading',signed?'Meus recordes por jogo':'Ranking local');
+ text('results-scope',signed?'Minha conta':'Neste navegador');
+ if(!signed)return;
+ const scores=new Map(accountGameRecords.map(item=>[item.game,item.score]));
+ cloud.querySelectorAll<HTMLElement>('[data-player-game]').forEach(row=>{
+  const game=row.dataset.playerGame||'';
+  const points=scores.get(game);
+  const haveScore=typeof points==='number'&&Number.isFinite(points);
+  row.querySelector<HTMLElement>('[data-record-score]')!.textContent=haveScore?points.toLocaleString('pt-BR')+' pontos':'Sem recorde';
+  row.querySelector<HTMLElement>('[data-record-action]')!.textContent=haveScore?'Superar meu recorde':'Jogar pela primeira vez';
+ });
+}
+
 let globalBest:number|null=null;
 let globalKnown=false;
 let provisionalGlobal=false;
@@ -284,11 +303,12 @@ function showAuth(which:'register'|'login'){
 async function checkAccount(){
  try{
   const res=await fetch('/api/auth/me',{cache:'no-store'});
-  if(!res.ok){account=null;return}
+  if(!res.ok){account=null;drawAccountResults();return}
   const result=await res.json() as {player?:{nickname:string}|null};
   account=result.player||null;
   if(account)document.querySelector<HTMLElement>('#record-signed-nick')!.textContent=account.nickname;
- }catch{account=null}
+  drawAccountResults();
+ }catch{account=null;drawAccountResults()}
 }
 async function saveRecord(showModalOnError=true){
  try{
@@ -342,7 +362,7 @@ async function authAndRecord(kind:'register'|'login',fields:Record<string,string
   const response=await fetch('/api/auth/'+kind,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fields)});
   const result=await response.json() as {error?:string;player?:{nickname:string};recoveryCode?:string};
   if(!response.ok||!result.player)throw Error(result.error||'Falha na autenticação');
-  account=result.player;saved.nickname=account.nickname;store();refresh();
+  account=result.player;saved.nickname=account.nickname;store();refresh();drawAccountResults();
   recordTabs.hidden=true;registerForm.hidden=true;loginForm.hidden=true;recordSigned.hidden=false;
   document.querySelector<HTMLElement>('#record-signed-nick')!.textContent=account.nickname;
   if(result.recoveryCode){
@@ -391,6 +411,10 @@ document.addEventListener('oldarcade:global-record',event=>{
  refresh();
 
 });
+document.addEventListener('oldarcade:player-game-records',event=>{
+ accountGameRecords=(event as CustomEvent<{records:{game:string;score:number}[]}>).detail.records;
+ drawAccountResults();
+});
 document.addEventListener('oldarcade:personal-record',event=>{
  const detail=(event as CustomEvent<{score:number}>).detail;
  personalCloudBest=Number(detail?.score)||0;
@@ -420,4 +444,4 @@ window.addEventListener('keydown',event=>{
 });
 const form=document.querySelector<HTMLFormElement>('#nickname-form')!,nick=document.querySelector<HTMLInputElement>('#nickname')!;nick.value=saved.nickname;
 form.addEventListener('submit',e=>{e.preventDefault();saved.nickname=nick.value.trim().replace(/[<>]/g,'').slice(0,18);store();text('nick-status',saved.nickname?'Nickname salvo neste navegador. As próximas pontuações entrarão no ranking com esse nome.':'Nickname removido. Partidas sem nickname não entram no ranking.');});
-refresh();draw();
+refresh();draw();drawAccountResults();

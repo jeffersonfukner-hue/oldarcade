@@ -1,5 +1,5 @@
 type Entry={nickname:string;score:number;place?:number;rank?:number;achievedAt?:string};
-type Board={available:boolean;top?:Entry[];mine?:Entry|null;serverNow?:string;verified?:boolean;registeredOnly?:boolean};
+type Board={available:boolean;top?:Entry[];mine?:Entry|null;myGames?:{game:string;score:number}[];serverNow?:string;verified?:boolean;registeredOnly?:boolean};
 function localDate(iso?:string){
  if(!iso)return 'Data indisponível';
  const dt=new Date(iso);if(Number.isNaN(dt.getTime()))return 'Data indisponível';
@@ -29,6 +29,7 @@ export function setupGlobalLeaderboard(){
   if(data.available)latestBoard=data;
   body.replaceChildren();
   drawMine(data.mine);
+  if(data.available)document.dispatchEvent(new CustomEvent('oldarcade:player-game-records',{detail:{records:data.myGames||[]}}));
   const globalScore=data.available&&data.top?.length?data.top[0].score:null;
   if(data.available){
    const previousScore=lastGlobalScore;

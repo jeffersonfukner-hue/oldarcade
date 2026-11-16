@@ -403,3 +403,27 @@ test('versões de desenvolvimento do portal e Snake foram atualizadas separadame
  await expect(page.locator('#dev-history-title')).toBeVisible();
  await expect(page.getByText('v0.2.0-dev').first()).toBeVisible();
 });
+
+test('conta conectada mostra recordes dos jogos sem consulta extra',async({page})=>{
+ let gets=0;
+ await page.route('**/api/auth/me',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({player:{nickname:'Vovo do 3D'}})}));
+ await page.route('**/api/games/snake/leaderboard',r=>{
+  if(r.request().method()==='GET')gets++;
+  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[],mine:{nickname:'Vovo do 3D',score:90,rank:1},myGames:[{game:'snake',score:90}]})});
+ });
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#results-heading')).toHaveText('Meus recordes por jogo');
+ await expect(page.locator('#account-results')).toBeVisible();
+ await expect(page.locator('#local-results')).toBeHidden();
+ await expect(page.locator('[data-player-game="snake"] [data-record-score]')).toHaveText('90 pontos');
+ await expect(page.locator('[data-player-game="snake"] [data-record-action]')).toHaveText('Superar meu recorde');
+ expect(gets).toBe(1);
+});
+test('sem login preserva ranking local no navegador',async({page})=>{
+ await page.route('**/api/auth/me',r=>r.fulfill({status:200,contentType:'application/json',body:'{"player":null}'}));
+ await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:'{"available":true,"top":[],"mine":null,"myGames":[]}'}));
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#results-heading')).toHaveText('Ranking local');
+ await expect(page.locator('#local-results')).toBeVisible();
+ await expect(page.locator('#account-results')).toBeHidden();
+});

@@ -108,3 +108,7 @@ O arquivo robots.txt nesta fundação bloqueia crawlers de propósito. Alterar a
 - Todos os indicadores de sessões/partidas são derivados de `game_events` no D1 de Preview. Visita do portal = 1 evento `site/visit` por sessão do navegador, registrado pela navegação em qualquer página; não representa pessoa única nem pageview. Partida = evento `play` no início de cada jogo; jogos jogados = quantidade de títulos distintos que têm ao menos uma partida. Jogos disponíveis = número de títulos efetivamente oferecidos no registro do site, não lançamentos em produção.
 - Página inicial não inventa números quando D1 indisponível; solicita dados via API própria e exibe ausência como traço.
 - Versões atuais de desenvolvimento: portal em package.json e Snake em gameRegistry, cada uma com versionamento independente; `-dev` indica não publicado oficialmente.
+
+## Histórico de recordes por conta no jogo
+- A sessão autenticada recebe lista de melhores pontuações por jogo via a mesma resposta do ranking atual, consultando `player_game_records` filtrada pelo jogador da sessão. O front-end exibe somente jogos existentes no catálogo editorial e oferece atalho para superar cada recorde; se nunca jogou, informa "Sem recorde". Nunca mostra recordes de outra conta nem simula recordes de jogos futuros.
+- Sem sessão válida, o ranking local do navegador permanece; sem consultas periódicas nem nova migração do D1.
