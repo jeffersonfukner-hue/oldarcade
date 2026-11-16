@@ -287,6 +287,11 @@ document.querySelector<HTMLButtonElement>('#record-copy-code')!.addEventListener
 document.querySelector<HTMLButtonElement>('#record-recovery-done')!.addEventListener('click',()=>{
  recoveryCode='';recoveryPanel.hidden=true;document.querySelector<HTMLElement>('#record-recovery-code')!.textContent='';closeRecordModal();
 });
+document.addEventListener('oldarcade:rank-change',event=>{
+ if(state!=='playing')return;
+ const rank=(event as CustomEvent<{rank:number}>).detail.rank;
+ announceRecord('⚡ Seu recorde caiu para '+rank+'º no ranking. Continue e recupere sua posição!','rival');
+});
 document.addEventListener('oldarcade:global-record',event=>{
  const detail=(event as CustomEvent<{score:number|null;previousScore:number|null;changed:boolean;source:string}>).detail;
  const value=detail?.score;

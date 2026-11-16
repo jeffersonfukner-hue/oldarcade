@@ -14,6 +14,8 @@ export function setupGlobalLeaderboard(){
  let lastGlobalScore:number|null=null;
  let loadedGlobal=false;
  let loading=false;
+ let lastPersonalRank:number|null=null;
+ let loadedPersonalRank=false;
  const myResult=document.querySelector<HTMLElement>('#my-global-rank')!;
  const myPosition=document.querySelector<HTMLElement>('#my-global-position')!;
  const myDetail=document.querySelector<HTMLElement>('#my-global-detail')!;
@@ -26,6 +28,13 @@ export function setupGlobalLeaderboard(){
  function draw(data:Board,source:'initial'|'poll'|'submit'='initial'){
   body.replaceChildren();
   drawMine(data.mine);
+  if(data.available){
+   const rank=data.mine?.rank??null;
+   if(source==='poll'&&loadedPersonalRank&&rank!==null&&lastPersonalRank!==null&&rank>lastPersonalRank){
+    document.dispatchEvent(new CustomEvent('oldarcade:rank-change',{detail:{rank,previousRank:lastPersonalRank}}));
+   }
+   lastPersonalRank=rank;loadedPersonalRank=true;
+  }
   const globalScore=data.available&&data.top?.length?data.top[0].score:null;
   if(data.available){
    const previousScore=lastGlobalScore;
