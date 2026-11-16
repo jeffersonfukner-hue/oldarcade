@@ -10,6 +10,7 @@ const startBtn = document.querySelector<HTMLButtonElement>('#start-btn')!;
 const pauseBtn = document.querySelector<HTMLButtonElement>('#pause-btn')!;
 const fullscreenBtn = document.querySelector<HTMLButtonElement>('#fullscreen-btn')!;
 const stage = document.querySelector<HTMLElement>('#game-stage')!;
+const gameScreen = document.querySelector<HTMLElement>('#game-screen')!;
 const hud = document.querySelector<HTMLElement>('#hud-status')!;
 const countValue = document.querySelector<HTMLElement>('#countdown-value')!;
 const size=20, cell=canvas.width/size;
@@ -90,6 +91,28 @@ async function toggleFullscreen(){
   if(resume)beginCountdown();
  }
 }
+
+// Deslizamento no tabuleiro: sem rolagem da página nem zoom acidental.
+// Não capturamos gestos na área de botões ou em outros elementos do site.
+let gestureStart: {x:number;y:number}|null=null;
+gameScreen.addEventListener('touchstart',event=>{
+ if(event.touches.length!==1||state!=='playing'){gestureStart=null;return}
+ gestureStart={x:event.touches[0].clientX,y:event.touches[0].clientY};
+},{passive:true});
+gameScreen.addEventListener('touchmove',event=>{
+ if(gestureStart&&event.cancelable)event.preventDefault();
+},{passive:false});
+gameScreen.addEventListener('touchend',event=>{
+ if(!gestureStart||state!=='playing'){gestureStart=null;return}
+ const start=gestureStart;gestureStart=null;
+ if(event.changedTouches.length!==1)return;
+ const dx=event.changedTouches[0].clientX-start.x;
+ const dy=event.changedTouches[0].clientY-start.y;
+ if(Math.max(Math.abs(dx),Math.abs(dy))<22)return;
+ turn(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'));
+ if(event.cancelable)event.preventDefault();
+},{passive:false});
+gameScreen.addEventListener('touchcancel',()=>{gestureStart=null});
 
 startBtn.addEventListener('click',()=>state==='paused'?pause():start());
 pauseBtn.addEventListener('click',pause);

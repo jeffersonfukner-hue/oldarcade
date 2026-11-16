@@ -11,3 +11,9 @@
 .game-stage.game-stage-fallback canvas{height:100%;width:auto;max-width:100%}
 body.game-fallback-active{overflow:hidden}
 @media(max-width:580px){.game-hud{gap:7px 13px;font-size:.76rem}.hud-hint{width:100%;margin:0}.game-stage:fullscreen,.game-stage.game-stage-fallback{padding:8px}}
+
+/* Evita zoom acidental por toque duplo na página, preservando pinça de dois dedos. */
+html,body{touch-action:manipulation}
+/* No tabuleiro, gestos são direcionais em vez de zoom/rolagem. */
+#game-screen,#snake-canvas{touch-action:none}
+.touch-controls button{touch-action:manipulation}

@@ -58,3 +58,9 @@ O arquivo robots.txt nesta fundação bloqueia crawlers de propósito. Alterar a
 - Todo clique em começar/recomeçar deve recentralizar o tabuleiro, inclusive fora de tela cheia.
 - Nova partida exibe 3–2–1 antes do primeiro tick, usando a mesma contagem das transições de fullscreen.
 - Não duplicar contagem de partidas ao efetuar apenas troca de modo ou retomada.
+
+## Controle mobile por gesto — padrão solicitado
+- Aplicar `touch-action: manipulation` no documento para evitar zoom acidental por toque duplo, preservando ampliação por pinça com dois dedos.
+- Tabuleiro captura swipe vertical/horizontal com limiar de movimento e impede rolagem durante a jogada; botões direcionais continuam disponíveis.
+- Gestos fora do tabuleiro mantêm rolagem normal; não desabilitar pinça de acessibilidade globalmente.
+- Testar em iPhone real; testes em Chromium emulado não comprovam comportamento do Safari iOS.

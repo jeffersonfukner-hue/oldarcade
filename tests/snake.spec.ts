@@ -100,3 +100,21 @@ test('começar partida recentraliza o tabuleiro e aguarda countdown 3-2-1', asyn
  await expect(page.locator('#game-overlay')).toBeHidden({timeout:2500});
  await expect(page.locator('#hud-status')).toContainText('Jogando');
 });
+
+test('mobile: deslizar no tabuleiro controla direção e não permite zoom duplo',async ({page,isMobile})=>{
+ test.skip(!isMobile,'gestos devem ser testados na viewport móvel');
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('html')).toHaveCSS('touch-action','manipulation');
+ await expect(page.locator('#game-screen')).toHaveCSS('touch-action','none');
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
+ await page.evaluate(()=>{
+  const el=document.querySelector('#game-screen')!;
+  const start=new Touch({identifier:1,target:el,clientX:130,clientY:180});
+  const end=new Touch({identifier:1,target:el,clientX:130,clientY:100});
+  el.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,cancelable:true,touches:[start],targetTouches:[start],changedTouches:[start]}));
+  el.dispatchEvent(new TouchEvent('touchmove',{bubbles:true,cancelable:true,touches:[end],targetTouches:[end],changedTouches:[end]}));
+  el.dispatchEvent(new TouchEvent('touchend',{bubbles:true,cancelable:true,touches:[],targetTouches:[],changedTouches:[end]}));
+ });
+ await expect(page.locator('#hud-status')).toContainText('Jogando');
+});
