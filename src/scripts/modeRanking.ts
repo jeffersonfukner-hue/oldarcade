@@ -1,0 +1,111 @@
+type Entry={nickname:string;score:number;rank?:number;achievedAt?:string};
+type Board={available:boolean;top?:Entry[];mine?:Entry|null;error?:string};
+type Result={game:string;score:number};
+const root=document.querySelector<HTMLElement>('[data-mode-ranking]');
+if(root){
+ const game=root.dataset.game||'',endpoint='/api/games/'+encodeURIComponent(game)+'/leaderboard';
+ const get=<T extends Element>(s:string)=>root.querySelector<T>('[data-rank-'+s+']')!;
+ const body=get<HTMLTableSectionElement>('body'),global=get<HTMLElement>('global'),personal=get<HTMLElement>('personal'),provisional=get<HTMLElement>('provisional');
+ const status=get<HTMLElement>('status'),summary=get<HTMLElement>('summary'),mine=get<HTMLElement>('mine');
+ const authButton=get<HTMLButtonElement>('auth-button'),modal=get<HTMLElement>('modal'),hint=get<HTMLElement>('hint');
+ const login=get<HTMLFormElement>('login-form'),register=get<HTMLFormElement>('register-form'),authStatus=get<HTMLElement>('auth-status');
+ const recovery=get<HTMLElement>('recovery'),recoveryCode=get<HTMLElement>('code');
+ let top:number|null=null,score=0,played=false,provisionalRecord=false,account:string|null=null;
+ const fmt=(iso?:string)=>iso&&Number.isFinite(Date.parse(iso))?new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'medium'}).format(new Date(iso)):'—';
+ function render(data:Board){
+  if(!data.available){status.textContent='Ranking indisponível neste ambiente.';return}
+  top=data.top?.[0]?.score??null;
+  global.textContent=String(provisionalRecord?score:top??'—');
+  if(!provisionalRecord)provisional.hidden=true;
+  personal.textContent=data.mine?String(data.mine.score):'—';
+  mine.hidden=!data.mine;
+  if(data.mine)mine.textContent='Sua posição: '+data.mine.rank+'º · '+data.mine.nickname+' · '+data.mine.score+' pontos';
+  body.replaceChildren();
+  if(!data.top?.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=4;td.textContent='Nenhum recorde de conta registrado. Seja o primeiro!';tr.append(td);body.append(tr)}
+  else data.top.slice(0,10).forEach((e,i)=>{
+   const tr=document.createElement('tr'),position=e.rank||i+1;
+   tr.className=position<=3?'leaderboard-podium podium-'+position:'';
+   for(const value of [(position===1?'🥇 ':position===2?'🥈 ':position===3?'🥉 ':'')+position+'º',e.nickname,String(e.score),fmt(e.achievedAt)]){
+    const td=document.createElement('td');td.textContent=value;tr.append(td)
+   }body.append(tr);
+  });
+  status.textContent='Em empate, vence quem registrou primeiro. Horário local. Pontuações ainda não verificadas contra a partida.';
+  document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-updated',{detail:{game,global:top,personal:data.mine?.score||0}}));
+ }
+ async function refresh(){
+  try{const r=await fetch(endpoint,{cache:'no-store'});if(!r.ok)throw Error('Indisponível');const data=await r.json() as Board;render(data);return data}
+  catch{status.textContent='Ranking indisponível neste ambiente.';return null}
+ }
+ async function submit(points:number){
+  const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score:points})});
+  const data=await r.json() as Board;
+  if(!r.ok||!data.available)throw Error(data.error||'Não foi possível registrar');
+  render(data);return data;
+ }
+ function announce(data:Board,points:number){
+  const leader=data.top?.[0];
+  if(!leader)return 'Nenhum líder registrado.';
+  if(data.mine?.rank===1)return '🏆 Sua liderança foi confirmada! '+data.mine.score+' pontos.';
+  if(leader.score>points)return '⚡ Você fez '+points+', mas '+leader.nickname+' lidera com '+leader.score+' pontos.';
+  if(leader.score===points)return 'Empate! '+leader.nickname+' registrou primeiro.';
+  return 'Líder atual: '+leader.nickname+' · '+leader.score+' pontos.';
+ }
+ const close=()=>{modal.hidden=true;authButton.focus({preventScroll:true})};
+ const open=()=>{if(account)return;modal.hidden=false;hint.textContent=played?'Você marcou '+score+' pontos. Conecte-se para registrar esse resultado.':'Entre ou crie uma conta para disputar o ranking.';login.querySelector<HTMLInputElement>('input')?.focus({preventScroll:true})};
+ authButton.addEventListener('click',open);
+ get<HTMLButtonElement>('close').addEventListener('click',close);
+ const toggle=(kind:'login'|'register')=>{login.hidden=kind!=='login';register.hidden=kind!=='register';(kind==='login'?login:register).querySelector<HTMLInputElement>('input')?.focus()};
+ get<HTMLButtonElement>('login-tab').addEventListener('click',()=>toggle('login'));
+ get<HTMLButtonElement>('register-tab').addEventListener('click',()=>toggle('register'));
+ get<HTMLButtonElement>('done').addEventListener('click',()=>{recovery.hidden=true;close()});
+ async function accountCheck(){
+  try{const r=await fetch('/api/auth/me',{cache:'no-store'});if(!r.ok)return;const data=await r.json() as {player?:{nickname:string}|null};if(data.player)connect(data.player.nickname)}
+  catch{}
+ }
+ function connect(name:string){account=name;authButton.textContent='Conectado como '+name;authButton.disabled=true}
+ for(const [kind,form] of [['login',login],['register',register]] as const){
+  form.addEventListener('submit',async e=>{
+   e.preventDefault();const btn=form.querySelector<HTMLButtonElement>('button[type=submit]')!;btn.disabled=true;
+   authStatus.textContent='Autenticando…';const formData=new FormData(form);
+   const fields=Object.fromEntries(formData.entries());
+   if(kind==='register')Object.assign(fields,{recordEmailOptIn:false});
+   try{
+    const r=await fetch('/api/auth/'+kind,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fields)});
+    const data=await r.json() as {player?:{nickname:string};error?:string;recoveryCode?:string};
+    if(!r.ok||!data.player)throw Error(data.error||'Falha no acesso');
+    connect(data.player.nickname);
+    if(played){const result=await submit(score);summary.textContent=announce(result,score)}
+    authStatus.textContent=played?'Resultado registrado.':'Conta conectada.';
+    if(data.recoveryCode){get<HTMLElement>('code').textContent=data.recoveryCode;recovery.hidden=false}else close();
+   }catch(err){authStatus.textContent=err instanceof Error?err.message:'Falha no acesso'}
+   finally{btn.disabled=false}
+  });
+ }
+ document.addEventListener('oldarcade:game-started',event=>{
+  const d=(event as CustomEvent<{game:string}>).detail;if(d?.game!==game)return;
+  played=false;score=0;provisionalRecord=false;summary.textContent='';provisional.hidden=true;global.textContent=String(top??'—');
+ });
+ document.addEventListener('oldarcade:game-score',event=>{
+  const d=(event as CustomEvent<Result>).detail;
+  if(d?.game!==game||!Number.isSafeInteger(d.score))return;score=d.score;
+  if(top!==null&&score>top){
+   global.textContent=String(score);provisional.hidden=false;
+   if(!provisionalRecord){provisionalRecord=true;document.dispatchEvent(new CustomEvent('oldarcade:mode-record-provisional',{detail:{game,score}}))}
+  }
+ });
+ document.addEventListener('oldarcade:game-finished',async event=>{
+  const d=(event as CustomEvent<Result>).detail;if(d?.game!==game)return;
+  score=d.score;played=true;
+  await accountPromise;
+  if(account){
+   try{const data=await submit(score);summary.textContent=announce(data,score)}
+   catch(err){summary.textContent='Não foi possível confirmar seu resultado: '+(err instanceof Error?err.message:'erro')}
+  }else{
+   const data=await refresh();
+   summary.textContent=data?'Você marcou '+score+' pontos. '+announce(data,score)+' Faça login para registrar o resultado.':'Você marcou '+score+' pontos. Ranking indisponível; resultado não registrado.';
+   open();
+  }
+  provisionalRecord=false;provisional.hidden=true;global.textContent=String(top??'—');
+ });
+ const accountPromise=accountCheck();void refresh();
+}
