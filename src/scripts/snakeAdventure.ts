@@ -13,6 +13,7 @@ const pauseBtn=document.querySelector<HTMLButtonElement>('#adventure-pause')!;
 const fullscreenBtn=document.querySelector<HTMLButtonElement>('#adventure-fullscreen')!;
 const countdown=document.querySelector<HTMLElement>('#adventure-countdown')!;
 const banner=document.querySelector<HTMLElement>('#adventure-banner')!;
+const floatLayer=document.querySelector<HTMLElement>('#adventure-score-float-layer')!;
 const key='oldarcade:snake:adventure:v1',boardSize=20,cell=30;
 let best=0,highest=1,plays=0;
 try{
@@ -69,6 +70,19 @@ function draw(){
  barriers.forEach(p=>{ctx.fillStyle='#71879b';ctx.fillRect(p.x*cell+2,p.y*cell+2,cell-4,cell-4);ctx.strokeStyle='#b6c6d5';ctx.strokeRect(p.x*cell+5,p.y*cell+5,cell-10,cell-10)});
  drawItem(food);if(special)drawItem(special);
  snake.forEach((p,i)=>{ctx.fillStyle=i===0?'#b4ffd8':'#48dca4';ctx.fillRect(p.x*cell+2,p.y*cell+2,cell-4,cell-4)});
+}
+function floatPoints(at:Point,amount:number){
+ if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const board=canvas.getBoundingClientRect(),container=screen.getBoundingClientRect();
+ if(!board.width||!board.height)return;
+ const item=document.createElement('span');
+ item.className='score-float';
+ item.textContent='+'+amount;
+ item.style.left=(board.left-container.left+(at.x+.5)*(board.width/boardSize))+'px';
+ item.style.top=(board.top-container.top+(at.y+.5)*(board.height/boardSize))+'px';
+ floatLayer.append(item);
+ item.addEventListener('animationend',()=>item.remove(),{once:true});
+ window.setTimeout(()=>item.remove(),1100);
 }
 function notify(message:string){
  banner.textContent=message;banner.hidden=false;window.clearTimeout(bannerTimer);
@@ -133,6 +147,7 @@ function tick(){
    if(collected.kind==='ice')iceTicks=35;
    special=null;normalSinceSpecial=0;
   }
+  floatPoints(head,collected.kind==='gold'?50:10);
   if(score>best){best=score;save()}
   document.dispatchEvent(new CustomEvent('oldarcade:game-score',{detail:{game:'snake-adventure',score}}));
   advance();
@@ -168,6 +183,7 @@ function beginCountdown(first:boolean){
  step();
 }
 function start(){
+ floatLayer.replaceChildren();
  snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';
  food={at:{x:14,y:10},kind:'apple'};special=null;
  score=0;level=1;apples=0;golds=0;level3Specials=0;normalSinceSpecial=0;iceTicks=0;completed=false;globalProvisional=false;setBarriers(0);
