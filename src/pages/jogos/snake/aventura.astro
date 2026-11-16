@@ -3,14 +3,14 @@ import Base from '../../../layouts/Base.astro';
 import GameShare from '../../../components/GameShare.astro';
 import GameRanking from '../../../components/GameRanking.astro';
 const title='Snake Aventura — Níveis e desafios contínuos | OldArcade';
-const description='Snake Aventura gratuito: uma única partida, três níveis, missões, fruta dourada e cristal de gelo. Avance sem reiniciar o tabuleiro.';
+const description='Snake Aventura gratuito: uma única partida, níveis progressivos, missões, fruta dourada e cristal de gelo. Avance sem reiniciar o tabuleiro.';
 ---
 <Base title={title} description={description} path="/jogos/snake/aventura/">
  <div class="shell">
   <section class="hero adventure-hero">
    <span class="eyebrow">Snake · Modo Aventura · Protótipo</span>
    <h1>Uma partida. <span class="accent">Novos desafios.</span></h1>
-   <p class="lede">Cumpra missões, encontre itens especiais e evolua em três níveis sem reiniciar a cobrinha ou a pontuação. Recordes deste modo são separados do Clássico.</p>
+   <p class="lede">Cumpra missões, encontre itens especiais e evolua em níveis progressivos sem reiniciar a cobrinha ou a pontuação. Recordes deste modo são separados do Clássico.</p>
    <a class="btn secondary" href="/jogos/snake/">← Voltar ao Clássico</a>
   </section>
   <section class="game-layout" aria-label="Jogar Snake Aventura">
@@ -61,8 +61,9 @@ const description='Snake Aventura gratuito: uma única partida, três níveis, m
      <li><strong>1 · Aquecimento</strong><span>5 maçãs e 50 pontos</span></li>
      <li><strong>2 · Caça ao tesouro</strong><span>1 dourada e 150 pontos</span></li>
      <li><strong>3 · Reflexos</strong><span>3 itens especiais e 300 pontos</span></li>
+     <li><strong>4+ · Resistência</strong><span>Missões crescentes de maçãs e pontos, com novas barreiras</span></li>
     </ol>
-    <p class="small muted">Protótipo de três níveis. Depois do terceiro, a partida continua em modo sobrevivência. Barreiras surgem progressivamente nos níveis 2 e 3; itens negativos ficam para uma etapa futura. Seus resultados locais ficam separados do Clássico. Com uma conta conectada, também entram no ranking exclusivo do Aventura.</p>
+    <p class="small muted">Protótipo de níveis progressivos. Depois do terceiro, a partida continua em modo sobrevivência. Barreiras aumentam progressivamente; a fruta de velocidade aparece a partir do nível 4. Seus resultados locais ficam separados do Clássico. Com uma conta conectada, também entram no ranking exclusivo do Aventura.</p>
    </aside>
   </section>
   <GameRanking game="snake-adventure" name="Snake Aventura" />
@@ -70,8 +71,8 @@ const description='Snake Aventura gratuito: uma única partida, três níveis, m
   <section class="section panel text-content">
    <h2>Como funciona</h2>
    <p>Uma única partida para todos os níveis. Você só avança quando completa a missão e alcança a pontuação mínima. A cobrinha não reinicia ao mudar de nível.</p>
-   <p><strong>Maçã vermelha:</strong> 10 pontos. <strong>Fruta dourada:</strong> 50 pontos, disponível por um período curto. <strong>Cristal de gelo:</strong> 15 pontos e deixa a cobrinha mais lenta temporariamente. Cada item coletado faz crescer uma célula.</p>
-   <p>O nível 2 apresenta a dourada; o nível 3 apresenta o gelo. A velocidade aumenta progressivamente, mas tem limite. Se perder, você reinicia no primeiro nível e mantém os melhores resultados salvos neste navegador. Somente contas conectadas enviam pontuações ao ranking global do Aventura.</p>
+   <p><strong>Maçã vermelha:</strong> 10 pontos. <strong>Fruta dourada:</strong> 50 pontos, disponível por um período curto. <strong>Cristal de gelo:</strong> 15 pontos e deixa a cobrinha mais lenta temporariamente. <strong>Fruta de velocidade:</strong> 20 pontos e acelera a cobrinha por um período curto, a partir do nível 4. Cada item coletado faz crescer uma célula.</p>
+   <p>O nível 2 apresenta a dourada; o nível 3 apresenta o gelo; o nível 4 apresenta a fruta de velocidade. A velocidade aumenta progressivamente, mas tem limite. Se perder, você reinicia no primeiro nível e mantém os melhores resultados salvos neste navegador. Somente contas conectadas enviam pontuações ao ranking global do Aventura.</p>
   </section>
  </div>
  <script>import '../../../scripts/snakeAdventure.ts';</script>
