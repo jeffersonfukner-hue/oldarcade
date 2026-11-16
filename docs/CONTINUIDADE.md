@@ -2,6 +2,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## ATUALIZAÇÃO — padronização para próximos jogos (16/11/2026)
+- Migração 0006 executada **pelo proprietário somente no D1 Preview**. Consulta após migração: Snake Clássico 3 jogadores/maior 320; Aventura 3 jogadores/maior 395. Preview `7eb40424.oldarcade-17c.pages.dev` exibiu Top 3 Aventura (395, 360, 350). Não foi realizado POST decimal real nem validado o Clássico após migração; não modificar dados para testar.
+- CI anterior do Snake: run 43979027142, commit 8658fa1, **success**. A refatoração posterior tem CI independente pendente.
+- Nova fonte central de IDs/modos: `src/data/gameModes.js`. APIs de ranking/contadores, `gameEvents.ts` e `src/pages/rankings.astro` passam a consumir o catálogo. Testes de contrato: `tests-api/game-modes.test.mjs`. O catálogo editorial de títulos e versões permanece em `src/data/gameRegistry.ts`.
+- Ainda pendente: CI verde do commit mais recente, integração do catálogo na Home e template de página/HUD/SEO, validação visual do Preview. Não criar jogo #002 sem nova autorização. Nenhum merge, publicação ou mudança em produção.
+
+
 ## BACKLOG — modos do Snake e Desafio Diário (registrado em 16/11/2026)
 - **Clássico:** preservar a mecânica aprovada, sem misturar itens, barreiras ou progressão dos modos alternativos.
 - **Aventura:** partida contínua com níveis, missões, frutas e poderes; evoluir por etapas, incluindo barreiras progressivas e eventuais itens que ajudem ou atrapalhem. A implementação e os testes de cada etapa serão tratados separadamente.
