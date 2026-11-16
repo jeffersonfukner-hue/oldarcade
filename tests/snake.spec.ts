@@ -397,7 +397,9 @@ test('contador indisponível exibe traços e não dados fictícios',async({page}
  await page.route('**/api/site/stats',r=>r.fulfill({status:503,contentType:'application/json',body:'{"available":false}'}));
  await page.goto('/');
  await expect(page.locator('#hero-site-visits')).toHaveText('—');
- await expect(page.locator('#hero-stats-status')).toContainText('indisponíveis');
+ await expect(page.locator('#hero-total-plays')).toHaveText('—');
+ await expect(page.locator('.arcade-activity-item')).toHaveCount(3);
+ await expect(page.locator('#hero-stats-status')).toHaveCount(0);
 });
 test('versões de desenvolvimento do portal e Snake foram atualizadas separadamente',async({page})=>{
  await page.goto('/');
