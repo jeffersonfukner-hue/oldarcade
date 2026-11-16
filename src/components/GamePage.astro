@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import {gameMode} from '../data/gameModes.js';
+import {gameRegistry} from '../data/gameRegistry';
+interface Props { modeId:string; title:string; description:string; structured?:Record<string,unknown> }
+const {modeId,title,description,structured}=Astro.props;
+const mode=gameMode(modeId);
+if(!mode)throw new Error('Modalidade não cadastrada: '+modeId);
+if(!Object.hasOwn(gameRegistry,mode.title))throw new Error('Jogo sem registro editorial: '+mode.title);
+const schema=structured??{'@context':'https://schema.org','@type':'VideoGame',name:mode.name,description,inLanguage:'pt-BR',gamePlatform:'Web browser',applicationCategory:'Game',isAccessibleForFree:true,operatingSystem:'Any',author:{'@type':'Organization',name:'OldArcade'}};
+---
+<Base title={title} description={description} path={mode.url}>
+ <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+ <slot />
+</Base>
