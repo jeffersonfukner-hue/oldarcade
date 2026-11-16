@@ -245,13 +245,16 @@ test('sem conta cadastrada, recorde antigo ainda aparece com indicação adequad
  await expect(page.locator('#challenge-text')).toContainText('recordes antigos');
 });
 
-test('modal de registro inicia no campo e Tab percorre somente controles',async({page})=>{
+test('modal de registro inicia no campo e não foca o título',async({page})=>{
  await page.goto('/jogos/snake/');
- await page.evaluate(()=>{(document.querySelector<HTMLElement>('#record-modal')!).hidden=false});
- // Simula o fluxo de fim de jogo sem aguardar uma partida completa.
- await page.evaluate(()=>{(document.querySelector<HTMLButtonElement>('#record-tab-login')!).click()});
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
+ await page.keyboard.press('ArrowUp');
+ await expect(page.locator('#record-modal')).toBeVisible({timeout:8000});
+ await expect(page.locator('#record-register-nick')).toBeFocused();
+ await expect(page.locator('#record-modal-title')).not.toHaveAttribute('tabindex');
+ await page.locator('#record-tab-login').click();
  await expect(page.locator('#record-login-nick')).toBeFocused();
  await page.locator('#record-tab-register').click();
  await expect(page.locator('#record-register-nick')).toBeFocused();
- await expect(page.locator('#record-modal-title')).not.toHaveAttribute('tabindex');
 });
