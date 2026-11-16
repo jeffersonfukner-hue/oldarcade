@@ -31,6 +31,7 @@ test('Aventura registra partidas independentes sem afetar Clássico',async()=>{
  const a=ctx(db,'play','aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee');a.params.game='snake-adventure';
  a.request=new Request(origin+'/api/games/snake-adventure/stats',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({kind:'play',eventId:'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'})});
  let response=await onRequestPost(a);assert.equal(response.status,200);assert.equal((await response.json()).plays,1);
+ a.request=new Request(origin+'/api/games/snake-adventure/stats',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({kind:'play',eventId:'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'})});
  response=await onRequestPost(a);assert.equal((await response.json()).plays,1);
  const classic=await onRequestGet({params:{game:'snake'},env:{OLDARCADE_STATS_DB:db}});
  assert.equal((await classic.json()).plays,0);
