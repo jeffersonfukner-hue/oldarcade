@@ -685,6 +685,9 @@ test('Clássico: Espaço reinicia após fim sem rolar página',async({page})=>{
  await page.keyboard.press('ArrowUp');
  await expect(page.locator('#game-overlay')).toBeVisible({timeout:9000});
  await expect(page.locator('#hud-status')).toContainText('Fim');
+ // Sem conta, o Clássico abre o modal de cadastro ao terminar; Espaço não deve atravessar esse modal.
+ const recordModal=page.locator('#record-modal');
+ if(await recordModal.isVisible()){await page.locator('#record-skip').click();}
  await page.evaluate(()=>{document.activeElement instanceof HTMLElement&&document.activeElement.blur();window.scrollTo(0,0)});
  const beforeScroll=await page.evaluate(()=>window.scrollY);
  await page.keyboard.press('Space');
