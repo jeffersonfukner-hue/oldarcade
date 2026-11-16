@@ -14,7 +14,7 @@ export function setupGlobalLeaderboard(){
  let lastGlobalScore:number|null=null;
  let loadedGlobal=false;
  let loading=false;
- let initialBoard:Board|null=null;
+ let latestBoard:Board|null=null;
  let roundStartBoard:Board|null=null;
  const myResult=document.querySelector<HTMLElement>('#my-global-rank')!;
  const myPosition=document.querySelector<HTMLElement>('#my-global-position')!;
@@ -26,7 +26,7 @@ export function setupGlobalLeaderboard(){
   myDetail.textContent=mine.nickname+' · '+mine.score+' pontos · '+localDate(mine.achievedAt);
  }
  function draw(data:Board,source:'initial'|'end'|'submit'='initial'){
-  if(data.available&&source==='initial')initialBoard=data;
+  if(data.available)latestBoard=data;
   body.replaceChildren();
   drawMine(data.mine);
   const globalScore=data.available&&data.top?.length?data.top[0].score:null;
@@ -65,7 +65,7 @@ export function setupGlobalLeaderboard(){
    row.append(pos,nick,score,date);body.append(row);
   });
  }
- function markRoundStart(){roundStartBoard=initialBoard}
+ function markRoundStart(){roundStartBoard=latestBoard}
  function relativeElapsed(now:string|undefined,when:string|undefined){
   if(!now||!when)return '';
   const seconds=Math.max(0,Math.floor((Date.parse(now)-Date.parse(when))/1000));
