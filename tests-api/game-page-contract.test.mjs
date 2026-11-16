@@ -24,3 +24,16 @@ test('página compartilhada gera metadados e JSON-LD sem esconder conteúdo',()=
  assert.ok(home.includes('Object.keys(gameRegistry).length'));
  assert.ok(home.includes('Object.entries(gameModes)'));
 });
+
+test('HUD compartilhado mantém IDs utilizados pelos scripts existentes',()=>{
+ const hud=file('src/components/GameHud.astro');
+ for(const marker of ['statusId','scoreId','bestId','globalId','levelId','provisionalId'])assert.ok(hud.includes(marker));
+ for(const [page,ids] of [
+  ['src/pages/jogos/snake.astro',['hud-status','hud-score','hud-best','hud-global-best']],
+  ['src/pages/jogos/snake/aventura.astro',['adventure-status','adventure-score','adventure-best','adventure-hud-global']]
+ ]){
+  const source=file(page);
+  assert.ok(source.includes('<GameHud '));
+  for(const id of ids)assert.ok(source.includes(id),'ID ausente: '+id);
+ }
+});
