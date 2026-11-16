@@ -1,6 +1,6 @@
 import {currentPlayer,reply,sameOrigin,parseBody} from '../../_lib/auth.js';
-import {competitiveGame,validGameScore} from '../../../src/data/gameModes.js';
-export {validGameScore} from '../../../src/data/gameModes.js';
+import {competitiveGame,validGameScore} from '../../../../src/data/gameModes.js';
+export {validGameScore} from '../../../../src/data/gameModes.js';
 async function scoreColumn(db){
  const schema=await db.prepare("PRAGMA table_info('player_game_records')").all();
  return (schema.results||[]).some(row=>row.name==='best_score_milli')?'best_score_milli':'best_score';
