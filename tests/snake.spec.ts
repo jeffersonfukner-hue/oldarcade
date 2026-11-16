@@ -578,7 +578,7 @@ test('home estilo foco no jogador mantém jogos visíveis e três contadores com
  await expect(page.locator('#hero-games-played')).toHaveCount(0);
  const top=await page.locator('.arcade-mode-grid').evaluate(el=>el.getBoundingClientRect().top);
  expect(top).toBeLessThan(800);
- await expect(page.locator('.arcade-sidebar a[href="/conta/"]')).toBeVisible();
+ await expect(page.locator('.arcade-side-nav a[href="/conta/"]')).toBeVisible();
 });
 test('home dashboard celular não causa rolagem horizontal e oferece acesso aos modos',async({page})=>{
  await page.setViewportSize({width:390,height:844});
