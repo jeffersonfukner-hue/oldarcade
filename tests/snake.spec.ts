@@ -30,13 +30,13 @@ test('Snake inicia, pausa e retoma com contagem honesta', async ({page}) => {
 
 test('nickname é opcional, ranking não se anuncia como global', async ({page}) => {
   await page.goto('/jogos/snake/');
-  await page.getByRole('textbox', {name:/Apelido opcional/}).fill('Jogador teste');
+  await page.getByRole('textbox', {name:/Nickname para participar do ranking local/}).fill('Jogador teste');
   await page.getByRole('button', {name:'Salvar'}).click();
   await expect(page.locator('#nick-status')).toContainText('salvo');
   await page.reload();
   await expect(page.locator('#nickname')).toHaveValue('Jogador teste');
   await expect(page.getByRole('heading', {name:'Ranking local'})).toBeVisible();
-  await expect(page.getByText(/Recordes e ranking locais continuam/)).toBeVisible();
+  await expect(page.getByText(/O nickname e o ranking ficam salvos neste navegador/)).toBeVisible();
 });
 
 test('área jogável e controles são exibidos em desktop e celular', async ({page}) => {
@@ -142,4 +142,31 @@ test('visita mantém ID ao atualizar e partida envia novo ID',async({page})=>{
  const seen=events.filter(e=>e.kind==='visit');
  expect(seen).toHaveLength(2);
  expect(seen[0].eventId).toBe(seen[1].eventId);
+});
+
+
+test('ranking local mostra somente jogadores com nickname e persiste apelido',async({page})=>{
+ await page.addInitScript(()=>{
+  localStorage.setItem('oldarcade:snake:v1',JSON.stringify({
+   best:60,plays:3,visits:1,nickname:'Jogador 12',
+   scores:[
+    {name:'Anônimo',score:60,at:1},
+    {name:'',score:50,at:2},
+    {name:'Jogador 12',score:40,at:3},
+    {name:'Outro nick',score:30,at:4}
+   ]
+  }));
+ });
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#nickname')).toHaveValue('Jogador 12');
+ await expect(page.locator('#rank-body tr')).toHaveCount(2);
+ await expect(page.locator('#rank-body')).toContainText('Jogador 12');
+ await expect(page.locator('#rank-body')).toContainText('Outro nick');
+ await expect(page.locator('#rank-body')).not.toContainText('Anônimo');
+ await page.locator('#nickname').fill('');
+ await page.getByRole('button',{name:'Salvar'}).click();
+ await expect(page.locator('#nick-status')).toContainText('sem nickname');
+ await page.reload();
+ await expect(page.locator('#nickname')).toHaveValue('');
+ await expect(page.locator('#rank-body tr')).toHaveCount(2);
 });

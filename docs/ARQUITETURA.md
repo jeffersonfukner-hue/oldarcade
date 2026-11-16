@@ -72,3 +72,9 @@ O arquivo robots.txt nesta fundação bloqueia crawlers de propósito. Alterar a
 - Se API indisponível, não inventar valores; mostrar traço e status.
 - Nenhum IP/nickname/cookie persistente é armazenado no D1; tokens aleatórios e timestamp dos eventos ficam armazenados.
 - Idempotência e validação de origem não equivalem a proteção antifraude; reforçar antes de lançamento público.
+
+## Ranking e identificação opcional — regra aprovada (Preview)
+- Qualquer visitante pode jogar e contribuir para os totais globais de visitas e partidas.
+- Somente resultados de partidas com nickname não vazio entram no ranking **local**. Resultados antigos com nome Anônimo ou vazio são filtrados da visualização e dos dados salvos quando a página carregar.
+- Nickname digitado e salvo persiste neste navegador entre visitas, mas não é login nem identidade global. Alterar nickname não altera o nome já registrado em resultados anteriores.
+- Não publicar ranking global até existir mecanismo de pontuação verificável e proteção contra fraude.

@@ -67,6 +67,12 @@ O usuário criou o projeto Pages `oldarcade` conectado ao GitHub, com domínio t
 - Cloudflare Pages usará a configuração deste arquivo como fonte de verdade no deploy da branch; verificar no deploy do Preview se a API `/api/games/snake/stats` retorna `available:true` antes de considerar vínculo concluído.
 - A publicação do `main` não foi acionada; não alterar produção.
 
+## Regra de nickname para ranking local (16/11/2026)
+- Pedido do usuário: salvar nickname já informado e mostrar score no ranking somente se o jogador tiver nickname, independentemente do apelido escolhido.
+- O nickname já persistia em localStorage; a regra agora exige nome não vazio para gravar resultados locais e filtra entradas legadas 'Anônimo'/vazias.
+- Partidas sem nickname continuam sendo contadas nos totais globais e recordes próprios. Não existe conta de usuário nem ranking global; isso exigiria identificação segura e validação de score.
+- Testes E2E atualizados para garantir filtragem e persistência. Ainda verificar CI e Preview.
+
 ## Pendências prioritárias
 1. Confirmar novo deploy Cloudflare Pages **Preview** da branch `feat/fundacao-snake` e recuperar URL gerada; não inventar URL.
 2. Validar Snake no navegador humano, especialmente tecla Esc, mobile, ranking local e conteúdo.
