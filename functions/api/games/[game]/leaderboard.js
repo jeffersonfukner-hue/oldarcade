@@ -23,7 +23,7 @@ async function standings(db,request,game){
  let myGames=[];
  if(player){
   const records=await db.prepare(`SELECT game,${column} AS score_units FROM player_game_records WHERE player_id=? ORDER BY game`).bind(player.id).all();
-  myGames=(records.results||[]).map(row=>({game:String(row.game),score:Number(row.score_units)/factor})).filter(row=>Number.isSafeInteger(row.score)&&row.score>=0);
+  myGames=(records.results||[]).map(row=>({game:String(row.game),score:Number(row.score_units)/factor})).filter(row=>Number.isFinite(row.score)&&row.score>=0);
   const own=await db.prepare(`SELECT ${column} AS score_units,achieved_at_ms FROM player_game_records WHERE game=? AND player_id=?`).bind(game,player.id).first();
   if(own){
    const ahead=await db.prepare(
