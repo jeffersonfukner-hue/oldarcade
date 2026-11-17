@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## Continuação de execução — 17/11/2026 · testes e refinamento visual
+- Commit `2b749fe7`: atualização de testes Playwright antigos em `tests/snake.spec.ts`: mensagens de ranking conforme regra atual de desempate por tempo; recorde pessoal só é celebrado quando supera marca positiva anterior; recorde global provisório exige líder anterior positivo; cenários Aventura testam travessia livre e ausência de polling, sem simular derrota onde não há parede. Testes ainda dependem de CI para confirmação.
+- Commit `51c98622`: ajuste do banner secundário do Aventura para aviso compacto, translúcido, sem captura de interação, com variação de prioridade e reinício de animação usando classe CSS existente. Celebrações principais continuam no componente global `gameCelebration.ts`; nenhuma alteração de regras, missões, pontuação ou ranking.
+- CI #223 para `1dcb7e99`, #224 para `fa68e697` e novo CI para `2b749fe7` estavam em andamento na última consulta. O commit visual `51c98622` precisa ter seu workflow conferido. Não afirmar CI verde sem conclusão registrada.
+- QA Preview Cloudflare e validação visual humana continuam pendentes; ausência de alteração em D1, main, produção ou Lovable.
+- Próxima ação: revisar o resultado do workflow do HEAD, corrigir somente falhas comprovadas, validar os efeitos do Aventura em 1440/1024/390/320 e registrar captura e aceite do Preview.
+
 ## Atualização de execução — 17/11/2026 · modernização visual Aventura
 - Commit `1dcb7e99` na branch `feat/fundacao-snake`: Aventura usa somente celebração global para subir nível e para derrota (sem banners duplicados); nova partida emite `oldarcade:game-started` para limpar efeitos pendentes; overlay de reinício é apresentado após 4 s, alinhado à duração da celebração final compartilhada. Mecânica, níveis, missões, pontuação, contadores e API de ranking preservados.
 - CI anterior, commit `898118648`, workflow #222 (`44014165809`): build, tipagem e testes de API passaram; Playwright 89 passou, 12 falharam, 1 ignorado. Falhas repetidas desktop/mobile: quatro cenários Clássico (consulta/recorde) e dois Aventura (fim de jogo). Nos dois testes Aventura, a expectativa de derrota após apenas `ArrowUp` é incompatível com a regra vigente de travessia de bordas livres: não remover wrap para satisfazer o teste; reescrever cenários para colisão determinística. Verificar logs completos para demais causas Clássico.
