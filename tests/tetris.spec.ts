@@ -174,3 +174,37 @@ test('Tetris fullscreen preserva tabuleiro vertical e controles em monitor ultra
  expect(layout.controls.left).toBeGreaterThanOrEqual(layout.stage.left);
  expect(layout.controls.right).toBeLessThanOrEqual(layout.stage.right);
 });
+
+test('Espaço não inicia partida sozinho e resultado autenticado não se perde ao reiniciar',async({page})=>{
+ const nickname='Jogador teste';
+ const submissions:{score:number;durationMs:number}[]=[];
+ await page.route('**/api/auth/me',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({player:{nickname}})}));
+ await page.route('**/api/games/tetris/leaderboard',async route=>{
+  if(route.request().method()==='POST'){
+   const payload=route.request().postDataJSON() as {score:number;durationMs:number};
+   submissions.push(payload);
+   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+    available:true,saved:true,top:[{nickname,score:payload.score,rank:1,achievedAt:'2026-11-17T12:00:00Z'}],
+    mine:{nickname,score:payload.score,rank:1,achievedAt:'2026-11-17T12:00:00Z'}
+   })});
+  }else await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[],mine:null})});
+ });
+ await page.goto('/jogos/tetris/');
+ await expect(page.locator('[data-rank-auth-button]')).toBeDisabled();
+ await page.evaluate(()=>{
+  window.dispatchEvent(new KeyboardEvent('keydown',{code:'Space',key:' ',bubbles:true}));
+  window.dispatchEvent(new KeyboardEvent('keydown',{code:'Space',key:' ',bubbles:true}));
+ });
+ await expect(page.locator('#tetris-plays')).toHaveText('0');
+ // Regressão do bug: a gravação de um jogo logado não pode esperar 6,5s
+ // nem ser cancelada por oldarcade:game-started disparado logo depois.
+ await page.evaluate(()=>{
+  document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'tetris',score:33700,durationMs:90000,recordDelayMs:6500}}));
+  document.dispatchEvent(new CustomEvent('oldarcade:game-started',{detail:{game:'tetris'}}));
+ });
+ await expect.poll(()=>submissions.length,{timeout:3000}).toBe(1);
+ expect(submissions[0]).toEqual({score:33700,durationMs:90000});
+ await expect(page.locator('[data-rank-global]')).toHaveText('33700');
+ await page.waitForTimeout(250);
+ expect(submissions).toHaveLength(1);
+});
