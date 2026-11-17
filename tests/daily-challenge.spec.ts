@@ -14,7 +14,9 @@ test('Visitante visualiza calendário Snake mas não consegue iniciar Desafio Di
  await expect(calendar.locator('.daily-day')).toHaveCount(30);
  await expect(calendar.locator('[data-daily-login]')).toBeVisible();
  await expect(calendar.locator('[data-daily-start]')).toBeHidden();
- await expect(calendar.getByText(/Entre na conta para acessar o desafio diário/)).toBeVisible();
+ await calendar.locator('.daily-day[data-status="today"]').click();
+ await expect(calendar.locator('[data-daily-guest-explanation]')).toBeVisible();
+ await expect(calendar.getByText(/Você pode jogar livremente sem cadastro/)).toBeVisible();
 });
 
 test('Conta conectada reserva uma tentativa para Snake e impede acesso após participação',async({page})=>{
