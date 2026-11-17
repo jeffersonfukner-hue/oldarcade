@@ -112,10 +112,11 @@ test('Clássico usa celebração de pódio por posição real, acima da tela de 
  await expect(celebration.locator('[data-celebration-icon]')).toHaveText('🥈');
  await expect(celebration).toHaveClass(/is-podium/);
  await expect.poll(()=>page.evaluate(()=>{
-  const board=document.querySelector('#tetris-screen')!;
   const pop=document.querySelector('#game-celebration')!;
   const gameOverlay=document.querySelector('#tetris-overlay')!;
-  return board.contains(pop)&&Number(getComputedStyle(pop).zIndex)>Number(getComputedStyle(gameOverlay).zIndex||0);
+  const rank=Number.parseInt(getComputedStyle(pop).zIndex,10);
+  const gameRank=Number.parseInt(getComputedStyle(gameOverlay).zIndex,10)||0;
+  return pop.parentElement!==document.querySelector('#tetris-screen')&&getComputedStyle(pop).position==='fixed'&&rank>gameRank;
  })).toBe(true);
 });
 
