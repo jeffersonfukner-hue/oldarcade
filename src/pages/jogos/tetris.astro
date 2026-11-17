@@ -24,7 +24,7 @@ const description='Jogue nosso Tetris online grátis: gire peças, complete linh
        <canvas id="tetris-canvas" width="300" height="600" aria-label="Tabuleiro do Tetris com 10 colunas e 20 linhas"></canvas>
        <div class="game-overlay" id="tetris-overlay">
         <h2 id="tetris-overlay-title">Preparado para jogar?</h2>
-        <p id="tetris-overlay-text">Setas para mover, cima para girar, Espaço para queda rápida e C para reservar peça.</p>
+        <p id="tetris-overlay-text">Setas para mover, cima para girar, Espaço para queda rápida animada e C para reservar peça.</p>
         <strong id="tetris-countdown" class="countdown-value" hidden aria-live="assertive"></strong>
         <button class="btn" id="tetris-start" type="button">▶ Começar partida</button>
        </div>
@@ -54,7 +54,7 @@ const description='Jogue nosso Tetris online grátis: gire peças, complete linh
     </div>
     <div class="global-stats"><h3>Comunidade · Tetris</h3><div class="stats-list"><div class="stat-row"><span>Visitas globais</span><strong id="tetris-global-visits">—</strong></div><div class="stat-row"><span>Partidas globais</span><strong id="tetris-global-plays">—</strong></div></div><p id="tetris-global-stats-status" class="small muted" role="status">Consultando Cloudflare…</p></div>
     <h3>Como pontuar</h3>
-    <p class="small muted">Uma linha: 100 pontos. Duas: 300. Três: 500. Quatro de uma vez: 800 — multiplicados pelo nível atual. Queda suave: +1 por célula; queda instantânea: +2 por célula.</p>
+    <p class="small muted">Uma linha: 100 pontos. Duas: 300. Três: 500. Quatro de uma vez: 800 — multiplicados pelo nível atual. Mover, girar e descer peças não gera pontos: somente linhas completas pontuam.</p>
     <p class="small muted">A cada 10 linhas eliminadas, você sobe de nível e as peças aceleram. Sem limite de tempo e sem peças extras pagas.</p>
    </aside>
   </section>
@@ -62,9 +62,9 @@ const description='Jogue nosso Tetris online grátis: gire peças, complete linh
   <GameShare gameSlug="tetris" gameName="Tetris" gamePath="/jogos/tetris/" />
   <section class="section panel text-content">
    <h2>Como jogar</h2>
-   <p>Encaixe as peças que caem para preencher linhas horizontais. Uma linha completa desaparece, libera espaço e rende pontos. A partida termina quando uma nova peça já não consegue entrar no tabuleiro. A peça fantasma mostra onde a atual vai cair.</p>
+   <p>Encaixe as peças que caem para preencher linhas horizontais. Uma linha completa desaparece, libera espaço e rende pontos, exibidos no tabuleiro no momento da limpeza. Movimentar peças não aumenta o placar. A partida termina quando uma nova peça já não consegue entrar no tabuleiro. A peça fantasma mostra onde a atual vai cair.</p>
    <h3>Controles</h3>
-   <p><strong>← → / A D:</strong> mover. <strong>↑ / W / X:</strong> girar no sentido horário. <strong>Z:</strong> girar no sentido contrário. <strong>↓ / S:</strong> acelerar a descida. <strong>Espaço:</strong> queda instantânea. <strong>C / Shift:</strong> guardar ou trocar uma peça (uma vez até travar a próxima). <strong>P:</strong> pausar. <strong>F:</strong> tela cheia.</p>
+   <p><strong>← → / A D:</strong> mover. <strong>↑ / W / X:</strong> girar no sentido horário. <strong>Z:</strong> girar no sentido contrário. <strong>↓ / S:</strong> acelerar a descida. <strong>Espaço:</strong> queda rápida animada. <strong>C / Shift:</strong> guardar ou trocar uma peça (uma vez até travar a próxima). <strong>P:</strong> pausar. <strong>F:</strong> tela cheia.</p>
    <p>No celular, use os botões abaixo do tabuleiro. Você também pode deslizar horizontalmente para mover, deslizar para baixo para soltar uma peça ou tocar no tabuleiro para girá-la.</p>
    <h3>Estratégia rápida</h3>
    <p>Deixe espaço para peças compridas, evite buracos inacessíveis e use a reserva para esperar uma combinação melhor. Completar quatro linhas de uma vez rende mais pontos que apagar quatro linhas separadamente.</p>
