@@ -30,7 +30,8 @@ export const gameRegistry = {
     createdAt: '2026-11-17',
     version: '0.1.0-dev',
     milestones: [
-      {date:'2026-11-17',mode:'tetris',title:'O segundo jogo entra no tabuleiro',notes:'Primeira implementação de blocos em queda com sete peças, próxima peça, reserva, peça fantasma e limpeza de linhas; construída com componentes compartilhados e aguardando validação no Preview.'}
+      {date:'2026-11-17',mode:'tetris',title:'O segundo jogo entra no tabuleiro',notes:'Primeira implementação de blocos em queda com sete peças, próxima peça, reserva, peça fantasma e limpeza de linhas; construída com componentes compartilhados e aguardando validação no Preview.'},
+      {date:'2026-11-17',mode:'tetris-sprint',title:'40 linhas contra o relógio',notes:'Modo Sprint em desenvolvimento: completar 40 linhas no menor tempo efetivo, ranking independente por duração, pausa não conta, tentativas incompletas não entram na classificação. Motor do Clássico e componentes globais reaproveitados; aguardando validação visual no Preview.'}
     ],
     history: [
       {version:'0.1.0-dev',date:'2026-11-17',notes:'Protótipo jogável do jogo #002, sem lançamento em produção; controles de teclado e toque, pontuação e ranking isolados.'}
