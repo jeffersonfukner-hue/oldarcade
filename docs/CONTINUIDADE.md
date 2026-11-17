@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## BACKLOG — indicações culturais e links de afiliado nas histórias dos jogos (17/11/2026)
+- **Status: implementação futura, não ativar agora.** Solicitação do proprietário para os textos de história/origem dos jogos, iniciando pelo Tetris e aplicável também a Snake e próximos jogos.
+- Reservar no contrato editorial um **bloco reutilizável** de "Para conhecer mais" ou "Livros, filmes e documentários", alimentado por dados de cada título. Permitir livros para compra via links de afiliado; filmes/documentários com opções legítimas de aluguel, compra ou streaming, usando afiliação **somente quando o programa efetivamente existir e permitir esse destino**.
+- Antes de implementar: pesquisar parceiros e condições vigentes, disponibilidade regional no Brasil, títulos e edições corretos, direitos de uso de capas/imagens, atualização de catálogos e manutenção de links. Não inventar títulos, ofertas, preços, disponibilidade ou links de afiliado.
+- Mostrar claramente indicação editorial versus publicidade, sinalizar links que geram comissão e aplicar `rel="sponsored noopener noreferrer"` quando couber. Não comprometer navegação, SEO educativo, acessibilidade ou responsividade.
+- **Nada de área vazia no Preview/produção:** o ponto de extensão fica documentado nos componentes históricos; só renderizar seção com indicações verificadas. Nenhuma conta/afiliação cadastrada, link comercial ou publicação autorizada nesta etapa.
+
+
 ## Tetris Sobrevivência #002 — terceiro modo (17/11/2026)
 - Proprietário aprovou implementar **Sobrevivência após gostar do Sprint**, enquanto ele valida a correção global de sessão ao usar Voltar. Não há autorização de merge, produção ou D1/SQL.
 - Nova URL em Preview: `/jogos/tetris/sobrevivencia/`, modo competitivo `tetris-survival`; não aumenta número de jogos (continua Tetris #002) nem altera versões editoriais aprovadas. Os três modos usam `src/components/TetrisGame.astro` e `src/scripts/tetris.ts`, mesmo tabuleiro, controles, contagem, relógio, pausa, reserva, fullscreen e HUD.
