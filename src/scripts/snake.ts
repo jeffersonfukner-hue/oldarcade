@@ -1,4 +1,5 @@
 import {setupGameClock} from './gameClock';
+import {setCountdownOverlay} from './gameCountdownOverlay';
 import {nextSnakeMilestone,showSnakeMoment} from './snakeMilestones';
 import {arcadePersonality} from './arcadePersonality';
 import { setupGlobalLeaderboard } from './globalLeaderboard';
@@ -350,7 +351,7 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
   document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:modeId,kind:'provisional',message:'Você passou a marca global! Confirmação ao final da partida.'}}));
  }
  draw();refresh();schedule()}
-function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
+function cancelCountdown(){window.clearTimeout(countdownTimer);setCountdownOverlay(overlay,countValue,startBtn,false)}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 const gameClock=setupGameClock(gameScreen,()=>state==='playing');
 function start(){gameClock.reset();endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];enemies=[];scareUntil=0;evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
@@ -432,12 +433,12 @@ function beginCountdown(description='A partida será retomada em:'){
  cancelCountdown();window.clearTimeout(timer);
  state='countdown';setStatus('Preparando');
  title.textContent='Prepare-se';overlayText.textContent=description;
- overlay.hidden=false;startBtn.hidden=true;countValue.hidden=false;
+ overlay.hidden=false;setCountdownOverlay(overlay,countValue,startBtn,true);
  let remaining=3;
  function step(){
   countValue.textContent=String(remaining);setStatus('Retomando em '+remaining);
   if(remaining===1){
-   countdownTimer=window.setTimeout(()=>{countValue.hidden=true;startBtn.hidden=false;overlay.hidden=true;state='playing';setStatus('Jogando');pauseBtn.textContent='Pausar';schedule()},1000);
+   countdownTimer=window.setTimeout(()=>{setCountdownOverlay(overlay,countValue,startBtn,false);overlay.hidden=true;state='playing';setStatus('Jogando');pauseBtn.textContent='Pausar';schedule()},1000);
   }else{remaining--;countdownTimer=window.setTimeout(step,1000)}
  }
  step();
