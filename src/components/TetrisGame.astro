@@ -4,6 +4,7 @@ import GameHud from './GameHud.astro';
 import GameRanking from './GameRanking.astro';
 import GameShare from './GameShare.astro';
 import TetrisHistory from './TetrisHistory.astro';
+import HistoricalScreenings from './HistoricalScreenings.astro';
 import {gameRegistry} from '../data/gameRegistry';
 import {gameModes} from '../data/gameModes.js';
 interface Props{modeId:'tetris'|'tetris-sprint'|'tetris-survival'}
@@ -83,6 +84,7 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
    <p>{survival?'Evite empilhar alto, limpe linhas sempre que possível e guarde peças úteis para corrigir buracos. Depois de algumas ondas, os encaixes precisarão ser mais rápidos.':sprint?'Priorize encaixes limpos e use a reserva para evitar buracos. Finalizar quatro linhas simultaneamente economiza tempo e movimentos.':'Deixe espaço para peças compridas, evite buracos inacessíveis e use a reserva para esperar uma combinação melhor. Completar quatro linhas de uma vez rende mais pontos que apagar quatro linhas separadamente.'}</p>
   </section>
   <TetrisHistory />
+  <HistoricalScreenings game="tetris" />
   <section class="section panel" aria-labelledby="tetris-history">
    <div class="section-head"><div><span class="eyebrow">Bastidores do OldArcade</span><h2 id="tetris-history">Desenvolvimento do jogo #002</h2></div><span class="pill">v{game.version}</span></div>
    <p class="small muted">Protótipo de desenvolvimento: a validação visual é feita pelo proprietário antes de qualquer publicação.</p>
