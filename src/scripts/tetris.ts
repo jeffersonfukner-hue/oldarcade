@@ -213,6 +213,9 @@ function show(heading:string,message:string,button:string){
  overlay.hidden=false;setCountdownOverlay(overlay,countdown,startButton,false);
 }
 function countdownStart(first:boolean){
+ // Ao esconder o botão de iniciar, remova seu foco: Space não pode
+ // ativá-lo novamente por padrão do navegador ao terminar a partida.
+ if(document.activeElement===startButton)startButton.blur();
  window.clearTimeout(countTimer);window.clearTimeout(fallTimer);
  state='countdown';overlay.hidden=false;setCountdownOverlay(overlay,countdown,startButton,true);
  title.textContent='Prepare-se';description.textContent=first?'A primeira peça chega em:':'Retomando em:';
