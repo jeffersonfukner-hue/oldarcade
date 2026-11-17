@@ -60,7 +60,7 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
   </section>
  </div>
  <script>
-  import {formatRankingValue,isTimeRanking} from '../data/rankingRules.js';
+  import {formatRankingValue,isTimeRanking,isLowerBetter} from '../data/rankingRules.js';
   const login=document.querySelector<HTMLFormElement>('#account-login')!;
   const register=document.querySelector<HTMLFormElement>('#account-register')!;
   const loginTab=document.querySelector<HTMLButtonElement>('#tab-login')!;
@@ -80,6 +80,7 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
    await Promise.all(recordCards.map(async card=>{
     const game=card.dataset.accountRecord!;
     const timed=isTimeRanking(game);
+    const lowerBetter=isLowerBetter(game);
     const display=(value:number)=>formatRankingValue(game,value);
     const best=card.querySelector<HTMLElement>('[data-account-best]')!;
     const rank=card.querySelector<HTMLElement>('[data-account-rank]')!;
@@ -111,7 +112,7 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
      }else{
       challenge.textContent='Você ainda não registrou recorde nesta modalidade.';
       play.textContent='🎮 Registrar meu primeiro recorde →';
-      setMissions([timed?'Completar 40 linhas e registrar seu primeiro tempo':'Registrar sua primeira pontuação nesta modalidade','Buscar uma vaga no Top 3']);
+      setMissions([timed?(lowerBetter?'Completar 40 linhas e registrar seu primeiro tempo':'Sobreviver até o fim e registrar seu primeiro tempo'):'Registrar sua primeira pontuação nesta modalidade','Buscar uma vaga no Top 3']);
      }
     }catch{if(requestId===recordsRequest){best.textContent='Indisponível';rank.textContent='—';challenge.textContent='Não foi possível consultar seu progresso agora.';play.textContent='🎮 Jogar agora →';setMissions(['Missões indisponíveis temporariamente'])}}
    }));
