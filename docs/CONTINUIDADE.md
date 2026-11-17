@@ -6,9 +6,10 @@
 
 ## Tetris #002 — pódio real, 4 linhas sem missão e temporização do game over (17/11/2026)
 - Feedback visual do proprietário: ao eliminar quatro linhas, o Clássico exibia simultaneamente pontuação e “MISSÃO CUMPRIDA”, apesar de não haver missões; modal de registro aparecia cedo demais após efeito de Game Over; ao fazer login, pódio mostrava “TOP 3” mesmo para 2º colocado e efeito ficava atrás do botão “Jogar novamente”.
+- `src/scripts/gameEvents.ts`: `recordGameFinish` aceita `{recordDelayMs}` opcional, preservando chamada compartilhada e comportamento padrão do Snake (`b6172d9c`, `72fa870d`).
 - `src/scripts/tetris.ts`: retirada de `celebrate('mission')` para quatro linhas e mudança de nível; permanece o efeito global de pontos (`+800 · TETRIS! 4 linhas` no nível 1), HUD de nível e pontuação apenas por linhas. Término emite `oldarcade:game-finished` com `recordDelayMs:6500`, preservando celebração de derrota de 4s e tela de revanche antes do login. Commit `db632c35`.
 - `src/scripts/modeRanking.ts`: atraso limitado e opt-in em `finishResult()`; Snake continua com atraso zero (`efb31b19`). Comemoração de pódio usa `data.mine.rank` (2º/3º), e é mostrada após fechar o modal, incluindo percurso com código de recuperação (`c8da982d`).
-- `src/scripts/gameCelebration.ts` e `src/components/GamePage.astro`: card compartilhado exibe título específico de posição, medalha de prata para 2º e classe `is-podium` acima da overlay de revanche (`a10689e6`, `cd06d660`). E2E de rank 2 e atraso do modal: `tests/tetris.spec.ts` (`3ce2dfce`).
+- `src/scripts/gameCelebration.ts` e `src/components/GamePage.astro`: card compartilhado exibe título específico de posição, medalha de prata para 2º; pódio e liderança ficam numa camada **fixa** de primeiro plano da viewport, independentemente do botão de revanche, scroll ou modal anterior (`a10689e6`, `5bc7c683`, `ae0033dd`). E2E de rank 2, atraso do modal e login de vice-líder: `tests/tetris.spec.ts` (`3ce2dfce`, `05c01c31`, `54c0c1f8`).
 - Pendente: observar CI do HEAD, validar visualmente no Preview com proprietário e registrar evidências. Sem merge, produção, SQL, Lovable.
 
 
