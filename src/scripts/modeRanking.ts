@@ -14,6 +14,7 @@ if(root){
  const recovery=get<HTMLElement>('recovery'),recoveryCode=get<HTMLElement>('code');
  let top:number|null=null,score=0,played=false,provisionalRecord=false,account:string|null=null;
  let durationMs=0;let pendingScore:number|null=null,pendingDurationMs=0,round=0,roundPersonal=0,personalCelebrated=false;
+ let refreshVersion=0;
  const celebrate=(kind:'personal'|'mission'|'podium'|'leader'|'rival',message:string,rank?:number)=>document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game,kind,message,rank}}));
  const retry=get<HTMLButtonElement>('retry');
  function setPending(points:number,elapsed=durationMs){pendingScore=points;pendingDurationMs=elapsed;retry.hidden=false;retry.textContent='Tentar registrar '+display(points)+' novamente'}
@@ -39,11 +40,20 @@ if(root){
    }body.append(tr);
   });
   status.textContent=timed?'Sprint: menor tempo para 40 linhas vence. Em empate, vale o registro mais antigo. Tempos ainda não verificados contra a partida.':'Em empate, vence quem fez menor tempo. Registros antigos sem tempo ficam atrás. Pontuações ainda não verificadas contra a partida.';
-  document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-updated',{detail:{game,global:top,personal:data.mine?.score||0}}));
+  document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-updated',{detail:{game,global:top,personal:data.mine?.score??null}}));
  }
  async function refresh(){
-  try{const r=await fetch(endpoint,{cache:'no-store'});if(!r.ok)throw Error('Indisponível');const data=await r.json() as Board;render(data);return data}
-  catch{status.textContent='Ranking indisponível neste ambiente.';return null}
+  const version=++refreshVersion;
+  try{
+   const r=await fetch(endpoint,{cache:'no-store'});
+   if(!r.ok)throw Error('Indisponível');
+   const data=await r.json() as Board;
+   if(version!==refreshVersion)return null;
+   render(data);return data;
+  }catch{
+   if(version===refreshVersion)status.textContent='Ranking indisponível neste ambiente.';
+   return null;
+  }
  }
  async function submit(points:number,elapsed=durationMs){
   const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score:points,durationMs:elapsed})});
@@ -89,6 +99,12 @@ if(root){
   const player=(event as CustomEvent<{player?:{nickname:string}|null}>).detail?.player;
   if(player?.nickname)connect(player.nickname);
   else if(player===null){account=null;authButton.textContent='Entrar ou criar conta para registrar recordes';authButton.disabled=false}
+  // Trocar a conta invalida a classificação pessoal anterior imediatamente.
+  // O servidor é a única fonte do recorde autenticado.
+  roundPersonal=timed?Infinity:0;personalCelebrated=false;
+  personal.textContent='—';mine.hidden=true;
+  document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-updated',{detail:{game,global:top,personal:null}}));
+  void refresh();
  });
  for(const [kind,form] of [['login',login],['register',register]] as const){
   form.addEventListener('submit',async e=>{
@@ -177,7 +193,7 @@ if(root){
  document.addEventListener('oldarcade:mode-ranking-request',event=>{
   const request=(event as CustomEvent<{game:string}>).detail;
   if(request?.game!==game)return;
-  document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-updated',{detail:{game,global:top,personal:roundPersonal}}));
+  document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-updated',{detail:{game,global:top,personal:personal.textContent==='—'?null:roundPersonal}}));
  });
  const accountPromise=accountCheck();void refresh();
 }
