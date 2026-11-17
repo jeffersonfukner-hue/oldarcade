@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## Atualização de evidências — 17/11/2026 · Tetris #002 e ranking global
+- No HEAD inicial `a3d30393`, CI #271 (`44107726974`) terminou com 107 passed / 2 failed / 1 skipped, CI #272 (`44107743814`) com 108 passed / 1 failed / 1 skipped. As falhas restantes são exclusivamente do teste `Tetris integra recorde global real sem misturar ranking do Snake`: o ranking retornou 120, mas o HUD `#tetris-global` permaneceu “—”, indicando condição de ordem entre scripts. Evidência: https://github.com/jeffersonfukner-hue/oldarcade/actions/runs/44107743814
+- Implementado contrato compartilhado `oldarcade:mode-ranking-request` em `src/scripts/modeRanking.ts` (commit `05537249`): emite o snapshot de ranking consultado para HUDs iniciados depois do GET, sem novo polling ou requisições. `src/scripts/tetris.ts` solicita snapshot após registrar listeners (`0b37ab8b`), preservando atualizações da API e sem copiar a lógica de ranking.
+- CI #275/`44111255333` e #276/`44111267712` da alteração funcional `0b37ab8b`: tipos, build e API aprovados na verificação intermediária; Playwright ainda em andamento. **Não declarar sucesso até conclusão do HEAD.**
+- Cloudflare Pages: PR #2 ainda **não** registrou comentário de deploy nem confirmação de Preview no momento da checagem. Não reutilizar link do Snake nem inferir alias da branch como URL validada. Validação visual segue exclusivamente com o proprietário.
+- Restrições respeitadas: nenhuma alteração em `main`, merge, produção, D1/SQL ou Lovable. Próxima ação: confirmar conclusão do CI e localizar evidência oficial do deploy da branch antes de fornecer o link para teste visual.
+
 ## ESTADO ATUAL — Tetris jogo #002 (17/11/2026)
 - Branch **`feat/tetris-jogo-002`**, derivada da integração Snake `feat/fundacao-snake` no commit `e46ac2c0`. Não alterar `main` nem publicar produção. Esta branch é Preview; qualquer alteração adicional no Snake segue seu fluxo original.
 - Tetris registrado com **ID `tetris`**, título número **002**, versão de desenvolvimento `0.1.0-dev`, ranking independente e rota `/jogos/tetris/`. Registro em `src/data/gameRegistry.ts` e `src/data/gameModes.js`; jogos disponíveis = 2 títulos, modalidades não incrementam quantidade de jogos.
