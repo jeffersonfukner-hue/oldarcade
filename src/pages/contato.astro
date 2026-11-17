@@ -40,6 +40,17 @@ import { support } from '../config/support';
   const hint=document.querySelector<HTMLElement>('#email-description')!;
   const info=document.querySelector<HTMLElement>('#recovery-info')!;
   const status=document.querySelector<HTMLElement>('#contact-status')!;
+  // Sugestões de correção vindas dos arquivos históricos: apenas pré-preenche.
+  // O visitante revisa e confirma o envio manualmente pelo WhatsApp.
+  const query=new URLSearchParams(location.search);
+  if(query.get('tema')==='filmes-historia'){
+   const target=query.get('jogo')||'jogo não identificado';
+   const option=Array.from(subject.options).find(item=>item.value==='sugestao');
+   if(option){subject.value=option.value;subject.dispatchEvent(new Event('change'))}
+   const messageField=document.querySelector<HTMLTextAreaElement>('#contact-message')!;
+   messageField.value=('Correção do artigo histórico — '+target+'\\n'+'Filme/documentário ou plataforma a corrigir: ').slice(0,1000);
+  }
+
   subject.addEventListener('change',()=>{
    const recovery=subject.value==='recuperacao';
    info.hidden=!recovery;
