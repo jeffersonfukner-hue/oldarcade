@@ -4,6 +4,12 @@
 
 # OldArcade — continuidade obrigatória
 
+## Regra operacional: validação do proprietário apenas da entrega completa (17/11/2026)
+- O proprietário reforçou que **já executou a migração SQL 0008 no Preview**; não solicitar repetição ou verificação técnica de JSON/Console.
+- Sua tarefa é validar o fluxo final **como jogador**, depois de o agente concluir implementação ponta a ponta, correções e QA técnico, preferencialmente com CI verde. Não fazer testes picados ou exigir atuação linha por linha.
+- O agente deve corrigir problemas, executar testes automatizados/API/E2E e preparar um único roteiro natural de jogo para validação. A única ação manual técnica reservada ao proprietário é aplicar os SQLs que o agente fornece em momento oportuno, com banco explicitado.
+- Regra também fixada em `AGENTS.md`. Em resposta às falhas de CI anteriores, teste de históricos corrigido no commit `c139803` (seletor de seção e comparação do texto). Verificar CI novo antes de declarar conclusão; nenhuma publicação, merge, SQL adicional ou alteração em produção.
+
 ## ESTADO ATUAL PARA NOVO CHAT — SQL diário e validação (17/11/2026)
 - **Migração 0008:** o proprietário confirmou "pronto" após receber o SQL integral de `migrations/0008_daily_challenges.sql` e executá-lo manualmente no Cloudflare D1 `oldarcade-stats-preview`. **Aplicação informada pelo proprietário; leitura/funcionamento real da tabela ainda não verificados por API.** Não executar novamente sem necessidade comprovada. Produção continua sem autorização.
 - **Regra permanente de SQL aprovada:** enviar imediatamente o SQL fiel ao arquivo da branch sempre que chegar a etapa necessária, indicar banco e ambiente; proprietário cola/executa, responde "pronto" e então avançamos sem renegociar o procedimento. Agente não executa SQL por conta própria. Regra também registrada no `AGENTS.md`.
