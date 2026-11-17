@@ -37,8 +37,19 @@ test('Tetris inicia apenas uma partida, aceita movimento, queda e pausa com cont
  await page.keyboard.press('ArrowLeft');
  await page.keyboard.press('ArrowUp');
  await page.keyboard.press('c');
+ // Não pontuar por movimentação, rotação, reserva nem descida manual.
+ await page.keyboard.press('ArrowDown');
+ await expect(page.locator('#tetris-score')).toHaveText('0');
+ await page.evaluate(()=>{
+  const screen=document.querySelector('#tetris-screen')!;
+  (window as any).__dropAnimated=false;
+  const observer=new MutationObserver(()=>{if(screen.hasAttribute('data-drop-animating')){(window as any).__dropAnimated=true;observer.disconnect()}});
+  observer.observe(screen,{attributes:true,attributeFilter:['data-drop-animating']});
+ });
  await page.keyboard.press('Space');
- await expect(page.locator('#tetris-score')).not.toHaveText('0');
+ await expect.poll(()=>page.evaluate(()=>(window as any).__dropAnimated)).toBe(true);
+ await expect(page.locator('#tetris-screen')).not.toHaveAttribute('data-drop-animating',/true/,{timeout:3000});
+ await expect(page.locator('#tetris-score')).toHaveText('0');
  await page.getByRole('button',{name:'Pausar'}).click();
  await expect(page.locator('#tetris-overlay-title')).toHaveText('Jogo pausado');
  await page.getByRole('button',{name:/Continuar/}).click();
@@ -74,4 +85,18 @@ test('Tetris integra recorde global real sem misturar ranking do Snake',async({p
  await expect(page.locator('#tetris-global')).toHaveText('120');
  await expect(page.locator('[data-mode-ranking][data-game=tetris] [data-rank-global]')).toHaveText('120');
  await expect(page.locator('#tetris-provisional')).toBeHidden();
+});
+
+
+test('Tetris só contabiliza linhas eliminadas, nunca movimento ou hard drop',async({page})=>{
+ await page.goto('/jogos/tetris/');
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#tetris-overlay')).toBeHidden({timeout:5500});
+ await page.evaluate(()=>{(document.activeElement as HTMLElement)?.blur()});
+ for(const key of ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','ArrowDown','c'])await page.keyboard.press(key);
+ await expect(page.locator('#tetris-score')).toHaveText('0');
+ await page.keyboard.press('Space');
+ await expect(page.locator('#tetris-screen')).not.toHaveAttribute('data-drop-animating','true',{timeout:3000});
+ await expect(page.locator('#tetris-score')).toHaveText('0');
+ await expect(page.locator('#tetris-lines')).toHaveText('0');
 });
