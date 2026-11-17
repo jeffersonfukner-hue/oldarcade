@@ -29,12 +29,16 @@ if(overlay){
   if(!overlay.hidden&&priority<current)return;
   window.clearTimeout(timeout);current=priority;
   const [emoji,heading]=labels[detail.kind];
-  const rank=detail.kind==='podium'&&Number.isInteger(detail.rank)&&detail.rank!>=2&&detail.rank!<=3?detail.rank:null;
+  const rank=detail.kind==='podium'&&typeof detail.rank==='number'&&Number.isInteger(detail.rank)&&detail.rank>=2&&detail.rank<=3?detail.rank:null;
   icon.textContent=rank===2?'🥈':rank===3?'🥉':emoji;
   title.textContent=rank?rank+'º LUGAR!':heading;
   message.textContent=detail.message||'Mais uma conquista para sua história!';
   const final=Boolean(detail.final);
-  if(board){board.append(overlay)}else{home.append(overlay)}
+  // Pódio/liderança sempre em primeiro plano na janela, mesmo após login ou scroll.
+  // Celebrações de jogo permanecem ancoradas ao tabuleiro.
+  if(detail.kind==='podium'||detail.kind==='leader')home.append(overlay);
+  else if(board)board.append(overlay);
+  else home.append(overlay);
   overlay.classList.toggle('is-final',final);
   overlay.classList.toggle('is-podium',detail.kind==='podium'||detail.kind==='leader');
   overlay.classList.remove('is-rival');
