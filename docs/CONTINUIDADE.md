@@ -4,6 +4,15 @@
 
 # OldArcade — continuidade obrigatória
 
+## Tetris #002 — queda suave e pontuação por linhas (17/11/2026)
+- **Feedback do proprietário no Preview:** Espaço parecia teletransporte; placar subia a cada descida, contradizendo o objetivo de pontuar só por linhas; faltava efeito de pontos sobre o tabuleiro ao limpar linhas.
+- **Causa comprovada no código anterior:** `drop(true)` chamava `award(steps*2)` para cada célula da queda instantânea e movia a peça em um `while` sem frames; `softDrop()` chamava `award(1)` por célula. Assim, movimentos geravam pontos sem linhas eliminadas.
+- **Correção em `src/scripts/tetris.ts` (commit `6354fa26`):** Espaço faz animação de descida por `requestAnimationFrame` com interpolação acelerada de ~115–240ms; ao terminar, a peça trava na grade e dispara limpeza de linhas normalmente. Durante a animação, novos movimentos/rotações/reserva ficam bloqueados para evitar colisões indevidas, e pausa/troca de tela cheia/reinício cancelam a animação. `prefers-reduced-motion` mantém queda imediata. Movimentos, reserva, descida suave e queda rápida dão **zero pontos**; apenas `land()` após limpar 1/2/3/4 linhas pontua 100/300/500/800 vezes o nível. Cronômetro, ranking, HUD e contadores globais preservados.
+- **Feedback visual reutilizável:** `src/scripts/scoreFeedback.ts` (commit `4d27030e`) usa a animação `.score-float` já existente no CSS global para mostrar `+N · X linha(s)` próximo da linha eliminada, sem overlay bloqueante ou duplicação de estilo.
+- Explicações de pontuação e controles atualizadas em `src/pages/jogos/tetris.astro` (`ee230200`). E2E atualizado com verificação de animação via observação de atributo, ausência de pontos por movimento/queda e preservação de pausa/retomada (`0eef08a5`). Expectativa antiga com link ambíguo entre hero e card corrigida no teste (`11705da0`).
+- **Próximo passo:** verificar CI do HEAD e entregar Preview da branch para validação **visual exclusiva do proprietário**, especialmente suavidade, popup de pontos e pontuação zero até a primeira linha. Sem merge, produção, SQL ou Lovable.
+
+
 ## Home — destaque automático do jogo novo (17/11/2026)
 - Decisão permanente do proprietário: **o destaque principal da Home pertence sempre ao título mais novo**, não ao modo mais recém-criado. Seleção automática pelo maior `number` em `src/data/gameRegistry.ts`, sem fixar Snake/Tetris no hero. O nome, chamada, link e símbolo da novidade usam o catálogo; cards são ordenados com jogos novos primeiro. Snake e seus modos continuam disponíveis.
 - Implementação na branch `feat/tetris-jogo-002`: `src/pages/index.astro` no commit `37a4d610`; E2E atualizados para novo destaque no `fcdb10aa` e `8bc22cc2`. Regra registrada em `docs/PADROES_GLOBAIS_DOS_JOGOS.md` no commit `11681a78`.
