@@ -20,6 +20,6 @@ export async function recordGlobalPlay(game:GameModeId,eventId:string){
 export function recordGameScore(game:GameModeId,score:number){
  document.dispatchEvent(new CustomEvent('oldarcade:game-score',{detail:{game,score}}));
 }
-export function recordGameFinish(game:GameModeId,score:number,durationMs:number){
- document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game,score,durationMs}}));
+export function recordGameFinish(game:GameModeId,score:number,durationMs:number,options?:{recordDelayMs?:number}){
+ document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game,score,durationMs,...options}}));
 }
