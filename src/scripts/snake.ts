@@ -1,4 +1,5 @@
 import {setupGameClock} from './gameClock';
+import {nextSnakeMilestone,showSnakeMoment} from './snakeMilestones';
 import {arcadePersonality} from './arcadePersonality';
 import { setupGlobalLeaderboard } from './globalLeaderboard';
 import {centerGameBoard} from './gameViewport';
@@ -310,33 +311,13 @@ function floatPoints(at:Point,amount:number){
 }
 /** Elogios de jogabilidade, independentes de recordes; não interrompem os controles. */
 function funMoment(message:string,at:Point){
- if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
- const board=canvas.getBoundingClientRect(),container=gameScreen.getBoundingClientRect();
- if(!board.width||!board.height)return;
- const labels=[message,'✦','★'];
- labels.forEach((label,i)=>{
-  const item=document.createElement('span');
-  item.className='score-float';
-  item.textContent=label;
-  item.style.left=(board.left-container.left+(at.x+.5)*(board.width/size)+((i-1)*28))+'px';
-  item.style.top=(board.top-container.top+(at.y+.5)*(board.height/size)-i*17)+'px';
-  item.style.fontSize=i===0?'clamp(22px, 4vw, 40px)':'24px';
-  item.style.fontWeight='900';
-  item.style.color=i===0?'#fff0a6':'#80ffca';
-  item.style.textShadow='0 2px 9px #071a20, 0 0 16px #ffe08a';
-  item.style.zIndex='6';
-  item.style.animationDelay=(i*90)+'ms';
-  floatLayer.append(item);
-  item.addEventListener('animationend',()=>item.remove(),{once:true});
-  window.setTimeout(()=>item.remove(),1500);
- });
+ showSnakeMoment(message,at,{canvas,container:gameScreen,layer:floatLayer,gridSize:size});
 }
 function checkFunMilestone(at:Point){
- const milestones=[{score:100,message:'NOSSA! 100 PONTOS!'},{score:200,message:'OLHA SÓ! 200 PONTOS!'},{score:400,message:'MANDOU BEM! 400 PONTOS!'},{score:800,message:'FANTÁSTICO! 800 PONTOS!'},{score:1600,message:'CARAMBA, VOCÊ É BOM! 1.600 PONTOS!'},{score:3200,message:'VOCÊ É UMA LENDA! 3.200 PONTOS!'},{score:6400,message:'INACREDITÁVEL! 6.400 PONTOS!'},{score:12800,message:'VOCÊ DOMINOU O ARCADE! 12.800 PONTOS!'},{score:25600,message:'LENDÁRIO! 25.600 PONTOS!'}];
- const reached=milestones.findIndex((m,i)=>score>=m.score&&lastFunMilestone<i+1);
- if(reached<0)return;
- lastFunMilestone=reached+1;
- funMoment(milestones[reached].message,at);
+ const reached=nextSnakeMilestone(score,lastFunMilestone);
+ if(!reached)return;
+ lastFunMilestone=reached.index;
+ funMoment(reached.message,at);
  lastFunAt=evolutionClock;
 }
 function placeFood(){const free:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y});if(!free.length){end(true);return}food=free[Math.floor(Math.random()*free.length)]}
