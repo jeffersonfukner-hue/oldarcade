@@ -26,7 +26,13 @@ if(root){
    });
    if(!eligible.length)return;
    // A cada entrada, escolher entre os desafios ainda disponíveis.
-   const chosen=eligible[Math.floor(Math.random()*eligible.length)];
+   // Alternar de fato entre os jogos quando ambos estão disponíveis, sem
+   // repetir o destaque visto na visita anterior desta sessão.
+   let previous='';
+   try{previous=sessionStorage.getItem('oldarcade:home:last-daily')||''}catch{}
+   const candidates=eligible.length>1?eligible.filter(entry=>entry.game!==previous):eligible;
+   const chosen=candidates[Math.floor(Math.random()*candidates.length)];
+   try{sessionStorage.setItem('oldarcade:home:last-daily',chosen.game)}catch{}
    name.textContent=chosen.config.title;
    message.textContent=chosen.loggedIn
     ?'Seu desafio de hoje está disponível. Uma tentativa, mesma sequência para todos. Mostre do que é capaz!'
