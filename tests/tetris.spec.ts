@@ -100,3 +100,32 @@ test('Tetris só contabiliza linhas eliminadas, nunca movimento ou hard drop',as
  await expect(page.locator('#tetris-score')).toHaveText('0');
  await expect(page.locator('#tetris-lines')).toHaveText('0');
 });
+
+test('Clássico usa celebração de pódio por posição real, acima da tela de revanche',async({page})=>{
+ await page.goto('/jogos/tetris/');
+ await page.evaluate(()=>{
+  document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'tetris',kind:'podium',rank:2,message:'Você conquistou o 2º lugar no ranking!'}}));
+ });
+ const celebration=page.locator('#game-celebration');
+ await expect(celebration).toBeVisible();
+ await expect(celebration.locator('[data-celebration-title]')).toHaveText('2º LUGAR!');
+ await expect(celebration.locator('[data-celebration-icon]')).toHaveText('🥈');
+ await expect(celebration).toHaveClass(/is-podium/);
+ await expect.poll(()=>page.evaluate(()=>{
+  const board=document.querySelector('#tetris-screen')!;
+  const pop=document.querySelector('#game-celebration')!;
+  const gameOverlay=document.querySelector('#tetris-overlay')!;
+  return board.contains(pop)&&Number(getComputedStyle(pop).zIndex)>Number(getComputedStyle(gameOverlay).zIndex||0);
+ })).toBe(true);
+});
+
+test('registro de recorde respeita atraso após game over e não abre modal imediatamente',async({page})=>{
+ await page.route('**/api/auth/me',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({player:null})}));
+ await page.route('**/api/games/tetris/leaderboard',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[],mine:null})}));
+ await page.goto('/jogos/tetris/');
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'tetris',score:100,durationMs:10000,recordDelayMs:1500}})));
+ await expect(page.locator('[data-rank-modal]')).toBeHidden();
+ await page.waitForTimeout(500);
+ await expect(page.locator('[data-rank-modal]')).toBeHidden();
+ await expect(page.locator('[data-rank-modal]')).toBeVisible({timeout:3500});
+});
