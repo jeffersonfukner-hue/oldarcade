@@ -16,6 +16,9 @@ test('Snake inicia, pausa e retoma com contagem honesta', async ({page}) => {
   await expect(page.locator('#plays')).toHaveText('0');
   await page.getByRole('button', {name:/Começar partida/}).click();
   await expect(page.locator('#countdown-value')).toHaveText('3');
+  await expect(page.locator('#game-overlay')).toHaveAttribute('data-countdown-only','');
+  await expect(page.locator('#overlay-title')).toBeHidden();
+  await expect(page.locator('#overlay-text')).toBeHidden();
   await expect(page.locator('#start-btn')).toBeHidden();
   await expect(page.locator('#plays')).toHaveText('1');
   await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
@@ -747,5 +750,22 @@ test('Snake Clássico e Evolution preservam proporção quadrada no ultrawide',a
   expect(layout.width).toBeLessThanOrEqual(660);
   expect(layout.hudLeft).toBeGreaterThanOrEqual(layout.right);
   await page.evaluate(()=>document.exitFullscreen());
+ }
+});
+
+test('todos os modos Snake recebem automaticamente o overlay global de contagem limpa',async({page})=>{
+ const modes=[
+  {path:'/jogos/snake/',button:/Começar partida/,overlay:'#game-overlay',count:'#countdown-value',action:'#start-btn',heading:'#overlay-title'},
+  {path:'/jogos/snake/evolution/',button:/Começar partida/,overlay:'#game-overlay',count:'#countdown-value',action:'#start-btn',heading:'#overlay-title'},
+  {path:'/jogos/snake/aventura/',button:/Começar Aventura/,overlay:'#adventure-overlay',count:'#adventure-countdown',action:'#adventure-start',heading:'#adventure-overlay-title'}
+ ];
+ for(const mode of modes){
+  await page.goto(mode.path);
+  await page.getByRole('button',{name:mode.button}).click();
+  await expect(page.locator(mode.count)).toHaveText('3');
+  await expect(page.locator(mode.overlay)).toHaveAttribute('data-countdown-only','');
+  await expect(page.locator(mode.action)).toBeHidden();
+  await expect(page.locator(mode.heading)).toBeHidden();
+  await expect(page.locator(mode.overlay)).toBeHidden({timeout:5500});
  }
 });
