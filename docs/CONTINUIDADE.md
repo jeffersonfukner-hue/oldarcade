@@ -4,6 +4,12 @@
 
 # OldArcade — continuidade obrigatória
 
+## Home — destaque automático do jogo novo (17/11/2026)
+- Decisão permanente do proprietário: **o destaque principal da Home pertence sempre ao título mais novo**, não ao modo mais recém-criado. Seleção automática pelo maior `number` em `src/data/gameRegistry.ts`, sem fixar Snake/Tetris no hero. O nome, chamada, link e símbolo da novidade usam o catálogo; cards são ordenados com jogos novos primeiro. Snake e seus modos continuam disponíveis.
+- Implementação na branch `feat/tetris-jogo-002`: `src/pages/index.astro` no commit `37a4d610`; E2E atualizados para novo destaque no `fcdb10aa` e `8bc22cc2`. Regra registrada em `docs/PADROES_GLOBAIS_DOS_JOGOS.md` no commit `11681a78`.
+- **Validação:** aguardar conclusão do CI do HEAD; confirmação visual é exclusiva do proprietário. Não houve merge, produção, SQL ou Lovable. A branch deve permanecer apta a Preview Cloudflare.
+
+
 ## Atualização de evidências — 17/11/2026 · Tetris #002 e ranking global
 - No HEAD inicial `a3d30393`, CI #271 (`44107726974`) terminou com 107 passed / 2 failed / 1 skipped, CI #272 (`44107743814`) com 108 passed / 1 failed / 1 skipped. As falhas restantes são exclusivamente do teste `Tetris integra recorde global real sem misturar ranking do Snake`: o ranking retornou 120, mas o HUD `#tetris-global` permaneceu “—”, indicando condição de ordem entre scripts. Evidência: https://github.com/jeffersonfukner-hue/oldarcade/actions/runs/44107743814
 - Implementado contrato compartilhado `oldarcade:mode-ranking-request` em `src/scripts/modeRanking.ts` (commit `05537249`): emite o snapshot de ranking consultado para HUDs iniciados depois do GET, sem novo polling ou requisições. `src/scripts/tetris.ts` solicita snapshot após registrar listeners (`0b37ab8b`), preservando atualizações da API e sem copiar a lógica de ranking.
