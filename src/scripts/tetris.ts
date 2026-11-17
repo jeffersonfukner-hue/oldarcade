@@ -1,6 +1,6 @@
 import {setupGameClock} from './gameClock';
 import {centerGameBoard} from './gameViewport';
-import {recordGameStart,recordGameScore} from './gameEvents';
+import {recordGameStart,recordGameScore,recordGameFinish} from './gameEvents';
 import {setupGlobalGameCounters} from './globalGameCounters';
 import {showScoreFeedback} from './scoreFeedback';
 
@@ -237,7 +237,7 @@ function finish(){
  const duration=clock.milliseconds();save();update();draw();
  // A mensagem final aparece por 4s; depois damos mais tempo para ler
  // a tela de resultado antes de apresentar o modal de conta/ranking.
- document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'tetris',score,durationMs:duration,recordDelayMs:6500}}));
+ recordGameFinish('tetris',score,duration,{recordDelayMs:6500});
  celebrate('defeat','Você fez '+score+' pontos e eliminou '+lines+' linhas. Pronto para a revanche?',true);
  window.setTimeout(()=>{if(sequence===finishSequence&&state==='over')show('Fim de jogo','Você marcou '+score+' pontos e eliminou '+lines+' linhas.','▶ Jogar novamente')},4000);
 }
