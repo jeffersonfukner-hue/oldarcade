@@ -1,4 +1,5 @@
 import {setupGameClock} from './gameClock';
+import {nextSnakeMilestone,showSnakeMoment} from './snakeMilestones';
 import {centerGameBoard} from './gameViewport';
 import {recordGameStart,recordGameScore,recordGameFinish} from './gameEvents';
 import {setupGlobalGameCounters} from './globalGameCounters';
@@ -211,9 +212,10 @@ function tick(){
    special=null;normalSinceSpecial=0;
   }
   floatPoints(head,collected.kind==='gold'?50:collected.kind==='ice'?15:collected.kind==='speed'?20:10);
-  const cheers=[{score:100,text:'NOSSA! 100 PONTOS!'},{score:200,text:'OLHA SÓ! 200 PONTOS!'},{score:400,text:'MANDOU BEM! 400 PONTOS!'},{score:800,text:'FANTÁSTICO! 800 PONTOS!'},{score:1600,text:'CARAMBA, VOCÊ É BOM! 1.600 PONTOS!'},{score:3200,text:'VOCÊ É UMA LENDA! 3.200 PONTOS!'},{score:6400,text:'INACREDITÁVEL! 6.400 PONTOS!'},{score:12800,text:'VOCÊ DOMINOU O ARCADE! 12.800 PONTOS!'},{score:25600,text:'LENDÁRIO! 25.600 PONTOS!'}];
-  if(lastCheerIndex<cheers.length&&score>=cheers[lastCheerIndex].score){
-   const cheer=cheers[lastCheerIndex++];notify(cheer.text,2);
+  const cheer=nextSnakeMilestone(score,lastCheerIndex);
+  if(cheer){
+   lastCheerIndex=cheer.index;
+   showSnakeMoment(cheer.message,head,{canvas,container:screen,layer:floatLayer,gridSize:boardSize});
   }
   if(score>best){best=score;save()}
   if(globalTarget!==null&&score>globalTarget)globalProvisional=true;
