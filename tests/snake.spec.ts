@@ -334,7 +334,7 @@ test('animação global é distinta e não solicita ranking extra',async({page})
  let gets=0;
  await page.route('**/api/games/snake/leaderboard',r=>{
   if(r.request().method()==='GET')gets++;
-  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Líder',score:0,rank:1,achievedAt:'2026-11-16T12:00:00.000Z'}],mine:null})});
+  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Líder',score:5,rank:1,achievedAt:'2026-11-16T12:00:00.000Z'}],mine:null})});
  });
  await page.goto('/jogos/snake/');
  await expect.poll(()=>gets).toBe(1);
