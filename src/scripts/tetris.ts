@@ -5,6 +5,7 @@ import {setupGlobalGameCounters} from './globalGameCounters';
 import {showScoreFeedback} from './scoreFeedback';
 import {setCountdownOverlay} from './gameCountdownOverlay';
 import {formatRankingValue} from '../data/rankingRules.js';
+import {gameModes} from '../data/gameModes.js';
 
 type PieceName='I'|'O'|'T'|'S'|'Z'|'J'|'L';
 type Cell=0|PieceName;
@@ -31,7 +32,7 @@ const countdown=node<HTMLElement>('tetris-countdown'),startButton=node<HTMLButto
 const pauseButton=node<HTMLButtonElement>('tetris-pause'),fullscreenButton=node<HTMLButtonElement>('tetris-fullscreen');
 const modeId=stage.dataset.gameMode==='tetris-sprint'?'tetris-sprint':'tetris';
 const sprint=modeId==='tetris-sprint';
-const TARGET_LINES=40;
+const TARGET_LINES=gameModes['tetris-sprint'].targetLines;
 const counters=setupGlobalGameCounters(modeId,'tetris-global');
 const key=sprint?'oldarcade:tetris:sprint:v1':'oldarcade:tetris:classic:v1';
 let best=0,plays=0;
@@ -96,7 +97,7 @@ function update(){
  node('tetris-score').textContent=sprint?lines+'/'+TARGET_LINES:String(score);
  node('tetris-best').textContent=displayBest();
  node('tetris-lines').textContent=sprint?Math.min(lines,TARGET_LINES)+'/'+TARGET_LINES:String(lines);
- node('tetris-level').textContent=sprint?'1':String(level);
+ if(!sprint)node('tetris-level').textContent=String(level);
  node('tetris-plays').textContent=String(plays);
  node('tetris-local-best').textContent=displayBest();node('tetris-sidebar-level').textContent=sprint?lines+'/'+TARGET_LINES:String(level);
  node('tetris-global').textContent=sprint?formatRankingValue(modeId,globalTarget):String(globalProvisional?score:globalTarget??'—');node('tetris-provisional').hidden=sprint||!globalProvisional;
