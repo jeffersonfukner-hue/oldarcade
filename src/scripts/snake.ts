@@ -258,6 +258,8 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
  }
  if(eating){const gained=evolutionPreview&&picked?.kind==='rare'?50:10;score+=gained;peakScore=Math.max(peakScore,score);floatPoints(head,gained);
  if(score>saved.best){saved.best=score;store()}
+ if(!evolutionPreview)placeFood();if(state!=='playing'){draw();return}}else if(!eating)snake.pop();
+ if(score>saved.best){saved.best=score;store()}
  if(!didCelebratePersonal&&score>roundPersonalTarget){
   didCelebratePersonal=true;
   celebrate('personal');
@@ -269,7 +271,7 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
   celebrate('global');
   document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:modeId,kind:'provisional',message:'Você passou a marca global! Confirmação ao final da partida.'}}));
  }
- if(!evolutionPreview)placeFood();if(state!=='playing'){draw();return}}else if(!eating)snake.pop();draw();refresh();schedule()}
+ draw();refresh();schedule()}
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 function start(){endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();shotTrail=[];evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
