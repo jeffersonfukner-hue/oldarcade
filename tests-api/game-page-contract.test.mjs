@@ -12,7 +12,7 @@ test('todas as modalidades possuem página estática e dados SEO distintos',()=>
   assert.ok(mode.url.startsWith('/jogos/'));
   const path='src/pages'+mode.url.slice(0,-1)+'.astro';
   const source=file(path);
-  if(id==='tetris'||id==='tetris-sprint'){
+  if(id==='tetris'||id==='tetris-sprint'||id==='tetris-survival'){
    const shared=file('src/components/TetrisGame.astro');
    assert.ok(source.includes('TetrisGame'),id+' deve reutilizar o componente único');
    assert.ok(source.includes('modeId="'+id+'"'),id+' deve declarar seu ID');
