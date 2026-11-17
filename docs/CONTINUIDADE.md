@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## Contrato global + checklist obrigatório — 17/11/2026
+- O proprietário reiterou que **já havia aprovado** reutilização de componentes; não deve precisar repetir. Falha de processo do agente: editar páginas individualmente antes de consultar o modelo. A partir desta revisão, `AGENTS.md` aponta explicitamente para o checklist obrigatório, registrado em `docs/PADROES_GLOBAIS_DOS_JOGOS.md`.
+- Contagem regressiva 3–2–1 corrigida na **fonte compartilhada**: `src/scripts/gameCountdownOverlay.ts` + `src/styles/global.css`; durante contagem ficam ocultos título, descrição e ação (incluindo botão `.btn` que ignorava `hidden`), permanecendo somente número animado. Consumidores integrados: Snake Clássico, Evolution, Aventura e Tetris, sem cópia do estilo entre jogos.
+- Testes de regressão incluem contagem exclusiva no Tetris (`tests/tetris.spec.ts`) e verificação cruzada de Clássico/Evolution/Aventura (`tests/snake.spec.ts`, `562b5421`). **Conferir CI do HEAD e validação visual exclusiva do proprietário; não supor sucesso antes disso**.
+- Qualquer mudança de padrão deve ser feita uma vez no componente global e propagada a todos os consumidores na mesma PR. Não houve merge, publicação em produção, SQL/D1 nem Lovable.
+
+
 ## Fullscreen global — arquitetura, não remendos (17/11/2026)
 - Feedback do proprietário em monitor **ultrawide**: tela cheia de Tetris e Snake distorcia os tabuleiros/cortava controles. Orientação explícita: não criar correções isoladas por jogo; seguir componentes e padrões reutilizáveis.
 - Diagnóstico: CSS global pressupunha Canvas quadrado em todo jogo, inclusive Tetris vertical. Regras de grid dependiam da largura total do monitor e havia regras especiais `#adventure-stage` e fullscreen do Snake/Tetris divergentes.
