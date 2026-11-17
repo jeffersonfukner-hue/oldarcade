@@ -84,3 +84,8 @@ GitHub branch/PR → testes GitHub Actions → Cloudflare Preview → validaçã
 - O alvo do Top 3 pode mostrar a pontuação do terceiro colocado quando a API a fornecer; é uma referência atual, não garantia de posição ou recompensa.
 - Missões são sugestões de próximo desafio, não conquistas persistidas ou tarefas com recompensa; nunca afirmar missão concluída sem evento individual comprovado.
 - Na ausência de dados, mostrar indisponibilidade, não pontuação zero. Não exigir alterações por jogo na página de conta.
+
+## 11. Celebrações globais e revanche
+- O componente global de celebração pertence a `GamePage.astro` e responde ao evento `oldarcade:celebrate`; mensagens curtas, visuais vibrantes, sem bloquear a partida e respeitando movimento reduzido.
+- Recorde pessoal pode ser celebrado durante a rodada; liderança e pódio só após confirmação da API. Não afirmar liderança duradoura nem segundos específicos sem evidência temporal.
+- Quando uma liderança provisória não se confirma porque há um rival à frente, mostrar convite provocativo para revanche com ação direta de jogar novamente. Não fabricar notificações de ultrapassagem em tempo real: a consulta ocorre no encerramento.

@@ -11,7 +11,8 @@ if(root){
  const login=get<HTMLFormElement>('login-form'),register=get<HTMLFormElement>('register-form'),authStatus=get<HTMLElement>('auth-status');
  const recovery=get<HTMLElement>('recovery'),recoveryCode=get<HTMLElement>('code');
  let top:number|null=null,score=0,played=false,provisionalRecord=false,account:string|null=null;
- let pendingScore:number|null=null,round=0;
+ let pendingScore:number|null=null,round=0,roundPersonal=0,personalCelebrated=false;
+ const celebrate=(kind:'personal'|'mission'|'podium'|'leader'|'rival',message:string)=>document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game,kind,message}}));
  const retry=get<HTMLButtonElement>('retry');
  function setPending(points:number){pendingScore=points;retry.hidden=false;retry.textContent='Tentar registrar '+points+' pontos novamente'}
  function clearPending(){pendingScore=null;retry.hidden=true}
@@ -22,6 +23,7 @@ if(root){
   global.textContent=String(provisionalRecord?score:top??'—');
   if(!provisionalRecord)provisional.hidden=true;
   personal.textContent=data.mine?String(data.mine.score):'—';
+  if(!played)roundPersonal=data.mine?.score??0;
   mine.hidden=!data.mine;
   if(data.mine)mine.textContent='Sua posição: '+data.mine.rank+'º · '+data.mine.nickname+' · '+data.mine.score+' pontos';
   body.replaceChildren();
@@ -45,6 +47,13 @@ if(root){
   const data=await r.json() as Board;
   if(!r.ok||!data.available){if(data.saved){const updated=await refresh();if(updated?.available){render(updated);return updated}throw Error('Gravação aceita pelo banco, mas o ranking ainda não pôde ser consultado. Não reenvie a pontuação.')}throw Error(data.error||'Não foi possível registrar')}
   render(data);return data;
+ }
+ function celebrateFinal(data:Board,points:number){
+  if(!data.available||!data.mine)return;
+  const leader=data.top?.[0];
+  if(data.mine.rank===1&&leader?.nickname===data.mine.nickname){celebrate('leader','Liderança confirmada! Agora é defender o topo.');return}
+  if(data.mine.rank<=3){celebrate('podium','Você está entre os três melhores!');return}
+  if(leader&&leader.score>points&&provisionalRecord){celebrate('rival','Sua liderança foi provisória! '+leader.nickname+' já está na frente. Vai deixar assim?')}
  }
  function announce(data:Board,points:number){
   const leader=data.top?.[0];
@@ -79,7 +88,7 @@ if(root){
     if(!r.ok||!data.player)throw Error(data.error||'Falha no acesso');
     connect(data.player.nickname);
     document.dispatchEvent(new CustomEvent('oldarcade:account-changed',{detail:{player:data.player}}));
-    if(played){try{const result=await submit(score);clearPending();summary.textContent=announce(result,score)}catch(err){setPending(score);summary.textContent='Seus '+score+' pontos estão preservados nesta página. '+(err instanceof Error?err.message:'Falha ao registrar')+'. Tente novamente.';throw err}}
+    if(played){try{const result=await submit(score);clearPending();summary.textContent=announce(result,score);celebrateFinal(result,score)}catch(err){setPending(score);summary.textContent='Seus '+score+' pontos estão preservados nesta página. '+(err instanceof Error?err.message:'Falha ao registrar')+'. Tente novamente.';throw err}}
     authStatus.textContent=played?'Resultado registrado.':'Conta conectada.';
     if(data.recoveryCode){get<HTMLElement>('code').textContent=data.recoveryCode;recovery.hidden=false}else close();
    }catch(err){authStatus.textContent=err instanceof Error?err.message:'Falha no acesso'}
@@ -88,11 +97,12 @@ if(root){
  }
  document.addEventListener('oldarcade:game-started',event=>{
   const d=(event as CustomEvent<{game:string}>).detail;if(d?.game!==game)return;
-  round++;played=false;score=0;provisionalRecord=false;clearPending();summary.textContent='';provisional.hidden=true;global.textContent=String(top??'—');
+  round++;played=false;score=0;personalCelebrated=false;provisionalRecord=false;clearPending();summary.textContent='';provisional.hidden=true;global.textContent=String(top??'—');
  });
  document.addEventListener('oldarcade:game-score',event=>{
   const d=(event as CustomEvent<Result>).detail;
   if(d?.game!==game||!Number.isFinite(d.score)||Math.abs(d.score*1000-Math.round(d.score*1000))>1e-7)return;score=d.score;
+  if(!personalCelebrated&&score>roundPersonal){personalCelebrated=true;celebrate('personal','Você superou sua melhor marca! Continue assim.')}
   if(top!==null&&score>top){
    global.textContent=String(score);provisional.hidden=false;
    if(!provisionalRecord){provisionalRecord=true;document.dispatchEvent(new CustomEvent('oldarcade:mode-record-provisional',{detail:{game,score}}))}
@@ -102,7 +112,7 @@ if(root){
   await accountPromise;
   if(sequence!==round)return;
   if(account){
-   try{const data=await submit(points);if(sequence!==round)return;clearPending();summary.textContent=announce(data,points)}
+   try{const data=await submit(points);if(sequence!==round)return;clearPending();summary.textContent=announce(data,points);celebrateFinal(data,points)}
    catch(err){if(sequence!==round)return;const message=err instanceof Error?err.message:'erro desconhecido';if(message.includes('Não reenvie')){clearPending()}else{setPending(points)}summary.textContent='Seus '+points+' pontos foram preservados nesta página. Não foi possível confirmar o registro: '+message}
   }else{
    const data=await refresh();if(sequence!==round)return;
@@ -115,7 +125,7 @@ if(root){
   if(pendingScore===null)return;
   const points=pendingScore;retry.disabled=true;retry.textContent='Registrando…';
   try{
-   const data=await submit(points);clearPending();summary.textContent=announce(data,points)
+   const data=await submit(points);clearPending();summary.textContent=announce(data,points);celebrateFinal(data,points)
   }catch(err){setPending(points);summary.textContent='Registro ainda pendente: '+(err instanceof Error?err.message:'erro desconhecido')}
   finally{retry.disabled=false}
  });
