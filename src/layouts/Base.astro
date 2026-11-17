@@ -34,7 +34,7 @@ const version = packageData.version+'-dev';
   </header>
   <main><slot /></main>
   <footer class="site-footer">
-    <div class="shell footer-inner"><span>© {new Date().getFullYear()} OldArcade · Jogos clássicos, histórias reais.</span><div><a href="/sobre/">Sobre</a><a href="/contato/">Contato</a><a href="/privacidade/">Privacidade</a><span class="version" title="Versão da aplicação">v{version}</span></div></div>
+    <div class="shell footer-inner"><span>© {new Date().getFullYear()} OldArcade · Jogos clássicos, histórias reais.</span><div><a href="/sobre/">Sobre</a><a href="/contato/">Contato</a><a href="/privacidade/">Privacidade</a><a class="version" href="/sobre/#historico-versoes" title="Conheça o diário de bordo do OldArcade">v{version} · diário de bordo</a></div></div>
   </footer>
   <script>import '../scripts/siteCounters.ts';import '../scripts/accountIdentity.ts';</script>
 </body>
