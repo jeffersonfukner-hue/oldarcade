@@ -281,7 +281,7 @@ test('limite da consulta live evita polling constante no plano gratuito',async({
   return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[],mine:null})});
  });
  await page.goto('/jogos/snake/');
- await expect(page.locator('#global-rank-status')).toContainText('Cada jogador');
+ await expect(page.locator('#global-rank-status')).toContainText('Empate: vence o menor tempo jogado');
  await expect.poll(()=>calls).toBe(1);
 });
 
@@ -320,7 +320,8 @@ test('resumo no fim destaca quem ultrapassou e há quanto tempo',async({page})=>
  expect(calls).toBe(2);
 });
 
-test('animação do recorde pessoal é acionada ao superar o próprio valor',async({page})=>{
+test('animação do recorde pessoal é acionada ao superar marca positiva anterior',async({page})=>{
+ await page.addInitScript(()=>{localStorage.setItem('oldarcade:snake:v1',JSON.stringify({best:5,plays:0,visits:0,nickname:'',scores:[],lastVisit:''}))});
  await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Líder',score:100,rank:1,achievedAt:'2026-11-16T12:00:00.000Z'}],mine:null})}));
  await page.goto('/jogos/snake/');
  await page.getByRole('button',{name:/Começar partida/}).click();
@@ -350,10 +351,10 @@ test('placar mostra meta global provisória ao atingir pontuação e volta ao of
  let gets=0;
  await page.route('**/api/games/snake/leaderboard',r=>{
   gets++;
-  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Alonso',score:0,rank:1,achievedAt:'2026-11-16T09:00:00.000Z'}],mine:null})});
+  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Alonso',score:5,rank:1,achievedAt:'2026-11-16T09:00:00.000Z'}],mine:null})});
  });
  await page.goto('/jogos/snake/');
- await expect(page.locator('#hud-global-best')).toHaveText('0');
+ await expect(page.locator('#hud-global-best')).toHaveText('5');
  await page.getByRole('button',{name:/Começar partida/}).click();
  await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
  await expect(page.locator('#hud-score')).toHaveText('10',{timeout:5000});
@@ -363,18 +364,18 @@ test('placar mostra meta global provisória ao atingir pontuação e volta ao of
  expect(gets).toBe(1);
  await page.keyboard.press('ArrowUp');
  await expect(page.locator('#record-modal')).toBeVisible({timeout:8000});
- await expect(page.locator('#hud-global-best')).toHaveText('0');
+ await expect(page.locator('#hud-global-best')).toHaveText('5');
  await expect(page.locator('#hud-global-label')).not.toContainText('provisório');
 });
 test('erro de confirmação nunca mantém recorde provisório como oficial',async({page})=>{
- await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Rival',score:0,rank:1}],mine:null})}));
+ await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Rival',score:5,rank:1}],mine:null})}));
  await page.goto('/jogos/snake/');
  await page.getByRole('button',{name:/Começar partida/}).click();
  await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
  await expect(page.locator('#hud-global-best')).toHaveText('10',{timeout:5000});
  await page.keyboard.press('ArrowUp');
  await expect(page.locator('#record-modal')).toBeVisible({timeout:8000});
- await expect(page.locator('#hud-global-best')).toHaveText('0');
+ await expect(page.locator('#hud-global-best')).toHaveText('5');
 });
 
 test('hero apresenta jogos disponíveis, visitas e partidas sem indicador redundante',async({page})=>{
@@ -529,15 +530,15 @@ test('ranking do Aventura mostra Top 10 independente do clássico e posição pe
  await expect(page.locator('[data-rank-mine]')).toContainText('2º');
  expect(classicCalls).toBe(0);expect(adventureCalls).toBe(1);
 });
-test('Aventura apresenta recorde provisório e consulta apenas entrada e fim',async({page})=>{
+test('Aventura conserva recorde provisório e não consulta ranking durante travessia livre',async({page})=>{
  let gets=0;
  await page.route('**/api/auth/me',r=>r.fulfill({status:200,contentType:'application/json',body:'{"player":null}'}));
  await page.route('**/api/games/snake-adventure/leaderboard',r=>{
   if(r.request().method()==='GET')gets++;
-  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Rival',score:0,rank:1}],mine:null})});
+  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Rival',score:5,rank:1}],mine:null})});
  });
  await page.goto('/jogos/snake/aventura/');
- await expect(page.locator('[data-rank-global]')).toHaveText('0');
+ await expect(page.locator('[data-rank-global]')).toHaveText('5');
  await page.getByRole('button',{name:/Começar Aventura/}).click();
  await expect(page.locator('#adventure-overlay')).toBeHidden({timeout:5000});
  await expect(page.locator('#adventure-score')).toHaveText('10',{timeout:5000});
@@ -545,10 +546,11 @@ test('Aventura apresenta recorde provisório e consulta apenas entrada e fim',as
  await expect(page.locator('[data-rank-global]')).toHaveText('10');
  expect(gets).toBe(1);
  await page.keyboard.press('ArrowUp');
- await expect(page.locator('#adventure-overlay-title')).toHaveText('Fim da Aventura',{timeout:8000});
- await expect.poll(()=>gets).toBe(2);
- await expect(page.locator('[data-rank-modal]')).toBeVisible();
- await expect(page.locator('[data-rank-global]')).toHaveText('0');
+ await page.waitForTimeout(3600);
+ await expect(page.locator('#adventure-overlay')).toBeHidden();
+ await expect(page.locator('#adventure-status')).toContainText('Jogando');
+ expect(gets).toBe(1);
+ await expect(page.locator('[data-rank-global]')).toHaveText('10');
 });
 
 test('Aventura centraliza tabuleiro ao iniciar e ao sair da tela cheia',async({page})=>{
@@ -658,7 +660,7 @@ test('atalho único Rankings da home e navegação da página sem scroll horizon
  expect(size.doc).toBeLessThanOrEqual(size.screen+1);
 });
 
-test('Aventura: Espaço reinicia após fim, não rola página e mantém pausa/retomada',async({page})=>{
+test('Aventura: Espaço controla pausa e retomada sem rolar página nem perder a partida ao cruzar borda livre',async({page})=>{
  await page.goto('/jogos/snake/aventura/');
  await page.keyboard.press('Space');
  await expect(page.locator('#adventure-countdown')).toHaveText('3');
@@ -669,11 +671,14 @@ test('Aventura: Espaço reinicia após fim, não rola página e mantém pausa/re
  await expect(page.locator('#adventure-countdown')).toHaveText('3');
  await expect(page.locator('#adventure-overlay')).toBeHidden({timeout:5000});
  await page.keyboard.press('ArrowUp');
- await expect(page.locator('#adventure-overlay-title')).toHaveText('Fim da Aventura',{timeout:9000});
+ await page.waitForTimeout(3600);
+ await expect(page.locator('#adventure-overlay')).toBeHidden();
  await page.evaluate(()=>{document.activeElement instanceof HTMLElement&&document.activeElement.blur();window.scrollTo(0,0)});
  const beforeScroll=await page.evaluate(()=>window.scrollY);
  await page.keyboard.press('Space');
  await expect.poll(()=>page.evaluate(()=>window.scrollY)).toBe(beforeScroll);
+ await expect(page.locator('#adventure-overlay-title')).toHaveText('Jogo pausado');
+ await page.keyboard.press('Space');
  await expect(page.locator('#adventure-countdown')).toHaveText('3');
 });
 
