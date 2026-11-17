@@ -5,11 +5,11 @@ import Base from '../layouts/Base.astro';
  <div class="shell">
   <section class="hero text-content"><span class="eyebrow">Comunidade OldArcade</span>
    <h1>Seu nickname, seus desafios.</h1>
-   <p class="lede">Jogar é sempre grátis e não exige conta. O cadastro permite reservar seu nickname para participar dos futuros recordes vinculados à sua identidade.</p>
+   <p class="lede">Jogar é sempre grátis e não exige conta. O cadastro reserva seu nickname e permite participar dos rankings dos jogos disponíveis.</p>
   </section>
   <section class="section panel account-panel" aria-labelledby="account-heading">
    <h2 id="account-heading">Acesse ou crie sua conta</h2>
-   <div id="account-state" hidden><p>Conectado como <strong id="account-name"></strong>.</p><p class="small muted">Seu nickname está reservado nesta conta. A vinculação aos recordes ainda está em preparação.</p><button type="button" class="btn secondary" id="account-logout">Sair da conta</button></div>
+   <div id="account-state" hidden><p>Conectado como <strong id="account-name"></strong>.</p><p class="small muted">Seu nickname está reservado nesta conta. Para acompanhar as melhores pontuações dos jogadores, consulte os <a href="/rankings/">rankings do Snake</a>.</p><button type="button" class="btn secondary" id="account-logout">Sair da conta</button></div>
    <div id="account-forms">
     <div class="account-tabs" aria-label="Escolha o formulário"><button id="tab-login" type="button" aria-pressed="true">Entrar</button><button id="tab-register" type="button" aria-pressed="false">Criar conta</button></div>
     <form id="account-login">
@@ -58,6 +58,7 @@ import Base from '../layouts/Base.astro';
   registerTab.addEventListener('click',()=>tab('register'));
   function showPlayer(player:{nickname:string}|null){
    forms.hidden=!!player;state.hidden=!player;
+   document.querySelector<HTMLElement>('#account-heading')!.textContent=player?'Sua conta':'Acesse ou crie sua conta';
    if(player)document.querySelector<HTMLElement>('#account-name')!.textContent=player.nickname;
    document.dispatchEvent(new CustomEvent('oldarcade:account-changed',{detail:{player}}));
   }
