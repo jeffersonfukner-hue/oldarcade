@@ -327,7 +327,7 @@ test('animação do recorde pessoal é acionada ao superar o próprio valor',asy
  await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
  await expect(page.locator('#hud-score')).toHaveText('10',{timeout:5000});
  await expect(page.locator('#hud-best')).toHaveText('10');
- await expect(page.locator('#record-live-alert')).toContainText('Recorde pessoal superado');
+ await expect(page.locator('#game-celebration')).toContainText('NOVO RECORDE!');
  await expect(page.locator('#record-celebration-layer .record-spark.personal').first()).toBeAttached();
 });
 test('animação global é distinta e não solicita ranking extra',async({page})=>{
@@ -341,7 +341,7 @@ test('animação global é distinta e não solicita ranking extra',async({page})
  await page.getByRole('button',{name:/Começar partida/}).click();
  await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
  await expect(page.locator('#hud-score')).toHaveText('10',{timeout:5000});
- await expect(page.locator('#record-live-alert')).toContainText('Liderança provisória');
+ await expect(page.locator('#game-celebration')).toContainText('MARCA GLOBAL SUPERADA!');
  await expect(page.locator('#record-celebration-layer .record-spark.global').first()).toBeAttached();
  expect(gets).toBe(1);
 });

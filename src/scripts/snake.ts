@@ -55,6 +55,7 @@ let recoveryCode='';
 let roundPersonalTarget=0;
 let didCelebratePersonal=false;
 let dangerAnnounced=false;
+let endSequence=0;
 const alertNode=document.querySelector<HTMLElement>('#record-live-alert')!;
 let alertTimeout:number|undefined;
 let currentAlertPriority=0;
@@ -166,13 +167,12 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
  if(globalKnown&&(globalBest===null||score>globalBest)&&!provisionalGlobal){
   provisionalGlobal=true;
   roundBeatGlobal=true;
-  celebrate('global');
-  announceRecord('🏆 Você superou a meta global! Liderança provisória.','global');
+  document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake',kind:'provisional',message:'Você passou a marca global! Confirmação ao final da partida.'}}));
  }
  placeFood();if(state!=='playing'){draw();return}}else snake.pop();draw();refresh();schedule()}
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
-function start(){cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
+function start(){endSequence++;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
  didCelebratePersonal=false;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
  resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();saved.plays++;store();globalCounters.recordPlay(recordGameStart('snake'));draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){
@@ -184,8 +184,9 @@ function end(won:boolean){
  }
  store();refresh();
  recordGameFinish('snake',score);
- show(won?'Tabuleiro completo!':'Fim de jogo',`Você marcou ${score} pontos. Conferindo a classificação atual…`,'▶ Jogar novamente');
- void finishRound();
+ overlay.hidden=true;
+ const sequence=++endSequence;
+ void finishRound(sequence,won);
 }
 function confirmedResult(result:ReturnType<typeof leaderboard.snapshot>,submittedScore:number,wasProvisional:boolean){
  provisionalGlobal=false;
@@ -207,28 +208,39 @@ function confirmedResult(result:ReturnType<typeof leaderboard.snapshot>,submitte
  return leaderboard.summary(result);
 }
 
-async function finishRound(){
+async function finishRound(sequence:number,won:boolean){
+ let summary=`Você marcou ${score} pontos. `;
+ let outcome:'leader'|'podium'|'rival'|'defeat'='defeat';
+ let showAccount=false;
  if(!account)await checkAccount();
  if(account){
   try{
    const wasProvisional=roundBeatGlobal;
    const result=await leaderboard.submit(score);
-   text('overlay-text',confirmedResult(result,score,wasProvisional));
-   if(result?.available&&result.mine?.rank===1&&result.top?.[0]?.nickname===result.mine.nickname){document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake',kind:'leader',message:'Liderança confirmada! Defenda seu lugar!'}}))}
-   else if(result?.available&&result.mine&&typeof result.mine.rank==='number'&&result.mine.rank<=3){document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake',kind:'podium',message:'Você conquistou um lugar no pódio!'}}))}
-   else if(result?.available&&wasProvisional&&result.top?.[0]&&result.top[0].score>score){document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake',kind:'rival',message:result.top[0].nickname+' já está na frente! Vai deixar assim?'}}))}
+   summary=confirmedResult(result,score,wasProvisional);
+   if(result?.available&&result.mine?.rank===1&&result.top?.[0]?.nickname===result.mine.nickname)outcome='leader';
+   else if(result?.available&&result.mine&&typeof result.mine.rank==='number'&&result.mine.rank<=3)outcome='podium';
+   else if(result?.available&&wasProvisional&&result.top?.[0]&&result.top[0].score>score)outcome='rival';
   }catch(error){
    provisionalGlobal=false;refresh();
-   text('overlay-text',`Você marcou ${score} pontos, mas não foi possível confirmar o recorde: ${error instanceof Error?error.message:'erro de conexão'}.`);
+   summary=`Você marcou ${score} pontos, mas não foi possível confirmar o recorde: ${error instanceof Error?error.message:'erro de conexão'}.`;
   }
  }else{
   const wasProvisional=roundBeatGlobal;
   const result=await leaderboard.refresh('end');
   provisionalGlobal=false;refresh();
-  if(result)text('overlay-text',wasProvisional?'Você superou a meta durante a partida, mas precisa cadastrar uma conta para registrar o resultado. '+leaderboard.summary(result):`Você marcou ${score} pontos. ${leaderboard.summary(result)}`);
-  openRecordModal();
+  if(result)summary=wasProvisional?'Você superou a meta durante a partida, mas precisa cadastrar uma conta para registrar o resultado. '+leaderboard.summary(result):`Você marcou ${score} pontos. ${leaderboard.summary(result)}`;
+  showAccount=true;
   if(result)text('record-end-summary',leaderboard.summary(result));
  }
+ if(sequence!==endSequence||state!=='over')return;
+ // Primeiro mostra o resultado de forma cinematográfica; só depois libera o reinício.
+ document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake',kind:outcome,message:summary,final:true}}));
+ window.setTimeout(()=>{
+  if(sequence!==endSequence||state!=='over')return;
+  show(won?'Tabuleiro completo!':'Fim de jogo',summary,'▶ Jogar novamente');
+  if(showAccount)openRecordModal();
+ },4200);
 }
 
 function pause(){if(state==='playing'){state='paused';window.clearTimeout(timer);show('Jogo pausado','A partida está preservada.','▶ Continuar');setStatus('Pausado');pauseBtn.textContent='Continuar'}else if(state==='paused'){beginCountdown('A partida será retomada em:')}}
