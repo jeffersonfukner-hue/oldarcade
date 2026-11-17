@@ -27,11 +27,11 @@ test('Tetris inicia apenas uma partida, aceita movimento, queda e pausa com cont
  await page.getByRole('button',{name:/Começar partida/}).click();
  await expect(page.locator('#tetris-countdown')).toHaveText('3');
  await expect(page.locator('#tetris-overlay')).toBeHidden({timeout:5500});
- expect(plays).toBe(1);
+ await expect.poll(()=>plays).toBe(1);
  await page.evaluate(()=>{(document.activeElement as HTMLElement)?.blur()});
  await page.keyboard.press('ArrowLeft');
  await page.keyboard.press('ArrowUp');
- await page.keyboard.press('KeyC');
+ await page.keyboard.press('c');
  await page.keyboard.press('Space');
  await expect(page.locator('#tetris-score')).not.toHaveText('0');
  await page.getByRole('button',{name:'Pausar'}).click();
