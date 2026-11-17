@@ -3,6 +3,9 @@
 # OldArcade — continuidade obrigatória
 
 ## ESTADO ATUAL PARA NOVO CHAT — 16/11/2026 (ler primeiro)
+- Revisão de CI do commit `a5d13d58`: falha no `astro check` por `rival` indefinido em `gameCelebration.ts:39`; corrigida no commit `2d4653c3` junto da centralização final. Preview aberto `7bc91236.oldarcade-17c.pages.dev/jogos/snake/` mostra jogo normal, mas leitura de aba não executa interação, portanto não comprova mecânicas Evolution. O teste experimental exige `?evolution=1` em subdomínio de Preview.
+- Revisão estática Evolution: frutas simultâneas (+10), raras (+50, expiram após 38 ticks), slow, obstáculos e disparo X; Salva-Cobra exige >=30 e cobra >=12, perigo <=1 saída, custo -30/3 segmentos. Ajustada escolha da Salva-Cobra para células alcançáveis em até 12 passos, evitando aparição completamente desconectada; temporizadores por tick de jogo (não segundos de relógio). Não há submissão/registro de partida em `end()` e `start()` experimentais, mas o HUD ainda mostra ranking oficial para comparação. Pendente validação E2E e CI do novo HEAD.
+
 - Repositório `jeffersonfukner-hue/oldarcade`; branch de integração `feat/fundacao-snake`; PR #1. Somente jogo #001 Snake, com modos Clássico (`snake`) e Aventura (`snake-adventure`). **Não criar jogo #002/#003 sem aprovação.**
 - O proprietário **validou** a experiência do painel universal `/conta/` com recordes, CTA contextual e missões pessoais derivadas de `mine`/`top` da API; não inventar histórico de partidas ou recompensas. Header/sidebar exibem nickname autenticado.
 - Rankings por modo e página `/rankings/` são compartilhados; posições e liderança confirmadas dependem da API. Pontuação atual é autodeclarada (`verified:false`); não alegar antifraude.

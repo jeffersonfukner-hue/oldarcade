@@ -125,7 +125,18 @@ let items:Item[]=[];let obstacles:Point[]=[];let evolutionClock=0;let slowUntil=
 const same=(a:Point,b:Point)=>a.x===b.x&&a.y===b.y;
 const occupied=(p:Point)=>snake.some(q=>same(p,q))||items.some(q=>same(p,q.point))||obstacles.some(q=>same(p,q));
 function freeCell():Point|null{const cells:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!occupied({x,y}))cells.push({x,y});return cells.length?cells[Math.floor(Math.random()*cells.length)]:null}
-function addItem(kind:Item['kind'],lifetime=0){const point=freeCell();if(point)items.push({point,kind,expires:lifetime?evolutionClock+lifetime:0})}
+function addItem(kind:Item['kind'],lifetime=0){const point=kind==='shrink'?reachableRescueCell():freeCell();if(!point)return false;items.push({point,kind,expires:lifetime?evolutionClock+lifetime:0});return true}
+function reachableRescueCell():Point|null{
+ const start=snake[0],queue:[Point,number][]=[[start,0]],seen=new Set([start.x+','+start.y]);const candidates:Point[]=[];
+ for(let i=0;i<queue.length;i++){
+  const [p,d]=queue[i];if(d>=12)continue;
+  for(const n of [{x:p.x+1,y:p.y},{x:p.x-1,y:p.y},{x:p.x,y:p.y+1},{x:p.x,y:p.y-1}]){
+   const key=n.x+','+n.y;if(n.x<0||n.x>=size||n.y<0||n.y>=size||seen.has(key)||snake.some(q=>same(q,n))||obstacles.some(q=>same(q,n)))continue;
+   seen.add(key);queue.push([n,d+1]);if(d>=1&&!items.some(q=>same(q.point,n)))candidates.push(n);
+  }
+ }
+ return candidates.length?candidates[Math.floor(Math.random()*candidates.length)]:null;
+}
 function stageLevel(){return [0,100,250,600,1500,4000,10000].filter(n=>peakScore>=n).length-1}
 function advanceEvolution(){
  evolutionClock++;
@@ -140,7 +151,7 @@ function advanceEvolution(){
  const head=snake[0];const neighbors=[{x:head.x+1,y:head.y},{x:head.x-1,y:head.y},{x:head.x,y:head.y+1},{x:head.x,y:head.y-1}];
  const exits=neighbors.filter(p=>p.x>=0&&p.x<size&&p.y>=0&&p.y<size&&!snake.some(q=>same(p,q))&&!obstacles.some(q=>same(p,q))).length;
  if(score>=30&&snake.length>=12&&exits<=1&&evolutionClock-lastRescue>60&&!items.some(i=>i.kind==='shrink')){
-  addItem('shrink',45);lastRescue=evolutionClock;arcadePersonality('snake','rescue');
+  if(addItem('shrink',45)){lastRescue=evolutionClock;arcadePersonality('snake','rescue')}
  }
  if(score<30)items=items.filter(i=>i.kind!=='shrink');
 }
@@ -176,7 +187,7 @@ function floatPoints(at:Point,amount:number){
  if(!board.width||!board.height)return;
  const item=document.createElement('span');
  item.className='score-float';
- item.textContent='+'+amount;
+ item.textContent=(amount>0?'+':'')+amount;
  item.style.left=(board.left-container.left+(at.x+.5)*(board.width/size))+'px';
  item.style.top=(board.top-container.top+(at.y+.5)*(board.height/size))+'px';
  floatLayer.append(item);
