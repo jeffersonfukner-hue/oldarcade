@@ -223,6 +223,8 @@ html,body{touch-action:manipulation}
 .arcade-mode-classic{background:radial-gradient(ellipse,#164538,#082326 70%);border-bottom:1px solid #285b56}
 .arcade-mode-classic .pixel-snake{transform:rotate(-8deg) scale(.72)}
 .arcade-mode-adventure{background:radial-gradient(ellipse at 47% 65%,#423a77,#1c183f 74%);border-bottom:1px solid #62529b}
+.arcade-mode-tetris{background:radial-gradient(ellipse at 50% 60%,#203d66,#10142f 75%);border-bottom:1px solid #5376b6}
+.arcade-mode-tetris .arcade-mode-fruits{font-size:2.45rem;letter-spacing:.05em;filter:drop-shadow(0 5px 12px #36b7f355)}
 .arcade-mode-fruits{font-size:2.8rem;letter-spacing:.15em;filter:drop-shadow(0 7px 9px #0006)}
 .arcade-mode-fruits span{color:#ffd265}
 .arcade-mode-detail{display:flex;flex:1;flex-direction:column;gap:7px;padding:16px}
