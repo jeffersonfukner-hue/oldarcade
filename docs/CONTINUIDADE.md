@@ -5,6 +5,8 @@
 # OldArcade — continuidade obrigatória
 
 ## ESTADO ATUAL PARA NOVO CHAT — 16/11/2026 (ler primeiro)
+- HUD Snake Clássico/Evolution/Aventura reestruturado para painel lateral 20%, tabuleiro 80%; cronômetro movido ao HUD compartilhado; mobile usa faixa compacta acima; sem SQL. Validar Preview, CI, fullscreen e mobile.
+
 - Correção visual: paredes do Clássico agora contornam o canvas pelo lado externo via outline, sem cobrir grid; no Aventura, segmentos de paredes progressivas são DOM overlay posicionados fora da área útil, preservando passagem onde não há parede. QA Preview pendente.
 
 - Pedido visual: Clássico SEM avisos textuais, com paredes fixas nas quatro bordas usando exatamente a linguagem visual Evolution (#cf79ee, espessura 22% da célula). Aventura atravessa bordas livres e perde somente ao tentar cruzar segmentos de parede perimetral, que surgem progressivamente junto com as barreiras dos níveis; paredes também em #cf79ee. Evolution inalterado. QA pendente.

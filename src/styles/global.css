@@ -287,3 +287,30 @@ html,body{touch-action:manipulation}
  .header-inner nav a{flex:0 0 auto}
  .header-inner [data-player-account-link]{max-width:125px}
 }
+
+/* OldArcade: jogo ocupa 80% da largura interna, HUD secundário à direita. */
+.arcade-game-layout{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,1fr);grid-template-areas:"board stats";gap:12px;align-items:stretch;min-width:0}
+.arcade-game-layout>.screen-wrap{grid-area:board;min-width:0;align-self:start;overflow:visible;border:0;border-radius:0;background:transparent}
+.arcade-game-layout>.screen-wrap canvas{width:100%;max-width:none;height:auto}
+.arcade-game-layout>.game-hud{grid-area:stats;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:12px;margin:0;padding:12px 9px;min-width:0;border:1px solid #31405f;border-radius:10px;background:#10242b}
+.arcade-game-layout>.game-hud>span{display:flex;flex-direction:column;gap:3px;min-width:0;overflow-wrap:anywhere;font-size:.72rem;color:#9cb4c0}
+.arcade-game-layout>.game-hud>span strong{display:block;font-size:clamp(.88rem,1.65vw,1.35rem);line-height:1.2;color:#e7f9ff;font-variant-numeric:tabular-nums}
+.arcade-game-layout>.game-hud>span:has(#hud-score),.arcade-game-layout>.game-hud>span:has(#adventure-score){order:-2}
+.arcade-game-layout>.game-hud>span:has(#hud-score) strong,.arcade-game-layout>.game-hud>span:has(#adventure-score) strong{color:#b7ffda}
+.arcade-game-layout>.game-hud>[data-game-clock]{order:-1;display:block!important;padding:0!important;border:0!important;background:none!important;font-size:clamp(.82rem,1.5vw,1.12rem);white-space:nowrap}
+.arcade-game-layout>.game-hud>.hud-hint{display:none}
+.arcade-game-layout>.game-hud>span[role=status]{font-size:.7rem}
+.arcade-game-layout>.adventure-progress{grid-column:1/-1;grid-row:1}
+.arcade-game-layout:has(.adventure-progress){grid-template-areas:"progress progress" "board stats";grid-template-rows:auto 1fr}
+.arcade-game-layout:has(.adventure-progress)>.adventure-progress{grid-area:progress}
+.game-stage:fullscreen .arcade-game-layout,.game-stage.game-stage-fallback .arcade-game-layout,#adventure-stage:fullscreen .arcade-game-layout{flex:1;min-height:0;grid-template-columns:minmax(0,4fr) minmax(120px,1fr);align-content:center}
+.game-stage:fullscreen .arcade-game-layout>.screen-wrap,.game-stage.game-stage-fallback .arcade-game-layout>.screen-wrap,#adventure-stage:fullscreen .arcade-game-layout>.screen-wrap{flex:none;min-height:0}
+@media(max-width:650px){
+ .arcade-game-layout,.game-stage:fullscreen .arcade-game-layout,.game-stage.game-stage-fallback .arcade-game-layout,#adventure-stage:fullscreen .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:8px}
+ .arcade-game-layout:has(.adventure-progress){grid-template-areas:"stats" "progress" "board";grid-template-rows:auto auto auto}
+ .arcade-game-layout>.game-hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;padding:8px}
+ .arcade-game-layout>.game-hud>span{font-size:.63rem}
+ .arcade-game-layout>.game-hud>span strong{font-size:clamp(.76rem,3vw,1rem)}
+ .arcade-game-layout>.game-hud>[data-game-clock]{font-size:.76rem}
+ .arcade-game-layout>.game-hud>span[role=status]{display:none}
+}

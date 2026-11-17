@@ -21,7 +21,7 @@ const description='Snake Aventura gratuito: uma única partida, níveis progress
      <strong>◼ SNAKE <span class="muted">· Aventura</span></strong>
      <div class="actions"><button id="adventure-pause" type="button">Pausar</button><button id="adventure-fullscreen" type="button" aria-label="Alternar tela cheia do modo Aventura">⛶ Tela cheia (F)</button></div>
     </div>
-    <GameHud statusId="adventure-status" scoreId="adventure-score" bestId="adventure-best" globalId="adventure-hud-global" provisionalId="adventure-hud-provisional" levelId="adventure-level" bestLabel="Recorde" globalLabel="Global" />
+    <div class="arcade-game-layout"><GameHud statusId="adventure-status" scoreId="adventure-score" bestId="adventure-best" globalId="adventure-hud-global" provisionalId="adventure-hud-provisional" levelId="adventure-level" bestLabel="Recorde" globalLabel="Global" />
 
     <div class="adventure-progress">
      <div class="adventure-mission-line"><strong id="adventure-mission">Colete 5 maçãs</strong><span id="adventure-mission-progress">0/5</span></div>
@@ -37,6 +37,7 @@ const description='Snake Aventura gratuito: uma única partida, níveis progress
       <strong id="adventure-countdown" class="countdown-value" hidden aria-live="assertive"></strong>
       <button id="adventure-start" class="btn" type="button">▶ Começar Aventura</button>
      </div>
+    </div>
     </div>
     <div class="touch-controls" aria-label="Controles de direção no modo Aventura">
      <button class="up" data-adventure-direction="up" aria-label="Cima">↑</button>
