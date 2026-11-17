@@ -16,7 +16,7 @@ const description='Snake Aventura gratuito: uma única partida, níveis progress
    <a class="btn secondary" href="/jogos/snake/">← Voltar ao Clássico</a>
   </section>
   <section class="game-layout" aria-label="Jogar Snake Aventura">
-   <div class="panel game-stage" id="adventure-stage">
+   <div class="panel game-stage" id="adventure-stage" data-arcade-viewport data-board-shape="square">
     <div class="game-topline">
      <strong>◼ SNAKE <span class="muted">· Aventura</span></strong>
      <div class="actions"><button id="adventure-pause" type="button">Pausar</button><button id="adventure-fullscreen" type="button" aria-label="Alternar tela cheia do modo Aventura">⛶ Tela cheia (F)</button></div>
@@ -27,7 +27,7 @@ const description='Snake Aventura gratuito: uma única partida, níveis progress
      <div class="adventure-mission-line"><strong id="adventure-mission">Colete 5 maçãs</strong><span id="adventure-mission-progress">0/5</span></div>
      <div class="adventure-progress-track"><div id="adventure-progress-fill"></div></div>
     </div>
-    <div class="screen-wrap" id="adventure-screen">
+    <div class="screen-wrap oa-board-slot oa-board-surface" id="adventure-screen">
      <canvas id="adventure-canvas" width="600" height="600" aria-label="Tabuleiro do Snake Aventura com vinte linhas e vinte colunas"></canvas>
      <div id="adventure-score-float-layer" class="score-float-layer" aria-hidden="true"></div>
      <div id="adventure-banner" class="adventure-banner" role="status" aria-live="polite" hidden></div>
