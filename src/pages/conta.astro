@@ -39,6 +39,7 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
        <h5>{mode.symbol} {mode.name}</h5>
        <p>Melhor pontuação: <strong data-account-best>Consultando…</strong></p>
        <p>Posição no ranking: <strong data-account-rank>—</strong></p>
+       <div class="account-missions" aria-label="Missões pessoais"><strong>Próximas missões</strong><ul data-account-missions><li>Consultando seu progresso…</li></ul></div>
        <p class="small muted" data-account-challenge>Preparando seu próximo desafio…</p>
        <a class="btn secondary" data-account-play href={mode.url}>Jogar agora →</a>
       </article>)}
@@ -79,12 +80,14 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
     const best=card.querySelector<HTMLElement>('[data-account-best]')!;
     const rank=card.querySelector<HTMLElement>('[data-account-rank]')!;
     const challenge=card.querySelector<HTMLElement>('[data-account-challenge]')!;
+    const missions=card.querySelector<HTMLUListElement>('[data-account-missions]')!;
+    const setMissions=(items:string[])=>{missions.replaceChildren(...items.map(item=>{const li=document.createElement('li');li.textContent=item;return li}))};
     const play=card.querySelector<HTMLAnchorElement>('[data-account-play]')!;
-    best.textContent='Consultando…';rank.textContent='—';challenge.textContent='Consultando seus desafios…';play.textContent='Jogar agora →';
+    best.textContent='Consultando…';rank.textContent='—';challenge.textContent='Consultando seus desafios…';play.textContent='Jogar agora →';setMissions(['Consultando seu progresso…']);
     try{
      const response=await fetch('/api/games/'+encodeURIComponent(game)+'/leaderboard',{cache:'no-store'});
      if(!response.ok)throw Error('Indisponível');
-     const data=await response.json() as {available?:boolean;mine?:{score:number;rank:number}|null};
+     const data=await response.json() as {available?:boolean;mine?:{score:number;rank:number}|null;top?:Array<{score:number;rank:number}>};
      if(requestId!==recordsRequest)return;
      if(!data.available)throw Error('Indisponível');
      best.textContent=data.mine?String(data.mine.score):'Sem recorde';
@@ -94,11 +97,19 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
       const position=data.mine.rank;
       challenge.textContent=position===1?'Você está no topo! Continue jogando para defender a liderança.':position>1&&Number.isSafeInteger(position)?'Você está em '+position+'º lugar. Que tal subir no ranking?':'Seu recorde é '+points+' pontos. Tente superá-lo!';
       play.textContent=position===1?'🏆 Defender liderança →':'🎯 Bater meus '+points+' pontos →';
+      const tasks=['Superar sua melhor marca de '+points+' pontos'];
+      if(position===1)tasks.push('Manter o 1º lugar no ranking');
+      else if(Number.isSafeInteger(position)&&position>3){
+       const podium=data.top?.[2];
+       tasks.push(podium&&Number.isFinite(podium.score)?'Buscar o Top 3 (referência atual: '+podium.score+' pontos)':'Conquistar uma vaga no Top 3');
+      }else if(position===2||position===3)tasks.push('Conquistar o 1º lugar');
+      setMissions(tasks);
      }else{
       challenge.textContent='Você ainda não registrou recorde nesta modalidade.';
       play.textContent='🎮 Registrar meu primeiro recorde →';
+      setMissions(['Registrar sua primeira pontuação nesta modalidade','Buscar uma vaga no Top 3']);
      }
-    }catch{if(requestId===recordsRequest){best.textContent='Indisponível';rank.textContent='—';challenge.textContent='Não foi possível consultar seu progresso agora.';play.textContent='🎮 Jogar agora →'}}
+    }catch{if(requestId===recordsRequest){best.textContent='Indisponível';rank.textContent='—';challenge.textContent='Não foi possível consultar seu progresso agora.';play.textContent='🎮 Jogar agora →';setMissions(['Missões indisponíveis temporariamente'])}}
    }));
    if(requestId===recordsRequest)recordsStatus.textContent='Resultados exclusivos da sua sessão. Pontuações não verificadas contra a partida.';
   }

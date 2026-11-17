@@ -2,6 +2,11 @@
 
 # OldArcade — continuidade obrigatória
 
+## ATUALIZAÇÃO — missões contextuais no painel universal (16/11/2026)
+- O painel `/conta/` passa a sugerir missões por modalidade competitiva a partir de `mine` e `top` do leaderboard existente: primeira pontuação, superar recorde, Top 3, liderança. Não cria pontos, recompensas, badges persistidos ou histórico fictício.
+- A conta é gerada pelo catálogo de jogos e modalidades; não fixar títulos futuros. CI e Preview desta entrega pendentes de validação.
+
+
 ## ATUALIZAÇÃO — contrato de eventos e conta (16/11/2026)
 - CI do commit 599f868e: run 43986553860 **success**; proprietário aprovou o histórico visual no Preview do Aventura.
 - Padronização em desenvolvimento: funções compartilhadas `recordGameScore` e `recordGameFinish` centralizam a emissão dos eventos usados pelo ranking/compartilhamento; eventos preservam nomes e payload existentes. Snake Clássico continua com sua lógica própria de ranking, sem alteração de mecânica.

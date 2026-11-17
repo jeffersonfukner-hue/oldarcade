@@ -78,3 +78,9 @@ GitHub branch/PR → testes GitHub Actions → Cloudflare Preview → validaçã
 - Agrupar modalidades pelo título, sem contá-las como jogos separados. Jogos novos entram na conta sem alterar o código da página, desde que registrem título, modalidade competitiva e utilizem a API compartilhada de recordes.
 - Não afirmar total de partidas por jogador, jogos visitados ou tempo jogado sem eventos autenticados específicos: os contadores atuais são agregados por sessão/modo e não demonstram histórico pessoal de interação.
 - Limpar resultados na saída e ignorar respostas de requisições anteriores à troca de conta. Não divulgar dados de outros jogadores como se fossem pessoais.
+
+## 10. Missões pessoais contextuais (sem premiação fictícia)
+- Cada modalidade competitiva do painel `/conta/` oferece missões calculadas exclusivamente do leaderboard autenticado: primeira pontuação, superar a própria marca, buscar Top 3 ou defender liderança.
+- O alvo do Top 3 pode mostrar a pontuação do terceiro colocado quando a API a fornecer; é uma referência atual, não garantia de posição ou recompensa.
+- Missões são sugestões de próximo desafio, não conquistas persistidas ou tarefas com recompensa; nunca afirmar missão concluída sem evento individual comprovado.
+- Na ausência de dados, mostrar indisponibilidade, não pontuação zero. Não exigir alterações por jogo na página de conta.
