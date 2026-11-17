@@ -6,6 +6,7 @@ import { setupGlobalLeaderboard } from './globalLeaderboard';
 import {centerGameBoard} from './gameViewport';
 import { setupGlobalGameCounters } from './globalGameCounters';
 import {recordGameStart,recordGameFinish} from './gameEvents';
+import {seededRandom} from '../data/dailyChallenges.js';
 type Direction = 'up'|'down'|'left'|'right';
 type Point = {x:number;y:number};
 type Score = {name:string;score:number;at:number};
@@ -26,6 +27,10 @@ const gameScreen = document.querySelector<HTMLElement>('#game-screen')!;
 const hud = document.querySelector<HTMLElement>('#hud-status')!;
 const countValue = document.querySelector<HTMLElement>('#countdown-value')!;
 const evolutionPreview=location.pathname.replace(/\/+$/,'')==='/jogos/snake/evolution';
+type DailyAttempt={date:string;token:string;seed:number};
+let dailyAttempt:DailyAttempt|null=null;
+let dailyRandom:()=>number=Math.random;
+let pendingDailyFinish:{date:string;token:string;score:number;durationMs:number}|null=null;
 const modeId=evolutionPreview?'snake-evolution':'snake';
 const globalCounters=setupGlobalGameCounters(modeId);
 const leaderboard=setupGlobalLeaderboard(modeId);
@@ -321,7 +326,7 @@ function checkFunMilestone(at:Point){
  funMoment(reached.message,at);
  lastFunAt=evolutionClock;
 }
-function placeFood(){const free:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y});if(!free.length){end(true);return}food=free[Math.floor(Math.random()*free.length)]}
+function placeFood(){const free:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y});if(!free.length){end(true);return}food=free[Math.floor(dailyRandom()*free.length)]}
 function schedule(){window.clearTimeout(timer);if(state==='playing')timer=window.setTimeout(tick,(evolutionPreview?Math.max(145,210-Math.floor(peakScore/100)*7):Math.max(75,155-Math.floor(score/50)*8))+(evolutionPreview&&evolutionClock<slowUntil?85:0))}
 function tick(){if(state!=='playing')return;direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const rawHead={x:snake[0].x+d.x,y:snake[0].y+d.y};const exit=evolutionPreview?borderExit(rawHead):null;const head=evolutionPreview?{x:(rawHead.x+size)%size,y:(rawHead.y+size)%size}:rawHead;const picked=evolutionPreview?items.find(i=>same(i.point,head)):undefined;const eating=evolutionPreview?Boolean(picked&&picked.kind!=='shrink'&&picked.kind!=='slow'&&picked.kind!=='blaster'&&picked.kind!=='scare'):head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if((!evolutionPreview&&(head.x<0||head.x>=size||head.y<0||head.y>=size))||(exit&&borderAt(exit.side,exit.index))||body.some(p=>p.x===head.x&&p.y===head.y)||(evolutionPreview&&obstacles.some(p=>same(p,head)))){end(false);return}snake.unshift(head);
  // Aviso temático de risco: somente quando há pouco espaço, sem criar frutas ou alterar pontos.
@@ -339,12 +344,12 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
  if(score>saved.best){saved.best=score;store()}
  if(!evolutionPreview)placeFood();if(state!=='playing'){draw();return}}else if(!eating)snake.pop();
  if(score>saved.best){saved.best=score;store()}
- if(!didCelebratePersonal&&roundPersonalTarget>0&&score>roundPersonalTarget){
+ if(!dailyAttempt&&!didCelebratePersonal&&roundPersonalTarget>0&&score>roundPersonalTarget){
   didCelebratePersonal=true;
   celebrate('personal');
   document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:modeId,kind:'personal',message:'Você superou sua melhor marca!'}}));
  }
- if(globalKnown&&globalBest!==null&&globalBest>0&&score>globalBest&&!provisionalGlobal){
+ if(!dailyAttempt&&globalKnown&&globalBest!==null&&globalBest>0&&score>globalBest&&!provisionalGlobal){
   provisionalGlobal=true;
   roundBeatGlobal=true;
   celebrate('global');
@@ -354,18 +359,25 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
 function cancelCountdown(){window.clearTimeout(countdownTimer);setCountdownOverlay(overlay,countValue,startBtn,false)}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 const gameClock=setupGameClock(gameScreen,()=>state==='playing');
-function start(){gameClock.reset();endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];enemies=[];scareUntil=0;evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
+function start(daily:DailyAttempt|null=null){dailyAttempt=daily;dailyRandom=daily?seededRandom(daily.seed):Math.random;gameClock.reset();endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];enemies=[];scareUntil=0;evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
  didCelebratePersonal=false;lastFunMilestone=0;lastFunAt=-100;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
- resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}saved.plays++;store();globalCounters.recordPlay(recordGameStart(modeId));draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
+ resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}if(!dailyAttempt){saved.plays++;store()}globalCounters.recordPlay(recordGameStart(modeId));draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){
  const durationMs=gameClock.milliseconds();roundDurationMs=durationMs;
  state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
- if(score>saved.best)saved.best=score;
- if(saved.nickname.trim()){
+ if(!dailyAttempt&&score>saved.best)saved.best=score;
+ if(!dailyAttempt&&saved.nickname.trim()){
   saved.scores.push({name:saved.nickname.trim(),score,at:Date.now()});
   saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20);
  }
- store();refresh();
+ if(!dailyAttempt)store();refresh();
+ if(dailyAttempt){
+  const attempt=dailyAttempt;pendingDailyFinish={date:attempt.date,token:attempt.token,score,durationMs};
+  dailyAttempt=null;dailyRandom=Math.random;
+  overlay.hidden=true;const sequence=++endSequence;
+  void saveDailyResult(sequence);
+  return;
+ }
  recordGameFinish(modeId,score,durationMs);
  overlay.hidden=true;
  const sequence=++endSequence;
