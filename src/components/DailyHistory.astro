@@ -1,0 +1,46 @@
+---
+/** Histórico privado e compartilhado, habilitado para qualquer título diário. */
+---
+<section id="daily-history" class="section panel" data-daily-history aria-labelledby="daily-history-heading">
+ <h3 id="daily-history-heading">📅 Meu histórico de Desafios Diários</h3>
+ <p class="small muted">Cada data tem uma única tentativa. Aqui você consulta o desempenho dos dias que já jogou; os jogos anteriores não podem ser reiniciados.</p>
+ <p data-daily-history-status class="small muted" role="status" aria-live="polite">Consultando desafios…</p>
+ <div data-daily-history-list class="daily-history-list"></div>
+</section>
+<style>
+ .daily-history-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+ .daily-history-entry{padding:12px;border-radius:10px;border:1px solid #3c4c69;background:#151f38}
+ .daily-history-entry p{margin:.3rem 0}
+</style>
+<script>
+ import {DAILY_MODES} from '../data/dailyChallenges.js';
+ const root=document.querySelector<HTMLElement>('[data-daily-history]')!;
+ const status=root.querySelector<HTMLElement>('[data-daily-history-status]')!;
+ const list=root.querySelector<HTMLElement>('[data-daily-history-list]')!;
+ let sequence=0;
+ async function load(){
+  const seq=++sequence;
+  status.textContent='Consultando desafios…';list.replaceChildren();
+  try{
+   const response=await fetch('/api/daily/profile',{cache:'no-store'});
+   if(seq!==sequence)return;
+   if(response.status===401){status.textContent='Entre em sua conta para consultar o histórico.';return}
+   const data=await response.json() as {error?:string;results?:Array<{game:string;date:string;status:string;score:number|null;durationMs:number|null}>};
+   if(!response.ok)throw Error(data.error||'Não foi possível consultar o histórico.');
+   const records=data.results??[];
+   if(!records.length){status.textContent='Você ainda não participou de Desafios Diários.';return}
+   status.textContent=records.length+' participações encontradas.';
+   for(const item of records){
+    if(!Object.hasOwn(DAILY_MODES,item.game))continue;
+    const card=document.createElement('article');card.className='daily-history-entry';
+    const heading=document.createElement('strong');heading.textContent=DAILY_MODES[item.game as keyof typeof DAILY_MODES].title+' · '+item.date.split('-').reverse().join('/');
+    const performance=document.createElement('p');
+    performance.textContent=item.status==='finished'?'Pontuação: '+item.score+' pontos · Tempo: '+Math.floor((item.durationMs||0)/1000)+' s':'Tentativa utilizada; partida não concluída ou resultado não confirmado.';
+    card.append(heading,performance);list.append(card);
+   }
+  }catch(error){if(seq===sequence)status.textContent=error instanceof Error?error.message:'Histórico indisponível.'}
+ }
+ document.addEventListener('oldarcade:account-changed',()=>void load());
+ window.addEventListener('pageshow',event=>{if(event.persisted)void load()});
+ if(!root.closest('[hidden]'))void load();
+</script>
