@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import {gameModes} from '../data/gameModes.js';
 import {isTimeRanking} from '../data/rankingRules.js';
 import {gameRegistry} from '../data/gameRegistry';
+import DailyHistory from '../components/DailyHistory.astro';
 const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title, modes:Object.entries(gameModes).filter(([,mode])=>mode.title===titleId&&mode.competitive)})).filter(group=>group.modes.length>0);
 ---
 <Base title="Minha conta — OldArcade" description="Crie sua conta de jogador com nickname único, e-mail opcional e senha, ou entre na sua conta OldArcade." path="/conta/">
@@ -47,6 +48,7 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
      </div>
     </section>)}
     <p class="small muted" id="account-records-status" role="status"></p>
+    <DailyHistory />
    </section>
    <p id="account-message" class="small" role="status" aria-live="polite"></p>
    <div id="recovery-box" class="contact-note" hidden>
