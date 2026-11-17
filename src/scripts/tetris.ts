@@ -280,4 +280,5 @@ document.addEventListener('oldarcade:mode-record-provisional',event=>{
  if(detail?.game!=='tetris')return;
  globalProvisional=true;update();
 });
+document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-request',{detail:{game:'tetris'}}));
 board=empty();drawNext();draw();update();
