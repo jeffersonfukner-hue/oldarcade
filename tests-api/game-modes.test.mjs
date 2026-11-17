@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {gameModes,gameModeIds,gameMode,validGameScore} from '../src/data/gameModes.js';
 
-test('catálogo central mantém Snake Clássico e Aventura isolados e com URLs próprias',()=>{
- assert.deepEqual(gameModeIds,['snake','snake-adventure']);
+test('catálogo central mantém os três modos Snake isolados e com URLs próprias',()=>{
+ assert.deepEqual(gameModeIds,['snake','snake-adventure','snake-evolution']);
  assert.equal(gameModes.snake.title,gameModes['snake-adventure'].title);
- assert.notEqual(gameModes.snake.url,gameModes['snake-adventure'].url);
+ assert.equal(gameModes.snake.title,gameModes['snake-evolution'].title);
+ assert.equal(new Set(gameModeIds.map(id=>gameModes[id].url)).size,3);
  for(const id of gameModeIds){
   assert.equal(gameMode(id)?.competitive,true);
   assert.ok(gameMode(id).url.startsWith('/jogos/'));
