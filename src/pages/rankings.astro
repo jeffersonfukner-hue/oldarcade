@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import {gameModes} from '../data/gameModes.js';
 const modes=Object.entries(gameModes).filter(([,mode])=>mode.competitive).map(([key,mode])=>({key,...mode}));
 ---
-<Base title="Rankings OldArcade — Líderes, recordes e desafios" description="Confira o Top 3 e o Top 10 do Snake Clássico e Aventura no OldArcade. Veja os recordes e desafie os líderes em cada modo." path="/rankings/">
+<Base title="Rankings OldArcade — Líderes, recordes e desafios" description="Confira Top 3 e Top 10 dos jogos do OldArcade, incluindo Snake e Tetris. Veja recordes e desafie os líderes de cada modalidade." path="/rankings/">
  <div class="shell rankings-page">
   <header class="rankings-hero">
    <div><span class="eyebrow">Competição OldArcade</span><h1>Rankings e <span class="accent">desafios</span></h1><p>Veja quem lidera cada modo e tente superar a marca do primeiro colocado. Os rankings são independentes.</p></div>
