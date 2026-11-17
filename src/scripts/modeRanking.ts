@@ -12,7 +12,7 @@ if(root){
  const recovery=get<HTMLElement>('recovery'),recoveryCode=get<HTMLElement>('code');
  let top:number|null=null,score=0,played=false,provisionalRecord=false,account:string|null=null;
  let durationMs=0;let pendingScore:number|null=null,round=0,roundPersonal=0,personalCelebrated=false;
- const celebrate=(kind:'personal'|'mission'|'podium'|'leader'|'rival',message:string)=>document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game,kind,message}}));
+ const celebrate=(kind:'personal'|'mission'|'podium'|'leader'|'rival',message:string,rank?:number)=>document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game,kind,message,rank}}));
  const retry=get<HTMLButtonElement>('retry');
  function setPending(points:number){pendingScore=points;retry.hidden=false;retry.textContent='Tentar registrar '+points+' pontos novamente'}
  function clearPending(){pendingScore=null;retry.hidden=true}
@@ -53,7 +53,7 @@ if(root){
   if(!data.available||!data.mine)return;
   const leader=data.top?.[0];
   if(data.mine.rank===1&&leader?.nickname===data.mine.nickname){celebrate('leader','Liderança confirmada! Agora é defender o topo.');return}
-  if(typeof data.mine.rank==='number'&&data.mine.rank<=3){celebrate('podium','Você está entre os três melhores!');return}
+  if(typeof data.mine.rank==='number'&&data.mine.rank>=2&&data.mine.rank<=3){celebrate('podium','Você conquistou o '+data.mine.rank+'º lugar no ranking!',data.mine.rank);return}
   if(leader&&leader.score>points&&provisionalRecord){celebrate('rival','Sua liderança foi provisória! '+leader.nickname+' já está na frente. Vai deixar assim?')}
  }
  function announce(data:Board,points:number){
@@ -64,7 +64,8 @@ if(root){
   if(leader.score===points)return 'Empate! '+leader.nickname+' registrou primeiro.';
   return 'Líder atual: '+leader.nickname+' · '+leader.score+' pontos.';
  }
- const close=()=>{modal.hidden=true;authButton.focus({preventScroll:true})};
+ let pendingCelebration:Board|null=null;
+ const close=()=>{modal.hidden=true;authButton.focus({preventScroll:true});if(pendingCelebration){const result=pendingCelebration;pendingCelebration=null;window.setTimeout(()=>celebrateFinal(result,score),200)}};
  const open=()=>{if(account)return;modal.hidden=false;hint.textContent=played?'Você marcou '+score+' pontos. Conecte-se para registrar esse resultado.':'Entre ou crie uma conta para disputar o ranking.';login.querySelector<HTMLInputElement>('input')?.focus({preventScroll:true})};
  authButton.addEventListener('click',open);
  get<HTMLButtonElement>('close').addEventListener('click',close);
@@ -89,9 +90,12 @@ if(root){
     if(!r.ok||!data.player)throw Error(data.error||'Falha no acesso');
     connect(data.player.nickname);
     document.dispatchEvent(new CustomEvent('oldarcade:account-changed',{detail:{player:data.player}}));
-    if(played){try{const result=await submit(score);clearPending();summary.textContent=announce(result,score);celebrateFinal(result,score)}catch(err){setPending(score);summary.textContent='Seus '+score+' pontos estão preservados nesta página. '+(err instanceof Error?err.message:'Falha ao registrar')+'. Tente novamente.';throw err}}
+    let newResult:Board|null=null;
+    if(played){try{const result=await submit(score);clearPending();summary.textContent=announce(result,score);newResult=result}catch(err){setPending(score);summary.textContent='Seus '+score+' pontos estão preservados nesta página. '+(err instanceof Error?err.message:'Falha ao registrar')+'. Tente novamente.';throw err}}
     authStatus.textContent=played?'Resultado registrado.':'Conta conectada.';
     if(data.recoveryCode){get<HTMLElement>('code').textContent=data.recoveryCode;recovery.hidden=false}else close();
+    // Só comemorar depois que o modal de autenticação sair da frente.
+    if(newResult){const result=newResult;if(data.recoveryCode){pendingCelebration=result}else window.setTimeout(()=>celebrateFinal(result,score),200)}
    }catch(err){authStatus.textContent=err instanceof Error?err.message:'Falha no acesso'}
    finally{btn.disabled=false}
   });
