@@ -332,7 +332,7 @@ function funMoment(message:string,at:Point){
  });
 }
 function checkFunMilestone(at:Point){
- const milestones=[{score:100,message:'NOSSA! 100 PONTOS!'},{score:500,message:'FANTÁSTICO! 500 PONTOS!'},{score:1300,message:'CARAMBA, VOCÊ É BOM! 1.300 PONTOS!'},{score:2500,message:'VOCÊ É UMA LENDA! 2.500 PONTOS!'},{score:5000,message:'INACREDITÁVEL! 5.000 PONTOS!'},{score:10000,message:'VOCÊ DOMINOU O ARCADE! 10.000 PONTOS!'}];
+ const milestones=[{score:100,message:'NOSSA! 100 PONTOS!'},{score:200,message:'OLHA SÓ! 200 PONTOS!'},{score:400,message:'MANDOU BEM! 400 PONTOS!'},{score:800,message:'FANTÁSTICO! 800 PONTOS!'},{score:1600,message:'CARAMBA, VOCÊ É BOM! 1.600 PONTOS!'},{score:3200,message:'VOCÊ É UMA LENDA! 3.200 PONTOS!'},{score:6400,message:'INACREDITÁVEL! 6.400 PONTOS!'},{score:12800,message:'VOCÊ DOMINOU O ARCADE! 12.800 PONTOS!'},{score:25600,message:'LENDÁRIO! 25.600 PONTOS!'}];
  const reached=milestones.findIndex((m,i)=>score>=m.score&&lastFunMilestone<i+1);
  if(reached<0)return;
  lastFunMilestone=reached+1;

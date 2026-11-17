@@ -193,7 +193,7 @@ function tick(){
    special=null;normalSinceSpecial=0;
   }
   floatPoints(head,collected.kind==='gold'?50:collected.kind==='ice'?15:collected.kind==='speed'?20:10);
-  const cheers=[{score:100,text:'NOSSA! 100 PONTOS!'},{score:500,text:'FANTÁSTICO! 500 PONTOS!'},{score:1300,text:'CARAMBA, VOCÊ É BOM! 1.300 PONTOS!'},{score:2500,text:'VOCÊ É UMA LENDA! 2.500 PONTOS!'},{score:5000,text:'INACREDITÁVEL! 5.000 PONTOS!'},{score:10000,text:'VOCÊ DOMINOU O ARCADE! 10.000 PONTOS!'}];
+  const cheers=[{score:100,text:'NOSSA! 100 PONTOS!'},{score:200,text:'OLHA SÓ! 200 PONTOS!'},{score:400,text:'MANDOU BEM! 400 PONTOS!'},{score:800,text:'FANTÁSTICO! 800 PONTOS!'},{score:1600,text:'CARAMBA, VOCÊ É BOM! 1.600 PONTOS!'},{score:3200,text:'VOCÊ É UMA LENDA! 3.200 PONTOS!'},{score:6400,text:'INACREDITÁVEL! 6.400 PONTOS!'},{score:12800,text:'VOCÊ DOMINOU O ARCADE! 12.800 PONTOS!'},{score:25600,text:'LENDÁRIO! 25.600 PONTOS!'}];
   if(lastCheerIndex<cheers.length&&score>=cheers[lastCheerIndex].score){
    const cheer=cheers[lastCheerIndex++];notify(cheer.text);
   }
