@@ -27,6 +27,7 @@ const lowerBetter=isLowerBetter(game);
     <label>Nickname único<input name="nickname" minlength="3" maxlength="18" autocomplete="username" required /></label>
     <label>E-mail (opcional)<input name="email" type="email" maxlength="254" autocomplete="email" /></label>
     <label>Senha<input name="password" type="password" minlength="8" maxlength="128" autocomplete="new-password" required /></label>
+    <fieldset class="notification-choices"><legend>Avisos por e-mail (opcionais, ainda não enviados)</legend><label><input name="recordEmailOptIn" type="checkbox" /> Se alguém superar meu recorde</label><label><input name="dailyEmailOptIn" type="checkbox" /> Quando houver Desafio Diário</label></fieldset>
     <button class="btn" type="submit">Criar conta e registrar</button>
    </form>
    <div data-rank-recovery hidden><p>Guarde seu código de recuperação. Ele aparece apenas uma vez; não compartilhe.</p><code data-rank-code></code><button class="btn secondary" type="button" data-rank-done>Guardei o código</button></div>
