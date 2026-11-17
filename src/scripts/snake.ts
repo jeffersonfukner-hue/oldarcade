@@ -178,7 +178,7 @@ function advanceEvolution(){
  const head=snake[0];const neighbors=[{x:head.x+1,y:head.y},{x:head.x-1,y:head.y},{x:head.x,y:head.y+1},{x:head.x,y:head.y-1}];
  const exits=neighbors.filter(p=>p.x>=0&&p.x<size&&p.y>=0&&p.y<size&&!snake.some(q=>same(p,q))&&!obstacles.some(q=>same(p,q))).length;
  if(score>=30&&snake.length>=12&&exits<=1&&evolutionClock-lastRescue>60&&!items.some(i=>i.kind==='shrink')){
-  if(addItem('shrink',45)){lastRescue=evolutionClock;arcadePersonality('snake','rescue')}
+  if(addItem('shrink',45)){lastRescue=evolutionClock;arcadePersonality(modeId,'rescue')}
  }
  if(score<30)items=items.filter(i=>i.kind!=='shrink');
 }
@@ -266,6 +266,7 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
  if(globalKnown&&(globalBest===null||score>globalBest)&&!provisionalGlobal){
   provisionalGlobal=true;
   roundBeatGlobal=true;
+  celebrate('global');
   document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:modeId,kind:'provisional',message:'Você passou a marca global! Confirmação ao final da partida.'}}));
  }
  if(!evolutionPreview)placeFood();if(state!=='playing'){draw();return}}else if(!eating)snake.pop();draw();refresh();schedule()}

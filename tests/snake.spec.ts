@@ -695,3 +695,29 @@ test('Clássico: Espaço reinicia após fim sem rolar página',async({page})=>{
  await expect.poll(()=>page.evaluate(()=>window.scrollY)).toBe(beforeScroll);
  await expect(page.locator('#countdown-value')).toHaveText('3');
 });
+
+test('Evolution tem rota própria, ranking isolado e integração de partida',async({page})=>{
+ const calls:string[]=[];
+ await page.route('**/api/games/*/leaderboard',async route=>{
+  calls.push(new URL(route.request().url()).pathname);
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[],mine:null,myGames:[]})});
+ });
+ await page.route('**/api/games/snake-evolution/stats',async route=>{
+  calls.push(new URL(route.request().url()).pathname+':'+route.request().method());
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,visits:1,plays:1})});
+ });
+ await page.goto('/jogos/snake/evolution/');
+ await expect(page.getByRole('heading',{level:1})).toContainText('Evolution');
+ await expect(page.locator('#global-rank-title')).toContainText('Evolution');
+ await expect(page.locator('[data-game-share]')).toHaveAttribute('data-game-path','/jogos/snake/evolution/');
+ await expect.poll(()=>calls.some(x=>x==='/api/games/snake-evolution/leaderboard')).toBe(true);
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#plays')).toHaveText('1');
+ await expect.poll(()=>calls.filter(x=>x==='/api/games/snake-evolution/stats:POST').length).toBe(2);
+ expect(calls).not.toContain('/api/games/snake/leaderboard');
+});
+
+test('Clássico mantém acesso explícito ao Evolution',async({page})=>{
+ await page.goto('/jogos/snake/');
+ await expect(page.getByRole('link',{name:/Jogar Evolution/})).toHaveAttribute('href','/jogos/snake/evolution/');
+});
