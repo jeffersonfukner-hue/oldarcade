@@ -187,7 +187,7 @@ function updateEnemies(){
  for(const enemy of enemies){
   const target=enemy.kind==='hunter'?head:enemy.kind==='ambusher'?{x:head.x+forward.x*4,y:head.y+forward.y*4}:{x:size-1-head.x,y:size-1-head.y};
   const options=(Object.keys(offsets) as Direction[]).map(dir=>({dir,point:{x:enemy.point.x+offsets[dir].x,y:enemy.point.y+offsets[dir].y}}))
-   .filter(option=>option.point.x>=0&&option.point.y>=0&&option.point.x<size&&option.point.y<size&&!obstacles.some(p=>same(p,option.point))&&!enemies.some(other=>other!==enemy&&same(other.point,option.point))&&!borderWalls.some(w=>!w.restoreAt&&((w.side==='left'&&option.point.x===0&&option.point.y===w.index)||(w.side==='right'&&option.point.x===size-1&&option.point.y===w.index)||(w.side==='top'&&option.point.y===0&&option.point.x===w.index)||(w.side==='bottom'&&option.point.y===size-1&&option.point.x===w.index)))));
+   .filter(option=>option.point.x>=0&&option.point.y>=0&&option.point.x<size&&option.point.y<size&&!obstacles.some(p=>same(p,option.point))&&!enemies.some(other=>other!==enemy&&same(other.point,option.point))&&!borderWalls.some(w=>!w.restoreAt&&((w.side==='left'&&option.point.x===0&&option.point.y===w.index)||(w.side==='right'&&option.point.x===size-1&&option.point.y===w.index)||(w.side==='top'&&option.point.y===0&&option.point.x===w.index)||(w.side==='bottom'&&option.point.y===size-1&&option.point.x===w.index))));
   if(!options.length)continue;
   options.sort((a,b)=>{
    const distance=(p:Point)=>Math.abs(p.x-target.x)+Math.abs(p.y-target.y);
