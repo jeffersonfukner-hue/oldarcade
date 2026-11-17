@@ -37,3 +37,12 @@ test('HUD compartilhado mantém IDs utilizados pelos scripts existentes',()=>{
   for(const id of ids)assert.ok(source.includes(id),'ID ausente: '+id);
  }
 });
+
+test('histórico de modalidades não cria jogos nem incrementa versões',()=>{
+ const registry=file('src/data/gameRegistry.ts');
+ assert.ok(registry.includes('milestones: ['));
+ assert.ok(registry.includes("mode: 'snake-adventure'"));
+ assert.ok(registry.includes("version: '0.2.0-dev'"));
+ assert.ok(file('src/pages/jogos/snake.astro').includes('release.milestones.map'));
+ assert.ok(file('src/pages/jogos/snake/aventura.astro').includes('gameRegistry.snake.milestones.filter'));
+});

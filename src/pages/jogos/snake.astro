@@ -73,6 +73,7 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
     <section class="section panel" aria-labelledby="dev-history-title">
       <div class="section-head"><div><span class="eyebrow">Bastidores do OldArcade</span><h2 id="dev-history-title">Registro de desenvolvimento</h2></div><span class="pill">Jogo #{String(release.number).padStart(3,'0')}</span></div>
       <p class="small">Implementação: <strong>{release.name}</strong> · Versão <strong>v{release.version}</strong> · Iniciado em <time datetime={release.createdAt}>{new Date(release.createdAt+'T12:00:00').toLocaleDateString('pt-BR')}</time></p>
+      <details><summary>Ver marcos de desenvolvimento dos modos</summary><ol class="timeline">{release.milestones.map(item=><li><strong>{item.title}</strong> · <time datetime={item.date}>{new Date(item.date+'T12:00:00').toLocaleDateString('pt-BR')}</time> — {item.notes}</li>)}</ol></details>
       <details><summary>Ver histórico de versões</summary><ol class="timeline">{release.history.map(item=><li><strong>v{item.version}</strong> · <time datetime={item.date}>{new Date(item.date+'T12:00:00').toLocaleDateString('pt-BR')}</time> — {item.notes}</li>)}</ol></details>
       <p class="small muted">Este registro documenta nossa versão jogável, não a cronologia do jogo original. As versões são atualizadas junto com o código no GitHub.</p>
     </section>

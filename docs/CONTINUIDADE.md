@@ -2,6 +2,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## ATUALIZAÇÃO — histórico de modalidades e redução de deploys (16/11/2026)
+- Cloudflare Pages exibia 151 deploys em 11 páginas; fonte observada no painel. Preview automático na branch `feat/fundacao-snake`; produção `main` isolada. A contagem de deploys não equivale a versões.
+- CI run 43984742315, commit 45cea7e, **success**.
+- Registrados marcos de desenvolvimento do Snake Aventura e infraestrutura compartilhada no catálogo, sem inventar uma nova versão nem contar modo como jogo. Histórico do modo visível na página Aventura e histórico geral no Clássico.
+- Processo: usar commits multi-arquivo por entrega para diminuir builds/deploys. Configuração automática Cloudflare não alterada; sem SQL, merge ou produção.
+
+
 ## ATUALIZAÇÃO — HUD compartilhado e contagem correta (16/11/2026)
 - Contagem inequívoca: **1 jogo (#001 Snake), 2 modos (Clássico e Aventura)**. Jogo #002 e jogo #003 não iniciados; meta são 3 títulos distintos antes de migração do domínio.
 - CI comprovado do commit b5e88ae: run 43981972989 **success**. Run 43983568736 (commit 680fb357) estava em execução na última consulta; commits posteriores precisam de CI próprio.

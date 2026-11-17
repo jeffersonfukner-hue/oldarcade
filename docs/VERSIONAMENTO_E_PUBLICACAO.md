@@ -21,3 +21,14 @@
 - Antes de configurar um deploy automático que atinja uma URL pública, explicar exatamente que URL ficará acessível, que conteúdo irá aparecer e pedir autorização explícita.
 - Não adicionar domínio customizado antes da aprovação.
 - O `robots.txt` atual bloqueia indexação intencionalmente; mudar somente na preparação de publicação pública com revisão do SEO.
+
+## Marcos de modalidades sem inflar versões
+- O Snake é **um jogo (#001)**, com modos Clássico e Aventura; novas modalidades não recebem número de jogo.
+- Manter em `gameRegistry.ts` um histórico de versões do título **e** marcos datados das modalidades, com descrições factuais. O histórico de modos pode crescer sem incrementar a versão do jogo ou do portal.
+- Uma versão de jogo/portal só muda quando uma entrega funcional é consolidada e aprovada; cada commit, CI ou Preview não é uma versão. Não alterar notas antigas retroativamente.
+- O rodapé indica a versão do pacote do portal em desenvolvimento; não representa a quantidade de deploys Cloudflare nem lançamento público.
+
+## Redução de deploys de Preview
+- Cloudflare Pages está conectado ao GitHub com deploy automático de branch. Commits sucessivos podem gerar muitos Previews sem constituir releases.
+- **Padrão de trabalho:** reunir arquivos relacionados em um único commit por entrega e verificar CI antes de enviar outra correção; preferir commit multi-arquivo, evitando commits por arquivo.
+- Não desabilitar deploy automático, alterar branch de produção, configurações Cloudflare ou domínio sem uma decisão separada e aprovação explícita.
