@@ -12,9 +12,16 @@ test('todas as modalidades possuem página estática e dados SEO distintos',()=>
   assert.ok(mode.url.startsWith('/jogos/'));
   const path='src/pages'+mode.url.slice(0,-1)+'.astro';
   const source=file(path);
-  assert.ok(source.includes('GamePage'),id+' deve reutilizar SEO');
-  assert.ok(source.includes('modeId="'+id+'"'),id+' deve declarar seu ID');
-  assert.ok(source.includes('description'),id+' deve ter descrição real');
+  if(id==='tetris'||id==='tetris-sprint'){
+   const shared=file('src/components/TetrisGame.astro');
+   assert.ok(source.includes('TetrisGame'),id+' deve reutilizar o componente único');
+   assert.ok(source.includes('modeId="'+id+'"'),id+' deve declarar seu ID');
+   assert.ok(shared.includes('GamePage')&&shared.includes('description'),id+' deve reutilizar SEO');
+  }else{
+   assert.ok(source.includes('GamePage'),id+' deve reutilizar SEO');
+   assert.ok(source.includes('modeId="'+id+'"'),id+' deve declarar seu ID');
+   assert.ok(source.includes('description'),id+' deve ter descrição real');
+  }
  }
 });
 test('página compartilhada gera metadados e JSON-LD sem esconder conteúdo',()=>{
