@@ -3,6 +3,13 @@
 > **Contrato obrigatório para todo jogo/modo:** [PADROES_GLOBAIS_DOS_JOGOS.md](PADROES_GLOBAIS_DOS_JOGOS.md). Histórico abaixo não substitui os padrões globais vigentes.
 
 # OldArcade — continuidade obrigatória
+## Sessão restaurada ao navegar Voltar — Sprint e todas as páginas (17/11/2026)
+- Proprietário validou positivamente o Tetris Sprint, mas relatou: após entrar como outro usuário e pressionar Voltar, o navegador mostrava o nickname da conta anterior. Problema **global de autenticação/navegação**, não da mecânica Sprint.
+- Causa: o navegador pode restaurar uma tela a partir do BFCache (Back/Forward Cache) sem rodar de novo o script de inicialização; `src/scripts/accountIdentity.ts` consultava `/api/auth/me` somente na primeira montagem. O `modeRanking.ts` também precisa receber a atualização para descartar recorde da conta anterior.
+- Solução compartilhada: `accountIdentity.ts` agora trata `pageshow.persisted`, invalida imediatamente nome/recorde antigo via `oldarcade:account-changed`, refaz a consulta com `cache:'no-store'` e propaga a sessão corrente em novo evento de identidade. Controla versão de requisição para impedir que resposta antiga sobreponha a mais recente. `src/pages/conta.astro` consome `oldarcade:session-refreshed` para atualizar também o formulário/painel ao voltar; sem criar solução por jogo.
+- Testes `tests/account-navigation.spec.ts`: simulam troca de Conta A→B ao voltar para Sprint e logout ao voltar para Minha conta, conferindo nickname, botão de conta e tempo do ranking. Teste preexistente `tests/tetris.spec.ts` corrigido para simular logout de verdade (a resposta mockada não pode continuar retornando Conta B).
+- **Pendente:** verificar CI do HEAD e aprovação visual do proprietário no Preview. Nenhuma alteração em D1, produção, merge ou Lovable.
+
 
 ## Incidente de sessão — recorde local confundido com recorde de conta (17/11/2026)
 - Proprietário identificou nos prints do **Tetris Clássico** (durante implementação de Sprint, sem relação causal com Sprint): ao trocar de conta no mesmo navegador, o HUD ainda mostrava 33.700 da sessão/dispositivo anterior, enquanto ranking da conta nova mostrava 3.400.
