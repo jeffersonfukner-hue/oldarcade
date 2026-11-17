@@ -125,3 +125,8 @@ GitHub branch/PR → testes GitHub Actions → Cloudflare Preview → validaçã
 - Progressão de desbloqueios com marcos aproximadamente geométricos, não intervalos fixos de 200–300 pontos. **Exemplo provisório**: 0, 100, 250, 600, 1500, 4000, 10000+ pontos; desbloqueios: múltiplas frutas, bônus temporários, encurtamento, obstáculos, outros power-ups, disparos e combinações avançadas. Esses números NÃO foram aprovados nem implementados.
 - A frequência de spawn, limite de frutas simultâneas, crescimento, temporizadores e dificuldade devem ser calibrados por fase, com salvaguardas para não tornar o tabuleiro impossível. Diferenciar progressão exponencial de marcos de aumento desenfreado de dificuldade.
 - A decisão de manter a evolução no Clássico ou criar modo separado, e o versionamento dos rankings, continuam pendentes. Não alterar a mecânica sem essa decisão.
+
+### Regra confirmada pelo proprietário — fruta de encolhimento (16/11/2026)
+- Ao coletar fruta de encolhimento, a cobra fica menor **e a pontuação atual da partida diminui**: sobrevivência em troca de pontos. Não é bônus gratuito.
+- Valores propostos para calibragem (ainda não aprovados): reduzir 3 segmentos e descontar 30 pontos, respeitando comprimento mínimo de 3 e pontuação mínima zero. Recordes históricos registrados nunca são apagados por essa penalidade.
+- Esta confirmação não autoriza implementação imediata nem resolve a decisão de modo/ranking pendente.
