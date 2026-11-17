@@ -130,3 +130,7 @@ GitHub branch/PR → testes GitHub Actions → Cloudflare Preview → validaçã
 - Ao coletar fruta de encolhimento, a cobra fica menor **e a pontuação atual da partida diminui**: sobrevivência em troca de pontos. Não é bônus gratuito.
 - Valores propostos para calibragem (ainda não aprovados): reduzir 3 segmentos e descontar 30 pontos, respeitando comprimento mínimo de 3 e pontuação mínima zero. Recordes históricos registrados nunca são apagados por essa penalidade.
 - Esta confirmação não autoriza implementação imediata nem resolve a decisão de modo/ranking pendente.
+
+### Regra de elegibilidade — fruta de encolhimento (16/11/2026)
+- **Confirmado pelo proprietário:** a fruta de encolhimento só pode surgir se a pontuação atual da partida for de **no mínimo 30 pontos**. A condição usa a pontuação atual, não o recorde histórico ou a maior pontuação atingida na partida.
+- Salvaguarda proposta, ainda não confirmada: se a pontuação cair abaixo de 30 enquanto a fruta estiver no tabuleiro, remover a fruta. Manter custo exato e quantidade de segmentos como parâmetros pendentes de balanceamento.
