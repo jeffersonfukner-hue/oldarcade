@@ -62,3 +62,11 @@ test('Tetris salva contador local e oferece comandos de toque e tela cheia',asyn
   await expect(page.locator('#tetris-plays')).toHaveText('1');
  });
 });
+
+test('Tetris integra recorde global real sem misturar ranking do Snake',async({page})=>{
+ await page.route('**/api/games/tetris/leaderboard',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Lider Tetris',score:120,rank:1,achievedAt:'2026-11-17T10:00:00Z'}],mine:null})}));
+ await page.goto('/jogos/tetris/');
+ await expect(page.locator('#tetris-global')).toHaveText('120');
+ await expect(page.locator('[data-mode-ranking][data-game=tetris] [data-rank-global]')).toHaveText('120');
+ await expect(page.locator('#tetris-provisional')).toBeHidden();
+});
