@@ -39,7 +39,8 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
        <h5>{mode.symbol} {mode.name}</h5>
        <p>Melhor pontuação: <strong data-account-best>Consultando…</strong></p>
        <p>Posição no ranking: <strong data-account-rank>—</strong></p>
-       <a class="btn secondary" href={mode.url}>Jogar e superar →</a>
+       <p class="small muted" data-account-challenge>Preparando seu próximo desafio…</p>
+       <a class="btn secondary" data-account-play href={mode.url}>Jogar agora →</a>
       </article>)}
      </div>
     </section>)}
@@ -77,7 +78,9 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
     const game=card.dataset.accountRecord!;
     const best=card.querySelector<HTMLElement>('[data-account-best]')!;
     const rank=card.querySelector<HTMLElement>('[data-account-rank]')!;
-    best.textContent='Consultando…';rank.textContent='—';
+    const challenge=card.querySelector<HTMLElement>('[data-account-challenge]')!;
+    const play=card.querySelector<HTMLAnchorElement>('[data-account-play]')!;
+    best.textContent='Consultando…';rank.textContent='—';challenge.textContent='Consultando seus desafios…';play.textContent='Jogar agora →';
     try{
      const response=await fetch('/api/games/'+encodeURIComponent(game)+'/leaderboard',{cache:'no-store'});
      if(!response.ok)throw Error('Indisponível');
@@ -86,7 +89,16 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
      if(!data.available)throw Error('Indisponível');
      best.textContent=data.mine?String(data.mine.score):'Sem recorde';
      rank.textContent=data.mine&&Number.isSafeInteger(data.mine.rank)?data.mine.rank+'º':'—';
-    }catch{if(requestId===recordsRequest){best.textContent='Indisponível';rank.textContent='—'}}
+     if(data.mine){
+      const points=String(data.mine.score);
+      const position=data.mine.rank;
+      challenge.textContent=position===1?'Você está no topo! Continue jogando para defender a liderança.':position>1&&Number.isSafeInteger(position)?'Você está em '+position+'º lugar. Que tal subir no ranking?':'Seu recorde é '+points+' pontos. Tente superá-lo!';
+      play.textContent=position===1?'🏆 Defender liderança →':'🎯 Bater meus '+points+' pontos →';
+     }else{
+      challenge.textContent='Você ainda não registrou recorde nesta modalidade.';
+      play.textContent='🎮 Registrar meu primeiro recorde →';
+     }
+    }catch{if(requestId===recordsRequest){best.textContent='Indisponível';rank.textContent='—';challenge.textContent='Não foi possível consultar seu progresso agora.';play.textContent='🎮 Jogar agora →'}}
    }));
    if(requestId===recordsRequest)recordsStatus.textContent='Resultados exclusivos da sua sessão. Pontuações não verificadas contra a partida.';
   }
