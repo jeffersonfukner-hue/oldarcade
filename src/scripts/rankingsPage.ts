@@ -1,9 +1,9 @@
-import {isTimeRanking,formatRankingValue} from '../data/rankingRules.js';
+import {isTimeRanking,isLowerBetter,formatRankingValue} from '../data/rankingRules.js';
 type RankEntry={nickname:string;score:number;rank?:number;achievedAt?:string};
 type RankData={available:boolean;top?:RankEntry[]};
 document.querySelectorAll<HTMLElement>('[data-rank-page-mode]').forEach(section=>{
  const game=section.dataset.rankPageMode||'';
- const timed=isTimeRanking(game);
+ const timed=isTimeRanking(game),lowerBetter=isLowerBetter(game);
  const value=(v:number)=>formatRankingValue(game,v);
  const get=<T extends Element>(s:string)=>section.querySelector<T>('[data-rank-'+s+']')!;
  const podium=get<HTMLElement>('podium'),table=get<HTMLTableSectionElement>('table'),status=get<HTMLElement>('status');
@@ -19,7 +19,7 @@ document.querySelectorAll<HTMLElement>('[data-rank-page-mode]').forEach(section=
   const leader=entries[0];
   if(leader){
    leaderName.textContent=leader.nickname;leaderScore.textContent=value(leader.score);
-   challengeMessage.textContent=(timed?'O menor tempo a superar é ':'A marca a superar é ')+value(leader.score)+'. Você aceita o desafio?';
+   challengeMessage.textContent=(timed?(lowerBetter?'O menor tempo a superar é ':'O maior tempo a superar é '):'A marca a superar é ')+value(leader.score)+'. Você aceita o desafio?';
   }else{
    leaderName.textContent='Seja o primeiro!';leaderScore.textContent='Sem recorde registrado';
    challengeMessage.textContent='O primeiro lugar ainda está aberto. Entre no jogo e tente conquistá-lo.';
@@ -39,7 +39,7 @@ document.querySelectorAll<HTMLElement>('[data-rank-page-mode]').forEach(section=
    table.append(row);
   }
   if(!entries.length){const row=document.createElement('tr'),td=document.createElement('td');td.colSpan=4;td.textContent='Nenhum recorde registrado.';row.append(td);table.append(row)}
-  status.textContent=timed?'Ranking real por menor tempo em 40 linhas · empate pelo registro mais antigo.':'Ranking real da conta · melhor pontuação por jogador · empate por ordem de registro.';
+  status.textContent=timed?(lowerBetter?'Ranking por menor tempo em 40 linhas.':'Ranking por maior tempo de sobrevivência.')+' Empates pelo registro mais antigo.':'Ranking real da conta · melhor pontuação por jogador · empate por ordem de registro.';
  }
  void(async()=>{
   try{
