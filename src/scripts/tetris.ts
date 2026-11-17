@@ -1,6 +1,6 @@
 import {setupGameClock} from './gameClock';
 import {centerGameBoard} from './gameViewport';
-import {recordGameStart,recordGameScore,recordGameFinish} from './gameEvents';
+import {recordGameStart,recordGameScore} from './gameEvents';
 import {setupGlobalGameCounters} from './globalGameCounters';
 import {showScoreFeedback} from './scoreFeedback';
 
@@ -114,9 +114,8 @@ function land(){
   const oldLevel=level;level=Math.min(30,Math.floor(lines/10)+1);
   const points=[0,100,300,500,800][cleared]*oldLevel;
   award(points);
-  showScoreFeedback(screen,canvas,points,cleared===1?'1 linha':cleared+' linhas',completed[0],ROWS);
-  if(cleared===4)celebrate('mission','TETRIS! Quatro linhas eliminadas de uma vez!');
-  else if(level>oldLevel)celebrate('mission','Nível '+level+'! Agora as peças caem mais rápido.');
+  showScoreFeedback(screen,canvas,points,cleared===4?'TETRIS! 4 linhas':cleared===1?'1 linha':cleared+' linhas',completed[0],ROWS);
+  // O modo Clássico não tem missões: somente pontos e mudança de nível no HUD.
  }else update();
  reserveUsed=false;
  if(spawn())schedule();
@@ -205,7 +204,7 @@ function draw(){
  }
  preview(nextCanvas,queue[0]??null);preview(holdCanvas,reserve);
 }
-function celebrate(kind:'mission'|'defeat',message:string,final=false){
+function celebrate(kind:'defeat',message:string,final=false){
  document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'tetris',kind,message,final}}));
 }
 function show(heading:string,message:string,button:string){
@@ -236,7 +235,9 @@ function finish(){
  const sequence=++finishSequence;
  state='over';stopDropAnimation();globalProvisional=false;window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  const duration=clock.milliseconds();save();update();draw();
- recordGameFinish('tetris',score,duration);
+ // A mensagem final aparece por 4s; depois damos mais tempo para ler
+ // a tela de resultado antes de apresentar o modal de conta/ranking.
+ document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'tetris',score,durationMs:duration,recordDelayMs:6500}}));
  celebrate('defeat','Você fez '+score+' pontos e eliminou '+lines+' linhas. Pronto para a revanche?',true);
  window.setTimeout(()=>{if(sequence===finishSequence&&state==='over')show('Fim de jogo','Você marcou '+score+' pontos e eliminou '+lines+' linhas.','▶ Jogar novamente')},4000);
 }
