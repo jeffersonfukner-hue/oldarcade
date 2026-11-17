@@ -224,3 +224,28 @@ test('Espaço repetido após Game Over não reinicia Tetris nem apaga resultado'
  await expect(page.locator('#tetris-plays')).toHaveText(plays!);
  await expect(page.locator('#tetris-status')).toHaveText('● Fim de jogo');
 });
+
+test('Troca de conta mantém melhor local separado e atualiza recorde autenticado',async({page})=>{
+ let player='Conta A';
+ await page.addInitScript(()=>{
+  localStorage.setItem('oldarcade:tetris:classic:v1',JSON.stringify({best:33700,plays:4}));
+ });
+ await page.route('**/api/auth/me',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({player:{nickname:player}})}));
+ await page.route('**/api/games/tetris/leaderboard',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+  available:true,top:[{nickname:'Conta A',score:33700,rank:1}],
+  mine:player==='Conta A'?{nickname:'Conta A',score:33700,rank:1}:{nickname:'Conta B',score:3400,rank:2}
+ })}));
+ await page.goto('/jogos/tetris/');
+ await expect(page.locator('#tetris-local-best')).toHaveText('33700');
+ await expect(page.locator('#tetris-best')).toHaveText('33700');
+ await expect(page.locator('[data-rank-personal]')).toHaveText('33700');
+ player='Conta B';
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:account-changed',{detail:{player:{nickname:'Conta B'}}})));
+ await expect(page.locator('#tetris-best')).toHaveText('3400');
+ await expect(page.locator('[data-rank-personal]')).toHaveText('3400');
+ await expect(page.locator('#tetris-local-best')).toHaveText('33700');
+ await expect(page.locator('#tetris-plays')).toHaveText('4');
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:account-changed',{detail:{player:null}})));
+ await expect(page.locator('#tetris-best')).toHaveText('—');
+ await expect(page.locator('#tetris-local-best')).toHaveText('33700');
+});
