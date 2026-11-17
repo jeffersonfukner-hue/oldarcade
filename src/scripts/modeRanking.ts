@@ -135,5 +135,12 @@ if(root){
   score=d.score;durationMs=d.durationMs??0;played=true;
   void finishResult(score,round);
  });
+ // Contrato compartilhado: permite que HUDs montados após o primeiro GET
+ // recebam o snapshot já consultado, sem nova chamada nem polling da API.
+ document.addEventListener('oldarcade:mode-ranking-request',event=>{
+  const request=(event as CustomEvent<{game:string}>).detail;
+  if(request?.game!==game)return;
+  document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-updated',{detail:{game,global:top,personal:roundPersonal}}));
+ });
  const accountPromise=accountCheck();void refresh();
 }
