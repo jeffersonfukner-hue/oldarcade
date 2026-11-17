@@ -156,3 +156,8 @@ GitHub branch/PR → testes GitHub Actions → Cloudflare Preview → validaçã
 ## 18. Piloto autorizado de progressão (sem contaminar ranking)
 - Snake Evolution em teste opt-in na URL do Clássico com `?evolution=1`, apenas host de Preview. Frutas comuns coexistentes; frutas raras temporizadas; progressão geométrica provisória; encolhimento com custo 30 pontos e 3 segmentos, somente quando perigo e pontuação >=30; obstáculos, lentidão e disparos X. Valores provisórios até validação de jogo.
 - Modo experimental não envia score, partida ou recorde a API/armazenamento competitivo. Não alterar ranking legado, versão oficial ou produção até decisão sobre modo próprio e política de versionamento.
+
+### Disparo automático (decisão do proprietário, piloto Evolution)
+- Enquanto power-up ativo, cobra dispara indiscriminadamente para frente, sem tecla/botão. Cadência inicial de 4 ticks (~0,5 s em velocidade base), duração 70 ticks (~10 s na velocidade base), sujeita ao ritmo de jogo.
+- Fruta comum/rara: 1 tiro, concede pontos sem crescer. Obstáculo: 3 tiros para destruir; exibir dano progressivo. Projétil atravessa corpo da cobra e desaparece na borda; não aciona outros power-ups nem Salva-Cobra.
+- Ajustar equilíbrio após teste real; não afetar ranking oficial.

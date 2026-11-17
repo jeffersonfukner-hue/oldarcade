@@ -121,7 +121,7 @@ function store(){try{localStorage.setItem(key,JSON.stringify(saved))}catch{}}
 store();
 const evolutionPreview=/^[a-z0-9-]+\.oldarcade-17c\.pages\.dev$/i.test(location.hostname)&&new URLSearchParams(location.search).get('evolution')==='1';
 type Item={point:Point;kind:'normal'|'rare'|'shrink'|'slow'|'blaster';expires:number};
-let items:Item[]=[];let obstacles:Point[]=[];let evolutionClock=0;let slowUntil=0;let blasterUntil=0;let lastRescue=-100;let peakScore=0;
+let items:Item[]=[];let obstacles:Point[]=[];let obstacleHits=new Map<string,number>();let shotTrail:Point[]=[];let evolutionClock=0;let slowUntil=0;let blasterUntil=0;let nextShotAt=0;let lastRescue=-100;let peakScore=0;
 const same=(a:Point,b:Point)=>a.x===b.x&&a.y===b.y;
 const occupied=(p:Point)=>snake.some(q=>same(p,q))||items.some(q=>same(p,q.point))||obstacles.some(q=>same(p,q));
 function freeCell():Point|null{const cells:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!occupied({x,y}))cells.push({x,y});return cells.length?cells[Math.floor(Math.random()*cells.length)]:null}
@@ -145,7 +145,7 @@ function advanceEvolution(){
  if(peakScore>=100&&evolutionClock%35===0&&items.filter(i=>i.kind==='rare').length===0)addItem('rare',38);
  if(peakScore>=250&&evolutionClock%55===0&&items.filter(i=>i.kind==='slow').length===0)addItem('slow',32);
  if(peakScore>=600&&evolutionClock%65===0&&obstacles.length<Math.min(14,2+stageLevel()*2)){
-  const point=freeCell();if(point&&Math.abs(point.x-snake[0].x)+Math.abs(point.y-snake[0].y)>4)obstacles.push(point);
+  const point=freeCell();if(point&&Math.abs(point.x-snake[0].x)+Math.abs(point.y-snake[0].y)>4){obstacles.push(point);obstacleHits.set(point.x+','+point.y,0)}
  }
  if(peakScore>=4000&&evolutionClock%90===0&&items.filter(i=>i.kind==='blaster').length===0)addItem('blaster',40);
  const head=snake[0];const neighbors=[{x:head.x+1,y:head.y},{x:head.x-1,y:head.y},{x:head.x,y:head.y+1},{x:head.x,y:head.y-1}];
@@ -155,14 +155,36 @@ function advanceEvolution(){
  }
  if(score<30)items=items.filter(i=>i.kind!=='shrink');
 }
-function fireBlaster(){if(!evolutionPreview||state!=='playing'||evolutionClock>=blasterUntil)return;
+/** Disparo automático a cada ~500ms de tempo jogado, independente do teclado. */
+function fireBlaster(){
+ if(!evolutionPreview||state!=='playing'||evolutionClock>=blasterUntil)return;
  const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};
- const d=delta[direction];for(let step=1;step<size;step++){
-  const p={x:snake[0].x+d.x*step,y:snake[0].y+d.y*step};if(p.x<0||p.x>=size||p.y<0||p.y>=size)break;
-  const obstacle=obstacles.findIndex(o=>same(o,p));if(obstacle>=0){obstacles.splice(obstacle,1);return}
-  const item=items.findIndex(i=>same(i.point,p));if(item>=0){const target=items.splice(item,1)[0];if(target.kind==='normal'||target.kind==='rare'){score+=target.kind==='rare'?50:10;peakScore=Math.max(peakScore,score);floatPoints(p,target.kind==='rare'?50:10)}return}
+ const d=delta[direction];shotTrail=[];
+ for(let step=1;step<size;step++){
+  const p={x:snake[0].x+d.x*step,y:snake[0].y+d.y*step};
+  if(p.x<0||p.x>=size||p.y<0||p.y>=size)break;
+  shotTrail.push(p);
+  const obstacle=obstacles.findIndex(o=>same(o,p));
+  if(obstacle>=0){
+   const key=p.x+','+p.y,hits=(obstacleHits.get(key)??0)+1;
+   if(hits>=3){obstacles.splice(obstacle,1);obstacleHits.delete(key)}
+   else obstacleHits.set(key,hits);
+   break;
+  }
+  const index=items.findIndex(i=>same(i.point,p));
+  if(index>=0){
+   const target=items[index];
+   // Poderes e Salva-Cobra exigem contato físico; disparo coleta somente frutas de pontos.
+   if(target.kind==='normal'||target.kind==='rare'){
+    items.splice(index,1);
+    const points=target.kind==='rare'?50:10;
+    score+=points;peakScore=Math.max(peakScore,score);floatPoints(p,points);
+    break;
+   }
+  }
  }
 }
+
 let snake:Point[]=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];
 let direction:Direction='right',next:Direction='right',food:Point={x:14,y:10},score=0;
 let state:'ready'|'playing'|'paused'|'countdown'|'over'='ready',timer:number|undefined;
@@ -179,7 +201,7 @@ function refresh(){const best=Math.max(saved.best,personalCloudBest);
  text('global-best',shownGlobal===null?'—':String(shownGlobal));
  text('hud-global-label',provisionalGlobal?'Recorde global (provisório):':'Recorde global:');
  text('global-best-label',provisionalGlobal?'Recorde global (provisório)':'Recorde global (contas)');text('score',String(score));text('best',String(best));text('hud-score',String(score));text('hud-best',String(best));text('plays',String(saved.plays));text('visits',String(saved.visits));const body=document.getElementById('rank-body')!;body.replaceChildren();if(!saved.scores.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=3;td.textContent='Salve um nickname e jogue uma partida para aparecer no ranking.';tr.append(td);body.append(tr)}else saved.scores.slice(0,10).forEach((entry,i)=>{const tr=document.createElement('tr');[String(i+1),entry.name,String(entry.score)].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td)});body.append(tr)})}
-function draw(){ctx.fillStyle='#071a20';ctx.fillRect(0,0,600,600);ctx.strokeStyle='#122c32';ctx.lineWidth=1;for(let n=0;n<=size;n++){ctx.beginPath();ctx.moveTo(n*cell,0);ctx.lineTo(n*cell,600);ctx.moveTo(0,n*cell);ctx.lineTo(600,n*cell);ctx.stroke()}if(evolutionPreview){for(const item of items){const colors={normal:'#ff657c',rare:'#ffdc51',shrink:'#a17bff',slow:'#71d8ff',blaster:'#ff9c3d'};ctx.fillStyle=colors[item.kind];ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*(item.kind==='rare'?.4:.33),0,Math.PI*2);ctx.fill();if(item.expires){ctx.strokeStyle='#fff9';ctx.lineWidth=3;ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*.44,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(0,(item.expires-evolutionClock)/(item.kind==='rare'?38:45)));ctx.stroke()}}ctx.fillStyle='#8392a5';for(const block of obstacles)ctx.fillRect(block.x*cell+3,block.y*cell+3,cell-6,cell-6)}else{ctx.fillStyle='#ff657c';ctx.beginPath();ctx.arc(food.x*cell+cell/2,food.y*cell+cell/2,cell*.35,0,Math.PI*2);ctx.fill()}snake.forEach((piece,i)=>{ctx.fillStyle=i===0?'#a0ffd0':'#46dca2';ctx.fillRect(piece.x*cell+2,piece.y*cell+2,cell-4,cell-4)});}
+function draw(){ctx.fillStyle='#071a20';ctx.fillRect(0,0,600,600);ctx.strokeStyle='#122c32';ctx.lineWidth=1;for(let n=0;n<=size;n++){ctx.beginPath();ctx.moveTo(n*cell,0);ctx.lineTo(n*cell,600);ctx.moveTo(0,n*cell);ctx.lineTo(600,n*cell);ctx.stroke()}if(evolutionPreview){for(const item of items){const colors={normal:'#ff657c',rare:'#ffdc51',shrink:'#a17bff',slow:'#71d8ff',blaster:'#ff9c3d'};ctx.fillStyle=colors[item.kind];ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*(item.kind==='rare'?.4:.33),0,Math.PI*2);ctx.fill();if(item.expires){ctx.strokeStyle='#fff9';ctx.lineWidth=3;ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*.44,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(0,(item.expires-evolutionClock)/(item.kind==='rare'?38:45)));ctx.stroke()}}for(const block of obstacles){const hits=obstacleHits.get(block.x+','+block.y)??0;ctx.fillStyle=hits===0?'#8392a5':hits===1?'#d9a36e':'#f46e6e';ctx.fillRect(block.x*cell+3,block.y*cell+3,cell-6,cell-6);if(hits){ctx.strokeStyle='#20242e';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(block.x*cell+cell*.25,block.y*cell+4);ctx.lineTo(block.x*cell+cell*.5,block.y*cell+cell*.55);ctx.lineTo(block.x*cell+cell*.72,block.y*cell+cell-4);ctx.stroke()}}if(shotTrail.length){ctx.fillStyle='#ffe987bb';for(const p of shotTrail)ctx.fillRect(p.x*cell+cell*.4,p.y*cell+cell*.4,cell*.2,cell*.2)}}else{ctx.fillStyle='#ff657c';ctx.beginPath();ctx.arc(food.x*cell+cell/2,food.y*cell+cell/2,cell*.35,0,Math.PI*2);ctx.fill()}snake.forEach((piece,i)=>{ctx.fillStyle=i===0?'#a0ffd0':'#46dca2';ctx.fillRect(piece.x*cell+2,piece.y*cell+2,cell-4,cell-4)});}
 function floatPoints(at:Point,amount:number){
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
  const board=canvas.getBoundingClientRect();
@@ -202,8 +224,10 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
  if(score>=30&&snake.length>=12&&freeNeighbors<=1&&!dangerAnnounced){dangerAnnounced=true;arcadePersonality('snake','danger')}
  if(freeNeighbors>=3)dangerAnnounced=false;
  if(evolutionPreview){
-  if(picked){items=items.filter(i=>i!==picked);if(picked.kind==='shrink'){score=Math.max(0,score-30);snake.splice(Math.max(3,snake.length-3));floatPoints(head,-30)}else if(picked.kind==='slow'){slowUntil=evolutionClock+45}else if(picked.kind==='blaster'){blasterUntil=evolutionClock+55}}
+  if(picked){items=items.filter(i=>i!==picked);if(picked.kind==='shrink'){score=Math.max(0,score-30);snake.splice(Math.max(3,snake.length-3));floatPoints(head,-30)}else if(picked.kind==='slow'){slowUntil=evolutionClock+45}else if(picked.kind==='blaster'){blasterUntil=evolutionClock+70;nextShotAt=evolutionClock}}
   advanceEvolution();
+  shotTrail=[];
+  if(evolutionClock<blasterUntil&&evolutionClock>=nextShotAt){fireBlaster();nextShotAt=evolutionClock+4}
  }
  if(eating){const gained=evolutionPreview&&picked?.kind==='rare'?50:10;score+=gained;peakScore=Math.max(peakScore,score);floatPoints(head,gained);
  if(!evolutionPreview&&score>saved.best){saved.best=score;store()}
@@ -220,7 +244,7 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
  if(!evolutionPreview)placeFood();if(state!=='playing'){draw();return}}else if(!eating)snake.pop();draw();refresh();schedule()}
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
-function start(){endSequence++;items=[];obstacles=[];evolutionClock=0;slowUntil=0;blasterUntil=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
+function start(){endSequence++;items=[];obstacles=[];obstacleHits.clear();shotTrail=[];evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
  didCelebratePersonal=false;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
  resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}else{saved.plays++;store();globalCounters.recordPlay(recordGameStart('snake'))}draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){
@@ -494,7 +518,7 @@ void checkAccount();
 startBtn.addEventListener('click',()=>state==='paused'?pause():start());
 pauseBtn.addEventListener('click',pause);
 document.querySelectorAll<HTMLButtonElement>('[data-direction]').forEach(btn=>btn.addEventListener('click',()=>turn(btn.dataset.direction as Direction)));
-window.addEventListener('keydown',e=>{if(modalOpen)return;if(e.target instanceof HTMLInputElement)return;const map:Record<string,Direction>={ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down',ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right'};if(e.key.toLowerCase()==='f'&&!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey){e.preventDefault();void toggleFullscreen()}else if(e.key.toLowerCase()==='x'&&state==='playing'&&evolutionPreview){e.preventDefault();fireBlaster();draw();refresh()}else if(map[e.key]&&state==='playing'){e.preventDefault();turn(map[e.key])}else if(e.code==='Space'&&!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey){if(state==='over'||state==='ready'){e.preventDefault();start()}else if(state==='playing'||state==='paused'){e.preventDefault();pause()}}});
+window.addEventListener('keydown',e=>{if(modalOpen)return;if(e.target instanceof HTMLInputElement)return;const map:Record<string,Direction>={ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down',ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right'};if(e.key.toLowerCase()==='f'&&!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey){e.preventDefault();void toggleFullscreen()}else if(map[e.key]&&state==='playing'){e.preventDefault();turn(map[e.key])}else if(e.code==='Space'&&!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey){if(state==='over'||state==='ready'){e.preventDefault();start()}else if(state==='playing'||state==='paused'){e.preventDefault();pause()}}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')pause()});
 fullscreenBtn.addEventListener('click',()=>{void toggleFullscreen()});
 document.addEventListener('fullscreenchange',()=>{
@@ -512,5 +536,5 @@ window.addEventListener('keydown',event=>{
 });
 const form=document.querySelector<HTMLFormElement>('#nickname-form')!,nick=document.querySelector<HTMLInputElement>('#nickname')!;nick.value=saved.nickname;
 form.addEventListener('submit',e=>{e.preventDefault();saved.nickname=nick.value.trim().replace(/[<>]/g,'').slice(0,18);store();text('nick-status',saved.nickname?'Nickname salvo neste navegador. As próximas pontuações entrarão no ranking com esse nome.':'Nickname removido. Partidas sem nickname não entram no ranking.');});
-if(evolutionPreview){const label=document.createElement('div');label.style.cssText='padding:8px;text-align:center;background:#44346d;color:#fff;font-weight:700';label.textContent='🧪 SNAKE EVOLUTION · TESTE · Não participa do ranking · X = disparar';gameScreen.before(label)}
+if(evolutionPreview){const label=document.createElement('div');label.style.cssText='padding:8px;text-align:center;background:#44346d;color:#fff;font-weight:700';label.textContent='🧪 SNAKE EVOLUTION · TESTE · Não participa do ranking · Disparos automáticos';gameScreen.before(label)}
 refresh();draw();drawAccountResults();
