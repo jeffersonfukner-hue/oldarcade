@@ -673,7 +673,7 @@ test('Aventura: Espaço controla pausa e retomada sem rolar página nem perder a
  await page.keyboard.press('ArrowUp');
  await page.waitForTimeout(3600);
  await expect(page.locator('#adventure-overlay')).toBeHidden();
- await page.evaluate(()=>{document.activeElement instanceof HTMLElement&&document.activeElement.blur();window.scrollTo(0,0)});
+ await page.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';document.activeElement instanceof HTMLElement&&document.activeElement.blur();window.scrollTo(0,0)});
  const beforeScroll=await page.evaluate(()=>window.scrollY);
  await page.keyboard.press('Space');
  await expect.poll(()=>page.evaluate(()=>window.scrollY)).toBe(beforeScroll);
@@ -694,7 +694,7 @@ test('Clássico: Espaço reinicia após fim sem rolar página',async({page})=>{
  const recordModal=page.locator('#record-modal');
  await expect(recordModal).toBeVisible({timeout:5000});
  await page.locator('#record-skip').click();
- await page.evaluate(()=>{document.activeElement instanceof HTMLElement&&document.activeElement.blur();window.scrollTo(0,0)});
+ await page.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';document.activeElement instanceof HTMLElement&&document.activeElement.blur();window.scrollTo(0,0)});
  const beforeScroll=await page.evaluate(()=>window.scrollY);
  await page.keyboard.press('Space');
  await expect.poll(()=>page.evaluate(()=>window.scrollY)).toBe(beforeScroll);
