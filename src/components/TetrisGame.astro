@@ -27,7 +27,7 @@ const description=sprint?'Tetris Sprint grátis no OldArcade: elimine 40 linhas 
    <div class="panel game-stage" id="tetris-stage" data-game-mode={modeId} data-arcade-viewport data-board-shape="portrait">
     <div class="game-topline"><strong>▣ TETRIS <span class="muted">· {sprint?"Sprint":"Clássico"}</span></strong><div class="actions"><button type="button" id="tetris-pause">Pausar</button><button type="button" id="tetris-fullscreen" aria-label="Alternar tela cheia do Tetris">⛶ Tela cheia (F)</button></div></div>
     <div class="arcade-game-layout">
-     <GameHud statusId="tetris-status" scoreId="tetris-score" bestId="tetris-best" globalId="tetris-global" levelId={sprint?undefined:"tetris-level"} scoreLabel={sprint?"Linhas":"Pontos"} bestLabel={sprint?"Melhor tempo":"Recorde pessoal"} globalLabel={sprint?"Tempo líder":"Recorde global"} provisionalId="tetris-provisional" hint="F: tela cheia · Espaço: queda · P: pausa" />
+     <GameHud statusId="tetris-status" scoreId="tetris-score" bestId="tetris-best" globalId="tetris-global" levelId={sprint?undefined:"tetris-level"} scoreLabel={sprint?"Linhas":"Pontos"} bestLabel={sprint?"Melhor tempo da conta":"Recorde da conta"} globalLabel={sprint?"Tempo líder":"Recorde global"} provisionalId="tetris-provisional" hint="F: tela cheia · Espaço: queda · P: pausa" />
      <div class="tetris-playfield oa-board-slot">
       <div class="tetris-board-shell screen-wrap oa-board-surface" id="tetris-screen">
        <canvas id="tetris-canvas" width="300" height="600" aria-label="Tabuleiro do Tetris com 10 colunas e 20 linhas"></canvas>
