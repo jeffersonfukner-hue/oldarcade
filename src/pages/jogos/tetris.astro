@@ -78,6 +78,7 @@ const description='Jogue nosso Tetris online grátis: gire peças, complete linh
  <script>import '../../scripts/tetris.ts';</script>
  <style>
   .tetris-hero{padding-bottom:24px}
+  #tetris-stage:fullscreen .game-topline{position:relative;z-index:8;flex:none}
   .tetris-playfield{display:flex;justify-content:center;align-items:flex-start;gap:12px;min-width:0;padding:12px 0}
   .tetris-board-shell{width:min(300px,calc(100% - 116px));flex:none;border-color:#627da3;background:#071a20;align-self:flex-start}
   .tetris-board-shell canvas{width:100%;height:auto;max-width:none;aspect-ratio:1/2;touch-action:none}
