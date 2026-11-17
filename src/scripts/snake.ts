@@ -18,8 +18,10 @@ const stage = document.querySelector<HTMLElement>('#game-stage')!;
 const gameScreen = document.querySelector<HTMLElement>('#game-screen')!;
 const hud = document.querySelector<HTMLElement>('#hud-status')!;
 const countValue = document.querySelector<HTMLElement>('#countdown-value')!;
-const globalCounters=setupGlobalGameCounters('snake');
-const leaderboard=setupGlobalLeaderboard();
+const evolutionPreview=location.pathname.replace(/\/+$/,'')==='/jogos/snake/evolution';
+const modeId=evolutionPreview?'snake-evolution':'snake';
+const globalCounters=setupGlobalGameCounters(modeId);
+const leaderboard=setupGlobalLeaderboard(modeId);
 const recordModal=document.querySelector<HTMLElement>('#record-modal')!;
 const registerForm=document.querySelector<HTMLFormElement>('#record-register')!;
 const loginForm=document.querySelector<HTMLFormElement>('#record-login')!;
@@ -111,7 +113,7 @@ function resetAnnouncements(){window.clearTimeout(alertTimeout);alertNode.hidden
 const recordStatus=document.querySelector<HTMLElement>('#record-modal-status')!;
 let modalOpen=false;
 const size=20, cell=canvas.width/size;
-const key='oldarcade:snake:v1';
+const key=evolutionPreview?'oldarcade:snake-evolution:v1':'oldarcade:snake:v1';
 type Saved={best:number;plays:number;visits:number;nickname:string;scores:Score[];lastVisit:string};
 function read():Saved {try{const raw=JSON.parse(localStorage.getItem(key)||'{}');return {best:Number(raw.best)||0,plays:Number(raw.plays)||0,visits:Number(raw.visits)||0,nickname:String(raw.nickname||'').slice(0,18),scores:Array.isArray(raw.scores)?raw.scores.filter((entry:Score)=>entry&&typeof entry.name==='string'&&entry.name.trim()&&entry.name!=='Anônimo'&&Number.isFinite(entry.score)).slice(0,20):[],lastVisit:String(raw.lastVisit||'')}}catch{return {best:0,plays:0,visits:0,nickname:'',scores:[],lastVisit:''}}}
 let saved=read();
@@ -119,7 +121,7 @@ const sessionKey=key+':session';
 try{if(!sessionStorage.getItem(sessionKey)){saved.visits++;sessionStorage.setItem(sessionKey,'1')}}catch{saved.visits++}
 function store(){try{localStorage.setItem(key,JSON.stringify(saved))}catch{}}
 store();
-const evolutionPreview=/^[a-z0-9-]+\.oldarcade-17c\.pages\.dev$/i.test(location.hostname)&&new URLSearchParams(location.search).get('evolution')==='1';
+
 type Item={point:Point;kind:'normal'|'rare'|'shrink'|'slow'|'blaster';expires:number};
 // Temporário: facilitar testes de todas as melhorias entre 0 e 100 pontos.
 const EVOLUTION_FAST_TEST=true;
@@ -246,43 +248,42 @@ function schedule(){window.clearTimeout(timer);if(state==='playing')timer=window
 function tick(){if(state!=='playing')return;direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const rawHead={x:snake[0].x+d.x,y:snake[0].y+d.y};const exit=evolutionPreview?borderExit(rawHead):null;const head=evolutionPreview?{x:(rawHead.x+size)%size,y:(rawHead.y+size)%size}:rawHead;const picked=evolutionPreview?items.find(i=>same(i.point,head)):undefined;const eating=evolutionPreview?Boolean(picked&&picked.kind!=='shrink'&&picked.kind!=='slow'&&picked.kind!=='blaster'):head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if((!evolutionPreview&&(head.x<0||head.x>=size||head.y<0||head.y>=size))||(exit&&borderAt(exit.side,exit.index))||body.some(p=>p.x===head.x&&p.y===head.y)||(evolutionPreview&&obstacles.some(p=>same(p,head)))){end(false);return}snake.unshift(head);
  // Aviso temático de risco: somente quando há pouco espaço, sem criar frutas ou alterar pontos.
  const freeNeighbors=[{x:head.x+1,y:head.y},{x:head.x-1,y:head.y},{x:head.x,y:head.y+1},{x:head.x,y:head.y-1}].filter(p=>p.x>=0&&p.x<size&&p.y>=0&&p.y<size&&!snake.some(q=>q.x===p.x&&q.y===p.y)).length;
- if(score>=30&&snake.length>=12&&freeNeighbors<=1&&!dangerAnnounced){dangerAnnounced=true;arcadePersonality('snake','danger')}
+ if(score>=30&&snake.length>=12&&freeNeighbors<=1&&!dangerAnnounced){dangerAnnounced=true;arcadePersonality(modeId,'danger')}
  if(freeNeighbors>=3)dangerAnnounced=false;
  if(evolutionPreview){
-  if(picked){items=items.filter(i=>i!==picked);if(picked.kind==='shrink'){score=Math.max(0,score-30);snake.splice(Math.max(3,snake.length-3));floatPoints(head,-30)}else if(picked.kind==='slow'){slowUntil=evolutionClock+45}else if(picked.kind==='blaster'){blasterUntil=evolutionClock+70;nextShotAt=evolutionClock}}
+  if(picked){items=items.filter(i=>i!==picked);if(picked.kind==='shrink'){score=Math.max(0,score-30);snake.splice(Math.max(4,snake.length-3));floatPoints(head,-30)}else if(picked.kind==='slow'){slowUntil=evolutionClock+45}else if(picked.kind==='blaster'){blasterUntil=evolutionClock+70;nextShotAt=evolutionClock}}
   advanceEvolution();
   shotTrail=[];
   if(evolutionClock<blasterUntil&&evolutionClock>=nextShotAt){fireBlaster();nextShotAt=evolutionClock+4}
  }
  if(eating){const gained=evolutionPreview&&picked?.kind==='rare'?50:10;score+=gained;peakScore=Math.max(peakScore,score);floatPoints(head,gained);
- if(!evolutionPreview&&score>saved.best){saved.best=score;store()}
- if(!evolutionPreview&&!didCelebratePersonal&&score>roundPersonalTarget){
+ if(score>saved.best){saved.best=score;store()}
+ if(!didCelebratePersonal&&score>roundPersonalTarget){
   didCelebratePersonal=true;
   celebrate('personal');
-  document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake',kind:'personal',message:'Você superou sua melhor marca!'}}));
+  document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:modeId,kind:'personal',message:'Você superou sua melhor marca!'}}));
  }
- if(!evolutionPreview&&globalKnown&&(globalBest===null||score>globalBest)&&!provisionalGlobal){
+ if(globalKnown&&(globalBest===null||score>globalBest)&&!provisionalGlobal){
   provisionalGlobal=true;
   roundBeatGlobal=true;
-  document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake',kind:'provisional',message:'Você passou a marca global! Confirmação ao final da partida.'}}));
+  document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:modeId,kind:'provisional',message:'Você passou a marca global! Confirmação ao final da partida.'}}));
  }
  if(!evolutionPreview)placeFood();if(state!=='playing'){draw();return}}else if(!eating)snake.pop();draw();refresh();schedule()}
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 function start(){endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();shotTrail=[];evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
  didCelebratePersonal=false;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
- resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}else{saved.plays++;store();globalCounters.recordPlay(recordGameStart('snake'))}draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
+ resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}saved.plays++;store();globalCounters.recordPlay(recordGameStart(modeId))draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){
  state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
- if(!evolutionPreview&&score>saved.best)saved.best=score;
- if(!evolutionPreview&&saved.nickname.trim()){
+ if(score>saved.best)saved.best=score;
+ if(saved.nickname.trim()){
   saved.scores.push({name:saved.nickname.trim(),score,at:Date.now()});
   saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20);
  }
  store();refresh();
- if(!evolutionPreview)recordGameFinish('snake',score);
+ recordGameFinish(modeId,score);
  overlay.hidden=true;
- if(evolutionPreview){const sequence=++endSequence;document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake',kind:'defeat',message:'Experimento Evolution: '+score+' pontos. Pontuação não enviada ao ranking.',final:true}}));window.setTimeout(()=>{if(sequence===endSequence&&state==='over')show('Fim do teste Evolution','Pontuação experimental: '+score+' (fora do ranking).','▶ Jogar novamente')},4200);return}
  const sequence=++endSequence;
  void finishRound(sequence,won);
 }
@@ -333,7 +334,7 @@ async function finishRound(sequence:number,won:boolean){
  }
  if(sequence!==endSequence||state!=='over')return;
  // Primeiro mostra o resultado de forma cinematográfica; só depois libera o reinício.
- document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake',kind:outcome,message:summary,final:true}}));
+ document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:modeId,kind:outcome,message:summary,final:true}}));
  window.setTimeout(()=>{
   if(sequence!==endSequence||state!=='over')return;
   show(won?'Tabuleiro completo!':'Fim de jogo',summary,'▶ Jogar novamente');
@@ -561,5 +562,5 @@ window.addEventListener('keydown',event=>{
 });
 const form=document.querySelector<HTMLFormElement>('#nickname-form')!,nick=document.querySelector<HTMLInputElement>('#nickname')!;nick.value=saved.nickname;
 form.addEventListener('submit',e=>{e.preventDefault();saved.nickname=nick.value.trim().replace(/[<>]/g,'').slice(0,18);store();text('nick-status',saved.nickname?'Nickname salvo neste navegador. As próximas pontuações entrarão no ranking com esse nome.':'Nickname removido. Partidas sem nickname não entram no ranking.');});
-if(evolutionPreview){const label=document.createElement('div');label.style.cssText='padding:8px;text-align:center;background:#44346d;color:#fff;font-weight:700';label.textContent='🧪 SNAKE EVOLUTION · TESTE · Não participa do ranking · Disparos automáticos';gameScreen.before(label)}
+if(evolutionPreview){const label=document.createElement('div');label.style.cssText='padding:8px;text-align:center;background:#44346d;color:#fff;font-weight:700';label.textContent='🧪 SNAKE EVOLUTION · PREVIEW · Disparos automáticos · Ranking próprio';gameScreen.before(label)}
 refresh();draw();drawAccountResults();

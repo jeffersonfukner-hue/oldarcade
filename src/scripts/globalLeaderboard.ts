@@ -5,12 +5,12 @@ function localDate(iso?:string){
  const dt=new Date(iso);if(Number.isNaN(dt.getTime()))return 'Data indisponível';
  return new Intl.DateTimeFormat('pt-BR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(dt);
 }
-export function setupGlobalLeaderboard(){
+export function setupGlobalLeaderboard(game='snake'){
  const body=document.querySelector<HTMLElement>('#global-rank-body')!;
  const status=document.querySelector<HTMLElement>('#global-rank-status')!;
  const best=document.querySelector<HTMLElement>('#global-best')!;
  const challenge=document.querySelector<HTMLElement>('#challenge-text')!;
- const endpoint='/api/games/snake/leaderboard';
+ const endpoint='/api/games/'+encodeURIComponent(game)+'/leaderboard';
  let lastGlobalScore:number|null=null;
  let loadedGlobal=false;
  let loading=false;
