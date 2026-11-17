@@ -13,11 +13,11 @@ if(root){
  const login=get<HTMLFormElement>('login-form'),register=get<HTMLFormElement>('register-form'),authStatus=get<HTMLElement>('auth-status');
  const recovery=get<HTMLElement>('recovery'),recoveryCode=get<HTMLElement>('code');
  let top:number|null=null,score=0,played=false,provisionalRecord=false,account:string|null=null;
- let durationMs=0;let pendingScore:number|null=null,round=0,roundPersonal=0,personalCelebrated=false;
+ let durationMs=0;let pendingScore:number|null=null,pendingDurationMs=0,round=0,roundPersonal=0,personalCelebrated=false;
  const celebrate=(kind:'personal'|'mission'|'podium'|'leader'|'rival',message:string,rank?:number)=>document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game,kind,message,rank}}));
  const retry=get<HTMLButtonElement>('retry');
- function setPending(points:number){pendingScore=points;retry.hidden=false;retry.textContent='Tentar registrar '+display(points)+' novamente'}
- function clearPending(){pendingScore=null;retry.hidden=true}
+ function setPending(points:number,elapsed=durationMs){pendingScore=points;pendingDurationMs=elapsed;retry.hidden=false;retry.textContent='Tentar registrar '+display(points)+' novamente'}
+ function clearPending(){pendingScore=null;pendingDurationMs=0;retry.hidden=true}
  const time=(ms?:number|null)=>ms==null?'Tempo indisponível':Math.floor(ms/60000)+'m '+String(Math.floor(ms/1000)%60).padStart(2,'0')+'s';
  const fmt=(iso?:string)=>iso&&Number.isFinite(Date.parse(iso))?new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'medium'}).format(new Date(iso)):'—';
  function render(data:Board){
@@ -25,7 +25,7 @@ if(root){
   top=data.top?.[0]?.score??null;
   global.textContent=timed?display(top):String(provisionalRecord?score:top??'—');
   if(!provisionalRecord)provisional.hidden=true;
-  personal.textContent=data.mine?display(data.mine.score):'—';
+  personal.textContent=data.mine?(timed?display(data.mine.score):String(data.mine.score)):'—';
   if(!played)roundPersonal=data.mine?.score??(timed?Infinity:0);
   mine.hidden=!data.mine;
   if(data.mine)mine.textContent='Sua posição: '+data.mine.rank+'º · '+data.mine.nickname+' · '+display(data.mine.score);
@@ -34,7 +34,7 @@ if(root){
   else data.top.slice(0,10).forEach((e,i)=>{
    const tr=document.createElement('tr'),position=e.rank||i+1;
    tr.className=position<=3?'leaderboard-podium podium-'+position:'';
-   for(const value of [(position===1?'🥇 ':position===2?'🥈 ':position===3?'🥉 ':'')+position+'º',e.nickname,display(e.score),timed?fmt(e.achievedAt):time(e.durationMs)+' · '+fmt(e.achievedAt)]){
+   for(const value of [(position===1?'🥇 ':position===2?'🥈 ':position===3?'🥉 ':'')+position+'º',e.nickname,timed?display(e.score):String(e.score),timed?fmt(e.achievedAt):time(e.durationMs)+' · '+fmt(e.achievedAt)]){
     const td=document.createElement('td');td.textContent=value;tr.append(td)
    }body.append(tr);
   });
@@ -45,8 +45,8 @@ if(root){
   try{const r=await fetch(endpoint,{cache:'no-store'});if(!r.ok)throw Error('Indisponível');const data=await r.json() as Board;render(data);return data}
   catch{status.textContent='Ranking indisponível neste ambiente.';return null}
  }
- async function submit(points:number){
-  const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score:points,durationMs})});
+ async function submit(points:number,elapsed=durationMs){
+  const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score:points,durationMs:elapsed})});
   const data=await r.json() as Board;
   if(!r.ok||!data.available){if(data.saved){const updated=await refresh();if(updated?.available){render(updated);return updated}throw Error('Gravação aceita pelo banco, mas o ranking ainda não pôde ser consultado. Não reenvie a pontuação.')}throw Error(data.error||'Não foi possível registrar')}
   render(data);return data;
@@ -128,13 +128,13 @@ if(root){
    if(!provisionalRecord){provisionalRecord=true;document.dispatchEvent(new CustomEvent('oldarcade:mode-record-provisional',{detail:{game,score}}))}
   }else if(provisionalRecord){provisionalRecord=false;provisional.hidden=true;global.textContent=timed?display(top):String(top??'—')}
  });
- async function finishResult(points:number,sequence:number,delayMs=0){
+ async function finishResult(points:number,sequence:number,delayMs=0,finishedDuration=durationMs){
   await accountPromise;
   // Resultado autenticado é enviado imediatamente, antes de qualquer animação
   // ou nova partida. Nunca cancelar a escrita por uma mudança de rodada.
   if(account){
    try{
-    const data=await submit(points);
+    const data=await submit(points,finishedDuration);
     if(sequence!==round)return; // Apenas a apresentação é da rodada atual.
     clearPending();summary.textContent=announce(data,points);
     // Só o visual aguarda o encerramento do Game Over; o POST já foi confirmado.
@@ -143,7 +143,7 @@ if(root){
    }catch(err){
     const message=err instanceof Error?err.message:'erro desconhecido';
     // Preserva uma tentativa recuperável mesmo que o jogador já tenha reiniciado.
-    if(message.includes('Não reenvie'))clearPending();else setPending(points);
+    if(message.includes('Não reenvie'))clearPending();else setPending(points,finishedDuration);
     summary.textContent='Seu resultado de '+display(points)+' não foi confirmado no ranking: '+message;
    }
   }else{
@@ -162,7 +162,7 @@ if(root){
   if(pendingScore===null)return;
   const points=pendingScore;retry.disabled=true;retry.textContent='Registrando…';
   try{
-   const data=await submit(points);clearPending();summary.textContent=announce(data,points);celebrateFinal(data,points)
+   const data=await submit(points,pendingDurationMs);clearPending();summary.textContent=announce(data,points);celebrateFinal(data,points)
   }catch(err){setPending(points);summary.textContent='Registro ainda pendente: '+(err instanceof Error?err.message:'erro desconhecido')}
   finally{retry.disabled=false}
  });
@@ -170,7 +170,7 @@ if(root){
   const d=(event as CustomEvent<Result>).detail;if(d?.game!==game)return;
   score=d.score;durationMs=d.durationMs??0;played=true;
   const delay=Number.isFinite(d.recordDelayMs)?Math.max(0,Math.min(15000,d.recordDelayMs!)):0;
-  void finishResult(score,round,delay);
+  void finishResult(score,round,delay,durationMs);
  });
  // Contrato compartilhado: permite que HUDs montados após o primeiro GET
  // recebam o snapshot já consultado, sem nova chamada nem polling da API.
