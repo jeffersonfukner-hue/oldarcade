@@ -2,6 +2,14 @@
 
 > **Contrato permanente.** Ler antes de implementar ou modificar qualquer jogo ou modo. Aplica-se automaticamente; o proprietário não precisa repetir regras já aprovadas. Exceções exigem justificativa documentada e aceite. Complementa, sem substituir, AGENTS.md, docs/ARQUITETURA.md, docs/CONTINUIDADE.md e docs/VERSIONAMENTO_E_PUBLICACAO.md.
 
+## Padrão editorial atual — onde assistir a filmes históricos
+
+- Quando houver obra audiovisual **verificavelmente relacionada** a um jogo, incluir no artigo histórico via componente **único** `src/components/HistoricalScreenings.astro`, alimentado por `src/data/historicalScreenings.ts`. Separar história real, dramatização e obra apenas relacionada (ex.: `Man vs Snake` acompanha Nibbler, não a versão Nokia).
+- Informar título, ano, tipo, relação histórica, país consultado, plataforma e forma de acesso (assinatura, aluguel, compra ou gratuito com anúncios), com endereço funcional de consulta/visualização e fonte de verificação. Não inventar disponibilidade.
+- Fixar a data editorial/consulta em formato legível e `<time datetime>`; a disponibilidade é histórica, **não promessa em tempo real**. Na publicação efetiva do artigo, revalidar o catálogo e registrar a nova data; em futuras revisões, atualizar dados e cronologia, mantendo transparência.
+- Sempre disponibilizar **Sugerir correção** para o contato global `/contato/`, preenchendo assunto e jogo sem enviar automaticamente. Não criar um formulário por jogo.
+- O componente mostra obras verificadas, não espaços vazios; **sem links de afiliado por enquanto**. Afiliados para livros e audiovisual permanecem backlog independente.
+
 ## Padrão editorial futuro — livros, filmes e documentários
 
 - As seções de **história do jogo** podem futuramente apresentar um bloco compartilhado de recomendações culturais, configurado por título (dados, nunca HTML/CSS comercial copiado em cada modo). O bloco é diferente do histórico de versões do OldArcade.
