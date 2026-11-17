@@ -94,3 +94,10 @@ GitHub branch/PR → testes GitHub Actions → Cloudflare Preview → validaçã
 - O painel `celebration-test-panel` é exibido exclusivamente em subdomínios de Preview `*.oldarcade-17c.pages.dev`, nunca no domínio principal de Pages nem em domínio personalizado.
 - Os cinco botões disparam o evento visual `oldarcade:celebrate` usado pelos jogos; não chamam APIs nem escrevem em D1. Não representam conquistas reais.
 - Validar em desktop e mobile, incluindo redução de movimento, botão de revanche e fechamento com Escape.
+
+## 13. Backlog futuro — configurações de jogos pelo painel administrativo (não implementar agora)
+- Criar área administrativa autenticada, com permissões e trilha de auditoria, para configurar cada jogo e modalidade sem editar código: parâmetros de pontuação e metas, textos de incentivo/provocação, tipos de celebração, animações, duração e intensidade dos efeitos.
+- Separar configurações globais reutilizáveis de ajustes específicos por jogo/modo; preservar os padrões e permitir exceções explícitas.
+- Validar dados e limites no servidor, versionar alterações, oferecer prévia/teste antes de ativar e opção de restaurar padrões. Mudanças de regras de pontuação que afetem comparabilidade exigem política de versionamento e rankings históricos.
+- Não permitir que o painel injete scripts arbitrários; animações e mensagens devem usar opções seguras pré-definidas. Acesso restrito a administradores autorizados.
+- **Somente planejamento:** não criar telas, endpoints, tabelas ou migrações nesta etapa. Retomar quando o proprietário autorizar a implementação administrativa.
