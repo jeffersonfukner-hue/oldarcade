@@ -305,10 +305,10 @@ html,body{touch-action:manipulation}
 .arcade-game-layout>.adventure-progress{grid-column:1/-1;grid-row:1}
 .arcade-game-layout:has(.adventure-progress){grid-template-areas:"progress progress" "board stats";grid-template-rows:auto 1fr}
 .arcade-game-layout:has(.adventure-progress)>.adventure-progress{grid-area:progress}
-.game-stage:fullscreen .arcade-game-layout,.game-stage.game-stage-fallback .arcade-game-layout,#adventure-stage:fullscreen .arcade-game-layout{flex:1;min-height:0;grid-template-columns:minmax(0,4fr) minmax(120px,1fr);align-content:center}
-.game-stage:fullscreen .arcade-game-layout>.screen-wrap,.game-stage.game-stage-fallback .arcade-game-layout>.screen-wrap,#adventure-stage:fullscreen .arcade-game-layout>.screen-wrap{flex:none;min-height:0}
+.game-stage:fullscreen .arcade-game-layout,.game-stage.game-stage-fallback .arcade-game-layout{flex:1;min-height:0;grid-template-columns:minmax(0,4fr) minmax(120px,1fr);align-content:center}
+.game-stage:fullscreen .arcade-game-layout>.screen-wrap,.game-stage.game-stage-fallback .arcade-game-layout>.screen-wrap{flex:none;min-height:0}
 @media(max-width:650px){
- .arcade-game-layout,.game-stage:fullscreen .arcade-game-layout,.game-stage.game-stage-fallback .arcade-game-layout,#adventure-stage:fullscreen .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:8px}
+ .arcade-game-layout,.game-stage:fullscreen .arcade-game-layout,.game-stage.game-stage-fallback .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:8px}
  .arcade-game-layout:has(.adventure-progress){grid-template-areas:"stats" "progress" "board";grid-template-rows:auto auto auto}
  .arcade-game-layout>.game-hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;padding:8px}
  .arcade-game-layout>.game-hud>span{font-size:.63rem}
