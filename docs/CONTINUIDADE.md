@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## Incidente de sessão — recorde local confundido com recorde de conta (17/11/2026)
+- Proprietário identificou nos prints do **Tetris Clássico** (durante implementação de Sprint, sem relação causal com Sprint): ao trocar de conta no mesmo navegador, o HUD ainda mostrava 33.700 da sessão/dispositivo anterior, enquanto ranking da conta nova mostrava 3.400.
+- Causa confirmada: `src/scripts/tetris.ts` usava `localStorage` (melhor pontuação **local**, de todo o dispositivo) como fonte do `tetris-best` rotulado indevidamente “Recorde pessoal”. O registro do servidor já era independente por usuário; era falha de apresentação, não prova de gravação cruzada no D1.
+- Alterações: `tetris-best` passa a renderizar o `personal` retornado pelo evento compartilhado `oldarcade:mode-ranking-updated` do servidor (ou `—` sem marca autenticada), e `tetris-local-best` continua explicitamente identificado como “melhor ... local” (`fee7d0e9`, `d23a38b3`). `modeRanking.ts` invalida imediatamente o recorde anterior em `oldarcade:account-changed`, faz novo GET e impede resposta antiga de sobrescrever a sessão nova (`9b8a6c26`). O contrato passou a fornecer `personal:null` quando não há marca.
+- Regressão `tests/tetris.spec.ts` simula trocar de Conta A 33.700 para Conta B 3.400 com cache local 33.700, depois sair da conta. Exige que o HUD mostre 3.400 e depois `—`, preservando 33.700 apenas no campo **local** (`f956a634`, `d5e3d8e0`). Não zerar cache local nem atribuir um recorde local a uma conta.
+- Validação pendente: CI HEAD e visual do proprietário no Preview. Nenhum merge, produção, SQL/D1 ou Lovable. Sprint segue desenvolvimento separado; Sobrevivência ainda não iniciado.
+
+
 ## Tetris Sprint #002 — modo em validação (17/11/2026)
 - **Aprovação de escopo:** implementar somente Sprint (40 linhas no menor tempo); validar visualmente antes de desenvolver Sobrevivência. Sobrevivência continua **pendente** e não deve ser implementada antecipadamente.
 - Branch de Preview existente: `feat/tetris-jogo-002`, PR #2. Preservar Clássico `/jogos/tetris/`; novo Sprint `/jogos/tetris/sprint/` com modo competitivo `tetris-sprint`.
