@@ -82,6 +82,7 @@ function update(){
  node('tetris-score').textContent=String(score);node('tetris-best').textContent=String(best);
  node('tetris-lines').textContent=String(lines);node('tetris-level').textContent=String(level);
  node('tetris-plays').textContent=String(plays);
+ node('tetris-local-best').textContent=String(best);node('tetris-sidebar-level').textContent=String(level);
 }
 function award(points:number){
  score+=points;if(score>best){best=score;save()}
@@ -256,7 +257,7 @@ canvas.addEventListener('touchend',event=>{
  if(Math.max(Math.abs(dx),Math.abs(dy))<20){turn();return}
  event.preventDefault();
  if(Math.abs(dx)>Math.abs(dy)){const action=dx>0?controls.right:controls.left;for(let i=0;i<Math.min(4,Math.max(1,Math.round(Math.abs(dx)/40)));i++)action()}
- else if(dy>45)controls.drop();else if(dy>0)controls.down();else controls.rotate;
+ else if(dy>45)controls.drop();else if(dy>0)controls.down();else controls.rotate();
 },{passive:false});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')pause()});
 document.addEventListener('fullscreenchange',()=>{
