@@ -106,3 +106,8 @@ GitHub branch/PR → testes GitHub Actions → Cloudflare Preview → validaçã
 - Recorde pessoal, missão, pódio e liderança: avisos compactos, semitransparentes, com partículas discretas, próximos à parte superior da viewport. Nunca colocar fundo escuro de tela inteira, capturar cliques/toques ou exigir botão Continuar enquanto a partida estiver rodando.
 - Somente a provocação de revanche após resultado final pode usar destaque/modal interativo com botão Jogar novamente. Manter a distinção entre aviso durante partida e encerramento.
 - Validar em Clássico e Aventura, incluindo mobile e tela cheia; não interromper o loop do jogo nem ocultar o tabuleiro.
+
+## 15. Comemoração arcade aprovada — efeito breve no centro do tabuleiro
+- Para conquistas durante a partida, mostrar uma única animação global dentro do tabuleiro: texto surge pequeno e apagado, cresce, chega a aproximadamente 50% de opacidade e some em ~1,35 s, com estrelas/partículas discretas. Sem cartão, modal, backdrop, clique ou botão de continuar; o loop do jogo permanece ativo.
+- Remover avisos redundantes por modalidade (no Clássico, não emitir também `record-live-alert` para recorde pessoal). Manter o efeito de partículas já existente, evitando sobreposição de mensagens.
+- Revanche após o fim da partida continua sendo um caso separado, com CTA interativo.

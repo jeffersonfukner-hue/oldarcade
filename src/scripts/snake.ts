@@ -155,7 +155,6 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
   didCelebratePersonal=true;
   celebrate('personal');
   document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake',kind:'personal',message:'Você superou sua melhor marca!'}}));
-  announceRecord('🏅 Recorde pessoal superado!','personal');
  }
  if(globalKnown&&(globalBest===null||score>globalBest)&&!provisionalGlobal){
   provisionalGlobal=true;

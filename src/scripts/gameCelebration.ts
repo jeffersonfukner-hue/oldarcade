@@ -7,6 +7,8 @@ if(overlay){
  const icon=overlay.querySelector<HTMLElement>('[data-celebration-icon]')!;
  const message=overlay.querySelector<HTMLElement>('[data-celebration-message]')!;
  const replay=overlay.querySelector<HTMLAnchorElement>('[data-celebration-replay]')!;
+ const home=overlay.parentElement!;
+ const board=document.querySelector<HTMLElement>('#game-screen, #adventure-screen, .screen-wrap');
  const labels:Record<Kind,[string,string]>={
   personal:['✨','NOVO RECORDE!'],mission:['🎯','MISSÃO CUMPRIDA!'],
   podium:['🥉','TOP 3!'],leader:['🏆','VOCÊ É O LÍDER!'],
@@ -23,7 +25,9 @@ if(overlay){
   window.clearTimeout(timeout);current=priority;
   const [emoji,heading]=labels[detail.kind];icon.textContent=emoji;title.textContent=heading;
   message.textContent=detail.message||'Mais uma conquista para sua história!';
-  const rival=detail.kind==='rival';overlay.classList.toggle('is-rival',rival);
+  const rival=detail.kind==='rival';
+  if(rival){home.append(overlay)}else if(board){board.append(overlay)}
+  overlay.classList.toggle('is-rival',rival);
   replay.hidden=!rival;overlay.hidden=false;
   timeout=window.setTimeout(hide,rival?9000:2200);
  });
