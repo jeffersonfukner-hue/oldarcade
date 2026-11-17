@@ -56,6 +56,8 @@ let roundBeatGlobal=false;
 let recoveryCode='';
 let roundPersonalTarget=0;
 let didCelebratePersonal=false;
+let lastFunMilestone=0;
+let lastFunAt=-100;
 let dangerAnnounced=false;
 let endSequence=0;
 const alertNode=document.querySelector<HTMLElement>('#record-live-alert')!;
@@ -210,7 +212,7 @@ function moveProjectiles(){
    if(index>=0){
     const target=items.splice(index,1)[0];
     const points=target.kind==='rare'?50:10;
-    score+=points;peakScore=Math.max(peakScore,score);floatPoints(p,points);
+    score+=points;peakScore=Math.max(peakScore,score);floatPoints(p,points);checkFunMilestone(p);
     alive=false;break;
    }
   }
@@ -250,6 +252,37 @@ function floatPoints(at:Point,amount:number){
  item.addEventListener('animationend',()=>item.remove(),{once:true});
  window.setTimeout(()=>item.remove(),1100);
 }
+/** Elogios de jogabilidade, independentes de recordes; não interrompem os controles. */
+function funMoment(message:string,at:Point){
+ if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const board=canvas.getBoundingClientRect(),container=gameScreen.getBoundingClientRect();
+ if(!board.width||!board.height)return;
+ const labels=[message,'✦','★'];
+ labels.forEach((label,i)=>{
+  const item=document.createElement('span');
+  item.className='score-float';
+  item.textContent=label;
+  item.style.left=(board.left-container.left+(at.x+.5)*(board.width/size)+((i-1)*28))+'px';
+  item.style.top=(board.top-container.top+(at.y+.5)*(board.height/size)-i*17)+'px';
+  item.style.fontSize=i===0?'clamp(18px, 3vw, 32px)':'22px';
+  item.style.fontWeight='900';
+  item.style.color=i===0?'#fff0a6':'#80ffca';
+  item.style.textShadow='0 2px 9px #071a20, 0 0 16px #ffe08a';
+  item.style.zIndex='6';
+  item.style.animationDelay=(i*90)+'ms';
+  floatLayer.append(item);
+  item.addEventListener('animationend',()=>item.remove(),{once:true});
+  window.setTimeout(()=>item.remove(),1500);
+ });
+}
+function checkFunMilestone(at:Point){
+ const milestone=Math.floor(score/30);
+ if(milestone<=lastFunMilestone)return;
+ lastFunMilestone=milestone;
+ const phrases=['FANTÁSTICO!','ESTUPENDO!','MARAVILHOSO!','GRANDE JOGADA!','SENSACIONAL!'];
+ funMoment(phrases[(milestone-1)%phrases.length],at);
+ lastFunAt=evolutionClock;
+}
 function placeFood(){const free:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y});if(!free.length){end(true);return}food=free[Math.floor(Math.random()*free.length)]}
 function schedule(){window.clearTimeout(timer);if(state==='playing')timer=window.setTimeout(tick,(evolutionPreview?Math.max(145,210-Math.floor(peakScore/100)*7):Math.max(75,155-Math.floor(score/50)*8))+(evolutionPreview&&evolutionClock<slowUntil?85:0))}
 function tick(){if(state!=='playing')return;direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const rawHead={x:snake[0].x+d.x,y:snake[0].y+d.y};const exit=evolutionPreview?borderExit(rawHead):null;const head=evolutionPreview?{x:(rawHead.x+size)%size,y:(rawHead.y+size)%size}:rawHead;const picked=evolutionPreview?items.find(i=>same(i.point,head)):undefined;const eating=evolutionPreview?Boolean(picked&&picked.kind!=='shrink'&&picked.kind!=='slow'&&picked.kind!=='blaster'):head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if((!evolutionPreview&&(head.x<0||head.x>=size||head.y<0||head.y>=size))||(exit&&borderAt(exit.side,exit.index))||body.some(p=>p.x===head.x&&p.y===head.y)||(evolutionPreview&&obstacles.some(p=>same(p,head)))){end(false);return}snake.unshift(head);
@@ -258,21 +291,21 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
  if(score>=30&&snake.length>=12&&freeNeighbors<=1&&!dangerAnnounced){dangerAnnounced=true;arcadePersonality(modeId,'danger')}
  if(freeNeighbors>=3)dangerAnnounced=false;
  if(evolutionPreview){
-  if(picked){items=items.filter(i=>i!==picked);if(picked.kind==='shrink'){score=Math.max(0,score-30);snake.splice(Math.max(4,snake.length-3));floatPoints(head,-30)}else if(picked.kind==='slow'){slowUntil=evolutionClock+45}else if(picked.kind==='blaster'){blasterUntil=evolutionClock+70;nextShotAt=evolutionClock}}
+  if(picked){items=items.filter(i=>i!==picked);if(picked.kind==='shrink'){score=Math.max(0,score-30);snake.splice(Math.max(4,snake.length-3));floatPoints(head,-30);if(picked.expires&&picked.expires-evolutionClock<=9)funMoment('SALVO NO ÚLTIMO SEGUNDO!',head)}else if(picked.kind==='slow'){slowUntil=evolutionClock+45;if(picked.expires&&picked.expires-evolutionClock<=9)funMoment('NA HORA CERTA!',head)}else if(picked.kind==='blaster'){blasterUntil=evolutionClock+70;nextShotAt=evolutionClock;if(picked.expires&&picked.expires-evolutionClock<=9)funMoment('QUE JOGADA!',head)}}
   advanceEvolution();
   moveProjectiles();
   if(evolutionClock<blasterUntil&&evolutionClock>=nextShotAt){fireBlaster();nextShotAt=evolutionClock+4}
  }
- if(eating){const gained=evolutionPreview&&picked?.kind==='rare'?50:10;score+=gained;peakScore=Math.max(peakScore,score);floatPoints(head,gained);
+ if(eating){const gained=evolutionPreview&&picked?.kind==='rare'?50:10;score+=gained;peakScore=Math.max(peakScore,score);floatPoints(head,gained);checkFunMilestone(head);
  if(score>saved.best){saved.best=score;store()}
  if(!evolutionPreview)placeFood();if(state!=='playing'){draw();return}}else if(!eating)snake.pop();
  if(score>saved.best){saved.best=score;store()}
- if(!didCelebratePersonal&&score>roundPersonalTarget){
+ if(!didCelebratePersonal&&roundPersonalTarget>0&&score>roundPersonalTarget){
   didCelebratePersonal=true;
   celebrate('personal');
   document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:modeId,kind:'personal',message:'Você superou sua melhor marca!'}}));
  }
- if(globalKnown&&(globalBest===null||score>globalBest)&&!provisionalGlobal){
+ if(globalKnown&&globalBest!==null&&globalBest>0&&score>globalBest&&!provisionalGlobal){
   provisionalGlobal=true;
   roundBeatGlobal=true;
   celebrate('global');
@@ -282,7 +315,7 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 function start(){endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
- didCelebratePersonal=false;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
+ didCelebratePersonal=false;lastFunMilestone=0;lastFunAt=-100;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
  resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}saved.plays++;store();globalCounters.recordPlay(recordGameStart(modeId));draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){
  state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
