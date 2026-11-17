@@ -10,7 +10,7 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
  <div class="shell">
   <section class="hero text-content"><span class="eyebrow">Comunidade OldArcade</span>
    <h1>Seu nickname, seus desafios.</h1>
-   <p class="lede">Jogar é sempre grátis e não exige conta. O cadastro reserva seu nickname e permite participar dos rankings dos jogos disponíveis.</p>
+   <p class="lede">Jogar é sempre grátis e não exige conta. O cadastro gratuito reserva seu nickname e libera ranking, histórico e Desafios Diários exclusivos. Você continua podendo jogar normalmente sem conta.</p>
   </section>
   <section class="section panel account-panel" aria-labelledby="account-heading">
    <h2 id="account-heading">Acesse ou crie sua conta</h2>
@@ -25,12 +25,27 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
     <form id="account-register" hidden>
      <label for="register-nick">Escolha um nickname único</label><input id="register-nick" autocomplete="username" minlength="3" maxlength="18" pattern="[A-Za-zÀ-ÿ0-9_. -]+" required/>
      <label for="register-email">E-mail <span class="muted">(opcional)</span></label><input id="register-email" type="email" autocomplete="email" maxlength="254"/>
-     <p class="small muted">No futuro, o e-mail poderá ajudar a recuperar sua conta depois de confirmado. Ainda não enviamos mensagens automáticas.</p>
+     <p class="small muted">O e-mail é opcional e pode ser adicionado depois no perfil. Avisos por e-mail só serão enviados quando a confirmação do endereço e o serviço de notificações estiverem disponíveis.</p>
      <label for="register-password">Senha (mínimo de 8 caracteres)</label><input id="register-password" autocomplete="new-password" type="password" minlength="8" maxlength="128" required/>
-     <label class="email-opt-in"><input id="register-alerts" type="checkbox"/> Receber e-mail quando alguém superar meu recorde <span class="muted">(em construção)</span></label>
+     <fieldset class="notification-choices"><legend>Quais avisos você gostaria de receber?</legend><label class="email-opt-in"><input id="register-alerts" type="checkbox"/> Quando alguém superar meu recorde</label><label class="email-opt-in"><input id="register-daily-alerts" type="checkbox"/> Quando houver um novo Desafio Diário</label><p class="small muted">Preferências para ativação futura; nenhum e-mail automático é enviado nesta fase.</p></fieldset>
      <button class="btn" type="submit">Criar minha conta</button>
     </form>
    </div>
+   <section id="account-preferences" class="section panel" aria-labelledby="account-preferences-heading" hidden>
+    <h3 id="account-preferences-heading">E-mail e notificações</h3>
+    <p class="small muted">Você escolhe se quer receber avisos. O e-mail é opcional, mas necessário para notificações. O envio será habilitado somente após confirmação do endereço e configuração do serviço.</p>
+    <form id="account-preferences-form">
+     <label for="account-profile-email">Meu e-mail (opcional)</label>
+     <input id="account-profile-email" type="email" maxlength="254" autocomplete="email" placeholder="seu@email.com"/>
+     <p id="account-email-verification" class="small muted"></p>
+     <fieldset class="notification-choices"><legend>Quero receber avisos sobre</legend>
+      <label class="email-opt-in"><input id="account-record-alerts" type="checkbox"/> Alguém superar meu recorde</label>
+      <label class="email-opt-in"><input id="account-daily-alerts" type="checkbox"/> Novo Desafio Diário disponível</label>
+     </fieldset>
+     <button class="btn secondary" type="submit">Salvar minhas preferências</button>
+     <p class="small muted" id="account-preferences-message" role="status" aria-live="polite"></p>
+    </form>
+   </section>
    <section id="account-records" class="section" aria-labelledby="account-records-heading" hidden>
     <h3 id="account-records-heading">Meus recordes</h3>
     <p class="small muted">Todos os jogos competitivos disponíveis são exibidos automaticamente. Pontuações e posições vêm da sua conta autenticada, separadas por modalidade.</p>
@@ -73,6 +88,37 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
   const box=document.querySelector<HTMLElement>('#recovery-box')!;
   let code='';
   let recordsRequest=0;
+  let preferencesRequest=0;
+  const preferences=document.querySelector<HTMLElement>('#account-preferences')!;
+  const preferencesForm=document.querySelector<HTMLFormElement>('#account-preferences-form')!;
+  const preferencesMessage=document.querySelector<HTMLElement>('#account-preferences-message')!;
+  const profileEmail=document.querySelector<HTMLInputElement>('#account-profile-email')!;
+  const recordAlerts=document.querySelector<HTMLInputElement>('#account-record-alerts')!;
+  const dailyAlerts=document.querySelector<HTMLInputElement>('#account-daily-alerts')!;
+  const emailVerification=document.querySelector<HTMLElement>('#account-email-verification')!;
+  async function loadPreferences(){
+   const seq=++preferencesRequest;
+   preferencesMessage.textContent='Carregando preferências…';
+   try{
+    const response=await fetch('/api/account/preferences',{cache:'no-store'});
+    const data=await response.json() as {email?:string|null;emailVerified?:boolean;recordEmailOptIn?:boolean;dailyEmailOptIn?:boolean;error?:string};
+    if(seq!==preferencesRequest)return;
+    if(!response.ok)throw Error(data.error||'Preferências indisponíveis');
+    profileEmail.value=data.email||'';recordAlerts.checked=!!data.recordEmailOptIn;dailyAlerts.checked=!!data.dailyEmailOptIn;
+    emailVerification.textContent=data.email?(data.emailVerified?'E-mail confirmado.':'E-mail ainda não confirmado; não haverá envio até a confirmação.'): 'Nenhum e-mail cadastrado.';
+    preferencesMessage.textContent='Preferências carregadas. Os avisos ainda não estão sendo enviados.';
+   }catch(error){if(seq===preferencesRequest)preferencesMessage.textContent=error instanceof Error?error.message:'Não foi possível consultar preferências.'}
+  }
+  preferencesForm.addEventListener('submit',async event=>{
+   event.preventDefault();const button=preferencesForm.querySelector<HTMLButtonElement>('button[type=submit]')!;
+   button.disabled=true;preferencesMessage.textContent='Salvando…';
+   try{
+    const response=await fetch('/api/account/preferences',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:profileEmail.value,recordEmailOptIn:recordAlerts.checked,dailyEmailOptIn:dailyAlerts.checked})});
+    const data=await response.json() as {ok?:boolean;error?:string};
+    if(!response.ok)throw Error(data.error||'Não foi possível salvar.');
+    await loadPreferences();preferencesMessage.textContent='Preferências salvas! Os avisos por e-mail aguardam ativação do serviço.';
+   }catch(error){preferencesMessage.textContent=error instanceof Error?error.message:'Não foi possível salvar.'}finally{button.disabled=false}
+  });
   const records=document.querySelector<HTMLElement>('#account-records')!;
   const recordsStatus=document.querySelector<HTMLElement>('#account-records-status')!;
   const recordCards=Array.from(document.querySelectorAll<HTMLElement>('[data-account-record]'));
@@ -130,7 +176,8 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
   loginTab.addEventListener('click',()=>tab('login'));
   registerTab.addEventListener('click',()=>tab('register'));
   function showPlayer(player:{nickname:string}|null,broadcast=true){
-   forms.hidden=!!player;state.hidden=!player;records.hidden=!player;
+   forms.hidden=!!player;state.hidden=!player;records.hidden=!player;preferences.hidden=!player;
+   if(player)void loadPreferences();else preferencesRequest++;
    if(player)void loadRecords();else{recordsRequest++;recordsStatus.textContent='';}
    document.querySelector<HTMLElement>('#account-heading')!.textContent=player?'Sua conta':'Acesse ou crie uma conta';
    if(player)document.querySelector<HTMLElement>('#account-name')!.textContent=player.nickname;
@@ -169,7 +216,7 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
   });
   register.addEventListener('submit',event=>{
    event.preventDefault();
-   void submit(register,'register',{nickname:(document.querySelector<HTMLInputElement>('#register-nick')!).value,email:(document.querySelector<HTMLInputElement>('#register-email')!).value,password:(document.querySelector<HTMLInputElement>('#register-password')!).value,recordEmailOptIn:(document.querySelector<HTMLInputElement>('#register-alerts')!).checked});
+   void submit(register,'register',{nickname:(document.querySelector<HTMLInputElement>('#register-nick')!).value,email:(document.querySelector<HTMLInputElement>('#register-email')!).value,password:(document.querySelector<HTMLInputElement>('#register-password')!).value,recordEmailOptIn:(document.querySelector<HTMLInputElement>('#register-alerts')!).checked,dailyEmailOptIn:(document.querySelector<HTMLInputElement>('#register-daily-alerts')!).checked});
   });
   document.querySelector<HTMLButtonElement>('#account-logout')!.addEventListener('click',async()=>{
    try{await send('logout');box.hidden=true;code='';showPlayer(null);message.textContent='Você saiu da conta.'}
