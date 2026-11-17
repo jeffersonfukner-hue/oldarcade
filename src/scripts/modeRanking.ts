@@ -78,6 +78,7 @@ if(root){
     const data=await r.json() as {player?:{nickname:string};error?:string;recoveryCode?:string};
     if(!r.ok||!data.player)throw Error(data.error||'Falha no acesso');
     connect(data.player.nickname);
+    document.dispatchEvent(new CustomEvent('oldarcade:account-changed',{detail:{player:data.player}}));
     if(played){try{const result=await submit(score);clearPending();summary.textContent=announce(result,score)}catch(err){setPending(score);summary.textContent='Seus '+score+' pontos estão preservados nesta página. '+(err instanceof Error?err.message:'Falha ao registrar')+'. Tente novamente.';throw err}}
     authStatus.textContent=played?'Resultado registrado.':'Conta conectada.';
     if(data.recoveryCode){get<HTMLElement>('code').textContent=data.recoveryCode;recovery.hidden=false}else close();

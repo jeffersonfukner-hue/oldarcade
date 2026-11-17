@@ -15,3 +15,11 @@ export async function recordGlobalPlay(game:GameModeId,eventId:string){
   return response.ok;
  }catch{return false;}
 }
+
+/** Eventos de pontuação e encerramento consumidos por ranking e compartilhamento. */
+export function recordGameScore(game:GameModeId,score:number){
+ document.dispatchEvent(new CustomEvent('oldarcade:game-score',{detail:{game,score}}));
+}
+export function recordGameFinish(game:GameModeId,score:number){
+ document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game,score}}));
+}

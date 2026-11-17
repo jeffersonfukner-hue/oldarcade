@@ -53,7 +53,7 @@ document.querySelectorAll<HTMLElement>('[data-game-share]').forEach(section=>{
  });
  document.addEventListener('oldarcade:game-finished',event=>{
   const detail=(event as CustomEvent<ShareDetail>).detail;
-  if(detail?.game!==slug||!Number.isSafeInteger(detail.score)||detail.score<0)return;
+  if(detail?.game!==slug||!Number.isFinite(detail.score)||detail.score<0||Math.abs(detail.score*1000-Math.round(detail.score*1000))>1e-7)return;
   score=detail.score;
   render();
  });

@@ -2,6 +2,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## ATUALIZAÇÃO — contrato de eventos e conta (16/11/2026)
+- CI do commit 599f868e: run 43986553860 **success**; proprietário aprovou o histórico visual no Preview do Aventura.
+- Padronização em desenvolvimento: funções compartilhadas `recordGameScore` e `recordGameFinish` centralizam a emissão dos eventos usados pelo ranking/compartilhamento; eventos preservam nomes e payload existentes. Snake Clássico continua com sua lógica própria de ranking, sem alteração de mecânica.
+- Compartilhamento passa a aceitar pontuações decimais válidas (até 3 casas), conforme contrato global; login/cadastro no modal de ranking emite evento de identidade para atualizar cabeçalho e menu sem reload.
+- CI e Preview deste commit precisam ser verificados. Sem D1, SQL, produção, merge, domínio, Cloudflare ou Lovable.
+
+
 ## ATUALIZAÇÃO — histórico de modalidades e redução de deploys (16/11/2026)
 - Cloudflare Pages exibia 151 deploys em 11 páginas; fonte observada no painel. Preview automático na branch `feat/fundacao-snake`; produção `main` isolada. A contagem de deploys não equivale a versões.
 - CI run 43984742315, commit 45cea7e, **success**.

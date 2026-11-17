@@ -1,7 +1,7 @@
 import { setupGlobalLeaderboard } from './globalLeaderboard';
 import {centerGameBoard} from './gameViewport';
 import { setupGlobalGameCounters } from './globalGameCounters';
-import {recordGameStart} from './gameEvents';
+import {recordGameStart,recordGameFinish} from './gameEvents';
 type Direction = 'up'|'down'|'left'|'right';
 type Point = {x:number;y:number};
 type Score = {name:string;score:number;at:number};
@@ -176,7 +176,7 @@ function end(won:boolean){
   saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20);
  }
  store();refresh();
- document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'snake',score}}));
+ recordGameFinish('snake',score);
  show(won?'Tabuleiro completo!':'Fim de jogo',`Você marcou ${score} pontos. Conferindo a classificação atual…`,'▶ Jogar novamente');
  void finishRound();
 }

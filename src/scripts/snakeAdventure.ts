@@ -1,5 +1,5 @@
 import {centerGameBoard} from './gameViewport';
-import {recordGameStart} from './gameEvents';
+import {recordGameStart,recordGameScore,recordGameFinish} from './gameEvents';
 import {setupGlobalGameCounters} from './globalGameCounters';
 type Direction='up'|'down'|'left'|'right';
 type Point={x:number;y:number};
@@ -153,7 +153,7 @@ function tick(){
   floatPoints(head,collected.kind==='gold'?50:collected.kind==='ice'?15:collected.kind==='speed'?20:10);
   if(score>best){best=score;save()}
   if(globalTarget!==null&&score>globalTarget)globalProvisional=true;
-  document.dispatchEvent(new CustomEvent('oldarcade:game-score',{detail:{game:'snake-adventure',score}}));
+  recordGameScore('snake-adventure',score);
   advance();
   if(level>=2&&!special&&normalSinceSpecial>=2){
    spawn(level===2?'gold':level===3?(Math.random()<.5?'ice':'gold'):(['ice','gold','speed'] as const)[Math.floor(Math.random()*3)]);normalSinceSpecial=0;
@@ -198,7 +198,7 @@ function start(){
 function finish(){
  state='over';globalProvisional=false;window.clearTimeout(gameTimer);window.clearTimeout(bannerTimer);
  banner.hidden=true;save();
- document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'snake-adventure',score}}));
+ recordGameFinish('snake-adventure',score);
  const target=globalTarget!==null&&globalTarget>score?globalTarget:best>score?best:null;
  const missing=target===null?null:target-score;
  const encouragement=missing!==null&&missing<=50?'Faltaram apenas '+missing+' pontos para alcançar '+(globalTarget!==null&&target===globalTarget?'o recorde global':'seu recorde')+'! Tente novamente.':'Continue tentando superar seus recordes!';
