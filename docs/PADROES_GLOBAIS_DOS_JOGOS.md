@@ -139,3 +139,8 @@ GitHub branch/PR → testes GitHub Actions → Cloudflare Preview → validaçã
 - O proprietário sugeriu que a fruta de encolhimento apareça **somente quando a situação estiver perigosa**, e não por spawn comum aleatório. A elegibilidade mínima de 30 pontos permanece.
 - Proposta técnica para posterior aprovação: indicador de perigo considera comprimento relativo ao espaço livre, obstáculos, acessibilidade e rotas de fuga a partir da cabeça. Se o perigo estiver alto, oferecer temporariamente fruta de emergência em posição alcançável; coletá-la sacrifica pontos em troca de encurtamento. Evitar garantia automática de sobrevivência ou aparição em posição impossível.
 - Nome provisório sugerido: “Salva-Cobra”. Limiares de perigo, duração e frequência ainda precisam de balanceamento. Não implementar antes da decisão sobre modo e rankings.
+
+### Provocações visuais da fruta de emergência — aprovado conceitualmente (16/11/2026)
+- Quando a fruta de emergência “Salva-Cobra” surgir em situação crítica, apresentar uma frase divertida em estilo de celebração arcade/Candy Crush, no centro do tabuleiro: cresce, brilha/pisca brevemente, tem partículas discretas e desaparece automaticamente sem interromper controles ou o jogo.
+- Frase favorita do proprietário: **“Tá apertando, campeão? Sacrifica uns pontinhos aí!”**. Outras candidatas: “Essa cobra tá precisando de uma dieta!”, “30 pontinhos ou a vida? Escolhe!”, “Coragem, campeão! Ainda dá pra escapar!”. Evitar repetição imediata e excesso de avisos simultâneos.
+- Mensagem deve ser visualmente discreta/translúcida conforme o padrão de animação aprovado; não confundir com modal nem exigir clique. A mecânica de emergência continua apenas planejada, sem autorização de implementação neste registro.
