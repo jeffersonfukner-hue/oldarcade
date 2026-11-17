@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## Fullscreen global — arquitetura, não remendos (17/11/2026)
+- Feedback do proprietário em monitor **ultrawide**: tela cheia de Tetris e Snake distorcia os tabuleiros/cortava controles. Orientação explícita: não criar correções isoladas por jogo; seguir componentes e padrões reutilizáveis.
+- Diagnóstico: CSS global pressupunha Canvas quadrado em todo jogo, inclusive Tetris vertical. Regras de grid dependiam da largura total do monitor e havia regras especiais `#adventure-stage` e fullscreen do Snake/Tetris divergentes.
+- **Solução compartilhada** em `src/styles/global.css` (`c8cdd839`, `78148acb`, `c9fcfc85`): contrato único `data-arcade-viewport`, `data-board-shape` e classes `oa-board-slot`/`oa-board-surface`. CSS define tamanho máximo e proporção nativa da superfície, restringe pela altura útil da viewport, centraliza área jogável e HUD e mantém controles visíveis. `square` = Snake (Clássico/Evolution/Aventura), `portrait` = Tetris (10×20). Novos jogos declaram a forma, sem reescrever fullscreen. As regras pontuais de fullscreen adicionadas em Tetris e Snake nesta sessão foram retiradas em favor do contrato único.
+- Arquivos Astro dos quatro modos apenas marcam stage/slot/surface com atributos/classes; Tetris mantém estilos específicos somente para peças/próxima/reserva e sua composição. Padrão consolidado em `docs/PADROES_GLOBAIS_DOS_JOGOS.md` (`5a1b8f2e`).
+- E2E para `2560×900` adicionados no Tetris (`60ad723f`) e Snake Clássico/Evolution (`c058c88d`). **Evidência necessária:** CI do HEAD e validação visual exclusiva do proprietário em ultrawide, monitor normal e celular. Não afirmar resolução completa sem isso. Sem merge, produção, SQL, Lovable.
+
+
 ## Tetris #002 — pódio real, 4 linhas sem missão e temporização do game over (17/11/2026)
 - Feedback visual do proprietário: ao eliminar quatro linhas, o Clássico exibia simultaneamente pontuação e “MISSÃO CUMPRIDA”, apesar de não haver missões; modal de registro aparecia cedo demais após efeito de Game Over; ao fazer login, pódio mostrava “TOP 3” mesmo para 2º colocado e efeito ficava atrás do botão “Jogar novamente”.
 - `src/scripts/gameEvents.ts`: `recordGameFinish` aceita `{recordDelayMs}` opcional, preservando chamada compartilhada e comportamento padrão do Snake (`b6172d9c`, `72fa870d`).
