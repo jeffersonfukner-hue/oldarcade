@@ -48,7 +48,7 @@ import { support } from '../config/support';
    const option=Array.from(subject.options).find(item=>item.value==='sugestao');
    if(option){subject.value=option.value;subject.dispatchEvent(new Event('change'))}
    const messageField=document.querySelector<HTMLTextAreaElement>('#contact-message')!;
-   messageField.value=('Correção do artigo histórico — '+target+'\\n'+'Filme/documentário ou plataforma a corrigir: ').slice(0,1000);
+   messageField.value=('Correção do artigo histórico — '+target+'\n'+'Filme/documentário ou plataforma a corrigir: ').slice(0,1000);
   }
 
   subject.addEventListener('change',()=>{
