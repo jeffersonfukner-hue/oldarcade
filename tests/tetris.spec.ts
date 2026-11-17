@@ -192,8 +192,8 @@ test('Espaço não inicia partida sozinho e resultado autenticado não se perde 
  await page.goto('/jogos/tetris/');
  await expect(page.locator('[data-rank-auth-button]')).toBeDisabled();
  await page.evaluate(()=>{
-  window.dispatchEvent(new KeyboardEvent('keydown',{code:'Space',key:' ',bubbles:true}));
-  window.dispatchEvent(new KeyboardEvent('keydown',{code:'Space',key:' ',bubbles:true}));
+  document.body.dispatchEvent(new KeyboardEvent('keydown',{code:'Space',key:' ',bubbles:true}));
+  document.body.dispatchEvent(new KeyboardEvent('keydown',{code:'Space',key:' ',bubbles:true}));
  });
  await expect(page.locator('#tetris-plays')).toHaveText('0');
  // Regressão do bug: a gravação de um jogo logado não pode esperar 6,5s
