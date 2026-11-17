@@ -1,4 +1,4 @@
-import {isTimeRanking,formatRankingValue,betterResult} from '../data/rankingRules.js';
+import {isTimeRanking,isLowerBetter,formatRankingValue,betterResult} from '../data/rankingRules.js';
 type Entry={nickname:string;score:number;rank?:number;achievedAt?:string;durationMs?:number|null};
 type Board={available:boolean;top?:Entry[];mine?:Entry|null;error?:string;saved?:boolean;code?:string};
 type Result={game:string;score:number;durationMs?:number;recordDelayMs?:number};
@@ -39,7 +39,7 @@ if(root){
     const td=document.createElement('td');td.textContent=value;tr.append(td)
    }body.append(tr);
   });
-  status.textContent=timed?'Sprint: menor tempo para 40 linhas vence. Em empate, vale o registro mais antigo. Tempos ainda não verificados contra a partida.':'Em empate, vence quem fez menor tempo. Registros antigos sem tempo ficam atrás. Pontuações ainda não verificadas contra a partida.';
+  status.textContent=timed?(isLowerBetter(game)?'Sprint: menor tempo para 40 linhas vence.':'Sobrevivência: maior tempo resistido vence.')+' Em empate, vale o registro mais antigo. Tempos ainda não verificados contra a partida.':'Em empate, vence quem fez menor tempo. Registros antigos sem tempo ficam atrás. Pontuações ainda não verificadas contra a partida.';
   document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-updated',{detail:{game,global:top,personal:data.mine?.score??null}}));
  }
  async function refresh(){
@@ -73,7 +73,8 @@ if(root){
   if(!leader)return 'Nenhum líder registrado.';
   if(data.mine?.rank===1&&data.mine.score===leader.score)return '🏆 Liderança confirmada! Sua marca é '+display(data.mine.score)+'.';
   if(timed){
-   if(leader.score<points)return '⏱ '+leader.nickname+' lidera com '+display(leader.score)+'. Faltaram '+display(points-leader.score)+' para alcançar a liderança.';
+   if(isLowerBetter(game)&&leader.score<points)return '⏱ '+leader.nickname+' lidera com '+display(leader.score)+'. Faltaram '+display(points-leader.score)+' para alcançar a liderança.';
+   if(!isLowerBetter(game)&&leader.score>points)return '⏱ '+leader.nickname+' resistiu '+display(leader.score)+'. Faltaram '+display(leader.score-points)+' para superar a marca.';
    if(leader.score===points)return 'Empate! '+leader.nickname+' registrou primeiro.';
    return 'Tempo líder: '+display(leader.score)+'.';
   }
