@@ -332,11 +332,11 @@ function funMoment(message:string,at:Point){
  });
 }
 function checkFunMilestone(at:Point){
- const milestone=Math.floor(score/100);
- if(milestone<=lastFunMilestone)return;
- lastFunMilestone=milestone;
- const phrases=['FANTÁSTICO!','ESTUPENDO!','MARAVILHOSO!','GRANDE JOGADA!','SENSACIONAL!'];
- funMoment(phrases[(milestone-1)%phrases.length],at);
+ const milestones=[{score:100,message:'NOSSA! 100 PONTOS!'},{score:500,message:'FANTÁSTICO! 500 PONTOS!'},{score:1300,message:'CARAMBA, VOCÊ É BOM! 1.300 PONTOS!'},{score:2500,message:'VOCÊ É UMA LENDA! 2.500 PONTOS!'},{score:5000,message:'INACREDITÁVEL! 5.000 PONTOS!'},{score:10000,message:'VOCÊ DOMINOU O ARCADE! 10.000 PONTOS!'}];
+ const reached=milestones.findIndex((m,i)=>score>=m.score&&lastFunMilestone<i+1);
+ if(reached<0)return;
+ lastFunMilestone=reached+1;
+ funMoment(milestones[reached].message,at);
  lastFunAt=evolutionClock;
 }
 function placeFood(){const free:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y});if(!free.length){end(true);return}food=free[Math.floor(Math.random()*free.length)]}

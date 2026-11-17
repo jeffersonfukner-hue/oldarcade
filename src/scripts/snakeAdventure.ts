@@ -49,6 +49,7 @@ function setBarriers(count:number){
 let food:Item={kind:'apple',at:{x:14,y:10}},special:Item|null=null;
 let direction:Direction='right',next:Direction='right';
 let score=0,level=1,apples=0,golds=0,level3Specials=0,normalSinceSpecial=0,iceTicks=0,speedTicks=0,levelApples=0;
+let lastCheerIndex=0;
 let globalTarget:number|null=null;
 let globalProvisional=false;
 let state:'ready'|'countdown'|'playing'|'paused'|'over'='ready';
@@ -192,6 +193,10 @@ function tick(){
    special=null;normalSinceSpecial=0;
   }
   floatPoints(head,collected.kind==='gold'?50:collected.kind==='ice'?15:collected.kind==='speed'?20:10);
+  const cheers=[{score:100,text:'NOSSA! 100 PONTOS!'},{score:500,text:'FANTÁSTICO! 500 PONTOS!'},{score:1300,text:'CARAMBA, VOCÊ É BOM! 1.300 PONTOS!'},{score:2500,text:'VOCÊ É UMA LENDA! 2.500 PONTOS!'},{score:5000,text:'INACREDITÁVEL! 5.000 PONTOS!'},{score:10000,text:'VOCÊ DOMINOU O ARCADE! 10.000 PONTOS!'}];
+  if(lastCheerIndex<cheers.length&&score>=cheers[lastCheerIndex].score){
+   const cheer=cheers[lastCheerIndex++];notify(cheer.text);
+  }
   if(score>best){best=score;save()}
   if(globalTarget!==null&&score>globalTarget)globalProvisional=true;
   recordGameScore('snake-adventure',score);
@@ -234,7 +239,7 @@ function start(){
  floatLayer.replaceChildren();
  snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';
  food={at:{x:14,y:10},kind:'apple'};special=null;
- score=0;level=1;apples=0;golds=0;level3Specials=0;normalSinceSpecial=0;iceTicks=0;speedTicks=0;levelApples=0;globalProvisional=false;setBarriers(0);
+ score=0;lastCheerIndex=0;level=1;apples=0;golds=0;level3Specials=0;normalSinceSpecial=0;iceTicks=0;speedTicks=0;levelApples=0;globalProvisional=false;setBarriers(0);
  adventureCounters.recordPlay(recordGameStart('snake-adventure'));
  plays++;save();window.clearTimeout(bannerTimer);banner.hidden=true;draw();update();centerGameBoard(screen,stage);beginCountdown(true);
 }
