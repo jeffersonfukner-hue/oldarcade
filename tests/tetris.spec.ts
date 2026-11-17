@@ -208,3 +208,19 @@ test('Espaço não inicia partida sozinho e resultado autenticado não se perde 
  await page.waitForTimeout(250);
  expect(submissions).toHaveLength(1);
 });
+
+test('Espaço repetido após Game Over não reinicia Tetris nem apaga resultado',async({page})=>{
+ await page.goto('/jogos/tetris/');
+ await page.getByRole('button',{name:/Começar partida/}).click();
+ await expect(page.locator('#tetris-overlay')).toBeHidden({timeout:5500});
+ for(let i=0;i<32;i++){
+  if(await page.locator('#tetris-status').textContent()==='● Fim de jogo')break;
+  await page.keyboard.press('Space');
+  await page.waitForTimeout(275);
+ }
+ await expect(page.locator('#tetris-status')).toHaveText('● Fim de jogo');
+ const plays=await page.locator('#tetris-plays').textContent();
+ for(let i=0;i<3;i++)await page.keyboard.press('Space');
+ await expect(page.locator('#tetris-plays')).toHaveText(plays!);
+ await expect(page.locator('#tetris-status')).toHaveText('● Fim de jogo');
+});
