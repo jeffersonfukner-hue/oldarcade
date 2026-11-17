@@ -3,7 +3,12 @@ import Base from '../layouts/Base.astro';
 import {gameRegistry} from '../data/gameRegistry';
 import {gameModes} from '../data/gameModes.js';
 const gameNames=Object.fromEntries(Object.entries(gameRegistry).map(([id,entry])=>[id,entry.name]));
-const featuredModes=Object.entries(gameModes).filter(([,mode])=>Object.hasOwn(gameRegistry,mode.title));
+const orderedGames=Object.entries(gameRegistry).sort((a,b)=>b[1].number-a[1].number);
+const newestGame=orderedGames[0];
+const featuredModes=Object.entries(gameModes)
+ .filter(([,mode])=>Object.hasOwn(gameRegistry,mode.title))
+ .sort((a,b)=>gameRegistry[b[1].title].number-gameRegistry[a[1].title].number);
+const newestMode=featuredModes.find(([,mode])=>mode.title===newestGame[0]);
 const title='OldArcade — Jogos clássicos grátis para jogar online';
 const availableGames=Object.keys(gameRegistry).length;
 const description='Jogue Snake e Tetris gratuitamente, acompanhe rankings por modalidade e descubra jogos clássicos no navegador.';
@@ -27,13 +32,13 @@ const description='Jogue Snake e Tetris gratuitamente, acompanhe rankings por mo
       <div class="arcade-dashboard-main">
         <section class="arcade-welcome" aria-labelledby="home-heading">
           <div class="arcade-welcome-copy">
-            <span class="eyebrow">Seu fliperama online</span>
-            <h1 id="home-heading">Os clássicos nunca dão <span class="accent">game over.</span></h1>
-            <p>Jogue, supere recordes e descubra novos desafios. Grátis e direto no navegador.</p>
-            <a class="btn" href="/jogos/snake/">▶ Jogar Snake agora</a>
+            <span class="eyebrow">🎮 Novidade · Jogo #{String(newestGame[1].number).padStart(3,'0')}</span>
+            <h1 id="home-heading">Chegou <span class="accent">{newestGame[1].name}!</span></h1>
+            <p>{newestMode?.[1].description??'O mais novo desafio do OldArcade já está no catálogo.'} Grátis e direto no navegador.</p>
+            <a class="btn" id="featured-game-link" data-featured-game={newestGame[0]} href={newestMode?.[1].url??'#destaques'}>▶ Jogar {newestGame[1].name} agora</a>
           </div>
           <div class="arcade-welcome-art" aria-hidden="true">
-            <div class="arcade-screen"><div class="arcade-screen-label">OLD ARCADE</div><div class="pixel-snake"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="arcade-screen-bottom">● PLAY ●</div></div>
+            <div class="arcade-screen"><div class="arcade-screen-label">OLD ARCADE · #{String(newestGame[1].number).padStart(3,'0')}</div><div class="arcade-featured-symbol">{newestMode?.[1].symbol??'🎮'}</div><strong class="arcade-featured-name">{newestGame[1].name}</strong><div class="arcade-screen-bottom">● NOVO JOGO ●</div></div>
           </div>
         </section>
         <div class="arcade-activity" aria-label="Estatísticas reais do OldArcade">
@@ -61,4 +66,8 @@ const description='Jogue Snake e Tetris gratuitamente, acompanhe rankings por mo
       </div>
     </div>
   </div>
+  <style>
+   .arcade-featured-symbol{font-size:clamp(2.5rem,5vw,4.5rem);line-height:1.1;filter:drop-shadow(0 5px 11px #0008)}
+   .arcade-featured-name{display:block;color:#fff0a6;font-size:clamp(.9rem,2vw,1.35rem);letter-spacing:.13em;text-transform:uppercase}
+  </style>
 </Base>
