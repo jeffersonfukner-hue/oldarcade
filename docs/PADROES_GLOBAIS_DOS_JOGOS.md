@@ -101,3 +101,8 @@ GitHub branch/PR → testes GitHub Actions → Cloudflare Preview → validaçã
 - Validar dados e limites no servidor, versionar alterações, oferecer prévia/teste antes de ativar e opção de restaurar padrões. Mudanças de regras de pontuação que afetem comparabilidade exigem política de versionamento e rankings históricos.
 - Não permitir que o painel injete scripts arbitrários; animações e mensagens devem usar opções seguras pré-definidas. Acesso restrito a administradores autorizados.
 - **Somente planejamento:** não criar telas, endpoints, tabelas ou migrações nesta etapa. Retomar quando o proprietário autorizar a implementação administrativa.
+
+## 14. Celebrações durante a partida — não bloquear jogabilidade (aprovado em 16/11/2026)
+- Recorde pessoal, missão, pódio e liderança: avisos compactos, semitransparentes, com partículas discretas, próximos à parte superior da viewport. Nunca colocar fundo escuro de tela inteira, capturar cliques/toques ou exigir botão Continuar enquanto a partida estiver rodando.
+- Somente a provocação de revanche após resultado final pode usar destaque/modal interativo com botão Jogar novamente. Manter a distinção entre aviso durante partida e encerramento.
+- Validar em Clássico e Aventura, incluindo mobile e tela cheia; não interromper o loop do jogo nem ocultar o tabuleiro.
