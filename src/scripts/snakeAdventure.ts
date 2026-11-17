@@ -80,11 +80,38 @@ function drawItem(item:Item){
  ctx.fill();
  if(item.kind==='gold'){ctx.lineWidth=3;ctx.strokeStyle='#fff1bb';ctx.stroke()}
 }
+// Segmentos físicos desenhados fora do canvas; o grid mantém as 20x20 células inteiras.
+const outerWalls=document.createElement('div');
+outerWalls.setAttribute('aria-hidden','true');
+outerWalls.style.cssText='position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:2';
+screen.append(outerWalls);
+function drawOuterWalls(){
+ outerWalls.replaceChildren();
+ if(!edgeWalls.length)return;
+ const board=canvas.getBoundingClientRect(),parent=screen.getBoundingClientRect();
+ const width=board.width,height=board.height;
+ const x=board.left-parent.left,y=board.top-parent.top;
+ const thickness=Math.max(3,width/boardSize*.22);
+ for(const wall of edgeWalls){
+  const segment=document.createElement('span');
+  segment.style.cssText='position:absolute;display:block;background:#cf79ee;pointer-events:none';
+  if(wall.side==='top'||wall.side==='bottom'){
+   segment.style.left=(x+wall.index*width/boardSize)+'px';
+   segment.style.top=(wall.side==='top'?y-thickness:y+height)+'px';
+   segment.style.width=width/boardSize+'px';segment.style.height=thickness+'px';
+  }else{
+   segment.style.left=(wall.side==='left'?x-thickness:x+width)+'px';
+   segment.style.top=(y+wall.index*height/boardSize)+'px';
+   segment.style.width=thickness+'px';segment.style.height=height/boardSize+'px';
+  }
+  outerWalls.append(segment);
+ }
+}
 function draw(){
  ctx.fillStyle='#071a20';ctx.fillRect(0,0,600,600);
  ctx.strokeStyle='#19323c';ctx.lineWidth=1;
  for(let i=0;i<=boardSize;i++){ctx.beginPath();ctx.moveTo(i*cell,0);ctx.lineTo(i*cell,600);ctx.moveTo(0,i*cell);ctx.lineTo(600,i*cell);ctx.stroke()}
- edgeWalls.forEach(w=>{ctx.fillStyle='#cf79ee';const thick=cell*.22;const x=w.side==='left'?0:w.side==='right'?boardSize-1:w.index;const y=w.side==='top'?0:w.side==='bottom'?boardSize-1:w.index;if(w.side==='top')ctx.fillRect(x*cell,y*cell,cell,thick);else if(w.side==='bottom')ctx.fillRect(x*cell,(y+1)*cell-thick,cell,thick);else if(w.side==='left')ctx.fillRect(x*cell,y*cell,thick,cell);else ctx.fillRect((x+1)*cell-thick,y*cell,thick,cell)});
+ drawOuterWalls();
  barriers.forEach(p=>{ctx.fillStyle='#71879b';ctx.fillRect(p.x*cell+2,p.y*cell+2,cell-4,cell-4);ctx.strokeStyle='#b6c6d5';ctx.strokeRect(p.x*cell+5,p.y*cell+5,cell-10,cell-10)});
  drawItem(food);if(special)drawItem(special);
  snake.forEach((p,i)=>{ctx.fillStyle=i===0?'#b4ffd8':'#48dca4';ctx.fillRect(p.x*cell+2,p.y*cell+2,cell-4,cell-4)});
