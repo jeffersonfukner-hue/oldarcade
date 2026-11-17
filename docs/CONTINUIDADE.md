@@ -4,6 +4,15 @@
 
 # OldArcade — continuidade obrigatória
 
+## Verificação objetiva — 17/11/2026 · CI e Cloudflare Preview
+- GitHub Actions workflow #225 (run `44018611072`, commit `2b749fe7`) **success**: tipos, build, API e Playwright aprovados (101 passed, 1 skipped; desktop/mobile Chromium), pacote `oldarcade-preview` gerado. Evidência: https://github.com/jeffersonfukner-hue/oldarcade/actions/runs/44018611072
+- Workflows #223 (`1dcb7e99`) e #224 (`fa68e697`) falharam nos mesmos testes legados, antes das correções do #225; não são a referência de aceite atual.
+- Na PR #1, o comentário do bot Cloudflare informa **deploy de Preview bem-sucedido** do commit `76a9be3` no endereço https://a87c5242.oldarcade-17c.pages.dev ; alias da branch https://feat-fundacao-snake.oldarcade-17c.pages.dev ; evidência https://github.com/jeffersonfukner-hue/oldarcade/pull/1#issuecomment-6904416005. Essa confirmação é de deploy, **não** de inspeção visual/jogabilidade; acesso por consulta web retornou indisponível.
+- `docs/PREVIEW.md` corrigido no commit `15e298b4` para refletir o deploy real e manter QA humano pendente. HEAD agora é posterior ao `76a9be36`; conferir seu CI antes de declarar verde.
+- QA pendente: inspecionar realmente o Preview Aventura em desktop 1440/1024 e mobile 390/320, controles e fullscreen, feedback de itens e mensagens, testar iPhone/Safari quando possível. Nenhuma alteração de banco, merge, produção ou Lovable autorizada/realizada.
+- Próxima ação: confirmar CI do HEAD e obter evidências visuais/interativas do Preview, sem assumir que o sucesso do deploy comprova o comportamento.
+
+
 ## Complemento visual — 17/11/2026
 - Commit `a9bc2bbe`: itens especiais com duração no Snake Aventura passam a mostrar um anel de tempo restante no canvas, reutilizando a linguagem visual do Evolution (sem alterar duração, coleta ou pontuação). QA visual Preview pendente.
 
