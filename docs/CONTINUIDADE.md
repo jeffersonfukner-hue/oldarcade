@@ -4,6 +4,17 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL — Tetris jogo #002 (17/11/2026)
+- Branch **`feat/tetris-jogo-002`**, derivada da integração Snake `feat/fundacao-snake` no commit `e46ac2c0`. Não alterar `main` nem publicar produção. Esta branch é Preview; qualquer alteração adicional no Snake segue seu fluxo original.
+- Tetris registrado com **ID `tetris`**, título número **002**, versão de desenvolvimento `0.1.0-dev`, ranking independente e rota `/jogos/tetris/`. Registro em `src/data/gameRegistry.ts` e `src/data/gameModes.js`; jogos disponíveis = 2 títulos, modalidades não incrementam quantidade de jogos.
+- Jogabilidade própria em `src/scripts/tetris.ts`: tabuleiro 10×20, sete peças e sorteio por pacote de sete, próxima peça, reserva limitada a uma troca por peça, sombra de queda, rotações com deslocamento junto às bordas, descida suave/instantânea, eliminação de 1–4 linhas, multiplicador por nível, velocidade progressiva e fim ao bloquear o topo. Estado salvo localmente para melhor pontuação e partidas; sem ativar banco ou SQL.
+- Página `src/pages/jogos/tetris.astro`: usa **GamePage, GameHud, GameRanking e GameShare**. Contadores de visita/partida seguem `setupGlobalGameCounters` e `recordGameStart`; pontuação e fim usam `recordGameScore`/`recordGameFinish`, celebração global via `oldarcade:celebrate`. Contagem 3–2–1, pausa, cronômetro efetivo, fullscreen F/Esc, auto-pausa quando aba fica oculta, teclas e botões de celular; nenhuma cópia de ranking/celebração.
+- Home atualizada para exibir Tetris com card próprio sem duplicar modos, total correto de jogos; ranking dedicado /rankings/ e conta já são derivados do catálogo. Textos SEO revisados.
+- Testes `tests/tetris.spec.ts` incluídos para catálogo e SEO, componentes, teclado, queda, pausa/retomada, contadores e fullscreen; `tests-api/game-modes.test.mjs` atualizado para catálogo aberto a novos jogos (erro inicial de expectativa fixa de três modos foi identificado e corrigido); E2E Snake que fixava contagem em um título atualizado.
+- **Limitações de validação:** CI da nova branch deve ser verificado até conclusão; testes escritos e compilação não significam aceite final. **Validação visual é exclusivamente do proprietário** no Preview Cloudflare. Confirmar Preview da *nova branch* em vez de reaproveitar URL da branch Snake. Se Preview não existir, documentar bloqueio sem afirmar que está online.
+- **Próximo passo:** verificar workflow e corrigir regressões; fornecer URL do Preview da branch para validação visual do proprietário. Sem merge, publicação, SQL ou Lovable.
+
+
 ## Correção estrutural — 17/11/2026 · marcos de pontuação reutilizáveis
 - **Problema confirmado em código:** Clássico/Evolution exibiam mensagens de 100/200/400/800/... pontos com `funMoment()` (texto grande e partículas na posição da cobra); Aventura copiava a mesma lista e exibia `notify()`, um banner legado fixo no topo. A regra de componentes compartilhados estava sendo violada.
 - **Correção GitHub:** `src/scripts/snakeMilestones.ts` centraliza os textos/limiares, `nextSnakeMilestone()` e `showSnakeMoment()`. `src/scripts/snake.ts` (Clássico/Evolution) e `src/scripts/snakeAdventure.ts` (Aventura) consomem o **mesmo código** de detecção e o mesmo efeito visual. Commits `867d1eb4`, `06ba7edd`, `2d0fea27`.
