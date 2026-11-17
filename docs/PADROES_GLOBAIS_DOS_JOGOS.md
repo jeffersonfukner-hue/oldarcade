@@ -5,6 +5,7 @@
 ## 1. Identificação, catálogo e versões
 - Cada **jogo** possui ID estável, número sequencial fixo, data de criação, versão individual e histórico imutável em `src/data/gameRegistry.ts`.
 - **Modos** são variantes do mesmo título; não aumentam a contagem de jogos disponíveis. Podem ter IDs competitivos e recordes próprios.
+- **Destaque principal da Home** = sempre o título com o maior número sequencial (`number`) no `gameRegistry`; o link, nome, símbolo, chamada e primeira posição dos cards vêm automaticamente do catálogo, nunca de jogo fixo no HTML. Todos os títulos anteriores continuam acessíveis. Modos novos de um título antigo não substituem o destaque do jogo mais recente.
 - Versão do portal e versão do jogo são independentes; não aumentar por commit/CI. Exibir histórico discreto e expansível, distinguindo desenvolvimento de publicação.
 - Preservar regras do Clássico ao evoluir Aventura/Desafio; não misturar pontuações nem regras.
 
