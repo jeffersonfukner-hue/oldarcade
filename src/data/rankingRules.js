@@ -1,7 +1,8 @@
 /** Contrato global de critérios competitivos. Sprint armazena duração em ms na
  * coluna score já existente; sem migrar D1 nem inverter número artificialmente. */
 import {gameMode} from './gameModes.js';
-export function isTimeRanking(id){return gameMode(id)?.ranking==='time'}
+export function isTimeRanking(id){return ['time','survival'].includes(gameMode(id)?.ranking)}
+export function isLowerBetter(id){return gameMode(id)?.ranking==='time'}
 export function formatRankingValue(id,value){
  if(value===null||value===undefined||!Number.isFinite(value))return '—';
  if(!isTimeRanking(id))return value.toLocaleString('pt-BR')+' pontos';
@@ -12,5 +13,5 @@ export function formatRankingValue(id,value){
  return minutes+':'+seconds+'.'+millis;
 }
 export function betterResult(id,newValue,previous){
- return previous===null||previous===undefined||(isTimeRanking(id)?newValue<previous:newValue>previous);
+ return previous===null||previous===undefined||(isLowerBetter(id)?newValue<previous:newValue>previous);
 }
