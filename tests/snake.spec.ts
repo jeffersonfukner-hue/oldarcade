@@ -730,3 +730,22 @@ test('Clássico mantém acesso explícito ao Evolution',async({page})=>{
  await page.goto('/jogos/snake/');
  await expect(page.getByRole('link',{name:/Jogar Evolution/})).toHaveAttribute('href','/jogos/snake/evolution/');
 });
+
+test('Snake Clássico e Evolution preservam proporção quadrada no ultrawide',async({page,isMobile})=>{
+ if(isMobile)test.skip();
+ await page.setViewportSize({width:2560,height:900});
+ for(const route of ['/jogos/snake/','/jogos/snake/evolution/']){
+  await page.goto(route);
+  await page.locator('#fullscreen-btn').click();
+  await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id)).toBe('game-stage');
+  const layout=await page.evaluate(()=>{
+   const rect=(q:string)=>document.querySelector(q)!.getBoundingClientRect();
+   const canvas=rect('#snake-canvas'),hud=rect('#game-stage .game-hud'),stage=rect('#game-stage');
+   return {width:canvas.width,height:canvas.height,right:canvas.right,hudLeft:hud.left,stageBottom:stage.bottom};
+  });
+  expect(layout.width/layout.height).toBeCloseTo(1,1);
+  expect(layout.width).toBeLessThanOrEqual(660);
+  expect(layout.hudLeft).toBeGreaterThanOrEqual(layout.right);
+  await page.evaluate(()=>document.exitFullscreen());
+ }
+});
