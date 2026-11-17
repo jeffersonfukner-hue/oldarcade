@@ -100,7 +100,7 @@ function update(){
  node('tetris-score').textContent=survival?formatRankingValue(modeId,clock.milliseconds()):sprint?lines+'/'+TARGET_LINES:String(score);
  node('tetris-best').textContent=personalTarget===null?'—':timed?formatRankingValue(modeId,personalTarget):String(personalTarget);
  node('tetris-lines').textContent=sprint?Math.min(lines,TARGET_LINES)+'/'+TARGET_LINES:String(lines);
- if(!sprint)node('tetris-level').textContent=String(level);
+ if(!timed)node('tetris-level').textContent=String(level);
  node('tetris-plays').textContent=String(plays);
  node('tetris-local-best').textContent=displayBest();node('tetris-sidebar-level').textContent=sprint?lines+'/'+TARGET_LINES:survival?'Onda '+level:String(level);
  node('tetris-global').textContent=timed?formatRankingValue(modeId,globalTarget):String(globalProvisional?score:globalTarget??'—');node('tetris-provisional').hidden=timed||!globalProvisional;
