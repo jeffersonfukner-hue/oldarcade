@@ -5,6 +5,8 @@
 # OldArcade — continuidade obrigatória
 
 ## ESTADO ATUAL PARA NOVO CHAT — 16/11/2026 (ler primeiro)
+- Acesso direto Evolution no Preview: botão `⚡ Jogar Snake Evolution (teste)` na hero do Clássico, somente em `*.oldarcade-17c.pages.dev`; no Evolution botão muda para voltar ao Clássico, título/HUD identificam o modo. Não exige editar URL manualmente. Pendente CI e conferência do deploy.
+
 - Usuário **validou animação Game Over**. Nova regra Evolution: sem bordas inicialmente (wrap), segmentos de parede aparecem progressivamente, bloqueiam travessia, 3 tiros destroem temporariamente e regeneram após 90 ticks; obstáculos internos 3 tiros e destruição definitiva, surgimento periódico com limite de 8. `EVOLUTION_FAST_TEST=true` concentra desbloqueios em 0–100 pontos, reversível para patamares originais; não modificar Clássico normal. **CI e teste real pendentes**.
 
 - Revisão de CI do commit `a5d13d58`: falha no `astro check` por `rival` indefinido em `gameCelebration.ts:39`; corrigida no commit `2d4653c3` junto da centralização final. Preview aberto `7bc91236.oldarcade-17c.pages.dev/jogos/snake/` mostra jogo normal, mas leitura de aba não executa interação, portanto não comprova mecânicas Evolution. O teste experimental exige `?evolution=1` em subdomínio de Preview.
