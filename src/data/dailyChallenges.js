@@ -9,6 +9,11 @@ export const DAILY_MODES=Object.freeze({
   title:'Snake',gameMode:'snake',label:'Snake · Desafio Diário',
   path:'/jogos/snake/',rules:'Uma tentativa por dia. Todas as contas recebem a mesma sequência de frutas. Seu resultado fica disponível no perfil.',
   seedVersion:1
+ }),
+ tetris:Object.freeze({
+  title:'Tetris',gameMode:'tetris',label:'Tetris · Desafio Diário',
+  path:'/jogos/tetris/',rules:'Uma única tentativa por dia. Todos recebem a mesma sequência de peças. O desempenho fica no histórico privado da sua conta.',
+  seedVersion:1
  })
 });
 export function dailyMode(game){return Object.hasOwn(DAILY_MODES,game)?DAILY_MODES[game]:null}
