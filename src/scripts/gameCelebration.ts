@@ -1,7 +1,7 @@
 /** Celebrações compartilhadas: os jogos emitem eventos, este componente cuida do visual. */
 type Kind='personal'|'mission'|'podium'|'leader'|'rival';
 type Detail={game:string;kind:Kind;message?:string};
-const overlay=document.querySelector<HTMLElement>('#game-celebration');
+const overlay=document.querySelector<HTMLElement>('#game-celebration')!;
 if(overlay){
  const title=overlay.querySelector<HTMLElement>('[data-celebration-title]')!;
  const icon=overlay.querySelector<HTMLElement>('[data-celebration-icon]')!;

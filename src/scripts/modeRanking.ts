@@ -52,7 +52,7 @@ if(root){
   if(!data.available||!data.mine)return;
   const leader=data.top?.[0];
   if(data.mine.rank===1&&leader?.nickname===data.mine.nickname){celebrate('leader','Liderança confirmada! Agora é defender o topo.');return}
-  if(data.mine.rank<=3){celebrate('podium','Você está entre os três melhores!');return}
+  if(typeof data.mine.rank==='number'&&data.mine.rank<=3){celebrate('podium','Você está entre os três melhores!');return}
   if(leader&&leader.score>points&&provisionalRecord){celebrate('rival','Sua liderança foi provisória! '+leader.nickname+' já está na frente. Vai deixar assim?')}
  }
  function announce(data:Board,points:number){

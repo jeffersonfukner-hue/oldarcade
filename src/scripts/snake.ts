@@ -209,7 +209,7 @@ async function finishRound(){
    const result=await leaderboard.submit(score);
    text('overlay-text',confirmedResult(result,score,wasProvisional));
    if(result?.available&&result.mine?.rank===1&&result.top?.[0]?.nickname===result.mine.nickname){document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake',kind:'leader',message:'Liderança confirmada! Defenda seu lugar!'}}))}
-   else if(result?.available&&result.mine&&result.mine.rank<=3){document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake',kind:'podium',message:'Você conquistou um lugar no pódio!'}}))}
+   else if(result?.available&&result.mine&&typeof result.mine.rank==='number'&&result.mine.rank<=3){document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake',kind:'podium',message:'Você conquistou um lugar no pódio!'}}))}
    else if(result?.available&&wasProvisional&&result.top?.[0]&&result.top[0].score>score){document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake',kind:'rival',message:result.top[0].nickname+' já está na frente! Vai deixar assim?'}}))}
   }catch(error){
    provisionalGlobal=false;refresh();
