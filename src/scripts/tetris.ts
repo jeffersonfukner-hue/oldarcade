@@ -40,7 +40,7 @@ try{const saved=JSON.parse(localStorage.getItem(key)||'{}');best=Number.isSafeIn
 function save(){try{localStorage.setItem(key,JSON.stringify({best,plays}))}catch{}}
 let board:Cell[][]=[],piece:Falling|null=null,bag:PieceName[]=[],queue:PieceName[]=[];
 let reserve:PieceName|null=null,reserveUsed=false,score=0,lines=0,level=1,state:State='ready';
-let globalTarget:number|null=null,globalProvisional=false;
+let globalTarget:number|null=null,personalTarget:number|null=null,globalProvisional=false;
 let fallTimer=0,countTimer=0,finishSequence=0,fullscreenChanging=false;
 let dropFrame=0,dropAnimating=false,dropVisualY:number|null=null;
 function stopDropAnimation(){
@@ -95,7 +95,7 @@ const displayBest=()=>sprint?(best>0?formatRankingValue(modeId,best):'—'):Stri
 function update(){
  node('tetris-status').textContent=state==='playing'?'● Jogando':state==='paused'?'● Pausado':state==='countdown'?'● Preparando':state==='over'?'● Fim de jogo':'● Pronto';
  node('tetris-score').textContent=sprint?lines+'/'+TARGET_LINES:String(score);
- node('tetris-best').textContent=displayBest();
+ node('tetris-best').textContent=personalTarget===null?'—':sprint?formatRankingValue(modeId,personalTarget):String(personalTarget);
  node('tetris-lines').textContent=sprint?Math.min(lines,TARGET_LINES)+'/'+TARGET_LINES:String(lines);
  if(!sprint)node('tetris-level').textContent=String(level);
  node('tetris-plays').textContent=String(plays);
@@ -334,9 +334,10 @@ document.addEventListener('fullscreenchange',()=>{
  if(document.fullscreenElement!==stage)centerGameBoard(screen,stage);
 });
 document.addEventListener('oldarcade:mode-ranking-updated',event=>{
- const detail=(event as CustomEvent<{game:string;global:number|null}>).detail;
+ const detail=(event as CustomEvent<{game:string;global:number|null;personal:number|null}>).detail;
  if(detail?.game!==modeId)return;
  globalTarget=detail.global;
+ personalTarget=detail.personal;
  if(state!=='playing'&&state!=='countdown')globalProvisional=false;
  update();
 });
