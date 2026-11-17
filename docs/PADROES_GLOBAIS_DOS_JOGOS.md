@@ -161,3 +161,9 @@ GitHub branch/PR → testes GitHub Actions → Cloudflare Preview → validaçã
 - Enquanto power-up ativo, cobra dispara indiscriminadamente para frente, sem tecla/botão. Cadência inicial de 4 ticks (~0,5 s em velocidade base), duração 70 ticks (~10 s na velocidade base), sujeita ao ritmo de jogo.
 - Fruta comum/rara: 1 tiro, concede pontos sem crescer. Obstáculo: 3 tiros para destruir; exibir dano progressivo. Projétil atravessa corpo da cobra e desaparece na borda; não aciona outros power-ups nem Salva-Cobra.
 - Ajustar equilíbrio após teste real; não afetar ranking oficial.
+
+### Bordas progressivas — piloto Evolution
+- Começa sem paredes: atravessar a borda teletransporta para a borda oposta, mantendo direção.
+- Trechos de parede surgem gradualmente nas quatro bordas; colidir ao tentar atravessar um trecho ativo encerra a partida. Cada trecho resiste a 3 tiros, desaparece temporariamente e regenera depois de 90 ticks.
+- Obstáculos internos não regeneram: destruídos após 3 tiros, substituídos periodicamente por novos em posições livres, com teto de 8.
+- Teste acelerado temporário (`EVOLUTION_FAST_TEST=true`): todas as melhorias destravadas entre 0 e 100 pontos; depois restaurar `false` mediante solicitação do proprietário.

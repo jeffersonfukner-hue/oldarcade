@@ -121,6 +121,11 @@ function store(){try{localStorage.setItem(key,JSON.stringify(saved))}catch{}}
 store();
 const evolutionPreview=/^[a-z0-9-]+\.oldarcade-17c\.pages\.dev$/i.test(location.hostname)&&new URLSearchParams(location.search).get('evolution')==='1';
 type Item={point:Point;kind:'normal'|'rare'|'shrink'|'slow'|'blaster';expires:number};
+// Temporário: facilitar testes de todas as melhorias entre 0 e 100 pontos.
+const EVOLUTION_FAST_TEST=true;
+const unlock=(normal:number,test:number)=>EVOLUTION_FAST_TEST?test:normal;
+type BorderWall={side:'top'|'bottom'|'left'|'right';index:number;hits:number;restoreAt:number};
+let borderWalls:BorderWall[]=[];
 let items:Item[]=[];let obstacles:Point[]=[];let obstacleHits=new Map<string,number>();let shotTrail:Point[]=[];let evolutionClock=0;let slowUntil=0;let blasterUntil=0;let nextShotAt=0;let lastRescue=-100;let peakScore=0;
 const same=(a:Point,b:Point)=>a.x===b.x&&a.y===b.y;
 const occupied=(p:Point)=>snake.some(q=>same(p,q))||items.some(q=>same(p,q.point))||obstacles.some(q=>same(p,q));
@@ -137,17 +142,37 @@ function reachableRescueCell():Point|null{
  }
  return candidates.length?candidates[Math.floor(Math.random()*candidates.length)]:null;
 }
-function stageLevel(){return [0,100,250,600,1500,4000,10000].filter(n=>peakScore>=n).length-1}
+function stageLevel(){return (EVOLUTION_FAST_TEST?[0,10,20,35,50,70,90]:[0,100,250,600,1500,4000,10000]).filter(n=>peakScore>=n).length-1}
+function borderAt(side:BorderWall['side'],index:number){return borderWalls.find(w=>w.side===side&&w.index===index&&w.restoreAt===0)}
+function addBorderWall(){
+ const candidates:Pick<BorderWall,'side'|'index'>[]=[];
+ for(const side of ['top','bottom','left','right'] as const)for(let index=0;index<size;index++){
+  if(borderWalls.some(w=>w.side===side&&w.index===index))continue;
+  const edge=side==='top'?{x:index,y:0}:side==='bottom'?{x:index,y:size-1}:side==='left'?{x:0,y:index}:{x:size-1,y:index};
+  if(snake.some(p=>same(p,edge)))continue;
+  candidates.push({side,index});
+ }
+ if(candidates.length){const pick=candidates[Math.floor(Math.random()*candidates.length)];borderWalls.push({...pick,hits:0,restoreAt:0})}
+}
+function borderExit(head:Point):{side:BorderWall['side'];index:number}|null{
+ if(head.x<0)return {side:'left',index:head.y};if(head.x>=size)return {side:'right',index:head.y};
+ if(head.y<0)return {side:'top',index:head.x};if(head.y>=size)return {side:'bottom',index:head.x};return null;
+}
+function hitBorder(side:BorderWall['side'],index:number){const wall=borderAt(side,index);if(!wall)return;wall.hits++;if(wall.hits>=3){wall.restoreAt=evolutionClock+90;wall.hits=0}}
+function regenerateBorders(){for(const wall of borderWalls){if(wall.restoreAt&&evolutionClock>=wall.restoreAt){wall.restoreAt=0;wall.hits=0}}}
+
 function advanceEvolution(){
  evolutionClock++;
  items=items.filter(item=>!item.expires||item.expires>evolutionClock);
  if(evolutionClock%16===0&&items.filter(i=>i.kind==='normal').length<Math.min(5,2+Math.floor(stageLevel()/2)))addItem('normal');
- if(peakScore>=100&&evolutionClock%35===0&&items.filter(i=>i.kind==='rare').length===0)addItem('rare',38);
- if(peakScore>=250&&evolutionClock%55===0&&items.filter(i=>i.kind==='slow').length===0)addItem('slow',32);
- if(peakScore>=600&&evolutionClock%65===0&&obstacles.length<Math.min(14,2+stageLevel()*2)){
+ if(peakScore>=unlock(100,10)&&evolutionClock%20===0&&items.filter(i=>i.kind==='rare').length===0)addItem('rare',38);
+ if(peakScore>=unlock(250,20)&&evolutionClock%24===0&&items.filter(i=>i.kind==='slow').length===0)addItem('slow',32);
+ if(peakScore>=unlock(600,35)&&evolutionClock%32===0&&obstacles.length<Math.min(8,1+stageLevel())){
   const point=freeCell();if(point&&Math.abs(point.x-snake[0].x)+Math.abs(point.y-snake[0].y)>4){obstacles.push(point);obstacleHits.set(point.x+','+point.y,0)}
  }
- if(peakScore>=4000&&evolutionClock%90===0&&items.filter(i=>i.kind==='blaster').length===0)addItem('blaster',40);
+ if(peakScore>=unlock(4000,50)&&evolutionClock%30===0&&items.filter(i=>i.kind==='blaster').length===0)addItem('blaster',40);
+ if(peakScore>=unlock(1500,35)&&evolutionClock%25===0&&borderWalls.filter(w=>!w.restoreAt).length<Math.min(36,stageLevel()*5))addBorderWall();
+ regenerateBorders();
  const head=snake[0];const neighbors=[{x:head.x+1,y:head.y},{x:head.x-1,y:head.y},{x:head.x,y:head.y+1},{x:head.x,y:head.y-1}];
  const exits=neighbors.filter(p=>p.x>=0&&p.x<size&&p.y>=0&&p.y<size&&!snake.some(q=>same(p,q))&&!obstacles.some(q=>same(p,q))).length;
  if(score>=30&&snake.length>=12&&exits<=1&&evolutionClock-lastRescue>60&&!items.some(i=>i.kind==='shrink')){
@@ -162,7 +187,7 @@ function fireBlaster(){
  const d=delta[direction];shotTrail=[];
  for(let step=1;step<size;step++){
   const p={x:snake[0].x+d.x*step,y:snake[0].y+d.y*step};
-  if(p.x<0||p.x>=size||p.y<0||p.y>=size)break;
+  const exit=borderExit(p);if(exit){hitBorder(exit.side,exit.index);break}
   shotTrail.push(p);
   const obstacle=obstacles.findIndex(o=>same(o,p));
   if(obstacle>=0){
@@ -201,7 +226,7 @@ function refresh(){const best=Math.max(saved.best,personalCloudBest);
  text('global-best',shownGlobal===null?'—':String(shownGlobal));
  text('hud-global-label',provisionalGlobal?'Recorde global (provisório):':'Recorde global:');
  text('global-best-label',provisionalGlobal?'Recorde global (provisório)':'Recorde global (contas)');text('score',String(score));text('best',String(best));text('hud-score',String(score));text('hud-best',String(best));text('plays',String(saved.plays));text('visits',String(saved.visits));const body=document.getElementById('rank-body')!;body.replaceChildren();if(!saved.scores.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=3;td.textContent='Salve um nickname e jogue uma partida para aparecer no ranking.';tr.append(td);body.append(tr)}else saved.scores.slice(0,10).forEach((entry,i)=>{const tr=document.createElement('tr');[String(i+1),entry.name,String(entry.score)].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td)});body.append(tr)})}
-function draw(){ctx.fillStyle='#071a20';ctx.fillRect(0,0,600,600);ctx.strokeStyle='#122c32';ctx.lineWidth=1;for(let n=0;n<=size;n++){ctx.beginPath();ctx.moveTo(n*cell,0);ctx.lineTo(n*cell,600);ctx.moveTo(0,n*cell);ctx.lineTo(600,n*cell);ctx.stroke()}if(evolutionPreview){for(const item of items){const colors={normal:'#ff657c',rare:'#ffdc51',shrink:'#a17bff',slow:'#71d8ff',blaster:'#ff9c3d'};ctx.fillStyle=colors[item.kind];ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*(item.kind==='rare'?.4:.33),0,Math.PI*2);ctx.fill();if(item.expires){ctx.strokeStyle='#fff9';ctx.lineWidth=3;ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*.44,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(0,(item.expires-evolutionClock)/(item.kind==='rare'?38:45)));ctx.stroke()}}for(const block of obstacles){const hits=obstacleHits.get(block.x+','+block.y)??0;ctx.fillStyle=hits===0?'#8392a5':hits===1?'#d9a36e':'#f46e6e';ctx.fillRect(block.x*cell+3,block.y*cell+3,cell-6,cell-6);if(hits){ctx.strokeStyle='#20242e';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(block.x*cell+cell*.25,block.y*cell+4);ctx.lineTo(block.x*cell+cell*.5,block.y*cell+cell*.55);ctx.lineTo(block.x*cell+cell*.72,block.y*cell+cell-4);ctx.stroke()}}if(shotTrail.length){ctx.fillStyle='#ffe987bb';for(const p of shotTrail)ctx.fillRect(p.x*cell+cell*.4,p.y*cell+cell*.4,cell*.2,cell*.2)}}else{ctx.fillStyle='#ff657c';ctx.beginPath();ctx.arc(food.x*cell+cell/2,food.y*cell+cell/2,cell*.35,0,Math.PI*2);ctx.fill()}snake.forEach((piece,i)=>{ctx.fillStyle=i===0?'#a0ffd0':'#46dca2';ctx.fillRect(piece.x*cell+2,piece.y*cell+2,cell-4,cell-4)});}
+function draw(){ctx.fillStyle='#071a20';ctx.fillRect(0,0,600,600);ctx.strokeStyle='#122c32';ctx.lineWidth=1;for(let n=0;n<=size;n++){ctx.beginPath();ctx.moveTo(n*cell,0);ctx.lineTo(n*cell,600);ctx.moveTo(0,n*cell);ctx.lineTo(600,n*cell);ctx.stroke()}if(evolutionPreview){for(const item of items){const colors={normal:'#ff657c',rare:'#ffdc51',shrink:'#a17bff',slow:'#71d8ff',blaster:'#ff9c3d'};ctx.fillStyle=colors[item.kind];ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*(item.kind==='rare'?.4:.33),0,Math.PI*2);ctx.fill();if(item.expires){ctx.strokeStyle='#fff9';ctx.lineWidth=3;ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*.44,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(0,(item.expires-evolutionClock)/(item.kind==='rare'?38:45)));ctx.stroke()}}for(const block of obstacles){const hits=obstacleHits.get(block.x+','+block.y)??0;ctx.fillStyle=hits===0?'#8392a5':hits===1?'#d9a36e':'#f46e6e';ctx.fillRect(block.x*cell+3,block.y*cell+3,cell-6,cell-6);if(hits){ctx.strokeStyle='#20242e';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(block.x*cell+cell*.25,block.y*cell+4);ctx.lineTo(block.x*cell+cell*.5,block.y*cell+cell*.55);ctx.lineTo(block.x*cell+cell*.72,block.y*cell+cell-4);ctx.stroke()}}for(const wall of borderWalls){if(wall.restoreAt)continue;ctx.fillStyle=wall.hits===0?'#cf79ee':wall.hits===1?'#f1b65c':'#ff7777';const x=wall.side==='left'?0:wall.side==='right'?size-1:wall.index;const y=wall.side==='top'?0:wall.side==='bottom'?size-1:wall.index;const thickness=cell*.22;if(wall.side==='top')ctx.fillRect(x*cell,y*cell,cell,thickness);else if(wall.side==='bottom')ctx.fillRect(x*cell,(y+1)*cell-thickness,cell,thickness);else if(wall.side==='left')ctx.fillRect(x*cell,y*cell,thickness,cell);else ctx.fillRect((x+1)*cell-thickness,y*cell,thickness,cell)}if(shotTrail.length){ctx.fillStyle='#ffe987bb';for(const p of shotTrail)ctx.fillRect(p.x*cell+cell*.4,p.y*cell+cell*.4,cell*.2,cell*.2)}}else{ctx.fillStyle='#ff657c';ctx.beginPath();ctx.arc(food.x*cell+cell/2,food.y*cell+cell/2,cell*.35,0,Math.PI*2);ctx.fill()}snake.forEach((piece,i)=>{ctx.fillStyle=i===0?'#a0ffd0':'#46dca2';ctx.fillRect(piece.x*cell+2,piece.y*cell+2,cell-4,cell-4)});}
 function floatPoints(at:Point,amount:number){
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
  const board=canvas.getBoundingClientRect();
@@ -218,7 +243,7 @@ function floatPoints(at:Point,amount:number){
 }
 function placeFood(){const free:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y});if(!free.length){end(true);return}food=free[Math.floor(Math.random()*free.length)]}
 function schedule(){window.clearTimeout(timer);if(state==='playing')timer=window.setTimeout(tick,Math.max(75,155-Math.floor(score/50)*8)+(evolutionPreview&&evolutionClock<slowUntil?85:0))}
-function tick(){if(state!=='playing')return;direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const head={x:snake[0].x+d.x,y:snake[0].y+d.y};const picked=evolutionPreview?items.find(i=>same(i.point,head)):undefined;const eating=evolutionPreview?Boolean(picked&&picked.kind!=='shrink'&&picked.kind!=='slow'&&picked.kind!=='blaster'):head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if(head.x<0||head.x>=size||head.y<0||head.y>=size||body.some(p=>p.x===head.x&&p.y===head.y)||(evolutionPreview&&obstacles.some(p=>same(p,head)))){end(false);return}snake.unshift(head);
+function tick(){if(state!=='playing')return;direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const rawHead={x:snake[0].x+d.x,y:snake[0].y+d.y};const exit=evolutionPreview?borderExit(rawHead):null;const head=evolutionPreview?{x:(rawHead.x+size)%size,y:(rawHead.y+size)%size}:rawHead;const picked=evolutionPreview?items.find(i=>same(i.point,head)):undefined;const eating=evolutionPreview?Boolean(picked&&picked.kind!=='shrink'&&picked.kind!=='slow'&&picked.kind!=='blaster'):head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if((!evolutionPreview&&(head.x<0||head.x>=size||head.y<0||head.y>=size))||(exit&&borderAt(exit.side,exit.index))||body.some(p=>p.x===head.x&&p.y===head.y)||(evolutionPreview&&obstacles.some(p=>same(p,head)))){end(false);return}snake.unshift(head);
  // Aviso temático de risco: somente quando há pouco espaço, sem criar frutas ou alterar pontos.
  const freeNeighbors=[{x:head.x+1,y:head.y},{x:head.x-1,y:head.y},{x:head.x,y:head.y+1},{x:head.x,y:head.y-1}].filter(p=>p.x>=0&&p.x<size&&p.y>=0&&p.y<size&&!snake.some(q=>q.x===p.x&&q.y===p.y)).length;
  if(score>=30&&snake.length>=12&&freeNeighbors<=1&&!dangerAnnounced){dangerAnnounced=true;arcadePersonality('snake','danger')}
@@ -244,7 +269,7 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
  if(!evolutionPreview)placeFood();if(state!=='playing'){draw();return}}else if(!eating)snake.pop();draw();refresh();schedule()}
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
-function start(){endSequence++;items=[];obstacles=[];obstacleHits.clear();shotTrail=[];evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
+function start(){endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();shotTrail=[];evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
  didCelebratePersonal=false;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
  resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}else{saved.plays++;store();globalCounters.recordPlay(recordGameStart('snake'))}draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){
