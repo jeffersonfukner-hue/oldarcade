@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import {gameModes} from '../data/gameModes.js';
+import {isTimeRanking} from '../data/rankingRules.js';
 import {gameRegistry} from '../data/gameRegistry';
 const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title, modes:Object.entries(gameModes).filter(([,mode])=>mode.title===titleId&&mode.competitive)})).filter(group=>group.modes.length>0);
 ---
@@ -37,7 +38,7 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
      <div class="arcade-mode-grid">
       {group.modes.map(([id,mode])=><article class="panel" data-account-record={id}>
        <h5>{mode.symbol} {mode.name}</h5>
-       <p>Melhor pontuação: <strong data-account-best>Consultando…</strong></p>
+       <p>{isTimeRanking(id)?'Melhor tempo':'Melhor pontuação'}: <strong data-account-best>Consultando…</strong></p>
        <p>Posição no ranking: <strong data-account-rank>—</strong></p>
        <div class="account-missions" aria-label="Missões pessoais"><strong>Próximas missões</strong><ul data-account-missions><li>Consultando seu progresso…</li></ul></div>
        <p class="small muted" data-account-challenge>Preparando seu próximo desafio…</p>
@@ -59,6 +60,7 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
   </section>
  </div>
  <script>
+  import {formatRankingValue,isTimeRanking} from '../data/rankingRules.js';
   const login=document.querySelector<HTMLFormElement>('#account-login')!;
   const register=document.querySelector<HTMLFormElement>('#account-register')!;
   const loginTab=document.querySelector<HTMLButtonElement>('#tab-login')!;
@@ -77,6 +79,8 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
    recordsStatus.textContent='Consultando seus recordes…';
    await Promise.all(recordCards.map(async card=>{
     const game=card.dataset.accountRecord!;
+    const timed=isTimeRanking(game);
+    const display=(value:number)=>formatRankingValue(game,value);
     const best=card.querySelector<HTMLElement>('[data-account-best]')!;
     const rank=card.querySelector<HTMLElement>('[data-account-rank]')!;
     const challenge=card.querySelector<HTMLElement>('[data-account-challenge]')!;
@@ -90,24 +94,24 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
      const data=await response.json() as {available?:boolean;mine?:{score:number;rank:number}|null;top?:Array<{score:number;rank:number}>};
      if(requestId!==recordsRequest)return;
      if(!data.available)throw Error('Indisponível');
-     best.textContent=data.mine?String(data.mine.score):'Sem recorde';
+     best.textContent=data.mine?display(data.mine.score):'Sem recorde';
      rank.textContent=data.mine&&Number.isSafeInteger(data.mine.rank)?data.mine.rank+'º':'—';
      if(data.mine){
-      const points=String(data.mine.score);
+      const points=display(data.mine.score);
       const position=data.mine.rank;
-      challenge.textContent=position===1?'Você está no topo! Continue jogando para defender a liderança.':position>1&&Number.isSafeInteger(position)?'Você está em '+position+'º lugar. Que tal subir no ranking?':'Seu recorde é '+points+' pontos. Tente superá-lo!';
-      play.textContent=position===1?'🏆 Defender liderança →':'🎯 Bater meus '+points+' pontos →';
-      const tasks=['Superar sua melhor marca de '+points+' pontos'];
+      challenge.textContent=position===1?'Você está no topo! Continue jogando para defender a liderança.':position>1&&Number.isSafeInteger(position)?'Você está em '+position+'º lugar. Que tal subir no ranking?':'Sua marca é '+points+'. Tente superá-la!';
+      play.textContent=position===1?'🏆 Defender liderança →':'🎯 Melhorar minha marca de '+points+' →';
+      const tasks=['Superar sua melhor marca de '+points];
       if(position===1)tasks.push('Manter o 1º lugar no ranking');
       else if(Number.isSafeInteger(position)&&position>3){
        const podium=data.top?.[2];
-       tasks.push(podium&&Number.isFinite(podium.score)?'Buscar o Top 3 (referência atual: '+podium.score+' pontos)':'Conquistar uma vaga no Top 3');
+       tasks.push(podium&&Number.isFinite(podium.score)?'Buscar o Top 3 (referência atual: '+display(podium.score)+')':'Conquistar uma vaga no Top 3');
       }else if(position===2||position===3)tasks.push('Conquistar o 1º lugar');
       setMissions(tasks);
      }else{
       challenge.textContent='Você ainda não registrou recorde nesta modalidade.';
       play.textContent='🎮 Registrar meu primeiro recorde →';
-      setMissions(['Registrar sua primeira pontuação nesta modalidade','Buscar uma vaga no Top 3']);
+      setMissions([timed?'Completar 40 linhas e registrar seu primeiro tempo':'Registrar sua primeira pontuação nesta modalidade','Buscar uma vaga no Top 3']);
      }
     }catch{if(requestId===recordsRequest){best.textContent='Indisponível';rank.textContent='—';challenge.textContent='Não foi possível consultar seu progresso agora.';play.textContent='🎮 Jogar agora →';setMissions(['Missões indisponíveis temporariamente'])}}
    }));
