@@ -5,6 +5,8 @@
 # OldArcade — continuidade obrigatória
 
 ## ESTADO ATUAL PARA NOVO CHAT — 16/11/2026 (ler primeiro)
+- Feedback: cobra Evolution acelera cedo demais. Ajustado somente Evolution: início 210 ms, aceleração de 7 ms por 100 pontos de pico, mínimo 145 ms; Clássico preservado.
+
 - Ajuste solicitado de jogabilidade Evolution: progressão de teste menos acelerada (marcos 0/30/60/90/130/170/220), tiros são projéteis visíveis com deslocamento de 2 células por tick (não laser instantâneo); obstáculos internos e bordas preservam cor fixa ao sofrer dano. Sem rota de Preview dentro de Preview: testar `/jogos/snake/evolution/` no Preview da branch. Não publicar produção.
 
 - Evolution como terceiro modo em `/jogos/snake/evolution/` no Preview: página própria, gameModes `snake-evolution`, ranking/recordes/contadores/conta compartilhados com isolamento por modo, GameShare e HUD herdados da página do Snake; mecânicas continuam com limiares rápidos de teste. Não há migração D1, merge ou produção. CI/Preview ainda precisam de verificação. Corrigida chamada ausente `celebrate('global')` que fazia falhar o teste E2E de partículas de recorde global; adicionados testes de rota Evolution, isolamento de leaderboard e contadores. Arquivos principais: `src/pages/jogos/snake/evolution.astro`, `src/scripts/snake.ts`, `src/scripts/globalLeaderboard.ts`.
