@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## PENDENTE — observabilidade e relatórios de produção (planejar depois)
+- **Status:** backlog, não implementar agora. Solicitação do proprietário em 17/11/2026, inspirada no monitoramento do Chueire Imóveis e KitCasaPré.
+- **Alertas críticos por e-mail:** avisar rapidamente sobre indisponibilidade de jogos/site, falhas de autenticação, erros em API/Cloudflare/D1 e impossibilidade de registrar resultados/rankings. Registrar contexto mínimo (momento, ambiente, jogo/fluxo, erro, frequência), agrupar repetições e evitar exposição de dados pessoais.
+- **Relatório diário às 18h (America/Sao_Paulo):** resumo de visitas, partidas iniciadas/concluídas quando mensuráveis, jogos mais usados, recordes, falhas e saúde geral, diferenciando Preview de produção.
+- **Arquitetura antes da implementação:** avaliar Cloudflare Workers/Cron Triggers, serviço de envio e verificação de saúde externa/independente; usar componente/serviço compartilhado, custo mínimo, controle de alertas e confirmação de entrega; definir destinatário, limites, política de retenção e critérios de severidade antes de ativar.
+- **Critérios de aceite futuros:** testar falha simulada sem e-mail real no Preview; deduplicação, retry e relatório diário no fuso correto; monitoramento não deve depender exclusivamente do serviço afetado; somente ativar envio real e deploy de produção com autorização expressa.
+
+
 ## Tetris #002 — Space após Game Over e recorde autenticado não enviado (17/11/2026)
 - **Evidência do proprietário no Preview:** com a conta conectada, após pressionar Espaço sucessivamente até Game Over, a partida recomeçou sem intenção. Screenshot mostrou **melhor local 33.700**, **recorde global 3.400** e **ranking da conta 3.400**. O número local por si só não comprova que uma partida de 33.700 foi gravada no servidor, pois é máximo persistido em `localStorage` e pode ter sido obtido sob regra antiga.
 - **Causa confirmada no código:** `src/scripts/tetris.ts` executava `start()` ao receber `Space` em estado `over`; `src/scripts/modeRanking.ts` aguardava 6.500 ms **antes** de tentar `submit()`, e se `round` mudasse descartava o resultado antes do POST. Isso permite perda da marca mesmo logado.
