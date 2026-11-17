@@ -2,8 +2,8 @@
 export const gameModes = Object.freeze({
   snake: Object.freeze({title:'snake',name:'Snake Clássico',tagline:'O desafio original',url:'/jogos/snake/',symbol:'🐍',description:'Cada fruta vale 10 pontos. Supere a maior pontuação registrada.',competitive:true,maxScore:4000,scoreDecimals:3}),
   'snake-adventure': Object.freeze({title:'snake',name:'Snake Aventura',tagline:'Missões e níveis contínuos',url:'/jogos/snake/aventura/',symbol:'🍎',description:'Frutas especiais, novas missões e ranking exclusivo deste modo.',competitive:true,maxScore:4000,scoreDecimals:3}),
-  tetris: Object.freeze({title:'tetris',name:'Tetris Clássico',tagline:'Encaixe as peças, limpe as linhas',url:'/jogos/tetris/',symbol:'🧱',description:'Sete formatos, peças em queda, combo de linhas e evolução de velocidade. Jogue sem cadastro.',competitive:true,maxScore:100000000,scoreDecimals:0}),
-  'snake-evolution': Object.freeze({title:'snake',name:'Snake Evolution',tagline:'Poderes e obstáculos dinâmicos',url:'/jogos/snake/evolution/',symbol:'⚡',description:'Bordas progressivas, tiros automáticos e poderes. Ranking próprio.',competitive:true,maxScore:4000,scoreDecimals:3})
+  'snake-evolution': Object.freeze({title:'snake',name:'Snake Evolution',tagline:'Poderes e obstáculos dinâmicos',url:'/jogos/snake/evolution/',symbol:'⚡',description:'Bordas progressivas, tiros automáticos e poderes. Ranking próprio.',competitive:true,maxScore:4000,scoreDecimals:3}),
+tetris: Object.freeze({title:'tetris',name:'Tetris Clássico',tagline:'Encaixe as peças, limpe as linhas',url:'/jogos/tetris/',symbol:'🧱',description:'Sete formatos, peças em queda, combo de linhas e evolução de velocidade. Jogue sem cadastro.',competitive:true,maxScore:100000000,scoreDecimals:0})
 });
 export const gameModeIds=Object.freeze(Object.keys(gameModes));
 export function gameMode(id){return Object.hasOwn(gameModes,id)?gameModes[id]:null;}
