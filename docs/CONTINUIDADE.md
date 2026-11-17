@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## Tetris #002 — pódio real, 4 linhas sem missão e temporização do game over (17/11/2026)
+- Feedback visual do proprietário: ao eliminar quatro linhas, o Clássico exibia simultaneamente pontuação e “MISSÃO CUMPRIDA”, apesar de não haver missões; modal de registro aparecia cedo demais após efeito de Game Over; ao fazer login, pódio mostrava “TOP 3” mesmo para 2º colocado e efeito ficava atrás do botão “Jogar novamente”.
+- `src/scripts/tetris.ts`: retirada de `celebrate('mission')` para quatro linhas e mudança de nível; permanece o efeito global de pontos (`+800 · TETRIS! 4 linhas` no nível 1), HUD de nível e pontuação apenas por linhas. Término emite `oldarcade:game-finished` com `recordDelayMs:6500`, preservando celebração de derrota de 4s e tela de revanche antes do login. Commit `db632c35`.
+- `src/scripts/modeRanking.ts`: atraso limitado e opt-in em `finishResult()`; Snake continua com atraso zero (`efb31b19`). Comemoração de pódio usa `data.mine.rank` (2º/3º), e é mostrada após fechar o modal, incluindo percurso com código de recuperação (`c8da982d`).
+- `src/scripts/gameCelebration.ts` e `src/components/GamePage.astro`: card compartilhado exibe título específico de posição, medalha de prata para 2º e classe `is-podium` acima da overlay de revanche (`a10689e6`, `cd06d660`). E2E de rank 2 e atraso do modal: `tests/tetris.spec.ts` (`3ce2dfce`).
+- Pendente: observar CI do HEAD, validar visualmente no Preview com proprietário e registrar evidências. Sem merge, produção, SQL, Lovable.
+
+
 ## Tetris #002 — queda suave e pontuação por linhas (17/11/2026)
 - **Feedback do proprietário no Preview:** Espaço parecia teletransporte; placar subia a cada descida, contradizendo o objetivo de pontuar só por linhas; faltava efeito de pontos sobre o tabuleiro ao limpar linhas.
 - **Causa comprovada no código anterior:** `drop(true)` chamava `award(steps*2)` para cada célula da queda instantânea e movia a peça em um `while` sem frames; `softDrop()` chamava `award(1)` por célula. Assim, movimentos geravam pontos sem linhas eliminadas.
