@@ -4,6 +4,7 @@ import {recordGameStart,recordGameScore,recordGameFinish} from './gameEvents';
 import {setupGlobalGameCounters} from './globalGameCounters';
 import {showScoreFeedback} from './scoreFeedback';
 import {setCountdownOverlay} from './gameCountdownOverlay';
+import {formatRankingValue} from '../data/rankingRules.js';
 
 type PieceName='I'|'O'|'T'|'S'|'Z'|'J'|'L';
 type Cell=0|PieceName;
@@ -28,8 +29,11 @@ const stage=node<HTMLElement>('tetris-stage'),screen=node<HTMLElement>('tetris-s
 const title=node<HTMLElement>('tetris-overlay-title'),description=node<HTMLElement>('tetris-overlay-text');
 const countdown=node<HTMLElement>('tetris-countdown'),startButton=node<HTMLButtonElement>('tetris-start');
 const pauseButton=node<HTMLButtonElement>('tetris-pause'),fullscreenButton=node<HTMLButtonElement>('tetris-fullscreen');
-const counters=setupGlobalGameCounters('tetris','tetris-global');
-const key='oldarcade:tetris:classic:v1';
+const modeId=stage.dataset.gameMode==='tetris-sprint'?'tetris-sprint':'tetris';
+const sprint=modeId==='tetris-sprint';
+const TARGET_LINES=40;
+const counters=setupGlobalGameCounters(modeId,'tetris-global');
+const key=sprint?'oldarcade:tetris:sprint:v1':'oldarcade:tetris:classic:v1';
 let best=0,plays=0;
 try{const saved=JSON.parse(localStorage.getItem(key)||'{}');best=Number.isSafeInteger(saved.best)&&saved.best>=0?saved.best:0;plays=Number.isSafeInteger(saved.plays)&&saved.plays>=0?saved.plays:0}catch{}
 function save(){try{localStorage.setItem(key,JSON.stringify({best,plays}))}catch{}}
@@ -86,17 +90,21 @@ function move(dx:number){
  if(state!=='playing'||!piece||dropAnimating||collides(piece,dx,0))return;
  piece.x+=dx;draw();
 }
+const displayBest=()=>sprint?(best>0?formatRankingValue(modeId,best):'—'):String(best);
 function update(){
  node('tetris-status').textContent=state==='playing'?'● Jogando':state==='paused'?'● Pausado':state==='countdown'?'● Preparando':state==='over'?'● Fim de jogo':'● Pronto';
- node('tetris-score').textContent=String(score);node('tetris-best').textContent=String(best);
- node('tetris-lines').textContent=String(lines);node('tetris-level').textContent=String(level);
+ node('tetris-score').textContent=sprint?lines+'/'+TARGET_LINES:String(score);
+ node('tetris-best').textContent=displayBest();
+ node('tetris-lines').textContent=sprint?Math.min(lines,TARGET_LINES)+'/'+TARGET_LINES:String(lines);
+ node('tetris-level').textContent=sprint?'1':String(level);
  node('tetris-plays').textContent=String(plays);
- node('tetris-local-best').textContent=String(best);node('tetris-sidebar-level').textContent=String(level);
- node('tetris-global').textContent=String(globalProvisional?score:globalTarget??'—');node('tetris-provisional').hidden=!globalProvisional;
+ node('tetris-local-best').textContent=displayBest();node('tetris-sidebar-level').textContent=sprint?lines+'/'+TARGET_LINES:String(level);
+ node('tetris-global').textContent=sprint?formatRankingValue(modeId,globalTarget):String(globalProvisional?score:globalTarget??'—');node('tetris-provisional').hidden=sprint||!globalProvisional;
 }
 function award(points:number){
- score+=points;if(score>best){best=score;save()}
- recordGameScore('tetris',score);update();
+ score+=points;
+ if(!sprint){if(score>best){best=score;save()};recordGameScore(modeId,score)}
+ update();
 }
 function land(){
  if(!piece||state!=='playing')return;
@@ -112,11 +120,12 @@ function land(){
  if(cleared){
   board=[...Array.from({length:cleared},()=>Array<Cell>(COLS).fill(0)),...remaining];
   lines+=cleared;
-  const oldLevel=level;level=Math.min(30,Math.floor(lines/10)+1);
+  const oldLevel=level;level=sprint?1:Math.min(30,Math.floor(lines/10)+1);
   const points=[0,100,300,500,800][cleared]*oldLevel;
   award(points);
   showScoreFeedback(screen,canvas,points,cleared===4?'TETRIS! 4 linhas':cleared===1?'1 linha':cleared+' linhas',completed[0],ROWS);
-  // O modo Clássico não tem missões: somente pontos e mudança de nível no HUD.
+  // Clássico pontua linhas; Sprint utiliza somente tempo de conclusão.
+  if(sprint&&lines>=TARGET_LINES){finish(true);return}
  }else update();
  reserveUsed=false;
  if(spawn())schedule();
@@ -165,7 +174,7 @@ function hold(){
  else{reserve=old;if(!spawn())return}
  draw();
 }
-function speed(){return Math.max(70,900*Math.pow(.80,level-1))}
+function speed(){return sprint?900:Math.max(70,900*Math.pow(.80,level-1))}
 function schedule(){
  window.clearTimeout(fallTimer);
  if(state!=='playing')return;
@@ -205,8 +214,8 @@ function draw(){
  }
  preview(nextCanvas,queue[0]??null);preview(holdCanvas,reserve);
 }
-function celebrate(kind:'defeat',message:string,final=false){
- document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'tetris',kind,message,final}}));
+function celebrate(kind:'defeat'|'mission',message:string,final=false){
+ document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:modeId,kind,message,final}}));
 }
 function show(heading:string,message:string,button:string){
  title.textContent=heading;description.textContent=message;startButton.textContent=button;
@@ -231,17 +240,34 @@ function start(){
  finishSequence++;stopDropAnimation();window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  clock.reset();board=empty();bag=[];queue=[];reserve=null;reserveUsed=false;
  piece=null;score=0;lines=0;level=1;globalProvisional=false;drawNext();
- const event=recordGameStart('tetris');counters.recordPlay(event);
+ const event=recordGameStart(modeId);counters.recordPlay(event);
  plays++;save();spawn();update();centerGameBoard(screen,stage);countdownStart(true);
 }
-function finish(){
+function finish(completed=false){
  if(state==='over')return;
  const sequence=++finishSequence;
+ // Amostrar o relógio antes de deixar playing, inclusive no último encaixe.
+ const duration=clock.milliseconds();
  state='over';stopDropAnimation();globalProvisional=false;window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
- const duration=clock.milliseconds();save();update();draw();
- // A mensagem final aparece por 4s; depois damos mais tempo para ler
- // a tela de resultado antes de apresentar o modal de conta/ranking.
- recordGameFinish('tetris',score,duration,{recordDelayMs:6500});
+ if(sprint){
+  if(completed){
+   const elapsed=Math.max(1,duration);
+   if(!best||elapsed<best){best=elapsed;save()}
+   update();draw();
+   recordGameScore(modeId,elapsed);
+   recordGameFinish(modeId,elapsed,elapsed,{recordDelayMs:6500});
+   celebrate('mission','40 linhas eliminadas em '+formatRankingValue(modeId,elapsed)+'! Sprint concluído.',true);
+   window.setTimeout(()=>{if(sequence===finishSequence&&state==='over')show('Sprint concluído','40 linhas em '+formatRankingValue(modeId,elapsed)+'.','▶ Correr novamente')},4000);
+  }else{
+   update();draw();
+   // Tentativas sem 40 linhas não podem ir ao ranking.
+   celebrate('defeat','Tentativa encerrada com '+lines+' de 40 linhas. Tente novamente!',true);
+   window.setTimeout(()=>{if(sequence===finishSequence&&state==='over')show('Sprint não concluído','Você eliminou '+lines+' de 40 linhas.','▶ Tentar novamente')},4000);
+  }
+  return;
+ }
+ save();update();draw();
+ recordGameFinish(modeId,score,duration,{recordDelayMs:6500});
  celebrate('defeat','Você fez '+score+' pontos e eliminou '+lines+' linhas. Pronto para a revanche?',true);
  window.setTimeout(()=>{if(sequence===finishSequence&&state==='over')show('Fim de jogo','Você marcou '+score+' pontos e eliminou '+lines+' linhas.','▶ Jogar novamente')},4000);
 }
@@ -308,15 +334,15 @@ document.addEventListener('fullscreenchange',()=>{
 });
 document.addEventListener('oldarcade:mode-ranking-updated',event=>{
  const detail=(event as CustomEvent<{game:string;global:number|null}>).detail;
- if(detail?.game!=='tetris')return;
+ if(detail?.game!==modeId)return;
  globalTarget=detail.global;
  if(state!=='playing'&&state!=='countdown')globalProvisional=false;
  update();
 });
 document.addEventListener('oldarcade:mode-record-provisional',event=>{
  const detail=(event as CustomEvent<{game:string}>).detail;
- if(detail?.game!=='tetris')return;
+ if(detail?.game!==modeId)return;
  globalProvisional=true;update();
 });
-document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-request',{detail:{game:'tetris'}}));
+document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-request',{detail:{game:modeId}}));
 board=empty();drawNext();draw();update();
