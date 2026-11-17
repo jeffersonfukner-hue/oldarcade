@@ -152,3 +152,7 @@ GitHub branch/PR → testes GitHub Actions → Cloudflare Preview → validaçã
 - Efeitos durante a partida: texto breve central, crescimento e desaparecimento, transparência e partículas discretas, sem modal, botão, backdrop, captura de toque ou pausa. Mensagens de resultado final podem ter tratamento separado.
 - Evitar mensagens repetitivas ou simultâneas: prioridade entre eventos, intervalo mínimo (cooldown), variação de frases, cancelamento de mensagens obsoletas e preferência por eventos relevantes. Respeitar movimento reduzido e acessibilidade.
 - Evolução futura: parametrização por jogo/modo no painel administrativo previsto na seção 13, com prévia, auditoria e controle de versões. **Somente diretriz registrada agora; não implementar motor nem novos jogos sem aprovação.**
+
+## 18. Piloto autorizado de progressão (sem contaminar ranking)
+- Snake Evolution em teste opt-in na URL do Clássico com `?evolution=1`, apenas host de Preview. Frutas comuns coexistentes; frutas raras temporizadas; progressão geométrica provisória; encolhimento com custo 30 pontos e 3 segmentos, somente quando perigo e pontuação >=30; obstáculos, lentidão e disparos X. Valores provisórios até validação de jogo.
+- Modo experimental não envia score, partida ou recorde a API/armazenamento competitivo. Não alterar ranking legado, versão oficial ou produção até decisão sobre modo próprio e política de versionamento.
