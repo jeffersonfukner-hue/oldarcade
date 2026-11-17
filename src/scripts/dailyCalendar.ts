@@ -1,6 +1,6 @@
 import {DAILY_MODES} from '../data/dailyChallenges.js';
 type DayStatus={date:string;status:'started'|'finished'};
-type CalendarResponse={game:string;today:string;month:string;days:DayStatus[];account:{nickname:string}};
+type CalendarResponse={game:string;today:string;month:string;days:DayStatus[];account:{nickname:string}|null};
 const monthName=(month:string)=>new Date(month+'-15T12:00:00Z').toLocaleDateString('pt-BR',{month:'long',year:'numeric',timeZone:'UTC'});
 const moveMonth=(month:string,step:number)=>{
  const [year,number]=month.split('-').map(Number);
@@ -41,9 +41,9 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   monthLabel.textContent=monthName(month);
   const active=month===today.slice(0,7);
   const attempted=payload.days.some(x=>x.date===today);
-  login.hidden=true;start.hidden=!active||attempted;start.disabled=!active||attempted;
-  done.hidden=!attempted;next.disabled=month>=today.slice(0,7);
-  info.textContent=attempted?'Sua tentativa de hoje já foi utilizada. O próximo desafio abre amanhã.':active?'Desafio disponível para sua conta: uma única tentativa hoje.':'Somente os desafios do dia atual podem ser iniciados.';
+  login.hidden=!!payload.account;start.hidden=!payload.account||!active||attempted;start.disabled=!payload.account||!active||attempted;
+  done.hidden=!payload.account||!attempted;next.disabled=month>=today.slice(0,7);
+  info.textContent=!payload.account?'Entre na conta para acessar o desafio diário. O calendário é público, mas a partida exige login.':attempted?'Sua tentativa de hoje já foi utilizada. O próximo desafio abre amanhã.':active?'Desafio disponível para sua conta: uma única tentativa hoje.':'Somente os desafios do dia atual podem ser iniciados.';
  };
  const load=async(wanted?:string)=>{
   const seq=++sequence;
@@ -65,7 +65,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
  prev.addEventListener('click',()=>void load(moveMonth(month||today.slice(0,7),-1)));
  next.addEventListener('click',()=>{if(current&&moveMonth(month,1)<=today.slice(0,7))void load(moveMonth(month,1))});
  start.addEventListener('click',()=>{
-  if(!current||current.today!==today||current.month!==today.slice(0,7))return;
+  if(!current?.account||current.today!==today||current.month!==today.slice(0,7))return;
   start.disabled=true;
   // O motor executa o POST atômico. O calendário só solicita iniciar.
   document.dispatchEvent(new CustomEvent('oldarcade:daily-start-request',{detail:{game,date:today}}));
