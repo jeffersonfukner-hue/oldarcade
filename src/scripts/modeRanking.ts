@@ -112,7 +112,7 @@ if(root){
    e.preventDefault();const btn=form.querySelector<HTMLButtonElement>('button[type=submit]')!;btn.disabled=true;
    authStatus.textContent='Autenticando…';const formData=new FormData(form);
    const fields=Object.fromEntries(formData.entries());
-   if(kind==='register')Object.assign(fields,{recordEmailOptIn:false});
+   if(kind==='register')Object.assign(fields,{recordEmailOptIn:formData.has('recordEmailOptIn'),dailyEmailOptIn:formData.has('dailyEmailOptIn')});
    try{
     const r=await fetch('/api/auth/'+kind,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fields)});
     const data=await r.json() as {player?:{nickname:string};error?:string;recoveryCode?:string};
