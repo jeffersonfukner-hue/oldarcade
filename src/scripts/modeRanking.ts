@@ -1,6 +1,6 @@
 type Entry={nickname:string;score:number;rank?:number;achievedAt?:string;durationMs?:number|null};
 type Board={available:boolean;top?:Entry[];mine?:Entry|null;error?:string;saved?:boolean;code?:string};
-type Result={game:string;score:number;durationMs?:number};
+type Result={game:string;score:number;durationMs?:number;recordDelayMs?:number};
 const root=document.querySelector<HTMLElement>('[data-mode-ranking]');
 if(root){
  const game=root.dataset.game||'',endpoint='/api/games/'+encodeURIComponent(game)+'/leaderboard';
@@ -109,7 +109,11 @@ if(root){
    if(!provisionalRecord){provisionalRecord=true;document.dispatchEvent(new CustomEvent('oldarcade:mode-record-provisional',{detail:{game,score}}))}
   }else if(provisionalRecord){provisionalRecord=false;provisional.hidden=true;global.textContent=String(top??'—')}
  });
- async function finishResult(points:number,sequence:number){
+ async function finishResult(points:number,sequence:number,delayMs=0){
+  // Separar a leitura do encerramento da abertura do registro sem bloquear o jogo.
+  // O atraso é opt-in por modo; o Snake mantém o comportamento existente.
+  if(delayMs>0)await new Promise<void>(resolve=>window.setTimeout(resolve,delayMs));
+  if(sequence!==round)return;
   await accountPromise;
   if(sequence!==round)return;
   if(account){
@@ -133,7 +137,8 @@ if(root){
  document.addEventListener('oldarcade:game-finished',event=>{
   const d=(event as CustomEvent<Result>).detail;if(d?.game!==game)return;
   score=d.score;durationMs=d.durationMs??0;played=true;
-  void finishResult(score,round);
+  const delay=Number.isFinite(d.recordDelayMs)?Math.max(0,Math.min(15000,d.recordDelayMs!)):0;
+  void finishResult(score,round,delay);
  });
  // Contrato compartilhado: permite que HUDs montados após o primeiro GET
  // recebam o snapshot já consultado, sem nova chamada nem polling da API.
