@@ -31,6 +31,7 @@
 - Jogabilidade em primeiro lugar; HUD legível em janela e tela cheia com estado, pontos e recordes. Botão e tecla `F` para fullscreen, `Esc` para sair; pausa por Espaço quando aplicável.
 - Countdown visível 3–2–1 em **toda** nova partida, retomada e transição de fullscreen; preservar posição, pontuação e efeitos ao pausar.
 - Usar `centerGameBoard` de `src/scripts/gameViewport.ts` ao começar, retomar e sair da tela cheia. Não duplicar scroll/centralização.
+- **Layout de tela cheia é compartilhado:** cada stage declara `data-arcade-viewport` e `data-board-shape="square|portrait"`; a área recebe `oa-board-slot`, a superfície real recebe `oa-board-surface`. `src/styles/global.css` define o único contrato de dimensionamento, sempre pela proporção nativa e altura útil da janela, inclusive ultrawide. Nunca adicionar remendos de fullscreen por ID de jogo; novos jogos somente declaram a forma ou parâmetros. HUD, controles e progressos devem permanecer visíveis sem esticar Canvas.
 - Pausar automaticamente quando a aba fica oculta; reinício limpa efeitos e timers da rodada anterior. Respeitar `prefers-reduced-motion`.
 - Adaptar mecânicas ao jogo; não copiar regras específicas do Snake para outros gêneros.
 
