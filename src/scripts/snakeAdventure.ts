@@ -1,3 +1,4 @@
+import {setupGameClock} from './gameClock';
 import {centerGameBoard} from './gameViewport';
 import {recordGameStart,recordGameScore,recordGameFinish} from './gameEvents';
 import {setupGlobalGameCounters} from './globalGameCounters';
@@ -187,7 +188,9 @@ function beginCountdown(first:boolean){
  }
  step();
 }
+const gameClock=setupGameClock(screen,()=>state==='playing');
 function start(){
+ gameClock.reset();
  floatLayer.replaceChildren();
  snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';
  food={at:{x:14,y:10},kind:'apple'};special=null;
