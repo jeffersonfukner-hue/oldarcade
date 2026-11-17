@@ -29,7 +29,7 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
     <a href="/jogos/tetris/sobrevivencia/" aria-current={survival?'page':undefined}>Sobrevivência · maior tempo</a>
    </nav>
   </section>
-  {modeId==='tetris'?<DailyCalendar game="tetris" />:<p class="panel small">📅 **Desafio Diário do Tetris:** uma única tentativa por dia para jogadores com conta. <a href="/jogos/tetris/#daily-title-tetris">Conhecer o desafio →</a></p>}
+  {modeId==='tetris'?<DailyCalendar game="tetris" />:<p class="panel small">📅 <strong>Desafio Diário do Tetris:</strong> uma única tentativa por dia para jogadores com conta. <a href="/jogos/tetris/#daily-title-tetris">Conhecer o desafio →</a></p>}
   <section class="game-layout" aria-label="Jogar Tetris">
    <div class="panel game-stage" id="tetris-stage" data-game-mode={modeId} data-arcade-viewport data-board-shape="portrait">
     <div class="game-topline"><strong>▣ TETRIS <span class="muted">· {survival?"Sobrevivência":sprint?"Sprint":"Clássico"}</span></strong><div class="actions"><button type="button" id="tetris-pause">Pausar</button><button type="button" id="tetris-fullscreen" aria-label="Alternar tela cheia do Tetris">⛶ Tela cheia (F)</button></div></div>
