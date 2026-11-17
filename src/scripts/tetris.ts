@@ -6,6 +6,7 @@ import {showScoreFeedback} from './scoreFeedback';
 import {setCountdownOverlay} from './gameCountdownOverlay';
 import {formatRankingValue} from '../data/rankingRules.js';
 import {gameModes} from '../data/gameModes.js';
+import {tetrisLevel,tetrisGravityMs} from '../data/tetrisRules.js';
 
 type PieceName='I'|'O'|'T'|'S'|'Z'|'J'|'L';
 type Cell=0|PieceName;
@@ -123,7 +124,7 @@ function land(){
  if(cleared){
   board=[...Array.from({length:cleared},()=>Array<Cell>(COLS).fill(0)),...remaining];
   lines+=cleared;
-  const oldLevel=level;level=sprint?1:survival?survivalLevel():Math.min(30,Math.floor(lines/10)+1);
+  const oldLevel=level;level=tetrisLevel(modeId,lines,clock.milliseconds());
   const points=[0,100,300,500,800][cleared]*oldLevel;
   if(timed)update();else award(points);
   showScoreFeedback(screen,canvas,timed?cleared:points,timed?(cleared===1?'linha eliminada':'linhas eliminadas'):cleared===4?'TETRIS! 4 linhas':cleared===1?'1 linha':cleared+' linhas',completed[0],ROWS);
@@ -177,12 +178,11 @@ function hold(){
  else{reserve=old;if(!spawn())return}
  draw();
 }
-function survivalLevel(){return Math.min(30,Math.floor(clock.milliseconds()/gameModes['tetris-survival'].speedIntervalMs)+1)}
-function speed(){return sprint?900:Math.max(70,900*Math.pow(survival?.82:.80,level-1))}
+function speed(){return tetrisGravityMs(modeId,lines,clock.milliseconds())}
 function schedule(){
  window.clearTimeout(fallTimer);
  if(state!=='playing')return;
- if(survival){const next=survivalLevel();if(next!==level){level=next;update();if(level>=4)screen.dataset.survivalDanger='true';else screen.removeAttribute('data-survival-danger')}}
+ if(survival){const next=tetrisLevel(modeId,lines,clock.milliseconds());if(next!==level){level=next;update();if(level>=4)screen.dataset.survivalDanger='true';else screen.removeAttribute('data-survival-danger')}}
  fallTimer=window.setTimeout(()=>{if(state!=='playing')return;drop();if(state==='playing')schedule()},speed());
 }
 function drawTile(context:CanvasRenderingContext2D,x:number,y:number,size:number,name:PieceName,ghost=false){
