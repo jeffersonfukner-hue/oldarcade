@@ -46,7 +46,7 @@ if(overlay){
   const card=overlay.querySelector<HTMLElement>('.oa-celebration-card');
   if(card){card.style.animation='none';void card.offsetWidth;card.style.animation=''}
   const longMessage=detail.kind==='danger'||detail.kind==='rescue';
-  timeout=window.setTimeout(hide,final?4000:longMessage?2700:1400);
+  timeout=window.setTimeout(hide,final?4000:detail.kind==='podium'||detail.kind==='leader'?2600:longMessage?2700:1400);
  });
  overlay.addEventListener('click',event=>{if(event.target===overlay)hide()});
  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!overlay.hidden)hide()});
