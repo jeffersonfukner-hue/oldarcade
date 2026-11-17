@@ -4,6 +4,15 @@
 
 # OldArcade — continuidade obrigatória
 
+## Correção estrutural — 17/11/2026 · marcos de pontuação reutilizáveis
+- **Problema confirmado em código:** Clássico/Evolution exibiam mensagens de 100/200/400/800/... pontos com `funMoment()` (texto grande e partículas na posição da cobra); Aventura copiava a mesma lista e exibia `notify()`, um banner legado fixo no topo. A regra de componentes compartilhados estava sendo violada.
+- **Correção GitHub:** `src/scripts/snakeMilestones.ts` centraliza os textos/limiares, `nextSnakeMilestone()` e `showSnakeMoment()`. `src/scripts/snake.ts` (Clássico/Evolution) e `src/scripts/snakeAdventure.ts` (Aventura) consomem o **mesmo código** de detecção e o mesmo efeito visual. Commits `867d1eb4`, `06ba7edd`, `2d0fea27`.
+- **Escopo:** marcos 100, 200, 400, 800, 1600, 3200, 6400, 12800 e 25600; o aviso `notify()` no Aventura permanece só para o evento distinto de marca global provisória. Nenhuma alteração de pontuação, progressão, missões, recordes ou mecânica.
+- **Padrão reafirmado:** animações/limiares/mensagens compartilháveis do mesmo evento pertencem a um único módulo; jogos e modos somente fornecem dados e contexto de exibição, sem cópias. Uma alteração do componente comum deve refletir nos três modos.
+- **Validação:** CI dos commits acima ainda pendente no momento desta anotação. O proprietário realiza exclusivamente o aceite **visual** no Preview; agente cuida de código, CI e testes automatizados, sem confundir deploy com aceite visual. Sem merge, publicação em produção, alterações SQL ou Lovable.
+- **Próxima ação:** obter CI verde do HEAD, entregar Preview da branch ao proprietário com instrução curta para comparar marcos de 100/200/400 nos três modos; registrar feedback sem validar visualmente em nome dele.
+
+
 ## Verificação objetiva — 17/11/2026 · CI e Cloudflare Preview
 - GitHub Actions workflow #225 (run `44018611072`, commit `2b749fe7`) **success**: tipos, build, API e Playwright aprovados (101 passed, 1 skipped; desktop/mobile Chromium), pacote `oldarcade-preview` gerado. Evidência: https://github.com/jeffersonfukner-hue/oldarcade/actions/runs/44018611072
 - Workflows #223 (`1dcb7e99`) e #224 (`fa68e697`) falharam nos mesmos testes legados, antes das correções do #225; não são a referência de aceite atual.
