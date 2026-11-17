@@ -440,8 +440,8 @@ async function finishRound(sequence:number,won:boolean){
  window.setTimeout(()=>{
   if(sequence!==endSequence||state!=='over')return;
   show(won?'Tabuleiro completo!':'Fim de jogo',summary,'▶ Jogar novamente');
-  if(showAccount)openRecordModal();
- },4200);
+  if(showAccount&&!account)openRecordModal();
+ },account?900:1800);
 }
 
 function pause(){if(state==='playing'){state='paused';window.clearTimeout(timer);show('Jogo pausado','A partida está preservada.','▶ Continuar');setStatus('Pausado');pauseBtn.textContent='Continuar'}else if(state==='paused'){beginCountdown('A partida será retomada em:')}}
@@ -533,7 +533,7 @@ async function checkAccount(){
 async function saveRecord(showModalOnError=true){
  try{
   const wasProvisional=roundBeatGlobal;
-  const result=await leaderboard.submit(score);
+  const result=await leaderboard.submit(score,roundDurationMs);
   text('record-end-summary',confirmedResult(result,score,wasProvisional));
   if(account){saved.nickname=account.nickname;store();refresh()}
   if(modalOpen&&!recoveryCode)closeRecordModal();
@@ -592,7 +592,7 @@ async function authAndRecord(kind:'register'|'login',fields:Record<string,string
   }
   setModalStatus('Conta conectada. Registrando seu resultado…');
   const wasProvisional=roundBeatGlobal;
-  const rankingResult=await leaderboard.submit(score);
+  const rankingResult=await leaderboard.submit(score,roundDurationMs);
   text('record-end-summary',confirmedResult(rankingResult,score,wasProvisional));
   setModalStatus(result.recoveryCode?'Recorde registrado! Guarde o código antes de continuar.':'Recorde registrado!');
   if(!recoveryCode)closeRecordModal();
