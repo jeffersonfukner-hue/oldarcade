@@ -55,6 +55,9 @@ let globalProvisional=false;
 let state:'ready'|'countdown'|'playing'|'paused'|'over'='ready';
 let gameTimer:number|undefined,countdownTimer:number|undefined,bannerTimer:number|undefined;
 let changingFullscreen=false;
+let lastBannerPriority=0;
+let lastWallSignature='';
+let finishSequence=0;
 const missions=[{label:'Colete 5 maçãs',target:5,minimum:50},{label:'Colete 1 fruta dourada',target:1,minimum:150},{label:'Colete 3 itens especiais',target:3,minimum:300}];
 function goal(){return missions[level-1]??{label:'Colete '+(level+1)+' maçãs',target:level+1,minimum:300+(level-3)*150}}
 
@@ -87,6 +90,10 @@ outerWalls.setAttribute('aria-hidden','true');
 outerWalls.style.cssText='position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:2';
 screen.append(outerWalls);
 function drawOuterWalls(){
+ const boardRect=canvas.getBoundingClientRect();
+ const signature=edgeWalls.map(w=>w.side+':'+w.index).join('|')+'@'+boardRect.width.toFixed(2)+'x'+boardRect.height.toFixed(2)+'@'+boardRect.left.toFixed(1)+','+boardRect.top.toFixed(1);
+ if(signature===lastWallSignature)return;
+ lastWallSignature=signature;
  outerWalls.replaceChildren();
  if(!edgeWalls.length)return;
  const board=canvas.getBoundingClientRect(),parent=screen.getBoundingClientRect();
@@ -130,9 +137,15 @@ function floatPoints(at:Point,amount:number){
  item.addEventListener('animationend',()=>item.remove(),{once:true});
  window.setTimeout(()=>item.remove(),1100);
 }
-function notify(message:string){
- banner.textContent=message;banner.hidden=false;window.clearTimeout(bannerTimer);
- bannerTimer=window.setTimeout(()=>{banner.hidden=true},2300);
+function notify(message:string,priority=1){
+ if(!banner.hidden&&priority<lastBannerPriority)return;
+ banner.textContent=message;banner.hidden=false;banner.dataset.priority=String(priority);
+ banner.classList.remove('adventure-banner-pop');
+ void banner.offsetWidth;
+ banner.classList.add('adventure-banner-pop');
+ lastBannerPriority=priority;
+ window.clearTimeout(bannerTimer);
+ bannerTimer=window.setTimeout(()=>{banner.hidden=true;lastBannerPriority=0},priority>=3?3000:2300);
 }
 function missionProgress(){return level===1?apples:level===2?golds:level===3?level3Specials:levelApples}
 function update(){
@@ -161,7 +174,8 @@ function advance(){
  else if(level===3){if(!special)spawn('ice');setBarriers(4);}
  else if(level===4){if(!special)spawn('speed');setBarriers(5);}
  else setBarriers(Math.min(8,level+1));
- notify('Nível '+level+'! '+(level===4?'Nova fruta de velocidade!':'Novo desafio desbloqueado.'));
+ notify('🎮 NÍVEL '+level+'! '+(level===4?'Fruta de velocidade desbloqueada!':'Novo desafio desbloqueado!'),3);
+ document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake-adventure',kind:'mission',message:'Nível '+level+' desbloqueado!'}}));
 }
 function schedule(){
  window.clearTimeout(gameTimer);
@@ -195,7 +209,7 @@ function tick(){
   floatPoints(head,collected.kind==='gold'?50:collected.kind==='ice'?15:collected.kind==='speed'?20:10);
   const cheers=[{score:100,text:'NOSSA! 100 PONTOS!'},{score:200,text:'OLHA SÓ! 200 PONTOS!'},{score:400,text:'MANDOU BEM! 400 PONTOS!'},{score:800,text:'FANTÁSTICO! 800 PONTOS!'},{score:1600,text:'CARAMBA, VOCÊ É BOM! 1.600 PONTOS!'},{score:3200,text:'VOCÊ É UMA LENDA! 3.200 PONTOS!'},{score:6400,text:'INACREDITÁVEL! 6.400 PONTOS!'},{score:12800,text:'VOCÊ DOMINOU O ARCADE! 12.800 PONTOS!'},{score:25600,text:'LENDÁRIO! 25.600 PONTOS!'}];
   if(lastCheerIndex<cheers.length&&score>=cheers[lastCheerIndex].score){
-   const cheer=cheers[lastCheerIndex++];notify(cheer.text);
+   const cheer=cheers[lastCheerIndex++];notify(cheer.text,2);
   }
   if(score>best){best=score;save()}
   if(globalTarget!==null&&score>globalTarget)globalProvisional=true;
@@ -235,15 +249,17 @@ function beginCountdown(first:boolean){
 }
 const gameClock=setupGameClock(screen,()=>state==='playing');
 function start(){
+ finishSequence++;
  gameClock.reset();
  floatLayer.replaceChildren();
  snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';
  food={at:{x:14,y:10},kind:'apple'};special=null;
  score=0;lastCheerIndex=0;level=1;apples=0;golds=0;level3Specials=0;normalSinceSpecial=0;iceTicks=0;speedTicks=0;levelApples=0;globalProvisional=false;setBarriers(0);
  adventureCounters.recordPlay(recordGameStart('snake-adventure'));
- plays++;save();window.clearTimeout(bannerTimer);banner.hidden=true;draw();update();centerGameBoard(screen,stage);beginCountdown(true);
+ plays++;save();window.clearTimeout(bannerTimer);banner.hidden=true;lastBannerPriority=0;draw();update();centerGameBoard(screen,stage);beginCountdown(true);
 }
 function finish(){
+ const sequence=++finishSequence;
  const durationMs=gameClock.milliseconds();
  state='over';globalProvisional=false;window.clearTimeout(gameTimer);window.clearTimeout(bannerTimer);
  banner.hidden=true;save();
@@ -251,7 +267,10 @@ function finish(){
  const target=globalTarget!==null&&globalTarget>score?globalTarget:best>score?best:null;
  const missing=target===null?null:target-score;
  const encouragement=missing!==null&&missing<=50?'Faltaram apenas '+missing+' pontos para alcançar '+(globalTarget!==null&&target===globalTarget?'o recorde global':'seu recorde')+'! Tente novamente.':'Continue tentando superar seus recordes!';
- show('Fim da Aventura','Você marcou '+score+' pontos e chegou ao nível '+level+'. '+encouragement,'▶ Jogar novamente');
+ const result='Você marcou '+score+' pontos e chegou ao nível '+level+'. '+encouragement;
+ notify('🏁 FIM DA AVENTURA · '+score+' PONTOS',3);
+ document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake-adventure',kind:'defeat',message:result,final:true}}));
+ window.setTimeout(()=>{if(sequence!==finishSequence||state!=='over')return;show('Fim da Aventura',result,'▶ Jogar novamente')},1300);
  update();
 }
 function pause(){
@@ -291,7 +310,7 @@ document.addEventListener('oldarcade:mode-ranking-updated',event=>{
 document.addEventListener('oldarcade:mode-record-provisional',event=>{
  const d=(event as CustomEvent<{game:string;score:number}>).detail;
  if(d?.game!=='snake-adventure')return;
- globalProvisional=true;notify('🏆 Meta global superada! Liderança provisória.');update();
+ globalProvisional=true;notify('🏆 Meta global superada! Liderança provisória.',3);update();
 });
 async function toggleFullscreen(){
  if(changingFullscreen)return;
