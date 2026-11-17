@@ -4,6 +4,7 @@ import GameHud from '../../components/GameHud.astro';
 import { gameRegistry } from '../../data/gameRegistry';
 import GameShare from '../../components/GameShare.astro';
 import HistoricalScreenings from '../../components/HistoricalScreenings.astro';
+import DailyCalendar from '../../components/DailyCalendar.astro';
 const release = gameRegistry.snake;
 const title='Jogar Snake online grátis — Regras, recordes e história | OldArcade';
 const description='Jogue Snake, a cobrinha clássica, grátis e em tela cheia. Aprenda os controles, acompanhe seu recorde local e descubra as origens do gênero em 1976.';
@@ -12,6 +13,7 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
 <GamePage modeId="snake" title={title} description={description} structured={structured}>
   <div class="shell">
     <section class="hero" style="padding-bottom:18px"><div class="eyebrow">Arcade · Estratégia · Jogo gratuito</div><h1>Snake: o jogo da <span class="accent">cobrinha</span></h1><p class="lede">Controle a cobrinha, colete frutas e tente bater seu próprio recorde. Sem cadastro, sem instalação — comece quando quiser.</p><a class="btn secondary" href="/jogos/snake/aventura/">✨ Experimentar o modo Aventura</a> <a class="btn" href="/jogos/snake/evolution/">⚡ Jogar Evolution (Preview)</a></section>
+    <DailyCalendar game="snake" />
     <section class="game-layout" aria-label="Jogo Snake e estatísticas">
       <div class="panel game-stage" id="game-stage" data-arcade-viewport data-board-shape="square">
         <div class="game-topline"><strong>◼ SNAKE <span class="muted">· Original OldArcade</span></strong><div class="actions"><button id="pause-btn" type="button">Pausar</button><button id="fullscreen-btn" type="button" aria-label="Ativar tela cheia do jogo">⛶ Tela cheia (F)</button></div></div>
