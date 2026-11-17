@@ -35,7 +35,7 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
               <input id="record-register-email" type="email" maxlength="254" autocomplete="email" placeholder="seu@email.com"/>
               <label for="record-register-pass">Senha (mínimo de 8 caracteres)</label>
               <input id="record-register-pass" type="password" minlength="8" maxlength="128" required autocomplete="new-password"/>
-              <label class="email-opt-in"><input id="record-register-alert" type="checkbox"/> Receber e-mail quando alguém superar meu recorde <span class="muted">(em construção)</span></label>
+              <fieldset class="notification-choices"><legend>Avisos por e-mail (opcionais, ainda não enviados)</legend><label class="email-opt-in"><input id="record-register-alert" type="checkbox"/> Se alguém superar meu recorde</label><label class="email-opt-in"><input id="record-register-daily-alert" type="checkbox"/> Quando houver Desafio Diário</label></fieldset>
               <button type="submit" class="btn">Criar conta e registrar recorde</button>
             </form>
             <form id="record-login" hidden>
