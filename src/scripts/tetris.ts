@@ -276,7 +276,7 @@ window.addEventListener('keydown',event=>{
  const code=event.code;
  if(code==='KeyF'&&!event.repeat){event.preventDefault();void toggleFullscreen();return}
  if(code==='KeyP'||code==='Escape'&&document.fullscreenElement!==stage){event.preventDefault();if(state==='playing'||state==='paused'||state==='countdown')pause();return}
- if(code==='Space'&&state!=='playing'){event.preventDefault();if(!event.repeat){if(state==='paused')pause();else if(state==='ready'||state==='over')start()}return}
+ if(code==='Space'&&state!=='playing'){event.preventDefault();if(!event.repeat&&state==='paused')pause();return}
  const actions:Record<string,()=>void>={
  ArrowLeft:controls.left,KeyA:controls.left,ArrowRight:controls.right,KeyD:controls.right,
  ArrowDown:controls.down,KeyS:controls.down,ArrowUp:controls.rotate,KeyX:controls.rotate,KeyW:controls.rotate,
