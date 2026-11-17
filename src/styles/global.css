@@ -333,6 +333,9 @@ html,body{touch-action:manipulation}
 [data-arcade-viewport]:fullscreen{
  box-sizing:border-box;min-width:0;overflow:hidden;
 }
+[data-arcade-viewport]:fullscreen .game-topline{
+ position:relative;z-index:8;flex:none;
+}
 [data-arcade-viewport]:fullscreen .arcade-game-layout{
  display:grid;grid-template-columns:minmax(0,var(--oa-slot-max)) minmax(135px,190px);
  grid-template-areas:"board stats";gap:16px;justify-content:center;
