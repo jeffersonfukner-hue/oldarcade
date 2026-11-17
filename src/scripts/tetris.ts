@@ -3,6 +3,7 @@ import {centerGameBoard} from './gameViewport';
 import {recordGameStart,recordGameScore,recordGameFinish} from './gameEvents';
 import {setupGlobalGameCounters} from './globalGameCounters';
 import {showScoreFeedback} from './scoreFeedback';
+import {setCountdownOverlay} from './gameCountdownOverlay';
 
 type PieceName='I'|'O'|'T'|'S'|'Z'|'J'|'L';
 type Cell=0|PieceName;
@@ -209,16 +210,16 @@ function celebrate(kind:'defeat',message:string,final=false){
 }
 function show(heading:string,message:string,button:string){
  title.textContent=heading;description.textContent=message;startButton.textContent=button;
- overlay.hidden=false;startButton.hidden=false;countdown.hidden=true;
+ overlay.hidden=false;setCountdownOverlay(overlay,countdown,startButton,false);
 }
 function countdownStart(first:boolean){
  window.clearTimeout(countTimer);window.clearTimeout(fallTimer);
- state='countdown';overlay.hidden=false;startButton.hidden=true;countdown.hidden=false;
+ state='countdown';overlay.hidden=false;setCountdownOverlay(overlay,countdown,startButton,true);
  title.textContent='Prepare-se';description.textContent=first?'A primeira peça chega em:':'Retomando em:';
  let remaining=3;update();
  const step=()=>{
   countdown.textContent=String(remaining);
-  if(remaining===1)countTimer=window.setTimeout(()=>{if(state!=='countdown')return;overlay.hidden=true;countdown.hidden=true;state='playing';update();schedule()},1000);
+  if(remaining===1)countTimer=window.setTimeout(()=>{if(state!=='countdown')return;overlay.hidden=true;setCountdownOverlay(overlay,countdown,startButton,false);state='playing';update();schedule()},1000);
   else countTimer=window.setTimeout(()=>{remaining--;step()},1000);
  };
  step();
