@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## Tetris #002 — Space após Game Over e recorde autenticado não enviado (17/11/2026)
+- **Evidência do proprietário no Preview:** com a conta conectada, após pressionar Espaço sucessivamente até Game Over, a partida recomeçou sem intenção. Screenshot mostrou **melhor local 33.700**, **recorde global 3.400** e **ranking da conta 3.400**. O número local por si só não comprova que uma partida de 33.700 foi gravada no servidor, pois é máximo persistido em `localStorage` e pode ter sido obtido sob regra antiga.
+- **Causa confirmada no código:** `src/scripts/tetris.ts` executava `start()` ao receber `Space` em estado `over`; `src/scripts/modeRanking.ts` aguardava 6.500 ms **antes** de tentar `submit()`, e se `round` mudasse descartava o resultado antes do POST. Isso permite perda da marca mesmo logado.
+- **Correções:** `7a378e82` separa submissão autenticada (imediata, sem atraso e não cancelada por rodada nova) da abertura do login anônimo (atraso visual preservado). Uma falha no POST mantém a opção de tentar novamente mesmo após reiniciar. Sincronização de sessão acompanha evento `oldarcade:account-changed`. `b4607fc9` reserva Space para queda durante jogo e retomada de pausa, nunca início automático após Game Over. `3760d3c9` remove o foco do botão ao começar a contagem, evitando ativação involuntária por Space nativo.
+- **Regressão Playwright:** `6697f106` simula usuário autenticado, resultado de 33.700 com atraso visual 6.500 ms e nova partida imediatamente; exige exatamente um POST válido e pontuação atualizada antes de 3s; também garante Space não inicia jogo na tela inicial.
+- **Validação pendente:** CI do HEAD, Cloudflare Preview atualizado e teste visual do proprietário. Não houve consultas ou alterações no D1, merge, deploy em produção ou Lovable. **Não reenviar automaticamente antigos recordes de `localStorage`**.
+
+
 ## Contrato global + checklist obrigatório — 17/11/2026
 - O proprietário reiterou que **já havia aprovado** reutilização de componentes; não deve precisar repetir. Falha de processo do agente: editar páginas individualmente antes de consultar o modelo. A partir desta revisão, `AGENTS.md` aponta explicitamente para o checklist obrigatório, registrado em `docs/PADROES_GLOBAIS_DOS_JOGOS.md`.
 - Contagem regressiva 3–2–1 corrigida na **fonte compartilhada**: `src/scripts/gameCountdownOverlay.ts` + `src/styles/global.css`; durante contagem ficam ocultos título, descrição e ação (incluindo botão `.btn` que ignorava `hidden`), permanecendo somente número animado. Consumidores integrados: Snake Clássico, Evolution, Aventura e Tetris, sem cópia do estilo entre jogos.
