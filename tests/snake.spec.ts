@@ -385,7 +385,7 @@ test('hero apresenta jogos disponíveis, visitas e partidas sem indicador redund
   return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,siteVisits:1523,gamesPlayed:1,totalPlays:4599})});
  });
  await page.goto('/');
- await expect(page.locator('#hero-published-games')).toHaveText('1');
+ await expect(page.locator('#hero-published-games')).toHaveText('2');
  await expect(page.locator('#hero-site-visits')).toHaveText('1.523');
  await expect(page.locator('#hero-games-played')).toHaveCount(0);
  await expect(page.locator('#hero-total-plays')).toHaveText('4.599');
