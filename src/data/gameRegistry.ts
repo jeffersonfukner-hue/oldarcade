@@ -4,6 +4,18 @@
  * Nunca reescrever entradas históricas; adicionar novas versões.
  */
 export const gameRegistry = {
+  tetris: {
+    number: 2,
+    name: 'Tetris',
+    createdAt: '2026-11-17',
+    version: '0.1.0-dev',
+    milestones: [
+      {date:'2026-11-17',mode:'tetris',title:'O segundo jogo entra no tabuleiro',notes:'Primeira implementação de blocos em queda com sete peças, próxima peça, reserva, peça fantasma e limpeza de linhas; construída com componentes compartilhados e aguardando validação no Preview.'}
+    ],
+    history: [
+      {version:'0.1.0-dev',date:'2026-11-17',notes:'Protótipo jogável do jogo #002, sem lançamento em produção; controles de teclado e toque, pontuação e ranking isolados.'}
+    ]
+  },
   snake: {
     number: 1,
     name: 'Snake',
