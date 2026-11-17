@@ -4,11 +4,12 @@
 
 # OldArcade — continuidade obrigatória
 
-## Regra operacional: validação do proprietário apenas da entrega completa (17/11/2026)
-- O proprietário reforçou que **já executou a migração SQL 0008 no Preview**; não solicitar repetição ou verificação técnica de JSON/Console.
-- Sua tarefa é validar o fluxo final **como jogador**, depois de o agente concluir implementação ponta a ponta, correções e QA técnico, preferencialmente com CI verde. Não fazer testes picados ou exigir atuação linha por linha.
-- O agente deve corrigir problemas, executar testes automatizados/API/E2E e preparar um único roteiro natural de jogo para validação. A única ação manual técnica reservada ao proprietário é aplicar os SQLs que o agente fornece em momento oportuno, com banco explicitado.
-- Regra também fixada em `AGENTS.md`. Em resposta às falhas de CI anteriores, teste de históricos corrigido no commit `c139803` (seletor de seção e comparação do texto). Verificar CI novo antes de declarar conclusão; nenhuma publicação, merge, SQL adicional ou alteração em produção.
+## Fluxo operacional definitivo — sem gargalos, proprietário participa quando necessário (17/11/2026)
+- **Esclarecimento do proprietário:** não é proibido pedir novos SQLs, acessos, configurações, decisões ou outras intervenções. Pelo contrário: **pedir imediatamente quando a ação se tornar necessária**, com instruções objetivas; ele executa e o desenvolvimento continua. Não acumular dependências para o final nem interromper o avanço por formalidades.
+- Diferenciar **intervenção operacional indispensável** (o proprietário atua na hora para destravar) de **testes técnicos fragmentados** (responsabilidade do agente; não terceirizar logs, JSONs, APIs, código, CI e depuração ao proprietário).
+- Concluir interface, backend, integração, contratos globais, regressões e testes técnicos antes da **validação de experiência do jogador**, que o proprietário faz como usuário final com entrega consolidada. Caso exista bloqueio que só ele possa resolver, avisar assim que for identificado, não esperar a entrega.
+- SQL 0008 do Desafio Diário Snake **já executado manualmente pelo proprietário no D1 Preview**, segundo sua confirmação. Não pedir de novo; somente validar funcionamento. Produção continua dependente de autorização separada.
+- Esta regra está em `AGENTS.md` e prevalece sobre interpretações anteriores como "nenhum SQL adicional" ou "somente intervenção ao final". Sem merge ou publicação automática.
 
 ## ESTADO ATUAL PARA NOVO CHAT — SQL diário e validação (17/11/2026)
 - **Migração 0008:** o proprietário confirmou "pronto" após receber o SQL integral de `migrations/0008_daily_challenges.sql` e executá-lo manualmente no Cloudflare D1 `oldarcade-stats-preview`. **Aplicação informada pelo proprietário; leitura/funcionamento real da tabela ainda não verificados por API.** Não executar novamente sem necessidade comprovada. Produção continua sem autorização.
