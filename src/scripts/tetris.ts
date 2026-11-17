@@ -123,8 +123,8 @@ function land(){
   lines+=cleared;
   const oldLevel=level;level=sprint?1:Math.min(30,Math.floor(lines/10)+1);
   const points=[0,100,300,500,800][cleared]*oldLevel;
-  award(points);
-  showScoreFeedback(screen,canvas,points,cleared===4?'TETRIS! 4 linhas':cleared===1?'1 linha':cleared+' linhas',completed[0],ROWS);
+  if(sprint)update();else award(points);
+  showScoreFeedback(screen,canvas,sprint?cleared:points,sprint?(cleared===1?'linha eliminada':'linhas eliminadas'):cleared===4?'TETRIS! 4 linhas':cleared===1?'1 linha':cleared+' linhas',completed[0],ROWS);
   // Clássico pontua linhas; Sprint utiliza somente tempo de conclusão.
   if(sprint&&lines>=TARGET_LINES){finish(true);return}
  }else update();
