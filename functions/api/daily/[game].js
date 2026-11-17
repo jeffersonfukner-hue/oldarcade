@@ -15,10 +15,16 @@ async function playerAndDb(ctx){
 export async function onRequestGet(ctx){
  const game=String(ctx.params?.game||'');
  if(!dailyMode(game))return bodyError('Jogo sem desafio diário.',404);
- const auth=await playerAndDb(ctx);if(auth.error)return auth.error;
  const today=dateInSaoPaulo();
  const month=new URL(ctx.request.url).searchParams.get('month')||dateMonth(today);
- if(!validMonth(month))return bodyError('Mês inválido.',400);
+ if(!validMonth(month)||month>dateMonth(today))return bodyError('Mês inválido ou ainda não disponível.',400);
+ const auth=await playerAndDb(ctx);
+ if(auth.error){
+  // Visitantes podem ver o calendário público; login é obrigatório para
+  // iniciar a partida e consultar a participação pessoal.
+  if(auth.error.status===401)return reply({game,today,month,timezone:'America/Sao_Paulo',days:[],account:null});
+  return auth.error;
+ }
  try{
   const results=await auth.db.prepare(
    'SELECT challenge_date,outcome FROM daily_challenge_attempts WHERE game=? AND player_id=? AND challenge_date>=? AND challenge_date<? ORDER BY challenge_date'
