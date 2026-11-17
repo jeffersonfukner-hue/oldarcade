@@ -1,12 +1,14 @@
 ---
+import {isTimeRanking} from '../data/rankingRules.js';
 interface Props {game:string;name:string}
 const {game,name}=Astro.props;
+const timed=isTimeRanking(game);
 ---
-<section class="section panel mode-ranking" id={"ranking-"+game} data-mode-ranking data-game={game} aria-label={`Ranking global do ${name}`}>
+<section class="section panel mode-ranking" id={"ranking-"+game} data-mode-ranking data-game={game} data-ranking-metric={timed?"time":"points"} aria-label={`Ranking global do ${name}`}>
  <div class="section-head"><div><span class="eyebrow">Desafio OldArcade</span><h2>Ranking global — {name}</h2></div><span class="pill">Top 10 · Contas cadastradas</span></div>
- <div class="mode-ranking-hero"><span>🏆 Global: <strong data-rank-global>—</strong><em data-rank-provisional hidden> (provisório)</em></span><span>⭐ Seu recorde: <strong data-rank-personal>—</strong></span></div>
- <p class="small muted">Cada jogador ocupa uma posição. Em empate, vence quem registrou primeiro. Resultados ainda não são verificados contra a partida.</p>
- <div class="ranking-overflow"><table class="ranking"><thead><tr><th>Posição</th><th>Nickname</th><th>Pontos</th><th>Data e hora</th></tr></thead><tbody data-rank-body><tr><td colspan="4">Carregando…</td></tr></tbody></table></div>
+ <div class="mode-ranking-hero"><span>{timed?"⏱ Melhor tempo:":"🏆 Global:"} <strong data-rank-global>—</strong><em data-rank-provisional hidden> (provisório)</em></span><span>{timed?"⭐ Seu tempo:":"⭐ Seu recorde:"} <strong data-rank-personal>—</strong></span></div>
+ <p class="small muted">{timed?'Cada jogador disputa com seu menor tempo em 40 linhas. Empates favorecem o registro mais antigo.':'Cada jogador ocupa uma posição. Em empate, vence quem registrou primeiro.'} Resultados ainda não são verificados contra a partida.</p>
+ <div class="ranking-overflow"><table class="ranking"><thead><tr><th>Posição</th><th>Nickname</th><th>{timed?"Tempo":"Pontos"}</th><th>{timed?"Registrado em":"Data e hora"}</th></tr></thead><tbody data-rank-body><tr><td colspan="4">Carregando…</td></tr></tbody></table></div>
  <p data-rank-mine hidden></p><p data-rank-status class="small muted" role="status">Consultando classificação…</p>
  <p data-rank-summary class="record-end-summary" role="status" aria-live="polite"></p>
  <button data-rank-retry type="button" class="btn secondary" hidden>Tentar registrar novamente</button>
