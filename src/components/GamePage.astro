@@ -25,6 +25,8 @@ const schema=structured??{'@context':'https://schema.org','@type':'VideoGame',na
  .oa-celebration-card span{display:block;font-size:1.5rem}
  .oa-celebration-card p{font-size:.78rem;line-height:1.2;margin:.2rem 0;color:#fff}
  .oa-celebration:not(.is-rival) [data-celebration-replay]{display:none!important}
+ .oa-celebration.is-podium{position:absolute;inset:0;z-index:120;place-items:center;background:#09091bd9;pointer-events:none}
+ .oa-celebration.is-podium .oa-celebration-card{padding:clamp(.8rem,2.6vw,1.6rem);border-radius:1.25rem;background:#1d2745f5;box-shadow:0 0 36px #ffda5877}
  .oa-celebration.is-final{position:absolute;inset:0;z-index:100;pointer-events:none;padding:clamp(.5rem,2vw,1rem);background:#09091b66;overflow:hidden;place-items:center}
  .oa-celebration.is-final .oa-celebration-card{width:min(90%,480px);max-width:100%;box-sizing:border-box;padding:clamp(.65rem,2.5vw,1.5rem);border-radius:1.4rem;background:#182040dd;box-shadow:0 0 45px #ffda5866;animation:oa-final-show 4s ease-in-out both}
  .oa-celebration.is-final .oa-celebration-card p{font-size:clamp(.9rem,2.5vw,1.1rem);line-height:1.5}
