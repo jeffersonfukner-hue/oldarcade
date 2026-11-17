@@ -2,6 +2,7 @@ import {setupGameClock} from './gameClock';
 import {centerGameBoard} from './gameViewport';
 import {recordGameStart,recordGameScore,recordGameFinish} from './gameEvents';
 import {setupGlobalGameCounters} from './globalGameCounters';
+import {showScoreFeedback} from './scoreFeedback';
 
 type PieceName='I'|'O'|'T'|'S'|'Z'|'J'|'L';
 type Cell=0|PieceName;
@@ -35,6 +36,12 @@ let board:Cell[][]=[],piece:Falling|null=null,bag:PieceName[]=[],queue:PieceName
 let reserve:PieceName|null=null,reserveUsed=false,score=0,lines=0,level=1,state:State='ready';
 let globalTarget:number|null=null,globalProvisional=false;
 let fallTimer=0,countTimer=0,finishSequence=0,fullscreenChanging=false;
+let dropFrame=0,dropAnimating=false,dropVisualY:number|null=null;
+function stopDropAnimation(){
+ if(dropFrame)cancelAnimationFrame(dropFrame);
+ dropFrame=0;dropAnimating=false;dropVisualY=null;
+ screen.removeAttribute('data-drop-animating');
+}
 const clock=setupGameClock(screen,()=>state==='playing');
 const empty=():Cell[][]=>Array.from({length:ROWS},()=>Array<Cell>(COLS).fill(0));
 const clone=(m:Matrix)=>m.map(row=>[...row]);
@@ -67,7 +74,7 @@ function rotate(shape:Matrix,ccw=false):Matrix{
  return Array.from({length:n},(_,y)=>Array.from({length:n},(_,x)=>ccw?shape[x][n-1-y]:shape[n-1-x][y]));
 }
 function turn(ccw=false){
- if(state!=='playing'||!piece)return;
+ if(state!=='playing'||!piece||dropAnimating)return;
  const rotated=rotate(piece.shape,ccw);
  // Tentativas de deslocamento: paredes laterais e chão, sem atravessar blocos.
  for(const [dx,dy] of [[0,0],[-1,0],[1,0],[-2,0],[2,0],[0,-1],[-1,-1],[1,-1]]){
@@ -75,7 +82,7 @@ function turn(ccw=false){
  }
 }
 function move(dx:number){
- if(state!=='playing'||!piece||collides(piece,dx,0))return;
+ if(state!=='playing'||!piece||dropAnimating||collides(piece,dx,0))return;
  piece.x+=dx;draw();
 }
 function update(){
@@ -98,13 +105,16 @@ function land(){
   if(yy<0){finish();return}
   board[yy][piece.x+x]=piece.name;
  }
+ const completed=board.flatMap((row,y)=>row.every(Boolean)?[y]:[]);
  const remaining=board.filter(row=>row.some(value=>!value));
  const cleared=ROWS-remaining.length;
  if(cleared){
   board=[...Array.from({length:cleared},()=>Array<Cell>(COLS).fill(0)),...remaining];
   lines+=cleared;
   const oldLevel=level;level=Math.min(30,Math.floor(lines/10)+1);
-  award([0,100,300,500,800][cleared]*oldLevel);
+  const points=[0,100,300,500,800][cleared]*oldLevel;
+  award(points);
+  showScoreFeedback(screen,canvas,points,cleared===1?'1 linha':cleared+' linhas',completed[0],ROWS);
   if(cleared===4)celebrate('mission','TETRIS! Quatro linhas eliminadas de uma vez!');
   else if(level>oldLevel)celebrate('mission','Nível '+level+'! Agora as peças caem mais rápido.');
  }else update();
@@ -112,21 +122,43 @@ function land(){
  if(spawn())schedule();
 }
 function drop(hard=false){
- if(state!=='playing'||!piece)return;
+ if(state!=='playing'||!piece||dropAnimating)return;
  if(hard){
-  let steps=0;while(!collides(piece,0,1)){piece.y++;steps++}
-  if(steps)award(steps*2);
-  land();return;
+  let distance=0;
+  while(!collides(piece,0,distance+1))distance++;
+  window.clearTimeout(fallTimer);
+  // A animação é apenas visual: a peça continua sendo validada pela grade
+  // e só trava depois que a trajetória termina.
+  if(!distance||window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+   piece.y+=distance;land();return;
+  }
+  const active=piece,startY=piece.y,targetY=startY+distance;
+  const started=performance.now();
+  const duration=Math.min(240,Math.max(115,distance*14));
+  dropAnimating=true;
+  screen.dataset.dropAnimating='true';
+  const frame=(now:number)=>{
+   if(!dropAnimating||piece!==active||state!=='playing')return;
+   const t=Math.min(1,(now-started)/duration);
+   dropVisualY=startY+distance*t*t;
+   draw();
+   if(t<1){dropFrame=requestAnimationFrame(frame);return}
+   stopDropAnimation();
+   active.y=targetY;
+   land();
+  };
+  dropFrame=requestAnimationFrame(frame);
+  return;
  }
  if(!collides(piece,0,1)){piece.y++;draw()}
  else land();
 }
 function softDrop(){
- if(state!=='playing'||!piece)return;
- if(!collides(piece,0,1)){piece.y++;award(1);draw()}else land();
+ if(state!=='playing'||!piece||dropAnimating)return;
+ if(!collides(piece,0,1)){piece.y++;draw()}else land();
 }
 function hold(){
- if(state!=='playing'||!piece||reserveUsed)return;
+ if(state!=='playing'||!piece||reserveUsed||dropAnimating)return;
  const old=piece.name;
  reserveUsed=true;
  if(reserve){const next=reserve;reserve=old;piece=fresh(next);if(collides(piece)){finish();return}}
@@ -166,8 +198,9 @@ function draw(){
   for(let y=0;y<piece.shape.length;y++)for(let x=0;x<piece.shape[y].length;x++){
    if(!piece.shape[y][x])continue;
    const py=piece.y+y;
-   if(py+dy>=0)drawTile(ctx,piece.x+x,py+dy,TILE,piece.name,true);
-   if(py>=0)drawTile(ctx,piece.x+x,py,TILE,piece.name);
+   if(!dropAnimating&&py+dy>=0)drawTile(ctx,piece.x+x,py+dy,TILE,piece.name,true);
+   const visualY=(dropVisualY??piece.y)+y;
+   if(visualY>=-1)drawTile(ctx,piece.x+x,visualY,TILE,piece.name);
   }
  }
  preview(nextCanvas,queue[0]??null);preview(holdCanvas,reserve);
@@ -192,7 +225,7 @@ function countdownStart(first:boolean){
  step();
 }
 function start(){
- finishSequence++;window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
+ finishSequence++;stopDropAnimation();window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  clock.reset();board=empty();bag=[];queue=[];reserve=null;reserveUsed=false;
  piece=null;score=0;lines=0;level=1;globalProvisional=false;drawNext();
  const event=recordGameStart('tetris');counters.recordPlay(event);
@@ -201,14 +234,14 @@ function start(){
 function finish(){
  if(state==='over')return;
  const sequence=++finishSequence;
- state='over';globalProvisional=false;window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
+ state='over';stopDropAnimation();globalProvisional=false;window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  const duration=clock.milliseconds();save();update();draw();
  recordGameFinish('tetris',score,duration);
  celebrate('defeat','Você fez '+score+' pontos e eliminou '+lines+' linhas. Pronto para a revanche?',true);
  window.setTimeout(()=>{if(sequence===finishSequence&&state==='over')show('Fim de jogo','Você marcou '+score+' pontos e eliminou '+lines+' linhas.','▶ Jogar novamente')},4000);
 }
 function pause(){
- if(state==='playing'||state==='countdown'){state='paused';window.clearTimeout(fallTimer);window.clearTimeout(countTimer);show('Jogo pausado','Sua partida está preservada.','▶ Continuar')}
+ if(state==='playing'||state==='countdown'){stopDropAnimation();draw();state='paused';window.clearTimeout(fallTimer);window.clearTimeout(countTimer);show('Jogo pausado','Sua partida está preservada.','▶ Continuar')}
  else if(state==='paused'){centerGameBoard(screen,stage);countdownStart(false)}
  update();
 }
@@ -216,7 +249,7 @@ async function toggleFullscreen(){
  if(fullscreenChanging)return;
  fullscreenChanging=true;
  const resume=state==='playing'||state==='countdown';
- if(resume){state='paused';window.clearTimeout(fallTimer);window.clearTimeout(countTimer)}
+ if(resume){stopDropAnimation();draw();state='paused';window.clearTimeout(fallTimer);window.clearTimeout(countTimer)}
  try{
   if(document.fullscreenElement===stage)await document.exitFullscreen();
   else if(!document.fullscreenElement&&stage.requestFullscreen)await stage.requestFullscreen();
@@ -265,7 +298,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&(state==='
 document.addEventListener('fullscreenchange',()=>{
  fullscreenButton.textContent=document.fullscreenElement===stage?'⤢ Sair da tela cheia (F)':'⛶ Tela cheia (F)';
  if(fullscreenChanging)return;
- if(state==='playing'||state==='countdown'){state='paused';window.clearTimeout(fallTimer);window.clearTimeout(countTimer);countdownStart(false)}
+ if(state==='playing'||state==='countdown'){stopDropAnimation();draw();state='paused';window.clearTimeout(fallTimer);window.clearTimeout(countTimer);countdownStart(false)}
  if(document.fullscreenElement!==stage)centerGameBoard(screen,stage);
 });
 document.addEventListener('oldarcade:mode-ranking-updated',event=>{
