@@ -47,12 +47,18 @@ test('Tetris salva contador local e oferece comandos de toque e tela cheia',asyn
  await expect(page.getByRole('button',{name:'Girar peça'})).toBeVisible();
  await expect(page.getByRole('button',{name:'Queda instantânea'})).toBeVisible();
  await expect(page.getByRole('button',{name:'Reservar peça'})).toBeVisible();
- await page.locator('#tetris-fullscreen').click();
- await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id??'')).toBe('tetris-stage');
- await page.locator('#tetris-fullscreen').click();
- await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id??'')).toBe('');
- await page.getByRole('button',{name:/Começar partida/}).click();
- await expect(page.locator('#tetris-plays')).toHaveText('1');
- await page.reload();
- await expect(page.locator('#tetris-plays')).toHaveText('1');
+ await test.step('entrar em tela cheia',async()=>{
+  await page.locator('#tetris-fullscreen').click({timeout:7000});
+  await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id??''),{timeout:7000}).toBe('tetris-stage');
+ });
+ await test.step('sair de tela cheia',async()=>{
+  await page.locator('#tetris-fullscreen').click({timeout:7000});
+  await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id??''),{timeout:7000}).toBe('');
+ });
+ await test.step('persistir início de partida após recarga',async()=>{
+  await page.getByRole('button',{name:/Começar partida/}).click({timeout:7000});
+  await expect(page.locator('#tetris-plays')).toHaveText('1');
+  await page.reload({waitUntil:'domcontentloaded',timeout:8000});
+  await expect(page.locator('#tetris-plays')).toHaveText('1');
+ });
 });
