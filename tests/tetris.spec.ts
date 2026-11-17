@@ -16,7 +16,7 @@ test('Tetris #002 usa catálogo, página SEO e componentes globais',async({page}
  await expect(page.locator('#tetris-hold')).toBeVisible();
  await expect(page.locator('[data-mode-ranking][data-game=tetris]')).toBeVisible();
  await expect(page.locator('[data-game-share][data-game-slug=tetris]')).toBeVisible();
- await expect(page.locator('#tetris-best')).toHaveText('0');
+ await expect(page.locator('#tetris-best')).toHaveText('—');
  const doc=await page.evaluate(()=>({width:document.documentElement.scrollWidth,viewport:window.innerWidth}));
  expect(doc.width).toBeLessThanOrEqual(doc.viewport+1);
 });
