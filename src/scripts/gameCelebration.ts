@@ -31,12 +31,12 @@ if(overlay){
   const [emoji,heading]=labels[detail.kind];icon.textContent=emoji;title.textContent=heading;
   message.textContent=detail.message||'Mais uma conquista para sua história!';
   const final=Boolean(detail.final);
-  if(final){home.append(overlay)}else if(board){board.append(overlay)}
+  if(board){board.append(overlay)}else{home.append(overlay)}
   overlay.classList.toggle('is-final',final);
   overlay.classList.remove('is-rival');
   replay.hidden=true;overlay.hidden=false;
   const card=overlay.querySelector<HTMLElement>('.oa-celebration-card');
-  if(card&&!rival){card.style.animation='none';void card.offsetWidth;card.style.animation=''}
+  if(card){card.style.animation='none';void card.offsetWidth;card.style.animation=''}
   const longMessage=detail.kind==='danger'||detail.kind==='rescue';
   timeout=window.setTimeout(hide,final?4000:longMessage?2700:1400);
  });
