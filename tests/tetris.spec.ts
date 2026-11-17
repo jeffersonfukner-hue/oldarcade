@@ -233,7 +233,7 @@ test('Troca de conta mantém melhor local separado e atualiza recorde autenticad
  await page.route('**/api/auth/me',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({player:{nickname:player}})}));
  await page.route('**/api/games/tetris/leaderboard',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
   available:true,top:[{nickname:'Conta A',score:33700,rank:1}],
-  mine:player==='Conta A'?{nickname:'Conta A',score:33700,rank:1}:{nickname:'Conta B',score:3400,rank:2}
+  mine:player==='Conta A'?{nickname:'Conta A',score:33700,rank:1}:player==='Conta B'?{nickname:'Conta B',score:3400,rank:2}:null
  })}));
  await page.goto('/jogos/tetris/');
  await expect(page.locator('#tetris-local-best')).toHaveText('33700');
@@ -245,6 +245,7 @@ test('Troca de conta mantém melhor local separado e atualiza recorde autenticad
  await expect(page.locator('[data-rank-personal]')).toHaveText('3400');
  await expect(page.locator('#tetris-local-best')).toHaveText('33700');
  await expect(page.locator('#tetris-plays')).toHaveText('4');
+ player='';
  await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:account-changed',{detail:{player:null}})));
  await expect(page.locator('#tetris-best')).toHaveText('—');
  await expect(page.locator('#tetris-local-best')).toHaveText('33700');
