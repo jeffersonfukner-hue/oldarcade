@@ -174,8 +174,7 @@ function advance(){
  else if(level===3){if(!special)spawn('ice');setBarriers(4);}
  else if(level===4){if(!special)spawn('speed');setBarriers(5);}
  else setBarriers(Math.min(8,level+1));
- notify('🎮 NÍVEL '+level+'! '+(level===4?'Fruta de velocidade desbloqueada!':'Novo desafio desbloqueado!'),3);
- document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake-adventure',kind:'mission',message:'Nível '+level+' desbloqueado!'}}));
+ document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake-adventure',kind:'mission',message:'Nível '+level+'! '+(level===4?'Fruta de velocidade desbloqueada!':'Novo desafio desbloqueado!')}}));
 }
 function schedule(){
  window.clearTimeout(gameTimer);
@@ -250,6 +249,7 @@ function beginCountdown(first:boolean){
 const gameClock=setupGameClock(screen,()=>state==='playing');
 function start(){
  finishSequence++;
+ document.dispatchEvent(new CustomEvent('oldarcade:game-started',{detail:{game:'snake-adventure'}}));
  gameClock.reset();
  floatLayer.replaceChildren();
  snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';
@@ -268,9 +268,8 @@ function finish(){
  const missing=target===null?null:target-score;
  const encouragement=missing!==null&&missing<=50?'Faltaram apenas '+missing+' pontos para alcançar '+(globalTarget!==null&&target===globalTarget?'o recorde global':'seu recorde')+'! Tente novamente.':'Continue tentando superar seus recordes!';
  const result='Você marcou '+score+' pontos e chegou ao nível '+level+'. '+encouragement;
- notify('🏁 FIM DA AVENTURA · '+score+' PONTOS',3);
  document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'snake-adventure',kind:'defeat',message:result,final:true}}));
- window.setTimeout(()=>{if(sequence!==finishSequence||state!=='over')return;show('Fim da Aventura',result,'▶ Jogar novamente')},1300);
+ window.setTimeout(()=>{if(sequence!==finishSequence||state!=='over')return;show('Fim da Aventura',result,'▶ Jogar novamente')},4000);
  update();
 }
 function pause(){
