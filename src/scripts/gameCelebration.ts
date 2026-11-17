@@ -30,3 +30,25 @@ if(overlay){
  overlay.addEventListener('click',event=>{if(event.target===overlay)hide()});
  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!overlay.hidden)hide()});
 }
+
+// Ferramenta de validação: somente subdomínios de Preview do projeto Cloudflare.
+// O domínio base *.pages.dev de produção e qualquer domínio personalizado ficam excluídos.
+const previewHost=/^[a-z0-9-]+\.oldarcade-17c\.pages\.dev$/i;
+const testPanel=document.querySelector<HTMLElement>('#celebration-test-panel');
+if(testPanel&&previewHost.test(window.location.hostname)){
+ testPanel.hidden=false;
+ testPanel.querySelectorAll<HTMLButtonElement>('[data-test-celebration]').forEach(button=>{
+  button.addEventListener('click',()=>{
+   const kind=button.dataset.testCelebration as Kind;
+   if(!kind)return;
+   const examples:Record<Kind,string>={
+    personal:'Você superou sua melhor marca!',
+    mission:'Meta alcançada! Prepare-se para o próximo desafio.',
+    podium:'Você conquistou uma vaga entre os melhores!',
+    leader:'Primeiro lugar confirmado! Agora defenda o topo.',
+    rival:'Alguém já tomou a dianteira! Vai deixar assim?'
+   };
+   document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'preview-simulator',kind,message:examples[kind]}}));
+  });
+ });
+}

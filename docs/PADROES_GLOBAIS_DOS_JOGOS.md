@@ -89,3 +89,8 @@ GitHub branch/PR → testes GitHub Actions → Cloudflare Preview → validaçã
 - O componente global de celebração pertence a `GamePage.astro` e responde ao evento `oldarcade:celebrate`; mensagens curtas, visuais vibrantes, sem bloquear a partida e respeitando movimento reduzido.
 - Recorde pessoal pode ser celebrado durante a rodada; liderança e pódio só após confirmação da API. Não afirmar liderança duradoura nem segundos específicos sem evidência temporal.
 - Quando uma liderança provisória não se confirma porque há um rival à frente, mostrar convite provocativo para revanche com ação direta de jogar novamente. Não fabricar notificações de ultrapassagem em tempo real: a consulta ocorre no encerramento.
+
+## 12. Simulador de celebrações no Preview
+- O painel `celebration-test-panel` é exibido exclusivamente em subdomínios de Preview `*.oldarcade-17c.pages.dev`, nunca no domínio principal de Pages nem em domínio personalizado.
+- Os cinco botões disparam o evento visual `oldarcade:celebrate` usado pelos jogos; não chamam APIs nem escrevem em D1. Não representam conquistas reais.
+- Validar em desktop e mobile, incluindo redução de movimento, botão de revanche e fechamento com Escape.
