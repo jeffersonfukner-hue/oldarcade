@@ -29,11 +29,21 @@ try{
 function save(){try{localStorage.setItem(key,JSON.stringify({best,highest,plays}))}catch{}}
 let snake:Point[]=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];
 let barriers:Point[]=[];
+type EdgeWall={side:'top'|'bottom'|'left'|'right';index:number};
+let edgeWalls:EdgeWall[]=[];
+const hasEdgeWall=(side:EdgeWall['side'],index:number)=>edgeWalls.some(w=>w.side===side&&w.index===index);
+function setEdgeWalls(count:number){
+ const candidates:EdgeWall[]=[];
+ for(let index=2;index<boardSize-2;index+=3){for(const side of ['top','right','bottom','left'] as const)candidates.push({side,index})}
+ edgeWalls=candidates.slice(0,count);
+}
+
 const barrierCandidates:Point[]=[{x:4,y:4},{x:15,y:15},{x:4,y:15},{x:15,y:4},{x:10,y:4},{x:10,y:15},{x:4,y:10},{x:15,y:10}];
 function setBarriers(count:number){
  // Nunca gerar obstáculos sobre a cobra ou os itens presentes.
  barriers=barrierCandidates.filter(p=>!snake.some(part=>same(part,p))&&!same(food.at,p)&&(!special||!same(special.at,p))).slice(0,count);
  stage.dataset.barrierCount=String(barriers.length);
+ setEdgeWalls(count===0?0:Math.min(20,count*2));
 }
 
 let food:Item={kind:'apple',at:{x:14,y:10}},special:Item|null=null;
@@ -74,6 +84,7 @@ function draw(){
  ctx.fillStyle='#071a20';ctx.fillRect(0,0,600,600);
  ctx.strokeStyle='#19323c';ctx.lineWidth=1;
  for(let i=0;i<=boardSize;i++){ctx.beginPath();ctx.moveTo(i*cell,0);ctx.lineTo(i*cell,600);ctx.moveTo(0,i*cell);ctx.lineTo(600,i*cell);ctx.stroke()}
+ edgeWalls.forEach(w=>{ctx.fillStyle='#cf79ee';const thick=cell*.22;const x=w.side==='left'?0:w.side==='right'?boardSize-1:w.index;const y=w.side==='top'?0:w.side==='bottom'?boardSize-1:w.index;if(w.side==='top')ctx.fillRect(x*cell,y*cell,cell,thick);else if(w.side==='bottom')ctx.fillRect(x*cell,(y+1)*cell-thick,cell,thick);else if(w.side==='left')ctx.fillRect(x*cell,y*cell,thick,cell);else ctx.fillRect((x+1)*cell-thick,y*cell,thick,cell)});
  barriers.forEach(p=>{ctx.fillStyle='#71879b';ctx.fillRect(p.x*cell+2,p.y*cell+2,cell-4,cell-4);ctx.strokeStyle='#b6c6d5';ctx.strokeRect(p.x*cell+5,p.y*cell+5,cell-10,cell-10)});
  drawItem(food);if(special)drawItem(special);
  snake.forEach((p,i)=>{ctx.fillStyle=i===0?'#b4ffd8':'#48dca4';ctx.fillRect(p.x*cell+2,p.y*cell+2,cell-4,cell-4)});
@@ -134,10 +145,12 @@ function tick(){
  if(state!=='playing')return;
  direction=next;
  const offsets:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};
- const head={x:snake[0].x+offsets[direction].x,y:snake[0].y+offsets[direction].y};
+ const rawHead={x:snake[0].x+offsets[direction].x,y:snake[0].y+offsets[direction].y};
+ const exit=rawHead.x<0?{side:'left' as const,index:snake[0].y}:rawHead.x>=boardSize?{side:'right' as const,index:snake[0].y}:rawHead.y<0?{side:'top' as const,index:snake[0].x}:rawHead.y>=boardSize?{side:'bottom' as const,index:snake[0].x}:null;
+ const head={x:(rawHead.x+boardSize)%boardSize,y:(rawHead.y+boardSize)%boardSize};
  const collected:Item|null=same(head,food.at)?food:(special&&same(head,special.at)?special:null);
  const body=collected?snake:snake.slice(0,-1);
- if(head.x<0||head.y<0||head.x>=boardSize||head.y>=boardSize||body.some(p=>same(p,head))||barriers.some(p=>same(p,head))){finish();return;}
+ if((exit&&hasEdgeWall(exit.side,exit.index))||body.some(p=>same(p,head))||barriers.some(p=>same(p,head))){finish();return;}
  snake.unshift(head);
  if(collected){
   if(collected.kind==='apple'){
