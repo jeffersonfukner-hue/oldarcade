@@ -33,6 +33,14 @@
 - Depois da confirmação, registrar a aplicação informada em `docs/CONTINUIDADE.md` (separando declaração do proprietário de validação técnica), seguir diretamente para verificações seguras de API/Preview e testes. Não consumir tentativas únicas ou alterar dados sem orientação.
 - Preview e produção são ambientes separados. Autorização para SQL em Preview não autoriza produção, merge ou publicação. Fornecer sempre o SQL da revisão efetiva do repositório, sem improvisar esquema.
 
+## Entrega completa antes da validação do proprietário — regra permanente (17/11/2026)
+- **O proprietário valida como jogador final, não como testador de API, SQL, linha de código ou funcionalidades fragmentadas.** Nunca transferir para ele a responsabilidade de diagnóstico técnico, teste unitário, depuração, leitura de JSON ou conferência manual de etapas isoladas.
+- Para cada escopo aprovado, **implementar o fluxo de ponta a ponta primeiro**: interface, mecânica, autenticação, backend, banco/migrações necessárias, estados de erro, componentes globais, testes e documentação. Reutilizar padrões aprovados e testar todos os modos afetados.
+- **SQL é a exceção operacional de execução:** entregar o SQL completo para o proprietário aplicar no D1 adequado no momento necessário; após receber "pronto", o agente continua autonomamente com a implementação, verificações e correções, sem pedir microtestes.
+- Executar previamente check, build, testes API/integração/E2E desktop/mobile e, quando acessível, QA do Preview; corrigir regressões e obter CI verde antes de convidar o proprietário a testar. Se algum ambiente estiver inacessível, registrar exatamente a limitação, sem declarar teste comprovado.
+- **Um único convite para validação funcional por entrega consolidada**, com URL exata, resumo do que mudou e percurso natural de jogador (entrar, jogar, encerrar, conferir resultado). Solicitar feedback de experiência, visual e funcionamento geral, não etapas técnicas repetidas.
+- Não solicitar validação parcial para avançar a implementação, exceto decisão de produto realmente necessária ou ação externa exclusiva do proprietário (como aplicar SQL). Nenhuma dessas regras autoriza merge, publicação ou ações em produção sem autorização específica.
+
 ## Segurança e qualidade
 - Jogabilidade em primeiro lugar, um jogo por vez, HTML indexável, SEO verdadeiro, história com fontes, sem conteúdo artificial de volume.
 - Nicknames e resultados locais não são rankings globais; não apresentar métricas fictícias.
