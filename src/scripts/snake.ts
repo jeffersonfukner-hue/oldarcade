@@ -341,9 +341,9 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
   if(evolutionClock<blasterUntil&&evolutionClock>=nextShotAt){fireBlaster();nextShotAt=evolutionClock+4}
  }
  if(eating){const gained=evolutionPreview&&picked?.kind==='rare'?50:10;score+=gained;peakScore=Math.max(peakScore,score);floatPoints(head,gained);checkFunMilestone(head);
- if(score>saved.best){saved.best=score;store()}
+ if(!dailyAttempt&&score>saved.best){saved.best=score;store()}
  if(!evolutionPreview)placeFood();if(state!=='playing'){draw();return}}else if(!eating)snake.pop();
- if(score>saved.best){saved.best=score;store()}
+ if(!dailyAttempt&&score>saved.best){saved.best=score;store()}
  if(!dailyAttempt&&!didCelebratePersonal&&roundPersonalTarget>0&&score>roundPersonalTarget){
   didCelebratePersonal=true;
   celebrate('personal');
@@ -373,6 +373,7 @@ function end(won:boolean){
  if(!dailyAttempt)store();refresh();
  if(dailyAttempt){
   const attempt=dailyAttempt;pendingDailyFinish={date:attempt.date,token:attempt.token,score,durationMs};
+  try{sessionStorage.setItem('oldarcade:daily:snake:pending',JSON.stringify(pendingDailyFinish))}catch{}
   dailyAttempt=null;dailyRandom=Math.random;
   overlay.hidden=true;const sequence=++endSequence;
   void saveDailyResult(sequence);
@@ -383,6 +384,53 @@ function end(won:boolean){
  const sequence=++endSequence;
  void finishRound(sequence,won);
 }
+async function saveDailyResult(sequence:number){
+ const attempt=pendingDailyFinish;
+ if(!attempt)return;
+ show('Registrando desafio','Salvando seu desempenho na conta…','▶ Jogar Clássico');
+ startBtn.disabled=true;
+ try{
+  const response=await fetch('/api/daily/snake',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'finish',...attempt})});
+  const result=await response.json() as {error?:string;saved?:boolean};
+  if(!response.ok||!result.saved)throw Error(result.error||'Erro ao registrar o desafio diário.');
+  pendingDailyFinish=null;
+  try{sessionStorage.removeItem('oldarcade:daily:snake:pending')}catch{}
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'snake'}}));
+  if(sequence===endSequence&&state==='over'){
+   show('Desafio concluído','Você marcou '+attempt.score+' pontos em '+Math.round(attempt.durationMs/1000)+' segundos. Seu resultado está no perfil.','▶ Jogar Clássico');
+   startBtn.disabled=false;
+  }
+ }catch(error){
+  const message=error instanceof Error?error.message:'Não foi possível registrar.';
+  try{sessionStorage.setItem('oldarcade:daily:snake:pending',JSON.stringify(attempt))}catch{}
+  if(sequence===endSequence&&state==='over'){
+   show('Resultado pendente','Sua tentativa não pode ser repetida. O resultado foi preservado neste navegador para reenvio. '+message,'↻ Reenviar resultado');
+   startBtn.disabled=false;startBtn.dataset.dailyRetry='true';
+  }
+ }
+}
+document.addEventListener('oldarcade:daily-start-request',event=>{
+ const request=(event as CustomEvent<{game:string;date:string}>).detail;
+ if(request?.game!=='snake'||evolutionPreview)return;
+ const info=document.querySelector<HTMLElement>('[data-daily-info]');
+ if(state==='playing'||state==='countdown'||dailyAttempt){if(info)info.textContent='Finalize ou pause a partida atual antes de iniciar o desafio diário.';document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'snake'}}));return}
+ if(pendingDailyFinish){if(info)info.textContent='Você possui um resultado pendente. Reenvie antes de iniciar outra partida.';return}
+ void (async()=>{
+  if(info)info.textContent='Reservando sua única tentativa com o servidor…';
+  try{
+   const response=await fetch('/api/daily/snake',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'start',date:request.date})});
+   const data=await response.json() as {error?:string;date?:string;token?:string;seed?:number};
+   if(!response.ok||!data.date||!data.token||!Number.isSafeInteger(data.seed))throw Error(data.error||'Não foi possível reservar sua tentativa.');
+   start({date:data.date,token:data.token,seed:data.seed!});
+   if(info)info.textContent='Desafio '+data.date+' iniciado. Boa sorte: esta é sua única tentativa!';
+   document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'snake'}}));
+  }catch(error){
+   if(info)info.textContent=error instanceof Error?error.message:'Não foi possível iniciar.';
+   document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'snake'}}));
+  }
+ })();
+});
+
 function confirmedResult(result:ReturnType<typeof leaderboard.snapshot>,submittedScore:number,wasProvisional:boolean){
  provisionalGlobal=false;
  refresh();
@@ -637,10 +685,18 @@ document.addEventListener('oldarcade:personal-record',event=>{
 void checkAccount();
 // Consultar somente na entrada da página e ao final da partida.
 
-startBtn.addEventListener('click',()=>state==='paused'?pause():start());
+startBtn.addEventListener('click',()=>{
+ if(startBtn.dataset.dailyRetry==='true'){
+  delete startBtn.dataset.dailyRetry;
+  void saveDailyResult(endSequence);
+  return;
+ }
+ if(pendingDailyFinish)return;
+ if(state==='paused')pause();else if(!dailyAttempt)start();
+});
 pauseBtn.addEventListener('click',pause);
 document.querySelectorAll<HTMLButtonElement>('[data-direction]').forEach(btn=>btn.addEventListener('click',()=>turn(btn.dataset.direction as Direction)));
-window.addEventListener('keydown',e=>{if(modalOpen)return;if(e.target instanceof HTMLInputElement)return;const map:Record<string,Direction>={ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down',ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right'};if(e.key.toLowerCase()==='f'&&!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey){e.preventDefault();void toggleFullscreen()}else if(map[e.key]&&state==='playing'){e.preventDefault();turn(map[e.key])}else if(e.code==='Space'&&!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey){if(state==='over'||state==='ready'){e.preventDefault();start()}else if(state==='playing'||state==='paused'){e.preventDefault();pause()}}});
+window.addEventListener('keydown',e=>{if(modalOpen)return;if(e.target instanceof HTMLInputElement)return;const map:Record<string,Direction>={ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down',ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right'};if(e.key.toLowerCase()==='f'&&!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey){e.preventDefault();void toggleFullscreen()}else if(map[e.key]&&state==='playing'){e.preventDefault();turn(map[e.key])}else if(e.code==='Space'&&!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey){if((state==='over'||state==='ready')&&!pendingDailyFinish&&!dailyAttempt){e.preventDefault();start()}else if(state==='playing'||state==='paused'){e.preventDefault();pause()}}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')pause()});
 fullscreenBtn.addEventListener('click',()=>{void toggleFullscreen()});
 document.addEventListener('fullscreenchange',()=>{
@@ -659,4 +715,12 @@ window.addEventListener('keydown',event=>{
 const form=document.querySelector<HTMLFormElement>('#nickname-form')!,nick=document.querySelector<HTMLInputElement>('#nickname')!;nick.value=saved.nickname;
 form.addEventListener('submit',e=>{e.preventDefault();saved.nickname=nick.value.trim().replace(/[<>]/g,'').slice(0,18);store();text('nick-status',saved.nickname?'Nickname salvo neste navegador. As próximas pontuações entrarão no ranking com esse nome.':'Nickname removido. Partidas sem nickname não entram no ranking.');});
 if(evolutionPreview){const label=document.createElement('div');label.style.cssText='padding:8px;text-align:center;background:#44346d;color:#fff;font-weight:700';label.textContent='🧪 SNAKE EVOLUTION · PREVIEW · Disparos automáticos · Ranking próprio';gameScreen.before(label)}
+try{
+ const old=JSON.parse(sessionStorage.getItem('oldarcade:daily:snake:pending')||'null') as typeof pendingDailyFinish;
+ if(old&&typeof old.date==='string'&&typeof old.token==='string'&&Number.isSafeInteger(old.score)&&Number.isSafeInteger(old.durationMs)){
+  pendingDailyFinish=old;
+  show('Resultado diário pendente','Sua tentativa anterior não pode ser repetida. Reenvie o resultado salvo.','↻ Reenviar resultado');
+  startBtn.dataset.dailyRetry='true';
+ }
+}catch{}
 refresh();draw();drawAccountResults();
