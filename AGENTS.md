@@ -27,6 +27,12 @@
 7. Se a conversa alcançar limite de contexto, não tentar improvisar a partir da memória: atualizar `docs/CONTINUIDADE.md`, apresentar link e mensagem de retomada pronta com repo, branch, PR, ambiente, estado, pendências, próxima ação e restrições.
 8. Ao iniciar nova conversa, ler esses documentos diretamente do GitHub e verificar a situação atual de branch, PR e Actions antes de agir.
 
+## SQL e migrações D1 — fluxo operacional aprovado (17/11/2026)
+- Quando uma funcionalidade precisar de migração, entregar imediatamente o SQL exato, pronto para copiar e executar, identificando banco e ambiente; não transformar a entrega do SQL em bloqueio burocrático nem exigir nova discussão sobre o procedimento já aprovado.
+- O proprietário **executa manualmente** o SQL no Cloudflare e confirma com "pronto"; o agente nunca executa migrações nem modifica D1 por conta própria. Não assumir que o banco foi atualizado antes da confirmação.
+- Depois da confirmação, registrar a aplicação informada em `docs/CONTINUIDADE.md` (separando declaração do proprietário de validação técnica), seguir diretamente para verificações seguras de API/Preview e testes. Não consumir tentativas únicas ou alterar dados sem orientação.
+- Preview e produção são ambientes separados. Autorização para SQL em Preview não autoriza produção, merge ou publicação. Fornecer sempre o SQL da revisão efetiva do repositório, sem improvisar esquema.
+
 ## Segurança e qualidade
 - Jogabilidade em primeiro lugar, um jogo por vez, HTML indexável, SEO verdadeiro, história com fontes, sem conteúdo artificial de volume.
 - Nicknames e resultados locais não são rankings globais; não apresentar métricas fictícias.
