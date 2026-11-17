@@ -340,6 +340,10 @@ html,body{touch-action:manipulation}
  width:min(100%,calc(var(--oa-slot-max) + 210px));max-width:100%;
  margin:auto;flex:1;min-height:0;
 }
+[data-arcade-viewport]:fullscreen .arcade-game-layout:has(.adventure-progress){
+ grid-template-areas:"progress progress" "board stats";
+ grid-template-rows:auto minmax(0,1fr);
+}
 [data-arcade-viewport]:fullscreen .oa-board-slot{
  grid-area:board;display:flex;align-items:center;justify-content:center;
  width:100%;min-width:0;min-height:0;max-width:var(--oa-slot-max);
@@ -368,6 +372,10 @@ html,body{touch-action:manipulation}
  [data-arcade-viewport]:fullscreen .arcade-game-layout{
   grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";
   gap:7px;justify-items:center;width:100%;min-height:0;
+ }
+ [data-arcade-viewport]:fullscreen .arcade-game-layout:has(.adventure-progress){
+  grid-template-areas:"progress" "stats" "board";
+  grid-template-rows:auto auto minmax(0,1fr);
  }
  [data-arcade-viewport]:fullscreen .arcade-game-layout>.game-hud{
   display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
