@@ -83,6 +83,11 @@ function drawItem(item:Item){
  }else ctx.arc(x,y,item.kind==='gold'?12:10,0,Math.PI*2);
  ctx.fill();
  if(item.kind==='gold'){ctx.lineWidth=3;ctx.strokeStyle='#fff1bb';ctx.stroke()}
+ // Mesmo indicador visual de tempo restante usado nos itens temporários do Evolution.
+ if(item.ticks!==undefined){
+  ctx.strokeStyle='#ffffffaa';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.arc(x,y,14,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(0,item.ticks/52));ctx.stroke();
+ }
 }
 // Segmentos físicos desenhados fora do canvas; o grid mantém as 20x20 células inteiras.
 const outerWalls=document.createElement('div');
