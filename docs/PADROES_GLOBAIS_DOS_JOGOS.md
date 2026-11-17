@@ -2,6 +2,13 @@
 
 > **Contrato permanente.** Ler antes de implementar ou modificar qualquer jogo ou modo. Aplica-se automaticamente; o proprietário não precisa repetir regras já aprovadas. Exceções exigem justificativa documentada e aceite. Complementa, sem substituir, AGENTS.md, docs/ARQUITETURA.md, docs/CONTINUIDADE.md e docs/VERSIONAMENTO_E_PUBLICACAO.md.
 
+## Padrão editorial futuro — livros, filmes e documentários
+
+- As seções de **história do jogo** podem futuramente apresentar um bloco compartilhado de recomendações culturais, configurado por título (dados, nunca HTML/CSS comercial copiado em cada modo). O bloco é diferente do histórico de versões do OldArcade.
+- Conteúdo potencial: livros para compra, filmes/documentários com aluguel, compra ou streaming; somente usar URL de afiliado se um programa oficial/parceiro permitir e houver adesão válida.
+- Exigir verificação de obra, edição, plataforma, disponibilidade regional, direitos de imagens e destinação. Identificar publicidade/comissões sem disfarçar recomendações de conteúdo independente; atributos adequados para links patrocinados.
+- **Ainda não implementado:** não exibir placeholders vazios nem inserir links de compra sem validação e autorização. A história do Tetris usa `src/components/TetrisHistory.astro` nos três modos; o padrão futuro deve ser reaproveitável também para Snake e os demais jogos.
+
 ## Checklist obrigatório — mudanças globais e prevenção de regressão
 
 **Regra de manutenção:** qualquer comportamento, aparência, animação, texto recorrente ou interação declarada como **padrão** pertence a um único componente, módulo, token ou contrato compartilhado. Alterações nesse padrão propagam-se automaticamente a **todos os jogos/modos existentes e futuros**, sem copiar código ou CSS entre páginas. A única configuração por jogo são seus dados e diferenças reais de mecânica, explicitamente documentadas.
