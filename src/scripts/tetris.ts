@@ -33,6 +33,7 @@ try{const saved=JSON.parse(localStorage.getItem(key)||'{}');best=Number.isSafeIn
 function save(){try{localStorage.setItem(key,JSON.stringify({best,plays}))}catch{}}
 let board:Cell[][]=[],piece:Falling|null=null,bag:PieceName[]=[],queue:PieceName[]=[];
 let reserve:PieceName|null=null,reserveUsed=false,score=0,lines=0,level=1,state:State='ready';
+let globalTarget:number|null=null,globalProvisional=false;
 let fallTimer=0,countTimer=0,finishSequence=0,fullscreenChanging=false;
 const clock=setupGameClock(screen,()=>state==='playing');
 const empty=():Cell[][]=>Array.from({length:ROWS},()=>Array<Cell>(COLS).fill(0));
@@ -83,6 +84,7 @@ function update(){
  node('tetris-lines').textContent=String(lines);node('tetris-level').textContent=String(level);
  node('tetris-plays').textContent=String(plays);
  node('tetris-local-best').textContent=String(best);node('tetris-sidebar-level').textContent=String(level);
+ node('tetris-global').textContent=String(globalProvisional?score:globalTarget??'—');node('tetris-provisional').hidden=!globalProvisional;
 }
 function award(points:number){
  score+=points;if(score>best){best=score;save()}
@@ -192,14 +194,14 @@ function countdownStart(first:boolean){
 function start(){
  finishSequence++;window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  clock.reset();board=empty();bag=[];queue=[];reserve=null;reserveUsed=false;
- piece=null;score=0;lines=0;level=1;drawNext();
+ piece=null;score=0;lines=0;level=1;globalProvisional=false;drawNext();
  const event=recordGameStart('tetris');counters.recordPlay(event);
  plays++;save();spawn();update();centerGameBoard(screen,stage);countdownStart(true);
 }
 function finish(){
  if(state==='over')return;
  const sequence=++finishSequence;
- state='over';window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
+ state='over';globalProvisional=false;window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  const duration=clock.milliseconds();save();update();draw();
  recordGameFinish('tetris',score,duration);
  celebrate('defeat','Você fez '+score+' pontos e eliminou '+lines+' linhas. Pronto para a revanche?',true);
@@ -265,5 +267,17 @@ document.addEventListener('fullscreenchange',()=>{
  if(fullscreenChanging)return;
  if(state==='playing'||state==='countdown'){state='paused';window.clearTimeout(fallTimer);window.clearTimeout(countTimer);countdownStart(false)}
  if(document.fullscreenElement!==stage)centerGameBoard(screen,stage);
+});
+document.addEventListener('oldarcade:mode-ranking-updated',event=>{
+ const detail=(event as CustomEvent<{game:string;global:number|null}>).detail;
+ if(detail?.game!=='tetris')return;
+ globalTarget=detail.global;
+ if(state!=='playing'&&state!=='countdown')globalProvisional=false;
+ update();
+});
+document.addEventListener('oldarcade:mode-record-provisional',event=>{
+ const detail=(event as CustomEvent<{game:string}>).detail;
+ if(detail?.game!=='tetris')return;
+ globalProvisional=true;update();
 });
 board=empty();drawNext();draw();update();
