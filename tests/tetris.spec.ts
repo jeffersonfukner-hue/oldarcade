@@ -149,3 +149,24 @@ test('Após login, vice-líder recebe 2º LUGAR depois do fechamento do modal',a
  await expect(page.locator('#game-celebration [data-celebration-title]')).toHaveText('2º LUGAR!');
  await expect(page.locator('#game-celebration [data-celebration-icon]')).toHaveText('🥈');
 });
+
+test('Tetris fullscreen preserva tabuleiro vertical e controles em monitor ultrawide',async({page,isMobile})=>{
+ if(isMobile)test.skip();
+ await page.setViewportSize({width:2560,height:900});
+ await page.goto('/jogos/tetris/');
+ await page.locator('#tetris-fullscreen').click();
+ await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id)).toBe('tetris-stage');
+ const layout=await page.evaluate(()=>{
+  const box=(selector:string)=>document.querySelector(selector)!.getBoundingClientRect().toJSON();
+  return {screen:box('#tetris-screen'),canvas:box('#tetris-canvas'),hud:box('#tetris-stage .game-hud'),stage:box('#tetris-stage'),controls:box('.tetris-touch-controls'),preview:box('.tetris-preview-column')};
+ });
+ expect(layout.canvas.width/layout.canvas.height).toBeCloseTo(.5,1);
+ expect(layout.canvas.width).toBeLessThanOrEqual(400);
+ expect(layout.screen.x).toBeGreaterThan(300);
+ expect(layout.screen.right).toBeLessThan(2200);
+ expect(layout.hud.left).toBeGreaterThanOrEqual(layout.canvas.right);
+ expect(layout.preview.right).toBeLessThan(layout.hud.left);
+ expect(layout.controls.bottom).toBeLessThanOrEqual(layout.stage.bottom+1);
+ expect(layout.controls.left).toBeGreaterThanOrEqual(layout.stage.left);
+ expect(layout.controls.right).toBeLessThanOrEqual(layout.stage.right);
+});
