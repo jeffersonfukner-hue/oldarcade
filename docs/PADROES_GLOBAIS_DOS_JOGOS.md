@@ -111,3 +111,9 @@ GitHub branch/PR → testes GitHub Actions → Cloudflare Preview → validaçã
 - Para conquistas durante a partida, mostrar uma única animação global dentro do tabuleiro: texto surge pequeno e apagado, cresce, chega a aproximadamente 50% de opacidade e some em ~1,35 s, com estrelas/partículas discretas. Sem cartão, modal, backdrop, clique ou botão de continuar; o loop do jogo permanece ativo.
 - Remover avisos redundantes por modalidade (no Clássico, não emitir também `record-live-alert` para recorde pessoal). Manter o efeito de partículas já existente, evitando sobreposição de mensagens.
 - Revanche após o fim da partida continua sendo um caso separado, com CTA interativo.
+
+## 16. Proposta em avaliação — evolução progressiva do Snake Clássico (16/11/2026)
+- Ideia do proprietário: manter fruta comum sempre presente (+10 pontos), adicionar frutas especiais com pontuação maior e tempo de permanência limitado, incentivando decisão entre rota segura e recompensa arriscada.
+- Introduzir power-ups temporários (reduzir velocidade, encurtar cobra, disparar para destruir obstáculos ou coletar frutas à distância), obstáculos progressivos e recompensas conforme pontuação. Evitar geração sobre cobra, colisões inevitáveis e metas inalcançáveis.
+- **Proposta inicial ainda não aprovada para implementação:** 0–90 pontos: tradicional; 100–290: frutas +30; 300–590: frutas +50 e desaceleração; 600–990: obstáculos e encurtamento; 1000–1490: frutas +100 e disparos; 1500+: desafio escalável. Frutas especiais expiram em ~5–8 s, a calibrar com velocidade e distância.
+- **Decisão pendente:** como preservar o significado de “Clássico” e a comparabilidade dos rankings existentes ao introduzir regras e pontuações novas. Considerar modo próprio ou versão competitiva distinta antes de alterar a jogabilidade atual. Nenhuma mudança de mecânica autorizada neste registro.
