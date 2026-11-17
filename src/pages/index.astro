@@ -2,12 +2,10 @@
 import Base from '../layouts/Base.astro';
 import {gameRegistry} from '../data/gameRegistry';
 import {gameModes} from '../data/gameModes.js';
-const gameNames=Object.fromEntries(Object.entries(gameRegistry).map(([id,entry])=>[id,entry.name]));
 const orderedGames=Object.entries(gameRegistry).sort((a,b)=>b[1].number-a[1].number);
 const newestGame=orderedGames[0];
-const featuredModes=Object.entries(gameModes)
- .filter(([,mode])=>Object.hasOwn(gameRegistry,mode.title))
- .sort((a,b)=>gameRegistry[b[1].title].number-gameRegistry[a[1].title].number);
+const featuredModes=Object.entries(gameModes).filter(([,mode])=>Object.hasOwn(gameRegistry,mode.title));
+const modesByTitle=Object.fromEntries(orderedGames.map(([id])=>[id,featuredModes.filter(([,mode])=>mode.title===id)]));
 const newestMode=featuredModes.find(([,mode])=>mode.title===newestGame[0]);
 const title='OldArcade — Jogos clássicos grátis para jogar online';
 const availableGames=Object.keys(gameRegistry).length;
@@ -46,15 +44,26 @@ const description='Jogue Snake e Tetris gratuitamente, acompanhe rankings por mo
           <div class="arcade-activity-item"><span aria-hidden="true">👥</span><strong id="hero-site-visits">—</strong><span>Visitas ao site</span></div>
           <div class="arcade-activity-item"><span aria-hidden="true">🏁</span><strong id="hero-total-plays">—</strong><span>Total de partidas</span></div>
         </div>
+        <section id="home-daily" class="home-daily-spotlight" data-home-daily hidden aria-labelledby="home-daily-title">
+          <div class="home-daily-copy">
+            <span class="eyebrow">📅 Uma chance por dia · Benefício gratuito</span>
+            <h2 id="home-daily-title">Desafio Diário: <span data-home-daily-name></span></h2>
+            <p data-home-daily-copy>Uma tentativa por dia, uma surpresa diferente no OldArcade.</p>
+          </div>
+          <a class="btn" data-home-daily-link href="/conta/">Conhecer desafio</a>
+        </section>
         <section class="arcade-games" id="destaques" aria-labelledby="games-heading">
           <div class="arcade-games-heading"><div><span class="eyebrow">Biblioteca de jogos</span><h2 id="games-heading">Escolha seu desafio</h2></div><span class="pill">{availableGames} {availableGames===1?'jogo':'jogos'} · {featuredModes.length} modos</span></div>
-          <div class="arcade-mode-grid">
-            {featuredModes.map(([id,mode],index)=><article class="arcade-mode-card">
-              <div class={'arcade-mode-image '+(mode.title==='tetris'?'arcade-mode-tetris':id==='snake'?'arcade-mode-classic':'arcade-mode-adventure')} aria-hidden="true">
-                {mode.title==='tetris'?<span class="arcade-mode-fruits">🟦 🟪 🟨</span>:id==='snake'?<div class="pixel-snake"><i></i><i></i><i></i><i></i><i></i><i></i></div>:<span class="arcade-mode-fruits">🍎 <span>✦</span> ❄</span>}
-                <span>{String(index+1).padStart(2,'0')} / {mode.name.toLocaleUpperCase('pt-BR')}</span>
+          <div class="arcade-mode-grid home-game-grid">
+            {orderedGames.map(([id,game])=><article class="home-game-card" data-home-game={id}>
+              <div class="home-game-art"><img src={id==='snake'?'/images/snake-arcade.svg':'/images/tetris-arcade.svg'} alt={id==='snake'?'Cobrinha pixelada no tabuleiro neon':'Blocos de Tetris coloridos em queda'} loading="lazy" width="680" height="300" /></div>
+              <div class="home-game-body">
+                <div class="home-game-heading"><span class="eyebrow">Jogo #{String(game.number).padStart(3,'0')}</span><h3>{game.name}</h3></div>
+                <p>{id==='snake'?'A cobrinha clássica ganha aventuras, poderes e novas maneiras de desafiar seus reflexos.':'Encaixe as peças, limpe linhas e escolha entre pontuação, velocidade e resistência.'}</p>
+                <nav class="home-game-modes" aria-label={'Modos do '+game.name}>
+                  {modesByTitle[id].map(([modeId,mode])=><a href={mode.url} aria-label={'Jogar '+mode.name}>{mode.symbol} {mode.name.slice(game.name.length).trim()||'Clássico'}</a>)}
+                </nav>
               </div>
-              <div class="arcade-mode-detail"><span class="eyebrow">{gameNames[mode.title]} · {mode.name}</span><h3>{mode.tagline}</h3><p>{mode.description}</p><a class={index===0?'btn':'btn secondary'} href={mode.url}>▶ Jogar {mode.title==='tetris'?gameNames[mode.title]:mode.name.startsWith(gameNames[mode.title]+' ')?mode.name.slice(gameNames[mode.title].length+1):mode.name}</a></div>
             </article>)}
           </div>
         </section>
@@ -66,6 +75,7 @@ const description='Jogue Snake e Tetris gratuitamente, acompanhe rankings por mo
       </div>
     </div>
   </div>
+  <script>import '../scripts/homeDaily.ts';</script>
   <style>
    .arcade-featured-symbol{font-size:clamp(2.5rem,5vw,4.5rem);line-height:1.1;filter:drop-shadow(0 5px 11px #0008)}
    .arcade-featured-name{display:block;color:#fff0a6;font-size:clamp(.9rem,2vw,1.35rem);letter-spacing:.13em;text-transform:uppercase}
