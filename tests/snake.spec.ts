@@ -673,10 +673,14 @@ test('Aventura: Espaço controla pausa e retomada sem rolar página nem perder a
  await page.keyboard.press('ArrowUp');
  await page.waitForTimeout(3600);
  await expect(page.locator('#adventure-overlay')).toBeHidden();
- await page.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';document.activeElement instanceof HTMLElement&&document.activeElement.blur();window.scrollTo(0,0)});
- const beforeScroll=await page.evaluate(()=>window.scrollY);
+ await page.evaluate(()=>{
+  document.activeElement instanceof HTMLElement&&document.activeElement.blur();
+  document.addEventListener('keydown',event=>{
+   if(event.code==='Space')requestAnimationFrame(()=>{document.body.dataset.spaceDefaultPrevented=String(event.defaultPrevented)});
+  },{once:true});
+ });
  await page.keyboard.press('Space');
- await expect.poll(()=>page.evaluate(()=>window.scrollY)).toBe(beforeScroll);
+ await expect(page.locator('body')).toHaveAttribute('data-space-default-prevented','true');
  await expect(page.locator('#adventure-overlay-title')).toHaveText('Jogo pausado');
  await page.keyboard.press('Space');
  await expect(page.locator('#adventure-countdown')).toHaveText('3');
