@@ -78,6 +78,11 @@ if(root){
   catch{}
  }
  function connect(name:string){account=name;authButton.textContent='Conectado como '+name;authButton.disabled=true}
+ document.addEventListener('oldarcade:account-changed',event=>{
+  const player=(event as CustomEvent<{player?:{nickname:string}|null}>).detail?.player;
+  if(player?.nickname)connect(player.nickname);
+  else if(player===null){account=null;authButton.textContent='Entrar ou criar conta para registrar recordes';authButton.disabled=false}
+ });
  for(const [kind,form] of [['login',login],['register',register]] as const){
   form.addEventListener('submit',async e=>{
    e.preventDefault();const btn=form.querySelector<HTMLButtonElement>('button[type=submit]')!;btn.disabled=true;
@@ -102,7 +107,10 @@ if(root){
  }
  document.addEventListener('oldarcade:game-started',event=>{
   const d=(event as CustomEvent<{game:string}>).detail;if(d?.game!==game)return;
-  round++;played=false;score=0;durationMs=0;personalCelebrated=false;provisionalRecord=false;clearPending();summary.textContent='';provisional.hidden=true;global.textContent=String(top??'—');
+  round++;played=false;score=0;durationMs=0;personalCelebrated=false;provisionalRecord=false;
+  // Uma falha de envio anterior não desaparece ao iniciar nova partida.
+  if(pendingScore===null)summary.textContent='';
+  provisional.hidden=true;global.textContent=String(top??'—');
  });
  document.addEventListener('oldarcade:game-score',event=>{
   const d=(event as CustomEvent<Result>).detail;
@@ -114,21 +122,31 @@ if(root){
   }else if(provisionalRecord){provisionalRecord=false;provisional.hidden=true;global.textContent=String(top??'—')}
  });
  async function finishResult(points:number,sequence:number,delayMs=0){
-  // Separar a leitura do encerramento da abertura do registro sem bloquear o jogo.
-  // O atraso é opt-in por modo; o Snake mantém o comportamento existente.
-  if(delayMs>0)await new Promise<void>(resolve=>window.setTimeout(resolve,delayMs));
-  if(sequence!==round)return;
   await accountPromise;
-  if(sequence!==round)return;
+  // Resultado autenticado é enviado imediatamente, antes de qualquer animação
+  // ou nova partida. Nunca cancelar a escrita por uma mudança de rodada.
   if(account){
-   try{const data=await submit(points);if(sequence!==round)return;clearPending();summary.textContent=announce(data,points);celebrateFinal(data,points)}
-   catch(err){if(sequence!==round)return;const message=err instanceof Error?err.message:'erro desconhecido';if(message.includes('Não reenvie')){clearPending()}else{setPending(points)}summary.textContent='Seus '+points+' pontos foram preservados nesta página. Não foi possível confirmar o registro: '+message}
+   try{
+    const data=await submit(points);
+    if(sequence!==round)return; // Apenas a apresentação é da rodada atual.
+    clearPending();summary.textContent=announce(data,points);celebrateFinal(data,points);
+   }catch(err){
+    const message=err instanceof Error?err.message:'erro desconhecido';
+    // Preserva uma tentativa recuperável mesmo que o jogador já tenha reiniciado.
+    if(message.includes('Não reenvie'))clearPending();else setPending(points);
+    summary.textContent='Seus '+points+' pontos não foram confirmados no ranking: '+message;
+   }
   }else{
+   // Anônimos precisam ver o Game Over antes do formulário de login.
+   if(delayMs>0)await new Promise<void>(resolve=>window.setTimeout(resolve,delayMs));
+   if(sequence!==round)return;
    const data=await refresh();if(sequence!==round)return;
    summary.textContent=data?'Você marcou '+points+' pontos. '+announce(data,points)+' Faça login para registrar o resultado.':'Você marcou '+points+' pontos. Ranking indisponível; resultado não registrado.';
    open();
   }
-  provisionalRecord=false;provisional.hidden=true;global.textContent=String(top??'—');
+  if(sequence===round){
+   provisionalRecord=false;provisional.hidden=true;global.textContent=String(top??'—');
+  }
  }
  retry.addEventListener('click',async()=>{
   if(pendingScore===null)return;
