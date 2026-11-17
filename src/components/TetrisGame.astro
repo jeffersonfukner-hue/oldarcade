@@ -4,9 +4,11 @@ import GameHud from './GameHud.astro';
 import GameRanking from './GameRanking.astro';
 import GameShare from './GameShare.astro';
 import {gameRegistry} from '../data/gameRegistry';
+import {gameModes} from '../data/gameModes.js';
 interface Props{modeId:'tetris'|'tetris-sprint'}
 const {modeId}=Astro.props;
 const sprint=modeId==='tetris-sprint';
+const goal=gameModes['tetris-sprint'].targetLines;
 const game=gameRegistry.tetris;
 const description=sprint?'Tetris Sprint grátis no OldArcade: elimine 40 linhas no menor tempo, desafie seus amigos e dispute o ranking de velocidade.':'Jogue nosso Tetris online grátis: gire peças, complete linhas, avance de nível e dispute recordes. Teclado e controles para celular.';
 ---
@@ -25,7 +27,7 @@ const description=sprint?'Tetris Sprint grátis no OldArcade: elimine 40 linhas 
    <div class="panel game-stage" id="tetris-stage" data-game-mode={modeId} data-arcade-viewport data-board-shape="portrait">
     <div class="game-topline"><strong>▣ TETRIS <span class="muted">· {sprint?"Sprint":"Clássico"}</span></strong><div class="actions"><button type="button" id="tetris-pause">Pausar</button><button type="button" id="tetris-fullscreen" aria-label="Alternar tela cheia do Tetris">⛶ Tela cheia (F)</button></div></div>
     <div class="arcade-game-layout">
-     <GameHud statusId="tetris-status" scoreId="tetris-score" bestId="tetris-best" globalId="tetris-global" levelId="tetris-level" scoreLabel={sprint?"Linhas":"Pontos"} bestLabel={sprint?"Melhor tempo":"Recorde pessoal"} globalLabel={sprint?"Tempo líder":"Recorde global"} provisionalId="tetris-provisional" hint="F: tela cheia · Espaço: queda · P: pausa" />
+     <GameHud statusId="tetris-status" scoreId="tetris-score" bestId="tetris-best" globalId="tetris-global" levelId={sprint?undefined:"tetris-level"} scoreLabel={sprint?"Linhas":"Pontos"} bestLabel={sprint?"Melhor tempo":"Recorde pessoal"} globalLabel={sprint?"Tempo líder":"Recorde global"} provisionalId="tetris-provisional" hint="F: tela cheia · Espaço: queda · P: pausa" />
      <div class="tetris-playfield oa-board-slot">
       <div class="tetris-board-shell screen-wrap oa-board-surface" id="tetris-screen">
        <canvas id="tetris-canvas" width="300" height="600" aria-label="Tabuleiro do Tetris com 10 colunas e 20 linhas"></canvas>
@@ -39,7 +41,7 @@ const description=sprint?'Tetris Sprint grátis no OldArcade: elimine 40 linhas 
       <aside class="tetris-preview-column" aria-label="Próximas peças e reserva">
        <div class="tetris-mini"><span class="eyebrow">Próxima</span><canvas id="tetris-next" width="120" height="120" aria-label="Prévia da próxima peça"></canvas></div>
        <div class="tetris-mini"><span class="eyebrow">Reserva · C</span><canvas id="tetris-hold" width="120" height="120" aria-label="Peça reservada"></canvas></div>
-       <div class="tetris-mini tetris-line-stat"><span class="eyebrow">Linhas</span><strong id="tetris-lines">0{"/"}{sprint?"40":""}</strong></div>
+       <div class="tetris-mini tetris-line-stat"><span class="eyebrow">Linhas</span><strong id="tetris-lines">{sprint?`0/${goal}`:"0"}</strong></div>
       </aside>
      </div>
     </div>
@@ -55,11 +57,11 @@ const description=sprint?'Tetris Sprint grátis no OldArcade: elimine 40 linhas 
    <aside class="panel tetris-sidebar" aria-label="Progresso do jogador">
     <span class="eyebrow">Seu desempenho</span><h2>O próximo encaixe conta.</h2>
     <div class="stats-list">
-     <div class="stat-row"><span>{sprint?"Melhor tempo local":"Melhor pontuação local"}</span><strong id="tetris-local-best">0</strong></div>
+     <div class="stat-row"><span>{sprint?"Melhor tempo local":"Melhor pontuação local"}</span><strong id="tetris-local-best">{sprint?"—":"0"}</strong></div>
      <div class="stat-row"><span>Partidas neste navegador</span><strong id="tetris-plays">0</strong></div>
-     <div class="stat-row"><span>{sprint?"Linhas da tentativa":"Nível atual"}</span><strong id="tetris-sidebar-level">1</strong></div>
+     <div class="stat-row"><span>{sprint?"Linhas da tentativa":"Nível atual"}</span><strong id="tetris-sidebar-level">{sprint?`0/${goal}`:"1"}</strong></div>
     </div>
-    <div class="global-stats"><h3>Comunidade · Tetris</h3><div class="stats-list"><div class="stat-row"><span>Visitas globais</span><strong id="tetris-global-visits">—</strong></div><div class="stat-row"><span>Partidas globais</span><strong id="tetris-global-plays">—</strong></div></div><p id="tetris-global-stats-status" class="small muted" role="status">Consultando Cloudflare…</p></div>
+    <div class="global-stats"><h3>Comunidade · {sprint?"Sprint":"Tetris"}</h3><div class="stats-list"><div class="stat-row"><span>Visitas globais</span><strong id="tetris-global-visits">—</strong></div><div class="stat-row"><span>Partidas globais</span><strong id="tetris-global-plays">—</strong></div></div><p id="tetris-global-stats-status" class="small muted" role="status">Consultando Cloudflare…</p></div>
     <h3>{sprint?"Como vencer":"Como pontuar"}</h3>
     <p class="small muted">{sprint?'Elimine 40 linhas em uma única partida. O ranking usa o menor tempo efetivo, em minutos, segundos e milésimos. Se as peças alcançarem o topo antes da meta, a tentativa não entra no ranking.':'Uma linha: 100 pontos. Duas: 300. Três: 500. Quatro de uma vez: 800 — multiplicados pelo nível atual. Mover, girar e descer peças não gera pontos: somente linhas completas pontuam.'}</p>
     <p class="small muted">{sprint?'O cronômetro para durante a pausa e a contagem 3–2–1. A velocidade das peças é constante para permitir comparação justa.':'A cada 10 linhas eliminadas, você sobe de nível e as peças aceleram. Sem limite de tempo e sem peças extras pagas.'}</p>
