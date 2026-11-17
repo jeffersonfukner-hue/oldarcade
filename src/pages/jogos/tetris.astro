@@ -1,0 +1,99 @@
+---
+import GamePage from '../../components/GamePage.astro';
+import GameHud from '../../components/GameHud.astro';
+import GameRanking from '../../components/GameRanking.astro';
+import GameShare from '../../components/GameShare.astro';
+import {gameRegistry} from '../../data/gameRegistry';
+const game=gameRegistry.tetris;
+const description='Jogue nosso Tetris online grátis: gire peças, complete linhas, avance de nível e dispute recordes. Teclado e controles para celular.';
+---
+<GamePage modeId="tetris" title="Jogar Tetris grátis — Blocos, linhas e recordes | OldArcade" description={description}>
+ <main class="shell">
+  <section class="hero tetris-hero">
+   <div class="eyebrow">OldArcade · Jogo #002 · Quebra-cabeça</div>
+   <h1>Peça por peça. <span class="accent">Linha por linha.</span></h1>
+   <p class="lede">Sete peças, um tabuleiro e aquela vontade de encaixar tudo perfeitamente. Jogue sem cadastro; se quiser, dispute um lugar no ranking.</p>
+  </section>
+  <section class="game-layout" aria-label="Jogar Tetris">
+   <div class="panel game-stage" id="tetris-stage">
+    <div class="game-topline"><strong>▣ TETRIS <span class="muted">· Clássico</span></strong><div class="actions"><button type="button" id="tetris-pause">Pausar</button><button type="button" id="tetris-fullscreen" aria-label="Alternar tela cheia do Tetris">⛶ Tela cheia (F)</button></div></div>
+    <div class="arcade-game-layout">
+     <GameHud statusId="tetris-status" scoreId="tetris-score" bestId="tetris-best" globalId="tetris-global" levelId="tetris-level" provisionalId="tetris-provisional" hint="F: tela cheia · Espaço: queda · P: pausa" />
+     <div class="tetris-playfield">
+      <div class="tetris-board-shell screen-wrap" id="tetris-screen">
+       <canvas id="tetris-canvas" width="300" height="600" aria-label="Tabuleiro do Tetris com 10 colunas e 20 linhas"></canvas>
+       <div class="game-overlay" id="tetris-overlay">
+        <h2 id="tetris-overlay-title">Preparado para jogar?</h2>
+        <p id="tetris-overlay-text">Setas para mover, cima para girar, Espaço para queda rápida e C para reservar peça.</p>
+        <strong id="tetris-countdown" class="countdown-value" hidden aria-live="assertive"></strong>
+        <button class="btn" id="tetris-start" type="button">▶ Começar partida</button>
+       </div>
+      </div>
+      <aside class="tetris-preview-column" aria-label="Próximas peças e reserva">
+       <div class="tetris-mini"><span class="eyebrow">Próxima</span><canvas id="tetris-next" width="120" height="120" aria-label="Prévia da próxima peça"></canvas></div>
+       <div class="tetris-mini"><span class="eyebrow">Reserva · C</span><canvas id="tetris-hold" width="120" height="120" aria-label="Peça reservada"></canvas></div>
+       <div class="tetris-mini tetris-line-stat"><span class="eyebrow">Linhas</span><strong id="tetris-lines">0</strong></div>
+      </aside>
+     </div>
+    </div>
+    <div class="tetris-touch-controls" aria-label="Controles para celular">
+     <button type="button" data-tetris-control="left" aria-label="Mover para esquerda">←</button>
+     <button type="button" data-tetris-control="rotate" aria-label="Girar peça">↻</button>
+     <button type="button" data-tetris-control="right" aria-label="Mover para direita">→</button>
+     <button type="button" data-tetris-control="down" aria-label="Descer peça">↓</button>
+     <button type="button" data-tetris-control="drop" aria-label="Queda instantânea">⤓</button>
+     <button type="button" data-tetris-control="hold" aria-label="Reservar peça">Reserva</button>
+    </div>
+   </div>
+   <aside class="panel tetris-sidebar" aria-label="Progresso do jogador">
+    <span class="eyebrow">Seu desempenho</span><h2>O próximo encaixe conta.</h2>
+    <div class="stats-list">
+     <div class="stat-row"><span>Melhor pontuação local</span><strong id="tetris-local-best">0</strong></div>
+     <div class="stat-row"><span>Partidas neste navegador</span><strong id="tetris-plays">0</strong></div>
+     <div class="stat-row"><span>Nível atual</span><strong id="tetris-sidebar-level">1</strong></div>
+    </div>
+    <div class="global-stats"><h3>Comunidade · Tetris</h3><div class="stats-list"><div class="stat-row"><span>Visitas globais</span><strong id="tetris-global-visits">—</strong></div><div class="stat-row"><span>Partidas globais</span><strong id="tetris-global-plays">—</strong></div></div><p id="tetris-global-stats-status" class="small muted" role="status">Consultando Cloudflare…</p></div>
+    <h3>Como pontuar</h3>
+    <p class="small muted">Uma linha: 100 pontos. Duas: 300. Três: 500. Quatro de uma vez: 800 — multiplicados pelo nível atual. Queda suave: +1 por célula; queda instantânea: +2 por célula.</p>
+    <p class="small muted">A cada 10 linhas eliminadas, você sobe de nível e as peças aceleram. Sem limite de tempo e sem peças extras pagas.</p>
+   </aside>
+  </section>
+  <GameRanking game="tetris" name="Tetris Clássico" />
+  <GameShare gameSlug="tetris" gameName="Tetris" gamePath="/jogos/tetris/" />
+  <section class="section panel text-content">
+   <h2>Como jogar</h2>
+   <p>Encaixe as peças que caem para preencher linhas horizontais. Uma linha completa desaparece, libera espaço e rende pontos. A partida termina quando uma nova peça já não consegue entrar no tabuleiro. A peça fantasma mostra onde a atual vai cair.</p>
+   <h3>Controles</h3>
+   <p><strong>← → / A D:</strong> mover. <strong>↑ / W / X:</strong> girar no sentido horário. <strong>Z:</strong> girar no sentido contrário. <strong>↓ / S:</strong> acelerar a descida. <strong>Espaço:</strong> queda instantânea. <strong>C / Shift:</strong> guardar ou trocar uma peça (uma vez até travar a próxima). <strong>P:</strong> pausar. <strong>F:</strong> tela cheia.</p>
+   <p>No celular, use os botões abaixo do tabuleiro. Você também pode deslizar horizontalmente para mover, deslizar para baixo para soltar uma peça ou tocar no tabuleiro para girá-la.</p>
+   <h3>Estratégia rápida</h3>
+   <p>Deixe espaço para peças compridas, evite buracos inacessíveis e use a reserva para esperar uma combinação melhor. Completar quatro linhas de uma vez rende mais pontos que apagar quatro linhas separadamente.</p>
+  </section>
+  <section class="section panel" aria-labelledby="tetris-history">
+   <div class="section-head"><div><span class="eyebrow">Bastidores do OldArcade</span><h2 id="tetris-history">Desenvolvimento do jogo #002</h2></div><span class="pill">v{game.version}</span></div>
+   <p class="small muted">Protótipo de desenvolvimento: a validação visual é feita pelo proprietário antes de qualquer publicação.</p>
+   <details><summary>Histórico de desenvolvimento</summary><ol class="timeline">{game.milestones.map(item=><li><time datetime={item.date}>{new Date(item.date+'T12:00:00').toLocaleDateString('pt-BR')}</time> · <strong>{item.title}</strong> — {item.notes}</li>)}</ol></details>
+  </section>
+ </main>
+ <script>import '../../scripts/tetris.ts';</script>
+ <style>
+  .tetris-hero{padding-bottom:24px}
+  .tetris-playfield{display:flex;justify-content:center;align-items:flex-start;gap:12px;min-width:0;padding:12px 0}
+  .tetris-board-shell{width:min(300px,calc(100% - 116px));flex:none;border-color:#627da3;background:#071a20;align-self:flex-start}
+  .tetris-board-shell canvas{width:100%;height:auto;max-width:none;aspect-ratio:1/2;touch-action:none}
+  .tetris-board-shell .game-overlay{padding:10px;background:#071426e8;gap:9px}
+  .tetris-board-shell .game-overlay h2{font-size:clamp(1rem,2.3vw,1.45rem)}
+  .tetris-board-shell .game-overlay p{font-size:.85rem;line-height:1.5}
+  .tetris-preview-column{display:grid;gap:10px;min-width:92px;width:100px}
+  .tetris-mini{border:1px solid #394c71;border-radius:12px;background:#101c32;padding:8px;text-align:center;display:grid;gap:4px}
+  .tetris-mini .eyebrow{font-size:.6rem;letter-spacing:.08em}
+  .tetris-mini canvas{width:100%;height:auto;aspect-ratio:1;background:#0a1729;border-radius:7px}
+  .tetris-line-stat strong{font-size:1.65rem;color:#ffe278}
+  .tetris-touch-controls{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin-top:12px}
+  .tetris-touch-controls button{min-width:0;padding:11px 2px;min-height:46px;background:#223554;color:#fff;border:1px solid #56719c;border-radius:9px;font-weight:800;touch-action:manipulation}
+  .tetris-touch-controls button:active{background:#7655fa}
+  .tetris-sidebar h2{font-size:1.45rem}
+  @media(max-width:580px){.tetris-playfield{gap:8px}.tetris-preview-column{width:82px;min-width:82px}.tetris-board-shell{width:min(300px,calc(100% - 90px))}.tetris-mini{padding:5px}.tetris-touch-controls button{font-size:.86rem}.tetris-sidebar{margin-top:6px}}
+  @media(prefers-reduced-motion:reduce){.tetris-touch-controls button{transition:none}}
+ </style>
+</GamePage>
