@@ -29,3 +29,8 @@
 - Testes automatizados não substituem validação manual de teclado, tela cheia, dispositivos e Preview.
 - Não publicar jogos protegidos por direitos sem licenciamento adequado.
 - Versão do portal e versão de cada jogo são distintas. Manter histórico factual e imutável de versões com data e conteúdo.
+
+## Continuidade entre conversas — compromisso operacional
+- Após mudanças relevantes, manter o bloco **ESTADO ATUAL PARA NOVO CHAT** no topo de `docs/CONTINUIDADE.md`, com estado verificável, decisões aprovadas, commits, CI, Preview, pendências e próxima ação.
+- Nunca deixar o proprietário depender de lembrar decisões ou reexplicar contexto de uma conversa antiga. Documentar também backlog futuro sem implementá-lo prematuramente.
+- Na retomada, priorizar esse bloco, mas confirmar o HEAD real e a situação do CI; documentação não substitui verificação técnica.

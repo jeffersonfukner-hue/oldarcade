@@ -2,6 +2,19 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL PARA NOVO CHAT — 16/11/2026 (ler primeiro)
+- Repositório `jeffersonfukner-hue/oldarcade`; branch de integração `feat/fundacao-snake`; PR #1. Somente jogo #001 Snake, com modos Clássico (`snake`) e Aventura (`snake-adventure`). **Não criar jogo #002/#003 sem aprovação.**
+- O proprietário **validou** a experiência do painel universal `/conta/` com recordes, CTA contextual e missões pessoais derivadas de `mine`/`top` da API; não inventar histórico de partidas ou recompensas. Header/sidebar exibem nickname autenticado.
+- Rankings por modo e página `/rankings/` são compartilhados; posições e liderança confirmadas dependem da API. Pontuação atual é autodeclarada (`verified:false`); não alegar antifraude.
+- Celebrações globais: `src/scripts/gameCelebration.ts` + `src/components/GamePage.astro` via evento `oldarcade:celebrate`. Efeitos: recorde pessoal, missão, Top 3, liderança confirmada, rival/revanche. Clássico também tem efeitos locais anteriores. Aventura utiliza `modeRanking.ts` e eventos de pontuação. **Não afirmar ultrapassagem em tempo real ou “20 segundos” sem dados confiáveis.** O aviso de revanche foi pensado para resultado final em que uma liderança provisória não se confirma.
+- Simulador visual de cinco comemorações: painel “🧪 Testar comemorações · Preview” somente em subdomínios `<hash>.oldarcade-17c.pages.dev` (não no domínio principal de Pages ou domínio personalizado). Não altera dados/contadores/rankings. Testar especialmente celular, movimento reduzido, Escape e botão de revanche.
+- Backlog **apenas futuro**, seção 13 de `docs/PADROES_GLOBAIS_DOS_JOGOS.md`: área administrativa por jogo/modo para pontuação, metas, mensagens, incentivos, animações, duração, prévia, versionamento e auditoria. **Não implementar agora**.
+- Histórico recente: `b2a33142` missões de conta (CI success); `d953b6c4` celebrações (CI falhou em tipagem TS); `b7b6cb2` simulador; `f1c32bf` correção de tipagem; `30c1eed9` documentação do backlog administrativo. **Verificar o CI e Preview atuais antes de declarar sucesso**. O proprietário ainda não validou visualmente o simulador.
+- Próxima ação técnica: conferir Actions do HEAD, corrigir falhas se existirem e localizar Preview do commit atual; depois usuário testa os cinco botões e aprova visualmente. Sem merge, publicação, SQL, D1, alterações de Cloudflare/domínio ou Lovable.
+- Método: GitHub como fonte de verdade, uma entrega por commit quando possível para reduzir builds Cloudflare, validação pelo proprietário, documentação atualizada e botão de continuação com contexto. Não reabrir decisões aprovadas.
+- **Regra de continuidade:** a cada marco funcional ou antes de trocar de chat, atualizar este bloco (estado, commits, CI, validações, pendências, próxima ação), mantendo fatos distintos de hipóteses. Novo chat deve ler AGENTS.md, este documento, ARQUITETURA.md, PADROES_GLOBAIS_DOS_JOGOS.md e VERSIONAMENTO_E_PUBLICACAO.md e conferir HEAD/Actions antes de qualquer mudança.
+
+
 ## ATUALIZAÇÃO — missões contextuais no painel universal (16/11/2026)
 - O painel `/conta/` passa a sugerir missões por modalidade competitiva a partir de `mine` e `top` do leaderboard existente: primeira pontuação, superar recorde, Top 3, liderança. Não cria pontos, recompensas, badges persistidos ou histórico fictício.
 - A conta é gerada pelo catálogo de jogos e modalidades; não fixar títulos futuros. CI e Preview desta entrega pendentes de validação.
