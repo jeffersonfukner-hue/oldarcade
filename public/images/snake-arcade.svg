@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 300" role="img" aria-label="Cobrinha pixelada em um tabuleiro neon">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#091d23"/><stop offset="1" stop-color="#163a36"/></linearGradient><radialGradient id="halo"><stop stop-color="#23d7a2" stop-opacity=".34"/><stop offset="1" stop-color="#23d7a2" stop-opacity="0"/></radialGradient><filter id="glow"><feGaussianBlur stdDeviation="7"/></filter></defs>
+<rect width="680" height="300" fill="url(#bg)"/><circle cx="355" cy="160" r="200" fill="url(#halo)"/>
+<g stroke="#4cbd9a" stroke-opacity=".14" stroke-width="1"><path d="M0 50H680M0 100H680M0 150H680M0 200H680M0 250H680M50 0V300M100 0V300M150 0V300M200 0V300M250 0V300M300 0V300M350 0V300M400 0V300M450 0V300M500 0V300M550 0V300M600 0V300M650 0V300"/></g>
+<g fill="#2df3ac" opacity=".24" filter="url(#glow)"><rect x="155" y="174" width="58" height="58" rx="12"/><rect x="215" y="174" width="58" height="58" rx="12"/><rect x="275" y="174" width="58" height="58" rx="12"/><rect x="275" y="114" width="58" height="58" rx="12"/><rect x="335" y="114" width="58" height="58" rx="12"/></g>
+<g stroke="#102b2c" stroke-width="6"><rect fill="#137a68" x="155" y="174" width="58" height="58" rx="12"/><rect fill="#1b9c78" x="215" y="174" width="58" height="58" rx="12"/><rect fill="#22bd89" x="275" y="174" width="58" height="58" rx="12"/><rect fill="#29d69c" x="275" y="114" width="58" height="58" rx="12"/><rect fill="#35edac" x="335" y="114" width="58" height="58" rx="12"/></g>
+<g fill="#091d23"><rect x="372" y="128" width="8" height="12" rx="3"/><rect x="372" y="146" width="8" height="12" rx="3"/></g>
+<circle cx="494" cy="154" r="29" fill="#f95f85"/><circle cx="484" cy="144" r="9" fill="#ffb4c8" opacity=".7"/><path d="M494 122Q488 106 503 100" fill="none" stroke="#70e5a1" stroke-width="7" stroke-linecap="round"/>
+<g fill="#cbfff0" opacity=".7"><path d="M124 75h7v18h-7zM118 81h18v7h-18z"/><path d="M556 217h7v18h-7zM550 223h18v7h-18z"/></g>
+</svg>
