@@ -3,7 +3,7 @@ import {test,expect} from '@playwright/test';
 test('Tetris #002 usa catálogo, página SEO e componentes globais',async({page})=>{
  await page.goto('/');
  await expect(page.locator('#hero-published-games')).toHaveText('2');
- await expect(page.getByRole('link',{name:/Jogar Tetris Clássico/})).toHaveAttribute('href','/jogos/tetris/');
+ await expect(page.getByRole('link',{name:/Jogar Tetris/})).toHaveAttribute('href','/jogos/tetris/');
  await page.goto('/jogos/tetris/');
  await expect(page).toHaveTitle(/Tetris/);
  await expect(page.locator('#tetris-canvas')).toBeVisible();
