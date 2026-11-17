@@ -8,7 +8,7 @@ test('Tetris #002 usa catálogo, página SEO e componentes globais',async({page}
  await expect(page.getByRole('heading',{name:/Chegou Tetris/})).toBeVisible();
  await expect(page.locator('.arcade-mode-card').first()).toContainText('Tetris');
  await expect(page.locator('.arcade-mode-grid a[href="/jogos/snake/"]')).toHaveCount(1);
- await expect(page.getByRole('link',{name:/Jogar Tetris/})).toHaveAttribute('href','/jogos/tetris/');
+ await expect(page.locator('.arcade-mode-grid a[href="/jogos/tetris/"]')).toHaveCount(1);
  await page.goto('/jogos/tetris/');
  await expect(page).toHaveTitle(/Tetris/);
  await expect(page.locator('#tetris-canvas')).toBeVisible();
