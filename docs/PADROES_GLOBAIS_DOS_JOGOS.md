@@ -17,6 +17,15 @@
 - Exigir verificação de obra, edição, plataforma, disponibilidade regional, direitos de imagens e destinação. Identificar publicidade/comissões sem disfarçar recomendações de conteúdo independente; atributos adequados para links patrocinados.
 - **Ainda não implementado:** não exibir placeholders vazios nem inserir links de compra sem validação e autorização. A história do Tetris usa `src/components/TetrisHistory.astro` nos três modos; o padrão futuro deve ser reaproveitável também para Snake e os demais jogos.
 
+## Desafio Diário — contrato global aprovado
+
+- **Exclusivo para jogadores logados:** visitante pode consultar as datas e as regras, mas não iniciar, reservar tentativa nem consultar o desempenho privado. A conta é validada pelo servidor em cada operação; o front-end não confere direitos.
+- **Um desafio por jogo habilitado e por dia oficial** (fuso `America/Sao_Paulo`), determinado pelo servidor, nunca pelo relógio do navegador. Calendário mensal mostra dias anteriores/futuros como não jogáveis, dia atual disponível somente se ainda não utilizado, dias usados sem acesso a novo jogo. O placar detalhado e o histórico privado ficam apenas em **Minha conta**.
+- **Uma única tentativa por conta/jogo/dia:** a participação é consumida no ato da reserva confirmada pelo servidor; abandonar, recarregar ou fechar a aba **não concede replay**. Unique/PK em banco, não `localStorage`. O fim de jogo atualiza a mesma tentativa uma única vez usando token aleatório associado à conta. Falha na gravação pode reenviar o resultado original, sem criar nova partida.
+- **Desafio comum por data:** regras e aleatoriedade reproduzível definidas por jogo, seed e versão. Modo diário isolado de recorde/ranking/localStorage do Clássico; seus resultados não se misturam aos jogos livres. Os contadores gerais podem reconhecer o início real do Snake como partida.
+- **Componentes únicos:** `DailyCalendar.astro`, `DailyHistory.astro` e `src/data/dailyChallenges.js` são globais; módulos de cada jogo fornecem somente sua mecânica. Snake é o piloto; Tetris entra após validar o piloto, sem duplicar a infraestrutura.
+- **Segurança de produção:** validação de sessão, origem, regra atômica, datas e limites no servidor; regras antifraude/verificação da partida devem ser avaliadas antes de exibir classificações competitivas. A migração `migrations/0008_daily_challenges.sql` está **somente preparada**: aplicar no D1 Preview exige autorização expressa; produção separadamente e somente após aprovação.
+
 ## Checklist obrigatório — mudanças globais e prevenção de regressão
 
 **Regra de manutenção:** qualquer comportamento, aparência, animação, texto recorrente ou interação declarada como **padrão** pertence a um único componente, módulo, token ou contrato compartilhado. Alterações nesse padrão propagam-se automaticamente a **todos os jogos/modos existentes e futuros**, sem copiar código ou CSS entre páginas. A única configuração por jogo são seus dados e diferenças reais de mecânica, explicitamente documentadas.
