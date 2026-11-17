@@ -648,7 +648,8 @@ registerForm.addEventListener('submit',e=>{
   nickname:document.querySelector<HTMLInputElement>('#record-register-nick')!.value,
   email:document.querySelector<HTMLInputElement>('#record-register-email')!.value,
   password:document.querySelector<HTMLInputElement>('#record-register-pass')!.value,
-  recordEmailOptIn:document.querySelector<HTMLInputElement>('#record-register-alert')!.checked
+  recordEmailOptIn:document.querySelector<HTMLInputElement>('#record-register-alert')!.checked,
+  dailyEmailOptIn:document.querySelector<HTMLInputElement>('#record-register-daily-alert')!.checked
  },registerForm);
 });
 loginForm.addEventListener('submit',e=>{
