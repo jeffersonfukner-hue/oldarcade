@@ -130,3 +130,22 @@ test('registro de recorde respeita atraso após game over e não abre modal imed
  await expect(page.locator('[data-rank-modal]')).toBeHidden();
  await expect(page.locator('[data-rank-modal]')).toBeVisible({timeout:3500});
 });
+
+test('Após login, vice-líder recebe 2º LUGAR depois do fechamento do modal',async({page})=>{
+ const ranking={available:true,top:[
+  {nickname:'Líder',score:800,rank:1,achievedAt:'2026-11-17T12:00:00Z'},
+  {nickname:'Vice',score:400,rank:2,achievedAt:'2026-11-17T12:05:00Z'}
+ ],mine:{nickname:'Vice',score:400,rank:2,achievedAt:'2026-11-17T12:05:00Z'}};
+ await page.route('**/api/auth/me',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({player:null})}));
+ await page.route('**/api/auth/login',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({player:{nickname:'Vice'}})}));
+ await page.route('**/api/games/tetris/leaderboard',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(route.request().method()==='POST'?ranking:{available:true,top:ranking.top,mine:null})}));
+ await page.goto('/jogos/tetris/');
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'tetris',score:400,durationMs:10000,recordDelayMs:0}})));
+ await expect(page.locator('[data-rank-modal]')).toBeVisible();
+ await page.locator('[data-rank-login-form] input[name=nickname]').fill('Vice');
+ await page.locator('[data-rank-login-form] input[name=password]').fill('senha-teste-ficticia');
+ await page.locator('[data-rank-login-form] button[type=submit]').click();
+ await expect(page.locator('[data-rank-modal]')).toBeHidden();
+ await expect(page.locator('#game-celebration [data-celebration-title]')).toHaveText('2º LUGAR!');
+ await expect(page.locator('#game-celebration [data-celebration-icon]')).toHaveText('🥈');
+});
