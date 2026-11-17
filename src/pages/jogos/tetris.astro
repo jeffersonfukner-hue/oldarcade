@@ -95,6 +95,50 @@ const description='Jogue nosso Tetris online grátis: gire peças, complete linh
   .tetris-touch-controls button:active{background:#7655fa}
   .tetris-sidebar h2{font-size:1.45rem}
   @media(max-width:580px){.tetris-playfield{gap:8px}.tetris-preview-column{width:82px;min-width:82px}.tetris-board-shell{width:min(300px,calc(100% - 90px))}.tetris-mini{padding:5px}.tetris-touch-controls button{font-size:.86rem}.tetris-sidebar{margin-top:6px}}
+  /* O tabuleiro é vertical (10×20). A regra global de fullscreen foi feita
+     para tabuleiros quadrados do Snake; sobrescrevemos apenas no Tetris. */
+  #tetris-stage:fullscreen{overflow:hidden;min-width:0;box-sizing:border-box}
+  #tetris-stage:fullscreen .arcade-game-layout{
+   display:grid;grid-template-columns:minmax(0,430px) minmax(150px,210px);
+   grid-template-areas:"board stats";gap:16px;align-items:center;align-content:center;
+   justify-content:center;flex:1;min-height:0;width:min(100%,760px);
+   margin:0 auto;
+  }
+  #tetris-stage:fullscreen .arcade-game-layout>.game-hud{
+   grid-area:stats;min-width:0;max-height:100%;overflow-y:auto;
+  }
+  #tetris-stage:fullscreen .tetris-playfield{
+   grid-area:board;display:flex;flex:none;align-items:center;justify-content:center;
+   min-width:0;min-height:0;height:100%;width:100%;padding:0;gap:10px;
+  }
+  #tetris-stage:fullscreen #tetris-screen{
+   flex:none;min-width:0;min-height:0;max-height:100%;width:auto;
+   height:min(100%,600px);aspect-ratio:1/2;box-sizing:border-box;
+  }
+  #tetris-stage:fullscreen #tetris-canvas{
+   display:block;width:100%;height:100%;max-width:100%;aspect-ratio:1/2;
+  }
+  #tetris-stage:fullscreen .tetris-preview-column{flex:none;align-self:center}
+  #tetris-stage:fullscreen .tetris-preview-column canvas{
+   display:block;width:100%;height:auto;aspect-ratio:1;
+  }
+  #tetris-stage:fullscreen .tetris-touch-controls{
+   flex:none;width:min(100%,760px);margin:8px auto 0;
+  }
+  @media(max-width:720px){
+   #tetris-stage:fullscreen .arcade-game-layout{
+    display:flex;flex-direction:column;justify-content:center;
+    align-items:center;gap:6px;width:100%;
+   }
+   #tetris-stage:fullscreen .arcade-game-layout>.game-hud{
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:6px;width:100%;max-height:110px;overflow:hidden;padding:7px;
+   }
+   #tetris-stage:fullscreen .tetris-playfield{flex:1;min-height:0;justify-content:center}
+   #tetris-stage:fullscreen #tetris-screen{height:min(100%,530px)}
+   #tetris-stage:fullscreen .tetris-preview-column{width:78px;min-width:78px}
+   #tetris-stage:fullscreen .tetris-touch-controls{margin-top:5px}
+  }
   @media(prefers-reduced-motion:reduce){.tetris-touch-controls button{transition:none}}
  </style>
 </GamePage>
