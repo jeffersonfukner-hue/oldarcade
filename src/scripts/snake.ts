@@ -125,16 +125,17 @@ try{if(!sessionStorage.getItem(sessionKey)){saved.visits++;sessionStorage.setIte
 function store(){try{localStorage.setItem(key,JSON.stringify(saved))}catch{}}
 store();
 
-type Item={point:Point;kind:'normal'|'rare'|'shrink'|'slow'|'blaster';expires:number};
+type Item={point:Point;kind:'normal'|'rare'|'shrink'|'slow'|'blaster'|'scare';expires:number};
 // Temporário: facilitar testes de todas as melhorias entre 0 e 100 pontos.
 const EVOLUTION_FAST_TEST=false;
 const unlock=(normal:number,test:number)=>EVOLUTION_FAST_TEST?test:normal;
 type BorderWall={side:'top'|'bottom'|'left'|'right';index:number;hits:number;restoreAt:number};
 let borderWalls:BorderWall[]=[];
 let items:Item[]=[];let obstacles:Point[]=[];let obstacleHits=new Map<string,number>();type Projectile={point:Point;direction:Direction};
-let projectiles:Projectile[]=[];let evolutionClock=0;let slowUntil=0;let blasterUntil=0;let nextShotAt=0;let lastRescue=-100;let peakScore=0;
+type Enemy={point:Point;kind:'hunter'|'ambusher'|'wanderer';heading:Direction};
+let enemies:Enemy[]=[];let scareUntil=0;let projectiles:Projectile[]=[];let evolutionClock=0;let slowUntil=0;let blasterUntil=0;let nextShotAt=0;let lastRescue=-100;let peakScore=0;
 const same=(a:Point,b:Point)=>a.x===b.x&&a.y===b.y;
-const occupied=(p:Point)=>snake.some(q=>same(p,q))||items.some(q=>same(p,q.point))||obstacles.some(q=>same(p,q));
+const occupied=(p:Point)=>snake.some(q=>same(p,q))||items.some(q=>same(p,q.point))||obstacles.some(q=>same(p,q))||enemies.some(q=>same(p,q.point));
 function freeCell():Point|null{const cells:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!occupied({x,y}))cells.push({x,y});return cells.length?cells[Math.floor(Math.random()*cells.length)]:null}
 function addItem(kind:Item['kind'],lifetime=0){const point=kind==='shrink'?reachableRescueCell():freeCell();if(!point)return false;items.push({point,kind,expires:lifetime?evolutionClock+lifetime:0});return true}
 function reachableRescueCell():Point|null{
@@ -167,6 +168,47 @@ function borderExit(head:Point):{side:BorderWall['side'];index:number}|null{
 function hitBorder(side:BorderWall['side'],index:number){const wall=borderAt(side,index);if(!wall)return;wall.hits++;if(wall.hits>=3){wall.restoreAt=evolutionClock+90;wall.hits=0}}
 function regenerateBorders(){for(const wall of borderWalls){if(wall.restoreAt&&evolutionClock>=wall.restoreAt){wall.restoreAt=0;wall.hits=0}}}
 
+/** Inimigos com decisões simples: perseguição, emboscada e patrulha. Só a cabeça sofre dano. */
+function updateEnemies(){
+ if(peakScore<10000)return;
+ const max=peakScore>=16000?3:peakScore>=12500?2:1;
+ if(enemies.length<max&&evolutionClock%50===0){
+  const point=freeCell();
+  if(point&&Math.abs(point.x-snake[0].x)+Math.abs(point.y-snake[0].y)>6){
+   enemies.push({point,kind:(['hunter','ambusher','wanderer'] as const)[enemies.length],heading:'right'});
+  }
+ }
+ if(enemies.length&&evolutionClock%55===0&&!items.some(i=>i.kind==='scare'))addItem('scare',50);
+ if(evolutionClock%3!==0)return;
+ const offsets:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};
+ const head=snake[0];
+ const forward=offsets[direction];
+ const scared=evolutionClock<scareUntil;
+ for(const enemy of enemies){
+  const target=enemy.kind==='hunter'?head:enemy.kind==='ambusher'?{x:head.x+forward.x*4,y:head.y+forward.y*4}:{x:size-1-head.x,y:size-1-head.y};
+  const options=(Object.keys(offsets) as Direction[]).map(dir=>({dir,point:{x:enemy.point.x+offsets[dir].x,y:enemy.point.y+offsets[dir].y}}))
+   .filter(option=>option.point.x>=0&&option.point.y>=0&&option.point.x<size&&option.point.y<size&&!obstacles.some(p=>same(p,option.point))&&!enemies.some(other=>other!==enemy&&same(other.point,option.point))&&!borderWalls.some(w=>!w.restoreAt&&((w.side==='left'&&option.point.x===0&&option.point.y===w.index)||(w.side==='right'&&option.point.x===size-1&&option.point.y===w.index)||(w.side==='top'&&option.point.y===0&&option.point.x===w.index)||(w.side==='bottom'&&option.point.y===size-1&&option.point.x===w.index)))));
+  if(!options.length)continue;
+  options.sort((a,b)=>{
+   const distance=(p:Point)=>Math.abs(p.x-target.x)+Math.abs(p.y-target.y);
+   const da=distance(a.point),db=distance(b.point);
+   if(enemy.kind==='wanderer'&&!scared)return (a.dir===enemy.heading?-1:0)-(b.dir===enemy.heading?-1:0)||da-db;
+   return scared?db-da:da-db;
+  });
+  enemy.point=options[0].point;enemy.heading=options[0].dir;
+ }
+}
+function checkEnemyHead(){
+ const head=snake[0];
+ const enemyIndex=enemies.findIndex(enemy=>same(enemy.point,head));
+ if(enemyIndex<0)return false;
+ if(evolutionClock<scareUntil){
+  enemies.splice(enemyIndex,1);funMoment('INIMIGO DERROTADO!',head);
+  return false;
+ }
+ end(false);
+ return true;
+}
 function advanceEvolution(){
  evolutionClock++;
  items=items.filter(item=>!item.expires||item.expires>evolutionClock);
@@ -185,6 +227,7 @@ function advanceEvolution(){
   if(addItem('shrink',45)){lastRescue=evolutionClock;arcadePersonality(modeId,'rescue')}
  }
  if(score<30)items=items.filter(i=>i.kind!=='shrink');
+ updateEnemies();
 }
 /** Projéteis avançam duas células por tick: movimento visível, sem laser instantâneo. */
 function fireBlaster(){
@@ -238,7 +281,14 @@ function refresh(){const best=Math.max(saved.best,personalCloudBest);
  text('global-best',shownGlobal===null?'—':String(shownGlobal));
  text('hud-global-label',provisionalGlobal?'Recorde global (provisório):':'Recorde global:');
  text('global-best-label',provisionalGlobal?'Recorde global (provisório)':'Recorde global (contas)');text('score',String(score));text('best',String(best));text('hud-score',String(score));text('hud-best',String(best));text('plays',String(saved.plays));text('visits',String(saved.visits));const body=document.getElementById('rank-body')!;body.replaceChildren();if(!saved.scores.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=3;td.textContent='Salve um nickname e jogue uma partida para aparecer no ranking.';tr.append(td);body.append(tr)}else saved.scores.slice(0,10).forEach((entry,i)=>{const tr=document.createElement('tr');[String(i+1),entry.name,String(entry.score)].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td)});body.append(tr)})}
-function draw(){ctx.fillStyle='#071a20';ctx.fillRect(0,0,600,600);ctx.strokeStyle='#122c32';ctx.lineWidth=1;for(let n=0;n<=size;n++){ctx.beginPath();ctx.moveTo(n*cell,0);ctx.lineTo(n*cell,600);ctx.moveTo(0,n*cell);ctx.lineTo(600,n*cell);ctx.stroke()}if(evolutionPreview){for(const item of items){const colors={normal:'#ff657c',rare:'#ffdc51',shrink:'#a17bff',slow:'#71d8ff',blaster:'#ff9c3d'};ctx.fillStyle=colors[item.kind];ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*(item.kind==='rare'?.4:.33),0,Math.PI*2);ctx.fill();if(item.expires){ctx.strokeStyle='#fff9';ctx.lineWidth=3;ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*.44,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(0,(item.expires-evolutionClock)/(item.kind==='rare'?38:45)));ctx.stroke()}}for(const block of obstacles){const hits=obstacleHits.get(block.x+','+block.y)??0;ctx.fillStyle='#8392a5';ctx.fillRect(block.x*cell+3,block.y*cell+3,cell-6,cell-6);if(hits){ctx.strokeStyle='#20242e';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(block.x*cell+cell*.25,block.y*cell+4);ctx.lineTo(block.x*cell+cell*.5,block.y*cell+cell*.55);ctx.lineTo(block.x*cell+cell*.72,block.y*cell+cell-4);ctx.stroke()}}for(const wall of borderWalls){if(wall.restoreAt)continue;ctx.fillStyle='#cf79ee';const x=wall.side==='left'?0:wall.side==='right'?size-1:wall.index;const y=wall.side==='top'?0:wall.side==='bottom'?size-1:wall.index;const thickness=cell*.22;if(wall.side==='top')ctx.fillRect(x*cell,y*cell,cell,thickness);else if(wall.side==='bottom')ctx.fillRect(x*cell,(y+1)*cell-thickness,cell,thickness);else if(wall.side==='left')ctx.fillRect(x*cell,y*cell,thickness,cell);else ctx.fillRect((x+1)*cell-thickness,y*cell,thickness,cell)}if(projectiles.length){ctx.fillStyle='#f7f2d2';for(const shot of projectiles){const p=shot.point;ctx.beginPath();ctx.arc(p.x*cell+cell/2,p.y*cell+cell/2,cell*.16,0,Math.PI*2);ctx.fill()}}}else{ctx.fillStyle='#ff657c';ctx.beginPath();ctx.arc(food.x*cell+cell/2,food.y*cell+cell/2,cell*.35,0,Math.PI*2);ctx.fill()}snake.forEach((piece,i)=>{ctx.fillStyle=i===0?'#a0ffd0':'#46dca2';ctx.fillRect(piece.x*cell+2,piece.y*cell+2,cell-4,cell-4)});}
+function draw(){ctx.fillStyle='#071a20';ctx.fillRect(0,0,600,600);ctx.strokeStyle='#122c32';ctx.lineWidth=1;for(let n=0;n<=size;n++){ctx.beginPath();ctx.moveTo(n*cell,0);ctx.lineTo(n*cell,600);ctx.moveTo(0,n*cell);ctx.lineTo(600,n*cell);ctx.stroke()}if(evolutionPreview){for(const item of items){const colors={normal:'#ff657c',rare:'#ffdc51',shrink:'#a17bff',slow:'#71d8ff',blaster:'#ff9c3d',scare:'#60e4cf'};ctx.fillStyle=colors[item.kind];ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*(item.kind==='rare'?.4:.33),0,Math.PI*2);ctx.fill();if(item.expires){ctx.strokeStyle='#fff9';ctx.lineWidth=3;ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*.44,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(0,(item.expires-evolutionClock)/(item.kind==='rare'?38:45)));ctx.stroke()}}for(const block of obstacles){const hits=obstacleHits.get(block.x+','+block.y)??0;ctx.fillStyle='#8392a5';ctx.fillRect(block.x*cell+3,block.y*cell+3,cell-6,cell-6);if(hits){ctx.strokeStyle='#20242e';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(block.x*cell+cell*.25,block.y*cell+4);ctx.lineTo(block.x*cell+cell*.5,block.y*cell+cell*.55);ctx.lineTo(block.x*cell+cell*.72,block.y*cell+cell-4);ctx.stroke()}}for(const wall of borderWalls){if(wall.restoreAt)continue;ctx.fillStyle='#cf79ee';const x=wall.side==='left'?0:wall.side==='right'?size-1:wall.index;const y=wall.side==='top'?0:wall.side==='bottom'?size-1:wall.index;const thickness=cell*.22;if(wall.side==='top')ctx.fillRect(x*cell,y*cell,cell,thickness);else if(wall.side==='bottom')ctx.fillRect(x*cell,(y+1)*cell-thickness,cell,thickness);else if(wall.side==='left')ctx.fillRect(x*cell,y*cell,thickness,cell);else ctx.fillRect((x+1)*cell-thickness,y*cell,thickness,cell)}for(const enemy of enemies){
+ const cx=enemy.point.x*cell+cell/2,cy=enemy.point.y*cell+cell/2;
+ ctx.fillStyle=evolutionClock<scareUntil?'#6988ff':enemy.kind==='hunter'?'#fa668b':enemy.kind==='ambusher'?'#f6b66e':'#c69cf9';
+ ctx.beginPath();ctx.arc(cx,cy-2,cell*.34,Math.PI,0);ctx.lineTo(cx+cell*.34,cy+cell*.3);ctx.lineTo(cx-cell*.34,cy+cell*.3);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx-5,cy-3,3,0,Math.PI*2);ctx.arc(cx+5,cy-3,3,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#172633';ctx.beginPath();ctx.arc(cx-5,cy-3,1.4,0,Math.PI*2);ctx.arc(cx+5,cy-3,1.4,0,Math.PI*2);ctx.fill();
+ }
+ if(projectiles.length){ctx.fillStyle='#f7f2d2';for(const shot of projectiles){const p=shot.point;ctx.beginPath();ctx.arc(p.x*cell+cell/2,p.y*cell+cell/2,cell*.16,0,Math.PI*2);ctx.fill()}}}else{ctx.fillStyle='#ff657c';ctx.beginPath();ctx.arc(food.x*cell+cell/2,food.y*cell+cell/2,cell*.35,0,Math.PI*2);ctx.fill()}snake.forEach((piece,i)=>{ctx.fillStyle=i===0?'#a0ffd0':'#46dca2';ctx.fillRect(piece.x*cell+2,piece.y*cell+2,cell-4,cell-4)});}
 function floatPoints(at:Point,amount:number){
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
  const board=canvas.getBoundingClientRect();
@@ -286,14 +336,15 @@ function checkFunMilestone(at:Point){
 }
 function placeFood(){const free:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y});if(!free.length){end(true);return}food=free[Math.floor(Math.random()*free.length)]}
 function schedule(){window.clearTimeout(timer);if(state==='playing')timer=window.setTimeout(tick,(evolutionPreview?Math.max(145,210-Math.floor(peakScore/100)*7):Math.max(75,155-Math.floor(score/50)*8))+(evolutionPreview&&evolutionClock<slowUntil?85:0))}
-function tick(){if(state!=='playing')return;direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const rawHead={x:snake[0].x+d.x,y:snake[0].y+d.y};const exit=evolutionPreview?borderExit(rawHead):null;const head=evolutionPreview?{x:(rawHead.x+size)%size,y:(rawHead.y+size)%size}:rawHead;const picked=evolutionPreview?items.find(i=>same(i.point,head)):undefined;const eating=evolutionPreview?Boolean(picked&&picked.kind!=='shrink'&&picked.kind!=='slow'&&picked.kind!=='blaster'):head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if((!evolutionPreview&&(head.x<0||head.x>=size||head.y<0||head.y>=size))||(exit&&borderAt(exit.side,exit.index))||body.some(p=>p.x===head.x&&p.y===head.y)||(evolutionPreview&&obstacles.some(p=>same(p,head)))){end(false);return}snake.unshift(head);
+function tick(){if(state!=='playing')return;direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const rawHead={x:snake[0].x+d.x,y:snake[0].y+d.y};const exit=evolutionPreview?borderExit(rawHead):null;const head=evolutionPreview?{x:(rawHead.x+size)%size,y:(rawHead.y+size)%size}:rawHead;const picked=evolutionPreview?items.find(i=>same(i.point,head)):undefined;const eating=evolutionPreview?Boolean(picked&&picked.kind!=='shrink'&&picked.kind!=='slow'&&picked.kind!=='blaster'&&picked.kind!=='scare'):head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if((!evolutionPreview&&(head.x<0||head.x>=size||head.y<0||head.y>=size))||(exit&&borderAt(exit.side,exit.index))||body.some(p=>p.x===head.x&&p.y===head.y)||(evolutionPreview&&obstacles.some(p=>same(p,head)))){end(false);return}snake.unshift(head);
  // Aviso temático de risco: somente quando há pouco espaço, sem criar frutas ou alterar pontos.
  const freeNeighbors=[{x:head.x+1,y:head.y},{x:head.x-1,y:head.y},{x:head.x,y:head.y+1},{x:head.x,y:head.y-1}].filter(p=>p.x>=0&&p.x<size&&p.y>=0&&p.y<size&&!snake.some(q=>q.x===p.x&&q.y===p.y)).length;
  if(score>=30&&snake.length>=12&&freeNeighbors<=1&&!dangerAnnounced){dangerAnnounced=true;arcadePersonality(modeId,'danger')}
  if(freeNeighbors>=3)dangerAnnounced=false;
  if(evolutionPreview){
-  if(picked){items=items.filter(i=>i!==picked);if(picked.kind==='shrink'){score=Math.max(0,score-30);snake.splice(Math.max(4,snake.length-3));floatPoints(head,-30);if(picked.expires&&picked.expires-evolutionClock<=9)funMoment('SALVO NO ÚLTIMO SEGUNDO!',head)}else if(picked.kind==='slow'){slowUntil=evolutionClock+45;if(picked.expires&&picked.expires-evolutionClock<=9)funMoment('NA HORA CERTA!',head)}else if(picked.kind==='blaster'){blasterUntil=evolutionClock+70;nextShotAt=evolutionClock;if(picked.expires&&picked.expires-evolutionClock<=9)funMoment('QUE JOGADA!',head)}}
+  if(picked){items=items.filter(i=>i!==picked);if(picked.kind==='shrink'){score=Math.max(0,score-30);snake.splice(Math.max(4,snake.length-3));floatPoints(head,-30);if(picked.expires&&picked.expires-evolutionClock<=9)funMoment('SALVO NO ÚLTIMO SEGUNDO!',head)}else if(picked.kind==='slow'){slowUntil=evolutionClock+45;if(picked.expires&&picked.expires-evolutionClock<=9)funMoment('NA HORA CERTA!',head)}else if(picked.kind==='blaster'){blasterUntil=evolutionClock+70;nextShotAt=evolutionClock;if(picked.expires&&picked.expires-evolutionClock<=9)funMoment('QUE JOGADA!',head)}else if(picked.kind==='scare'){scareUntil=evolutionClock+75;funMoment('AGORA ELES FOGEM!',head)}}
   advanceEvolution();
+  if(checkEnemyHead())return;
   moveProjectiles();
   if(evolutionClock<blasterUntil&&evolutionClock>=nextShotAt){fireBlaster();nextShotAt=evolutionClock+4}
  }
@@ -316,7 +367,7 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
 function cancelCountdown(){window.clearTimeout(countdownTimer);countValue.hidden=true;startBtn.hidden=false}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 const gameClock=setupGameClock(gameScreen,()=>state==='playing');
-function start(){gameClock.reset();endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
+function start(){gameClock.reset();endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];enemies=[];scareUntil=0;evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
  didCelebratePersonal=false;lastFunMilestone=0;lastFunAt=-100;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
  resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}saved.plays++;store();globalCounters.recordPlay(recordGameStart(modeId));draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){

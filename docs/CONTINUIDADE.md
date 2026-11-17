@@ -5,7 +5,7 @@
 # OldArcade — continuidade obrigatória
 
 ## ESTADO ATUAL PARA NOVO CHAT — 16/11/2026 (ler primeiro)
-- Cronômetro de tempo jogado nos três modos via componente compartilhado `src/scripts/gameClock.ts`: tempo ativo em mm:ss, pausa/contagem regressiva excluídas. Desempate global por duração **pendente**: precisa persistir tempo na API/D1 e migrar ranking, proibido alterar banco sem autorização explícita. Inimigos Evolution ainda pendentes de implementação. Sem merge/produção.
+- Cronômetro de tempo jogado nos três modos via componente compartilhado `src/scripts/gameClock.ts`: tempo ativo em mm:ss, pausa/contagem regressiva excluídas. Desempate global por duração **pendente**: precisa persistir tempo na API/D1 e migrar ranking, proibido alterar banco sem autorização explícita. Inimigos Evolution implementados após 10.000 pontos: hunter persegue cabeça, ambusher antecipa direção, wanderer patrulha; até três inimigos por patamar. Contato com cabeça causa derrota; corpo não sofre ataque. Power-up scare temporário faz inimigos fugirem e permite eliminá-los por contato com a cabeça. Exige QA no Preview. Sem merge/produção.
 
 - Feedback 16/11: elogios durante partida agora a cada 100 pontos (antes 30), tipografia maior. Evolution saiu do modo de progressão acelerada: `EVOLUTION_FAST_TEST=false`, marcos originais 0/100/250/600/1500/4000/10000; sem alterar velocidade da cobra, tiros ou padrões compartilhados. Sem merge/produção.
 
