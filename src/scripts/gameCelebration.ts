@@ -1,5 +1,6 @@
+import {arcadePersonality} from './arcadePersonality';
 /** Celebrações compartilhadas: os jogos emitem eventos, este componente cuida do visual. */
-type Kind='personal'|'mission'|'podium'|'leader'|'rival';
+type Kind='personal'|'mission'|'podium'|'leader'|'rival'|'danger'|'rescue';
 type Detail={game:string;kind:Kind;message?:string};
 const overlay=document.querySelector<HTMLElement>('#game-celebration')!;
 if(overlay){
@@ -12,14 +13,18 @@ if(overlay){
  const labels:Record<Kind,[string,string]>={
   personal:['✨','NOVO RECORDE!'],mission:['🎯','MISSÃO CUMPRIDA!'],
   podium:['🥉','TOP 3!'],leader:['🏆','VOCÊ É O LÍDER!'],
-  rival:['⚡','TE PASSARAM!']
+  rival:['⚡','TE PASSARAM!'],danger:['🐍','CUIDADO!'],rescue:['🍇','SALVA-COBRA!']
  };
- let timeout=0;let current=0;
+ let timeout=0;let current=0;let lastPersonalityAt=0;
  function hide(){overlay.hidden=true;overlay.classList.remove('is-rival');current=0}
  document.addEventListener('oldarcade:game-started',()=>{window.clearTimeout(timeout);hide()});
  document.addEventListener('oldarcade:celebrate',event=>{
   const detail=(event as CustomEvent<Detail>).detail;
   if(!detail||!Object.hasOwn(labels,detail.kind))return;
+  if(detail.kind==='danger'||detail.kind==='rescue'){
+   const now=Date.now();if(detail.game!=='preview-simulator'&&now-lastPersonalityAt<15000)return;
+   lastPersonalityAt=now;
+  }
   const priority=detail.kind==='rival'?5:detail.kind==='leader'?4:detail.kind==='podium'?3:detail.kind==='mission'?2:1;
   if(!overlay.hidden&&priority<current)return;
   window.clearTimeout(timeout);current=priority;
@@ -29,7 +34,9 @@ if(overlay){
   if(rival){home.append(overlay)}else if(board){board.append(overlay)}
   overlay.classList.toggle('is-rival',rival);
   replay.hidden=!rival;overlay.hidden=false;
-  timeout=window.setTimeout(hide,rival?9000:2200);
+  const card=overlay.querySelector<HTMLElement>('.oa-celebration-card');
+  if(card&&!rival){card.style.animation='none';void card.offsetWidth;card.style.animation=''}
+  timeout=window.setTimeout(hide,rival?9000:1400);
  });
  overlay.addEventListener('click',event=>{if(event.target===overlay)hide()});
  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!overlay.hidden)hide()});
@@ -50,8 +57,10 @@ if(testPanel&&previewHost.test(window.location.hostname)){
     mission:'Meta alcançada! Prepare-se para o próximo desafio.',
     podium:'Você conquistou uma vaga entre os melhores!',
     leader:'Primeiro lugar confirmado! Agora defenda o topo.',
-    rival:'Alguém já tomou a dianteira! Vai deixar assim?'
+    rival:'Alguém já tomou a dianteira! Vai deixar assim?',
+    danger:'',rescue:''
    };
+   if(kind==='danger'||kind==='rescue'){arcadePersonality('snake',kind);return}
    document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:'preview-simulator',kind,message:examples[kind]}}));
   });
  });
