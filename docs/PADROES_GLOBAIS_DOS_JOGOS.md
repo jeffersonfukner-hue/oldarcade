@@ -134,3 +134,8 @@ GitHub branch/PR → testes GitHub Actions → Cloudflare Preview → validaçã
 ### Regra de elegibilidade — fruta de encolhimento (16/11/2026)
 - **Confirmado pelo proprietário:** a fruta de encolhimento só pode surgir se a pontuação atual da partida for de **no mínimo 30 pontos**. A condição usa a pontuação atual, não o recorde histórico ou a maior pontuação atingida na partida.
 - Salvaguarda proposta, ainda não confirmada: se a pontuação cair abaixo de 30 enquanto a fruta estiver no tabuleiro, remover a fruta. Manter custo exato e quantidade de segmentos como parâmetros pendentes de balanceamento.
+
+### Refinamento conceitual — fruta de emergência (16/11/2026)
+- O proprietário sugeriu que a fruta de encolhimento apareça **somente quando a situação estiver perigosa**, e não por spawn comum aleatório. A elegibilidade mínima de 30 pontos permanece.
+- Proposta técnica para posterior aprovação: indicador de perigo considera comprimento relativo ao espaço livre, obstáculos, acessibilidade e rotas de fuga a partir da cabeça. Se o perigo estiver alto, oferecer temporariamente fruta de emergência em posição alcançável; coletá-la sacrifica pontos em troca de encurtamento. Evitar garantia automática de sobrevivência ou aparição em posição impossível.
+- Nome provisório sugerido: “Salva-Cobra”. Limiares de perigo, duração e frequência ainda precisam de balanceamento. Não implementar antes da decisão sobre modo e rankings.
