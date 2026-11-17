@@ -316,3 +316,48 @@ html,body{touch-action:manipulation}
  .arcade-game-layout>.game-hud>[data-game-clock]{font-size:.76rem}
  .arcade-game-layout>.game-hud>span[role=status]{display:none}
 }
+
+
+/* Fullscreen dos tabuleiros quadrados (Snake Clássico, Evolution e Aventura).
+   Ultrawide: limite pelo lado menor/altura, nunca estique a grade pela largura.
+   Tetris (10×20) mantém suas regras próprias no componente da página. */
+@media(min-width:651px){
+ .game-stage:fullscreen .arcade-game-layout:has(>.screen-wrap),
+ #adventure-stage:fullscreen .arcade-game-layout:has(>.screen-wrap){
+  width:min(100%,920px);
+  margin-inline:auto;
+  grid-template-columns:minmax(0,660px) minmax(150px,190px);
+  justify-content:center;align-items:center;align-content:center;
+  min-height:0;overflow:visible;
+ }
+ .game-stage:fullscreen .arcade-game-layout>.screen-wrap,
+ #adventure-stage:fullscreen .arcade-game-layout>.screen-wrap{
+  grid-area:board;
+  width:min(100%,calc(100dvh - 135px),660px);
+  height:auto;aspect-ratio:1;justify-self:center;align-self:center;
+  flex:none;min-height:0;
+ }
+ .game-stage:fullscreen .arcade-game-layout>.screen-wrap canvas,
+ #adventure-stage:fullscreen .arcade-game-layout>.screen-wrap canvas{
+  width:100%;height:auto;max-width:100%;max-height:none;aspect-ratio:1;
+ }
+ .game-stage:fullscreen .arcade-game-layout>.game-hud,
+ #adventure-stage:fullscreen .arcade-game-layout>.game-hud{
+  grid-area:stats;align-self:center;max-height:calc(100dvh - 135px);overflow-y:auto;
+ }
+}
+@media(max-width:650px){
+ .game-stage:fullscreen .arcade-game-layout:has(>.screen-wrap),
+ #adventure-stage:fullscreen .arcade-game-layout:has(>.screen-wrap){
+  min-width:0;width:100%;align-content:center;justify-items:center;
+ }
+ .game-stage:fullscreen .arcade-game-layout>.screen-wrap,
+ #adventure-stage:fullscreen .arcade-game-layout>.screen-wrap{
+  width:min(100%,calc(100dvh - 210px),540px);
+  height:auto;aspect-ratio:1;flex:none;min-height:0;
+ }
+ .game-stage:fullscreen .arcade-game-layout>.screen-wrap canvas,
+ #adventure-stage:fullscreen .arcade-game-layout>.screen-wrap canvas{
+  width:100%;height:auto;max-height:none;aspect-ratio:1;
+ }
+}
