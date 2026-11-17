@@ -104,3 +104,28 @@ test('datas passadas e futuras não podem iniciar desafio; origem inválida é p
  const res=await onRequestPost({params:{game:'snake'},env:{OLDARCADE_STATS_DB:db},request:new Request(origin+'/api/daily/snake',{method:'POST',headers:{'Origin':'https://evil.invalid','Content-Type':'application/json','Cookie':'oldarcade_session='+session},body:JSON.stringify({action:'start',date:dateInSaoPaulo()})})});
  assert.equal(res.status,403);
 });
+
+test('Tetris usa a infraestrutura diária compartilhada, sem misturar pontuação Snake',async()=>{
+ assert.equal(DAILY_MODES.tetris.gameMode,'tetris');
+ assert.equal(DAILY_MODES.tetris.path,'/jogos/tetris/');
+ const piecesA=seededRandom(dailySeed('tetris','2026-11-17'));
+ const piecesB=seededRandom(dailySeed('tetris','2026-11-17'));
+ assert.deepEqual(Array.from({length:14},()=>piecesA()),Array.from({length:14},()=>piecesB()));
+ assert.notEqual(dailySeed('tetris','2026-11-17'),dailySeed('snake','2026-11-17'));
+ const {db,attempts}=mockDb();
+ const day=dateInSaoPaulo();
+ const dailyRequest=(body)=>new Request(origin+'/api/daily/tetris',{method:'POST',headers:{'Origin':origin,'Content-Type':'application/json','Cookie':'oldarcade_session='+session},body:JSON.stringify(body)});
+ const ctx=(body)=>({params:{game:'tetris'},env:{OLDARCADE_STATS_DB:db},request:dailyRequest(body)});
+ const start=await onRequestPost(ctx({action:'start',date:day}));
+ assert.equal(start.status,201);
+ const token=(await start.json()).token;
+ const repeated=await onRequestPost(ctx({action:'start',date:day}));
+ assert.equal(repeated.status,409);
+ assert.equal(attempts.size,1);
+ const invalid=await onRequestPost(ctx({action:'finish',date:day,token,score:150,durationMs:5000}));
+ assert.equal(invalid.status,400);
+ const valid=await onRequestPost(ctx({action:'finish',date:day,token,score:12300,durationMs:5000}));
+ assert.equal(valid.status,200);
+ const again=await onRequestPost(ctx({action:'finish',date:day,token,score:12300,durationMs:5000}));
+ assert.equal(again.status,409);
+});
