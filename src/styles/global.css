@@ -397,3 +397,27 @@ html,body{touch-action:manipulation}
   max-height:calc(100dvh - 235px);
  }
 }
+
+/* Home consolidada: dois jogos, três modalidades cada; campanha diária única. */
+.oldarcade-brand-mark{width:42px;height:42px;flex:none;filter:drop-shadow(0 2px 7px #8544fb55)}
+.oldarcade-brand-word{font-weight:900;letter-spacing:-.035em;white-space:nowrap}
+[data-home-daily][hidden]{display:none!important}
+.home-daily-spotlight{margin:0 0 20px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-radius:15px;border:1px solid #795dc0;background:radial-gradient(circle at 85% 40%,#493068 0,transparent 45%),linear-gradient(110deg,#211a3f,#141d35);box-shadow:inset 0 0 0 1px #ae8aff24}
+.home-daily-copy{min-width:0;flex:1}
+.home-daily-spotlight h2{font-size:clamp(1.25rem,2.1vw,1.65rem);margin:6px 0 4px}
+.home-daily-spotlight p{font-size:.83rem;line-height:1.5;margin:0;max-width:570px}
+.home-daily-spotlight .btn{flex:none;font-size:.85rem;padding:11px 16px}
+.home-game-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.home-game-card{overflow:hidden;min-width:0;display:flex;flex-direction:column;background:#121c32;border:1px solid #3b4d77;border-radius:15px}
+.home-game-card[data-home-game="snake"]{border-color:#2e8b76}
+.home-game-card[data-home-game="tetris"]{border-color:#7055a9}
+.home-game-art{aspect-ratio:2.6/1;min-height:130px;overflow:hidden;background:#0e1830}
+.home-game-art img{width:100%;height:100%;display:block;object-fit:cover}
+.home-game-body{display:flex;flex:1;flex-direction:column;padding:17px;gap:9px}
+.home-game-heading h3{font-size:1.5rem;margin:2px 0 0;letter-spacing:-.04em}
+.home-game-body p{margin:0;font-size:.83rem;line-height:1.55;flex:1}
+.home-game-modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:5px}
+.home-game-modes a{display:flex;justify-content:center;align-items:center;gap:3px;padding:10px 5px;border:1px solid #4c5980;border-radius:10px;text-align:center;font-size:.77rem;font-weight:750;color:#e9eeff;background:#1b2944;min-width:0}
+.home-game-modes a:hover,.home-game-modes a:focus-visible{background:#33275a;border-color:#ab8cff}
+@media(max-width:820px){.home-game-grid{grid-template-columns:1fr}.home-game-art{aspect-ratio:3.6/1;min-height:115px}.home-daily-spotlight{padding:15px}}
+@media(max-width:510px){.home-game-card{display:flex;flex-direction:column}.home-game-art{aspect-ratio:3.3/1;min-height:105px}.home-game-body{padding:14px}.home-game-modes a{font-size:.72rem;padding:10px 3px}.home-daily-spotlight{flex-direction:column;align-items:stretch}.home-daily-spotlight .btn{align-self:flex-start}.oldarcade-brand-mark{width:35px;height:35px}.oldarcade-brand-word{font-size:1.13rem}}
