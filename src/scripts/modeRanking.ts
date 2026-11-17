@@ -129,7 +129,10 @@ if(root){
    try{
     const data=await submit(points);
     if(sequence!==round)return; // Apenas a apresentação é da rodada atual.
-    clearPending();summary.textContent=announce(data,points);celebrateFinal(data,points);
+    clearPending();summary.textContent=announce(data,points);
+    // Só o visual aguarda o encerramento do Game Over; o POST já foi confirmado.
+    if(delayMs>0)window.setTimeout(()=>{if(sequence===round)celebrateFinal(data,points)},delayMs);
+    else celebrateFinal(data,points);
    }catch(err){
     const message=err instanceof Error?err.message:'erro desconhecido';
     // Preserva uma tentativa recuperável mesmo que o jogador já tenha reiniciado.
