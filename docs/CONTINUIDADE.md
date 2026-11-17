@@ -3,6 +3,16 @@
 > **Contrato obrigatório para todo jogo/modo:** [PADROES_GLOBAIS_DOS_JOGOS.md](PADROES_GLOBAIS_DOS_JOGOS.md). Histórico abaixo não substitui os padrões globais vigentes.
 
 # OldArcade — continuidade obrigatória
+
+## Tetris Sobrevivência #002 — terceiro modo (17/11/2026)
+- Proprietário aprovou implementar **Sobrevivência após gostar do Sprint**, enquanto ele valida a correção global de sessão ao usar Voltar. Não há autorização de merge, produção ou D1/SQL.
+- Nova URL em Preview: `/jogos/tetris/sobrevivencia/`, modo competitivo `tetris-survival`; não aumenta número de jogos (continua Tetris #002) nem altera versões editoriais aprovadas. Os três modos usam `src/components/TetrisGame.astro` e `src/scripts/tetris.ts`, mesmo tabuleiro, controles, contagem, relógio, pausa, reserva, fullscreen e HUD.
+- **Mecânica:** toda onda começa em função do **tempo efetivo**, subindo a cada 30.000 ms. `src/data/tetrisRules.js` centraliza nível e gravidade para Clássico (por linhas), Sprint (fixa) e Sobrevivência (por tempo): 900 ms de início, fator 0,82 por onda, limite 70 ms; reforço de perigo visual a partir da onda 4. Pausas e contagem não acumulam tempo. Sobrevivência acaba quando a peça não consegue entrar/encaixar no tabuleiro. Linhas liberam espaço, mas **não são a métrica do ranking**.
+- **Competição:** `gameModes.js` define `ranking:'survival'` e `speedIntervalMs:30000`; `rankingRules.js` suporta métricas de tempo com direções distintas; API de leaderboard já existente ordena e atualiza Sobrevivência por **maior duração**, enquanto Sprint continua por **menor duração** e Clássico por **pontos**. O resultado válido é o tempo efetivo inteiro em milissegundos, idêntico a `durationMs`, positivo; empate por registro mais antigo (sem inventar critério de linhas não persistido na D1). Nenhuma migração nem alteração em banco. Id separado garante recordes e contadores independentes.
+- `GameRanking`, página geral de rankings, Minha Conta e compartilhamento recebem a métrica pelo catálogo, sem bifurcar componentes. Tela específica apresenta descrição real de Sobrevivência, destaque de perigo e três abas.
+- Testes: `tests-api/tetris-survival.test.mjs` cobre comparação/ordenação ASC e DESC, validações e ondas; `tests/tetris-survival.spec.ts` cobre rota, navegação, HUD, pausa, recorde de partida encerrada e fullscreen ultrawide. Contratos de catálogo e SEO recebem novo modo.
+- **Antes de declarar pronto:** acompanhar CI HEAD, revisar regressões e confirmação do Preview Cloudflare; teste visual e aprovação permanecem com proprietário. Sem Lovable, SQL/D1, merge ou produção.
+
 ## Sessão restaurada ao navegar Voltar — Sprint e todas as páginas (17/11/2026)
 - Proprietário validou positivamente o Tetris Sprint, mas relatou: após entrar como outro usuário e pressionar Voltar, o navegador mostrava o nickname da conta anterior. Problema **global de autenticação/navegação**, não da mecânica Sprint.
 - Causa: o navegador pode restaurar uma tela a partir do BFCache (Back/Forward Cache) sem rodar de novo o script de inicialização; `src/scripts/accountIdentity.ts` consultava `/api/auth/me` somente na primeira montagem. O `modeRanking.ts` também precisa receber a atualização para descartar recorde da conta anterior.
