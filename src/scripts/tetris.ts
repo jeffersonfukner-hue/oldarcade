@@ -206,7 +206,7 @@ function finish(){
  window.setTimeout(()=>{if(sequence===finishSequence&&state==='over')show('Fim de jogo','Você marcou '+score+' pontos e eliminou '+lines+' linhas.','▶ Jogar novamente')},4000);
 }
 function pause(){
- if(state==='playing'){state='paused';window.clearTimeout(fallTimer);show('Jogo pausado','Sua partida está preservada.','▶ Continuar')}
+ if(state==='playing'||state==='countdown'){state='paused';window.clearTimeout(fallTimer);window.clearTimeout(countTimer);show('Jogo pausado','Sua partida está preservada.','▶ Continuar')}
  else if(state==='paused'){centerGameBoard(screen,stage);countdownStart(false)}
  update();
 }
@@ -238,7 +238,7 @@ window.addEventListener('keydown',event=>{
  if(target.closest('input,textarea,select,button,[contenteditable],.mode-account-modal')||event.altKey||event.ctrlKey||event.metaKey)return;
  const code=event.code;
  if(code==='KeyF'&&!event.repeat){event.preventDefault();void toggleFullscreen();return}
- if(code==='KeyP'||code==='Escape'&&document.fullscreenElement!==stage){event.preventDefault();if(state==='playing'||state==='paused')pause();return}
+ if(code==='KeyP'||code==='Escape'&&document.fullscreenElement!==stage){event.preventDefault();if(state==='playing'||state==='paused'||state==='countdown')pause();return}
  if(code==='Space'&&state!=='playing'){event.preventDefault();if(!event.repeat){if(state==='paused')pause();else if(state==='ready'||state==='over')start()}return}
  const actions:Record<string,()=>void>={
  ArrowLeft:controls.left,KeyA:controls.left,ArrowRight:controls.right,KeyD:controls.right,
@@ -259,7 +259,7 @@ canvas.addEventListener('touchend',event=>{
  if(Math.abs(dx)>Math.abs(dy)){const action=dx>0?controls.right:controls.left;for(let i=0;i<Math.min(4,Math.max(1,Math.round(Math.abs(dx)/40)));i++)action()}
  else if(dy>45)controls.drop();else if(dy>0)controls.down();else controls.rotate();
 },{passive:false});
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')pause()});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&(state==='playing'||state==='countdown'))pause()});
 document.addEventListener('fullscreenchange',()=>{
  fullscreenButton.textContent=document.fullscreenElement===stage?'⤢ Sair da tela cheia (F)':'⛶ Tela cheia (F)';
  if(fullscreenChanging)return;
