@@ -3,6 +3,12 @@
 > **Contrato obrigatório para todo jogo/modo:** [PADROES_GLOBAIS_DOS_JOGOS.md](PADROES_GLOBAIS_DOS_JOGOS.md). Histórico abaixo não substitui os padrões globais vigentes.
 
 # OldArcade — continuidade obrigatória
+## Filmes históricos verificados e sugestões de correção (17/11/2026)
+- Solicitação do proprietário: ao falar da história de um jogo, acrescentar filme/documentário **se existir**, onde assistir **no Brasil na data da publicação/consulta editorial** e aviso de que o catálogo pode mudar em anos; oferecer link para sugerir correções. **Afiliados e livros continuam apenas como implementação futura**.
+- Verificado em 17/11/2026: `Tetris` (2023), dramatização sobre Henk Rogers e direitos do jogo, no **Apple TV brasileiro** (página oficial `https://tv.apple.com/br/movie/tetris/umc.cmc.4evmgcam356pzgxs2l7a18d7b`). `Man vs Snake: The Long and Twisted Tale of Nibbler` (2015) é sobre Nibbler, parente histórico da mecânica de cobra, **não** é história do Snake da Nokia; JustWatch Brasil indicou **Filmzie/Plex gratuitamente com anúncios** (`https://br.justwatch.com/br/filme/man-vs-snake`). Availability deve ser revisada na publicação posterior.
+- Implementação reutilizável: `src/data/historicalScreenings.ts` guarda dados por jogo, fonte e datas fixas; `src/components/HistoricalScreenings.astro` apresenta obra, modalidade de acesso, data e aviso; `TetrisGame.astro` mostra em todos os três modos, `snake.astro` no clássico. `contato.astro` pré-preenche sugestões com assunto e jogo usando o contato/WhatsApp existente, sujeito à confirmação do usuário. Sem banco, cron nem envio automático.
+- Regressão: `tests/historical-screenings.spec.ts` valida ambos os conteúdos, os três modos do Tetris, datas estáticas e navegação até o contato. CI e aprovação visual do Preview permanecem pendentes até confirmação. Sem merge/produção/D1/Lovable.
+
 
 ## BACKLOG — indicações culturais e links de afiliado nas histórias dos jogos (17/11/2026)
 - **Status: implementação futura, não ativar agora.** Solicitação do proprietário para os textos de história/origem dos jogos, iniciando pelo Tetris e aplicável também a Snake e próximos jogos.
