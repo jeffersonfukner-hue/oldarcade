@@ -18,10 +18,10 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
  <main class="shell">
   <section class="hero tetris-hero">
    <div class="eyebrow">OldArcade · Jogo #002 · Quebra-cabeça</div>
-   <h1>{survival?'Quanto tempo':' '+(sprint?'40 linhas.':'Peça por peça.')} <span class="accent">{survival?'você aguenta?':sprint?'O menor tempo vence.':'Linha por linha.'}</span></h1>
+   <h1>{survival?'Quanto tempo':sprint?'40 linhas.':'Peça por peça.'} <span class="accent">{survival?'você aguenta?':sprint?'O menor tempo vence.':'Linha por linha.'}</span></h1>
    <p class="lede">{survival?'A cada 30 segundos a velocidade aumenta. Continue encaixando peças, mantenha a pilha sob controle e sobreviva o máximo possível. O maior tempo vence.':sprint?'Complete 40 linhas o mais rápido possível. O relógio só conta enquanto você joga e apenas desafios concluídos entram no ranking.':'Sete peças, um tabuleiro e aquela vontade de encaixar tudo perfeitamente. Jogue sem cadastro; se quiser, dispute um lugar no ranking.'}</p>
    <nav class="tetris-mode-nav" aria-label="Modos do Tetris">
-    <a href="/jogos/tetris/" aria-current={!sprint?'page':undefined}>Clássico</a>
+    <a href="/jogos/tetris/" aria-current={!timed?'page':undefined}>Clássico</a>
     <a href="/jogos/tetris/sprint/" aria-current={sprint?'page':undefined}>Sprint · 40 linhas</a>
     <a href="/jogos/tetris/sobrevivencia/" aria-current={survival?'page':undefined}>Sobrevivência · maior tempo</a>
    </nav>
@@ -90,6 +90,9 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
  <script>import '../scripts/tetris.ts';</script>
  <style>
   .tetris-hero{padding-bottom:24px}
+  /* Indicação contextual da onda de risco; somente o estado é específico do modo. */
+  .tetris-board-shell[data-survival-danger=true]{border-color:#fa9671;box-shadow:0 0 0 2px #f9731633,0 0 24px #f9731633}
+  @media(prefers-reduced-motion:reduce){.tetris-board-shell[data-survival-danger=true]{transition:none}}
   .tetris-mode-nav{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 8px}
   .tetris-mode-nav a{border:1px solid #445478;border-radius:10px;padding:8px 15px;color:#dce5ff;background:#18213b;font-weight:700}
   .tetris-mode-nav a[aria-current=page]{background:#7655fa;border-color:#a18cff;color:#fff}
