@@ -6,7 +6,7 @@ const gameNames=Object.fromEntries(Object.entries(gameRegistry).map(([id,entry])
 const featuredModes=Object.entries(gameModes).filter(([,mode])=>Object.hasOwn(gameRegistry,mode.title));
 const title='OldArcade — Jogos clássicos grátis para jogar online';
 const availableGames=Object.keys(gameRegistry).length;
-const description='Jogue Snake clássico e Aventura gratuitamente, acompanhe os rankings de cada modo e conheça a história dos videogames clássicos.';
+const description='Jogue Snake e Tetris gratuitamente, acompanhe rankings por modalidade e descubra jogos clássicos no navegador.';
 ---
 <Base title={title} description={description} path="/">
   <div class="shell arcade-home">
@@ -20,7 +20,7 @@ const description='Jogue Snake clássico e Aventura gratuitamente, acompanhe os 
         </nav>
         <div class="arcade-side-foot">
           <span class="eyebrow">Desafie os líderes</span>
-          <p>Veja as melhores pontuações dos jogadores nos modos Clássico e Aventura.</p>
+          <p>Conheça os líderes e desafie jogadores em cada modalidade.</p>
           <a href="/rankings/">Ver rankings <span aria-hidden="true">→</span></a>
         </div>
       </aside>
@@ -42,12 +42,12 @@ const description='Jogue Snake clássico e Aventura gratuitamente, acompanhe os 
           <div class="arcade-activity-item"><span aria-hidden="true">🏁</span><strong id="hero-total-plays">—</strong><span>Total de partidas</span></div>
         </div>
         <section class="arcade-games" id="destaques" aria-labelledby="games-heading">
-          <div class="arcade-games-heading"><div><span class="eyebrow">Biblioteca de jogos</span><h2 id="games-heading">Escolha seu desafio</h2></div><span class="pill">{availableGames} jogo · {featuredModes.length} modos</span></div>
+          <div class="arcade-games-heading"><div><span class="eyebrow">Biblioteca de jogos</span><h2 id="games-heading">Escolha seu desafio</h2></div><span class="pill">{availableGames} {availableGames===1?'jogo':'jogos'} · {featuredModes.length} modos</span></div>
           <div class="arcade-mode-grid">
             {featuredModes.map(([id,mode],index)=><article class="arcade-mode-card">
-              <div class={'arcade-mode-image '+(index===0?'arcade-mode-classic':'arcade-mode-adventure')} aria-hidden="true">
-                {index===0?<div class="pixel-snake"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>:<span class="arcade-mode-fruits">🍎 <span>✦</span> ❄</span>}
-                <span>{String(index+1).padStart(2,'0')} / {index===0?'CLÁSSICO':'AVENTURA'}</span>
+              <div class={'arcade-mode-image '+(mode.title==='tetris'?'arcade-mode-tetris':id==='snake'?'arcade-mode-classic':'arcade-mode-adventure')} aria-hidden="true">
+                {mode.title==='tetris'?<span class="arcade-mode-fruits">🟦 🟪 🟨</span>:id==='snake'?<div class="pixel-snake"><i></i><i></i><i></i><i></i><i></i><i></i></div>:<span class="arcade-mode-fruits">🍎 <span>✦</span> ❄</span>}
+                <span>{String(index+1).padStart(2,'0')} / {mode.name.toLocaleUpperCase('pt-BR')}</span>
               </div>
               <div class="arcade-mode-detail"><span class="eyebrow">{gameNames[mode.title]} · {mode.name}</span><h3>{mode.tagline}</h3><p>{mode.description}</p><a class={index===0?'btn':'btn secondary'} href={mode.url}>▶ Jogar {mode.name.startsWith(gameNames[mode.title]+' ')?mode.name.slice(gameNames[mode.title].length+1):mode.name}</a></div>
             </article>)}
