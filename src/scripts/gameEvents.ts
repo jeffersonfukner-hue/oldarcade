@@ -18,8 +18,8 @@ export async function recordGlobalPlay(game:GameModeId,eventId:string){
 
 /** Eventos de pontuação e encerramento consumidos por ranking e compartilhamento. */
 export function recordGameScore(game:GameModeId,score:number){
- document.dispatchEvent(new CustomEvent('oldarcade:game-score',{detail:{game,score}}));
+ document.dispatchEvent(new CustomEvent('oldarcade:game-score',{detail:{game,score,durationMs}}));
 }
-export function recordGameFinish(game:GameModeId,score:number){
+export function recordGameFinish(game:GameModeId,score:number,durationMs:number){
  document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game,score}}));
 }

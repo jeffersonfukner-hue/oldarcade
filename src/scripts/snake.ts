@@ -61,6 +61,7 @@ let lastFunMilestone=0;
 let lastFunAt=-100;
 let dangerAnnounced=false;
 let endSequence=0;
+let roundDurationMs=0;
 const alertNode=document.querySelector<HTMLElement>('#record-live-alert')!;
 let alertTimeout:number|undefined;
 let currentAlertPriority=0;
@@ -371,6 +372,7 @@ function start(){gameClock.reset();endSequence++;items=[];obstacles=[];borderWal
  didCelebratePersonal=false;lastFunMilestone=0;lastFunAt=-100;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
  resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}saved.plays++;store();globalCounters.recordPlay(recordGameStart(modeId));draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){
+ const durationMs=gameClock.milliseconds();roundDurationMs=durationMs;
  state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
  if(score>saved.best)saved.best=score;
  if(saved.nickname.trim()){
@@ -378,7 +380,7 @@ function end(won:boolean){
   saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20);
  }
  store();refresh();
- recordGameFinish(modeId,score);
+ recordGameFinish(modeId,score,durationMs);
  overlay.hidden=true;
  const sequence=++endSequence;
  void finishRound(sequence,won);
@@ -411,7 +413,7 @@ async function finishRound(sequence:number,won:boolean){
  if(account){
   try{
    const wasProvisional=roundBeatGlobal;
-   const result=await leaderboard.submit(score);
+   const result=await leaderboard.submit(score,roundDurationMs);
    summary=confirmedResult(result,score,wasProvisional);
    if(result?.available&&result.mine?.rank===1&&result.top?.[0]?.nickname===result.mine.nickname)outcome='leader';
    else if(result?.available&&result.mine&&typeof result.mine.rank==='number'&&result.mine.rank<=3)outcome='podium';

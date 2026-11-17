@@ -10,5 +10,5 @@ export function setupGameClock(screen:HTMLElement,active:()=>boolean){
  const render=()=>{const now=performance.now();if(active())elapsed+=Math.max(0,now-last);last=now;label.textContent=format(elapsed)};
  const timer=window.setInterval(render,200);
  render();
- return {reset(){elapsed=0;last=performance.now();render()},seconds(){render();return Math.floor(elapsed/1000)},dispose(){window.clearInterval(timer)}};
+ return {reset(){elapsed=0;last=performance.now();render()},milliseconds(){render();return Math.round(elapsed)},seconds(){render();return Math.floor(elapsed/1000)},dispose(){window.clearInterval(timer)}};
 }

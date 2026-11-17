@@ -1,5 +1,6 @@
-type Entry={nickname:string;score:number;place?:number;rank?:number;achievedAt?:string};
+type Entry={nickname:string;score:number;place?:number;rank?:number;achievedAt?:string;durationMs?:number|null};
 type Board={available:boolean;top?:Entry[];mine?:Entry|null;myGames?:{game:string;score:number}[];serverNow?:string;verified?:boolean;registeredOnly?:boolean};
+function formatDuration(ms?:number|null){if(ms==null)return 'Tempo anterior indisponível';const sec=Math.floor(ms/1000);return Math.floor(sec/60)+'m '+String(sec%60).padStart(2,'0')+'s'}
 function localDate(iso?:string){
  if(!iso)return 'Data indisponível';
  const dt=new Date(iso);if(Number.isNaN(dt.getTime()))return 'Data indisponível';
@@ -23,7 +24,7 @@ export function setupGlobalLeaderboard(game='snake'){
   myResult.hidden=!mine;
   if(!mine){myPosition.textContent='—';myDetail.textContent='';return}
   myPosition.textContent=(mine.rank||'—')+'º lugar';
-  myDetail.textContent=mine.nickname+' · '+mine.score+' pontos · '+localDate(mine.achievedAt);
+  myDetail.textContent=mine.nickname+' · '+mine.score+' pontos · '+formatDuration(mine.durationMs)+' · '+localDate(mine.achievedAt);
  }
  function draw(data:Board,source:'initial'|'end'|'submit'='initial'){
   if(data.available)latestBoard=data;
@@ -44,7 +45,7 @@ export function setupGlobalLeaderboard(game='snake'){
   }
   best.textContent=data.top.length?String(data.top[0].score):'—';
   challenge.textContent=data.top.length?'Bata seu recorde ou os '+data.top[0].score+' pontos do líder global!':'Seja o primeiro a registrar um recorde global com conta!';
-  status.textContent='Cada jogador ocupa uma posição. Em empate, vence quem chegou antes. Horário local. Pontuações ainda não verificadas contra a partida.';
+  status.textContent='Empate: vence o menor tempo jogado. Registros antigos sem tempo ficam atrás dos cronometrados. Pontuações ainda não verificadas contra a partida.';
   if(!data.top.length){
    const row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=4;
    cell.textContent='Nenhum recorde de conta registrado. Seja o primeiro!';row.append(cell);body.append(row);return;
@@ -61,7 +62,7 @@ export function setupGlobalLeaderboard(game='snake'){
    pos.textContent=icon+' '+level+'º';
    const nick=document.createElement('td');nick.textContent=item.nickname;
    const score=document.createElement('td');score.textContent=String(item.score);
-   const date=document.createElement('td');date.textContent=localDate(item.achievedAt);
+   const date=document.createElement('td');date.textContent=formatDuration(item.durationMs)+' · '+localDate(item.achievedAt);
    date.className='leaderboard-timestamp';
    row.append(pos,nick,score,date);body.append(row);
   });
@@ -101,8 +102,8 @@ export function setupGlobalLeaderboard(game='snake'){
   }catch{if(!loadedGlobal)draw({available:false});return null}
   finally{loading=false}
  }
- async function submit(score:number):Promise<Board>{
-  const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score})});
+ async function submit(score:number,durationMs:number):Promise<Board>{
+  const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score,durationMs})});
   const data=await r.json() as Board&{error?:string};
   if(!r.ok||!data.available)throw Error(data.error||'Não foi possível registrar');
   draw(data,'submit');return data;

@@ -1,6 +1,6 @@
-type Entry={nickname:string;score:number;rank?:number;achievedAt?:string};
+type Entry={nickname:string;score:number;rank?:number;achievedAt?:string;durationMs?:number|null};
 type Board={available:boolean;top?:Entry[];mine?:Entry|null;error?:string;saved?:boolean;code?:string};
-type Result={game:string;score:number};
+type Result={game:string;score:number;durationMs?:number};
 const root=document.querySelector<HTMLElement>('[data-mode-ranking]');
 if(root){
  const game=root.dataset.game||'',endpoint='/api/games/'+encodeURIComponent(game)+'/leaderboard';
@@ -11,11 +11,12 @@ if(root){
  const login=get<HTMLFormElement>('login-form'),register=get<HTMLFormElement>('register-form'),authStatus=get<HTMLElement>('auth-status');
  const recovery=get<HTMLElement>('recovery'),recoveryCode=get<HTMLElement>('code');
  let top:number|null=null,score=0,played=false,provisionalRecord=false,account:string|null=null;
- let pendingScore:number|null=null,round=0,roundPersonal=0,personalCelebrated=false;
+ let durationMs=0;let pendingScore:number|null=null,round=0,roundPersonal=0,personalCelebrated=false;
  const celebrate=(kind:'personal'|'mission'|'podium'|'leader'|'rival',message:string)=>document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game,kind,message}}));
  const retry=get<HTMLButtonElement>('retry');
  function setPending(points:number){pendingScore=points;retry.hidden=false;retry.textContent='Tentar registrar '+points+' pontos novamente'}
  function clearPending(){pendingScore=null;retry.hidden=true}
+ const time=(ms?:number|null)=>ms==null?'Tempo indisponível':Math.floor(ms/60000)+'m '+String(Math.floor(ms/1000)%60).padStart(2,'0')+'s';
  const fmt=(iso?:string)=>iso&&Number.isFinite(Date.parse(iso))?new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'medium'}).format(new Date(iso)):'—';
  function render(data:Board){
   if(!data.available){status.textContent='Ranking indisponível neste ambiente.';return}
@@ -31,11 +32,11 @@ if(root){
   else data.top.slice(0,10).forEach((e,i)=>{
    const tr=document.createElement('tr'),position=e.rank||i+1;
    tr.className=position<=3?'leaderboard-podium podium-'+position:'';
-   for(const value of [(position===1?'🥇 ':position===2?'🥈 ':position===3?'🥉 ':'')+position+'º',e.nickname,String(e.score),fmt(e.achievedAt)]){
+   for(const value of [(position===1?'🥇 ':position===2?'🥈 ':position===3?'🥉 ':'')+position+'º',e.nickname,String(e.score),time(e.durationMs)+' · '+fmt(e.achievedAt)]){
     const td=document.createElement('td');td.textContent=value;tr.append(td)
    }body.append(tr);
   });
-  status.textContent='Em empate, vence quem registrou primeiro. Horário local. Pontuações ainda não verificadas contra a partida.';
+  status.textContent='Em empate, vence quem fez menor tempo. Registros antigos sem tempo ficam atrás. Pontuações ainda não verificadas contra a partida.';
   document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-updated',{detail:{game,global:top,personal:data.mine?.score||0}}));
  }
  async function refresh(){
@@ -43,7 +44,7 @@ if(root){
   catch{status.textContent='Ranking indisponível neste ambiente.';return null}
  }
  async function submit(points:number){
-  const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score:points})});
+  const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score:points,durationMs})});
   const data=await r.json() as Board;
   if(!r.ok||!data.available){if(data.saved){const updated=await refresh();if(updated?.available){render(updated);return updated}throw Error('Gravação aceita pelo banco, mas o ranking ainda não pôde ser consultado. Não reenvie a pontuação.')}throw Error(data.error||'Não foi possível registrar')}
   render(data);return data;
@@ -97,7 +98,7 @@ if(root){
  }
  document.addEventListener('oldarcade:game-started',event=>{
   const d=(event as CustomEvent<{game:string}>).detail;if(d?.game!==game)return;
-  round++;played=false;score=0;personalCelebrated=false;provisionalRecord=false;clearPending();summary.textContent='';provisional.hidden=true;global.textContent=String(top??'—');
+  round++;played=false;score=0;durationMs=0;personalCelebrated=false;provisionalRecord=false;clearPending();summary.textContent='';provisional.hidden=true;global.textContent=String(top??'—');
  });
  document.addEventListener('oldarcade:game-score',event=>{
   const d=(event as CustomEvent<Result>).detail;
@@ -131,7 +132,7 @@ if(root){
  });
  document.addEventListener('oldarcade:game-finished',event=>{
   const d=(event as CustomEvent<Result>).detail;if(d?.game!==game)return;
-  score=d.score;played=true;
+  score=d.score;durationMs=d.durationMs??0;played=true;
   void finishResult(score,round);
  });
  const accountPromise=accountCheck();void refresh();

@@ -5,6 +5,8 @@
 # OldArcade — continuidade obrigatória
 
 ## ESTADO ATUAL PARA NOVO CHAT — 16/11/2026 (ler primeiro)
+- 17/11: usuário confirmou PRAGMA `duration_ms INTEGER` no D1 Preview. API de leaderboard agora persiste duração em milissegundos, desempata por menor tempo (antigos NULL depois dos cronometrados), UI exibe duração; os três modos enviam tempo efetivo excluindo pausa/contagem. QA e CI ainda necessários. Banco de produção NÃO migrado. SQL sempre entregue na mesma etapa quando necessário.
+
 - Regra operacional explícita do proprietário (17/11): toda mudança que necessite SQL deve entregar script executável para aplicação manual no servidor na MESMA etapa, com banco-alvo, verificação e aviso de dependência; não deixar migração esquecida. SQL de duração `migrations/0007_record_duration.sql` para Preview foi entregue ao usuário; NÃO aplicado pelo agente. API e ranking ainda precisam ser adaptados antes de ativar desempate por tempo.
 
 - Cronômetro de tempo jogado nos três modos via componente compartilhado `src/scripts/gameClock.ts`: tempo ativo em mm:ss, pausa/contagem regressiva excluídas. Desempate global por duração **pendente**: precisa persistir tempo na API/D1 e migrar ranking, proibido alterar banco sem autorização explícita. Inimigos Evolution implementados após 10.000 pontos: hunter persegue cabeça, ambusher antecipa direção, wanderer patrulha; até três inimigos por patamar. Contato com cabeça causa derrota; corpo não sofre ataque. Power-up scare temporário faz inimigos fugirem e permite eliminá-los por contato com a cabeça. Exige QA no Preview. Sem merge/produção.

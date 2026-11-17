@@ -199,9 +199,10 @@ function start(){
  plays++;save();window.clearTimeout(bannerTimer);banner.hidden=true;draw();update();centerGameBoard(screen,stage);beginCountdown(true);
 }
 function finish(){
+ const durationMs=gameClock.milliseconds();
  state='over';globalProvisional=false;window.clearTimeout(gameTimer);window.clearTimeout(bannerTimer);
  banner.hidden=true;save();
- recordGameFinish('snake-adventure',score);
+ recordGameFinish('snake-adventure',score,durationMs);
  const target=globalTarget!==null&&globalTarget>score?globalTarget:best>score?best:null;
  const missing=target===null?null:target-score;
  const encouragement=missing!==null&&missing<=50?'Faltaram apenas '+missing+' pontos para alcançar '+(globalTarget!==null&&target===globalTarget?'o recorde global':'seu recorde')+'! Tente novamente.':'Continue tentando superar seus recordes!';
