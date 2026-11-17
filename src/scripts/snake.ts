@@ -716,7 +716,7 @@ const form=document.querySelector<HTMLFormElement>('#nickname-form')!,nick=docum
 form.addEventListener('submit',e=>{e.preventDefault();saved.nickname=nick.value.trim().replace(/[<>]/g,'').slice(0,18);store();text('nick-status',saved.nickname?'Nickname salvo neste navegador. As próximas pontuações entrarão no ranking com esse nome.':'Nickname removido. Partidas sem nickname não entram no ranking.');});
 if(evolutionPreview){const label=document.createElement('div');label.style.cssText='padding:8px;text-align:center;background:#44346d;color:#fff;font-weight:700';label.textContent='🧪 SNAKE EVOLUTION · PREVIEW · Disparos automáticos · Ranking próprio';gameScreen.before(label)}
 try{
- const old=JSON.parse(sessionStorage.getItem('oldarcade:daily:snake:pending')||'null') as typeof pendingDailyFinish;
+ const old=JSON.parse(sessionStorage.getItem('oldarcade:daily:snake:pending')||'null') as {date:string;token:string;score:number;durationMs:number}|null;
  if(old&&typeof old.date==='string'&&typeof old.token==='string'&&Number.isSafeInteger(old.score)&&Number.isSafeInteger(old.durationMs)){
   pendingDailyFinish=old;
   show('Resultado diário pendente','Sua tentativa anterior não pode ser repetida. Reenvie o resultado salvo.','↻ Reenviar resultado');
