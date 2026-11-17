@@ -50,6 +50,7 @@ export async function onRequestPost(ctx){
  // Contrato global: até 3 casas decimais; cada jogo calcula sua própria pontuação.
  if(!validGameScore(game,data?.score))return reply({error:'Pontuação inválida'},400);
  if(!Number.isSafeInteger(data?.durationMs)||data.durationMs<0||data.durationMs>86400000)return reply({error:'Duração inválida'},400);
+ if(isTimeRanking(game)&&(data.score!==data.durationMs||data.score<=0))return reply({error:'Sprint exige um tempo positivo e consistente com a duração da partida'},400);
  let player;
  try{player=await currentPlayer(db,ctx.request)}
  catch(error){console.error('leaderboard.auth',error);return reply({available:false,code:'AUTH_LOOKUP_FAILED',error:'Não foi possível verificar sua sessão. Tente novamente.'},503)}
