@@ -19,6 +19,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
  const login=element.querySelector<HTMLAnchorElement>('[data-daily-login]')!;
  const start=element.querySelector<HTMLButtonElement>('[data-daily-start]')!;
  const done=element.querySelector<HTMLElement>('[data-daily-result]')!;
+ const guestExplanation=element.querySelector<HTMLElement>('[data-daily-guest-explanation]')!;
  let today='',month='',current:CalendarResponse|null=null,sequence=0;
  const render=(payload:CalendarResponse)=>{
   const statuses=new Map(payload.days.map(row=>[row.date,row.status]));
@@ -29,7 +30,8 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
    const date=payload.month+'-'+String(i).padStart(2,'0');
    const participated=statuses.get(date);
    const status=participated|| (date===payload.today?'today':date<payload.today?'past':'future');
-   const button=document.createElement('button');button.type='button';button.disabled=true;
+   const button=document.createElement('button');button.type='button';button.disabled=!(date===payload.today&&!participated&&payload.month===payload.today.slice(0,7));
+   if(!button.disabled)button.addEventListener('click',()=>{if(payload.account){start.click()}else{guestExplanation.hidden=false;info.textContent='Crie uma conta gratuita para aproveitar este benefício e guardar sua participação.';login.focus()}});
    button.className='daily-day';button.dataset.status=status;button.setAttribute('aria-label',date+' · '+(participated==='finished'?'concluído':participated==='started'?'tentativa utilizada':date===payload.today?'disponível hoje':date<payload.today?'encerrado':'ainda não disponível'));
    button.textContent=String(i);
    const detail=document.createElement('span');detail.className='daily-mark';
@@ -41,9 +43,9 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   monthLabel.textContent=monthName(month);
   const active=month===today.slice(0,7);
   const attempted=payload.days.some(x=>x.date===today);
-  login.hidden=!!payload.account;start.hidden=!payload.account||!active||attempted;start.disabled=!payload.account||!active||attempted;
+  login.hidden=!!payload.account;guestExplanation.hidden=true;start.hidden=!payload.account||!active||attempted;start.disabled=!payload.account||!active||attempted;
   done.hidden=!payload.account||!attempted;next.disabled=month>=today.slice(0,7);
-  info.textContent=!payload.account?'Entre na conta para acessar o desafio diário. O calendário é público, mas a partida exige login.':attempted?'Sua tentativa de hoje já foi utilizada. O próximo desafio abre amanhã.':active?'Desafio disponível para sua conta: uma única tentativa hoje.':'Somente os desafios do dia atual podem ser iniciados.';
+  info.textContent=!payload.account?'Quer participar? Clique no dia de hoje. Jogar normalmente não exige cadastro; a conta gratuita libera o desafio, os rankings e seu histórico.':attempted?'Sua tentativa de hoje já foi utilizada. O próximo desafio abre amanhã.':active?'Desafio disponível para sua conta: uma única tentativa hoje.':'Somente os desafios do dia atual podem ser iniciados.';
  };
  const load=async(wanted?:string)=>{
   const seq=++sequence;
@@ -52,14 +54,14 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
    const url='/api/daily/'+encodeURIComponent(game)+(wanted?'?month='+encodeURIComponent(wanted):'');
    const response=await fetch(url,{cache:'no-store'});
    if(seq!==sequence)return;
-   if(response.status===401){days.replaceChildren();monthLabel.textContent='Desafio Diário';info.textContent='Entre na sua conta para jogar. Cada desafio permite somente uma tentativa por dia.';login.hidden=false;start.hidden=true;done.hidden=true;return}
+   if(response.status===401){days.replaceChildren();monthLabel.textContent='Desafio Diário';info.textContent='Entre na sua conta para jogar. Cada desafio permite somente uma tentativa por dia.';login.hidden=false;guestExplanation.hidden=false;start.hidden=true;done.hidden=true;return}
    const payload=await response.json() as CalendarResponse&{error?:string};
    if(!response.ok)throw Error(payload.error||'Não foi possível consultar os desafios.');
    render(payload);
   }catch(error){
    if(seq!==sequence)return;
    info.textContent=error instanceof Error?error.message:'Não foi possível carregar o calendário.';
-   start.hidden=true;done.hidden=true;login.hidden=true;
+   start.hidden=true;done.hidden=true;login.hidden=true;guestExplanation.hidden=true;
   }
  };
  prev.addEventListener('click',()=>void load(moveMonth(month||today.slice(0,7),-1)));
