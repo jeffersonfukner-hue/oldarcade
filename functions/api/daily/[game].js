@@ -55,7 +55,9 @@ export async function onRequestPost(ctx){
  }
  if(data?.action==='finish'){
   if(!validDailyDate(data.date)||typeof data.token!=='string'||!/^[a-f0-9]{64}$/.test(data.token))return bodyError('Identificação da tentativa inválida.',400);
-  if(!Number.isSafeInteger(data.score)||data.score<0||data.score>4000||data.score%10!==0)return bodyError('Pontuação inválida.',400);
+  const maxScore=game==='tetris'?100000000:4000;
+  const step=game==='tetris'?100:10;
+  if(!Number.isSafeInteger(data.score)||data.score<0||data.score>maxScore||data.score%step!==0)return bodyError('Pontuação inválida.',400);
   if(!Number.isSafeInteger(data.durationMs)||data.durationMs<0||data.durationMs>86400000)return bodyError('Duração inválida.',400);
   try{
    const tokenHash=await digest(data.token);
