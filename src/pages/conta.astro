@@ -126,13 +126,19 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
   }
   loginTab.addEventListener('click',()=>tab('login'));
   registerTab.addEventListener('click',()=>tab('register'));
-  function showPlayer(player:{nickname:string}|null){
+  function showPlayer(player:{nickname:string}|null,broadcast=true){
    forms.hidden=!!player;state.hidden=!player;records.hidden=!player;
    if(player)void loadRecords();else{recordsRequest++;recordsStatus.textContent='';}
-   document.querySelector<HTMLElement>('#account-heading')!.textContent=player?'Sua conta':'Acesse ou crie sua conta';
+   document.querySelector<HTMLElement>('#account-heading')!.textContent=player?'Sua conta':'Acesse ou crie uma conta';
    if(player)document.querySelector<HTMLElement>('#account-name')!.textContent=player.nickname;
-   document.dispatchEvent(new CustomEvent('oldarcade:account-changed',{detail:{player}}));
+   if(broadcast)document.dispatchEvent(new CustomEvent('oldarcade:account-changed',{detail:{player}}));
   }
+  // A página Minha conta também pode voltar do cache de navegação.
+  // O componente global confirma a sessão e envia seu estado atualizado.
+  document.addEventListener('oldarcade:session-refreshed',event=>{
+   const player=(event as CustomEvent<{player:{nickname:string}|null}>).detail?.player||null;
+   showPlayer(player,false);
+  });
   async function send(action:'register'|'login'|'logout',body?:Record<string,string|boolean>){
    const response=await fetch('/api/auth/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
    const result=await response.json() as {ok?:boolean;error?:string;player?:{nickname:string};recoveryCode?:string};
