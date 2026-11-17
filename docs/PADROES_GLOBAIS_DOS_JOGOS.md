@@ -2,6 +2,24 @@
 
 > **Contrato permanente.** Ler antes de implementar ou modificar qualquer jogo ou modo. Aplica-se automaticamente; o proprietário não precisa repetir regras já aprovadas. Exceções exigem justificativa documentada e aceite. Complementa, sem substituir, AGENTS.md, docs/ARQUITETURA.md, docs/CONTINUIDADE.md e docs/VERSIONAMENTO_E_PUBLICACAO.md.
 
+## Checklist obrigatório — mudanças globais e prevenção de regressão
+
+**Regra de manutenção:** qualquer comportamento, aparência, animação, texto recorrente ou interação declarada como **padrão** pertence a um único componente, módulo, token ou contrato compartilhado. Alterações nesse padrão propagam-se automaticamente a **todos os jogos/modos existentes e futuros**, sem copiar código ou CSS entre páginas. A única configuração por jogo são seus dados e diferenças reais de mecânica, explicitamente documentadas.
+
+Antes de modificar qualquer tela ou jogo, preencher e verificar mentalmente este checklist; quando houver PR, registrar os itens aplicáveis em sua descrição/continuidade:
+
+- [ ] **Consultar modelo aprovado:** ler `AGENTS.md`, `docs/PADROES_GLOBAIS_DOS_JOGOS.md`, `docs/ARQUITETURA.md`, `docs/CONTINUIDADE.md` e o componente atual. Identificar o comportamento validado pelo proprietário antes de implementar.
+- [ ] **Classificar:** a mudança pertence ao **padrão global** (ex.: cor, tipografia, botões, modal, countdown, recordes, fullscreen, celebrações) ou à **mecânica exclusiva** de um jogo? Não presumir exceção.
+- [ ] **Mapear consumidores:** localizar todos os jogos, modos e páginas que usam o componente (inclusive Clássico, Evolution, Aventura e Tetris). Registrar quem será afetado, sem depender de lista manual fixa para o futuro.
+- [ ] **Alterar uma única fonte de verdade:** modificar componente/estilo/serviço compartilhado. Se uma regra duplicada estiver impedindo a propagação, removê-la e integrar seu consumidor ao padrão; evitar CSS por ID, forks e soluções locais.
+- [ ] **Propagar imediatamente:** todos os consumidores do padrão devem usar a implementação atualizada **na mesma PR**. Se existirem 100 jogos, os 100 recebem automaticamente a mudança pelo componente comum, sem tarefa de migração manual por jogo.
+- [ ] **Preservar diferenças legítimas:** dimensões do tabuleiro, controles próprios, pontuação e regras competitivas são parâmetros/dados declarativos, não motivo para duplicar o componente.
+- [ ] **Cobrir com testes cruzados:** testar o caso alterado em pelo menos um representante de cada variante real e garantir que os demais consumidores continuam ligados ao componente. Incluir desktop/mobile, acessibilidade e fullscreen quando aplicável.
+- [ ] **Comparar Preview com padrão aprovado:** CI verde comprova automação, não substitui validação visual do proprietário. Verificar estados inicial, execução, pausa, retomada, fim e ranking para mudanças de fluxo.
+- [ ] **Documentar evidências e continuidade:** atualizar o contrato quando aprimorado, registrar arquivos/commits/testes/pendências na PR, sem criar versões ou alegar publicação sem evidência. Merge e produção permanecem exclusivos do proprietário.
+
+**Exemplo vinculante:** mudar a cor da fonte da contagem regressiva significa editar seu estilo global uma vez; não criar regras próprias para Snake, Tetris ou novos títulos. A contagem 3–2–1 mostra **somente a animação/número** durante início, retomada e transições, com botões/títulos/explicações ocultos pelo componente compartilhado.
+
 ## 1. Identificação, catálogo e versões
 - Cada **jogo** possui ID estável, número sequencial fixo, data de criação, versão individual e histórico imutável em `src/data/gameRegistry.ts`.
 - **Modos** são variantes do mesmo título; não aumentam a contagem de jogos disponíveis. Podem ter IDs competitivos e recordes próprios.
