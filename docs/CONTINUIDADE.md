@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## Atualização de execução — 17/11/2026 · modernização visual Aventura
+- Commit `1dcb7e99` na branch `feat/fundacao-snake`: Aventura usa somente celebração global para subir nível e para derrota (sem banners duplicados); nova partida emite `oldarcade:game-started` para limpar efeitos pendentes; overlay de reinício é apresentado após 4 s, alinhado à duração da celebração final compartilhada. Mecânica, níveis, missões, pontuação, contadores e API de ranking preservados.
+- CI anterior, commit `898118648`, workflow #222 (`44014165809`): build, tipagem e testes de API passaram; Playwright 89 passou, 12 falharam, 1 ignorado. Falhas repetidas desktop/mobile: quatro cenários Clássico (consulta/recorde) e dois Aventura (fim de jogo). Nos dois testes Aventura, a expectativa de derrota após apenas `ArrowUp` é incompatível com a regra vigente de travessia de bordas livres: não remover wrap para satisfazer o teste; reescrever cenários para colisão determinística. Verificar logs completos para demais causas Clássico.
+- **Ainda pendente:** checar CI do novo commit, corrigir testes E2E legados com base nas regras atuais, aferir responsividade/efeitos no Preview Cloudflare e validar visualmente com o proprietário. Não afirmar CI verde ou Preview pronto. Sem SQL, merge ou publicação.
+- Próxima ação: investigar cada falha E2E, atualizar teste de colisão do Aventura sem modificar sua jogabilidade e repetir CI; depois abrir URL real do Preview da branch para QA.
+
+
+
 ## ESTADO ATUAL PARA NOVO CHAT — 16/11/2026 (ler primeiro)
 - Mensagens progressivas especiais por pontuação (100, 500, 1300, 2500, 5000, 10000) em Clássico/Evolution e Aventura, mantendo demais eventos; sem SQL. QA pendente.
 
