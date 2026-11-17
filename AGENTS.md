@@ -4,6 +4,11 @@
 
 > Antes de qualquer alteração, ler este arquivo, `docs/CONTINUIDADE.md`, `docs/ARQUITETURA.md` e, ao tratar de releases, `docs/VERSIONAMENTO_E_PUBLICACAO.md`.
 
+## Verificação obrigatória antes de qualquer mudança
+- Executar o **Checklist obrigatório — mudanças globais e prevenção de regressão** em `docs/PADROES_GLOBAIS_DOS_JOGOS.md` **antes de editar código**. A leitura dos padrões aprovados é uma etapa do trabalho, não depende do proprietário repetir instruções.
+- Toda alteração de característica global (visual, countdown, HUD, efeitos, modais, ranking, fullscreen, tipografia, cores) acontece na **fonte compartilhada** e alcança, na mesma PR, todos os jogos e modos consumidores. Proibido corrigir individualmente cada jogo se o comportamento é padrão.
+- Conferir lista de consumidores, remover duplicações e criar regressão cruzada antes de considerar a etapa pronta. CI e publicação de Preview são evidências diferentes da aprovação visual do proprietário.
+
 ## Fonte de verdade e fluxo
 - Repositório: `jeffersonfukner-hue/oldarcade`.
 - Código, documentação e configurações mudam via GitHub; implementar em branch e PR, com evidências de CI.
