@@ -126,7 +126,7 @@ store();
 
 type Item={point:Point;kind:'normal'|'rare'|'shrink'|'slow'|'blaster';expires:number};
 // Temporário: facilitar testes de todas as melhorias entre 0 e 100 pontos.
-const EVOLUTION_FAST_TEST=true;
+const EVOLUTION_FAST_TEST=false;
 const unlock=(normal:number,test:number)=>EVOLUTION_FAST_TEST?test:normal;
 type BorderWall={side:'top'|'bottom'|'left'|'right';index:number;hits:number;restoreAt:number};
 let borderWalls:BorderWall[]=[];
@@ -264,7 +264,7 @@ function funMoment(message:string,at:Point){
   item.textContent=label;
   item.style.left=(board.left-container.left+(at.x+.5)*(board.width/size)+((i-1)*28))+'px';
   item.style.top=(board.top-container.top+(at.y+.5)*(board.height/size)-i*17)+'px';
-  item.style.fontSize=i===0?'clamp(18px, 3vw, 32px)':'22px';
+  item.style.fontSize=i===0?'clamp(22px, 4vw, 40px)':'24px';
   item.style.fontWeight='900';
   item.style.color=i===0?'#fff0a6':'#80ffca';
   item.style.textShadow='0 2px 9px #071a20, 0 0 16px #ffe08a';
@@ -276,7 +276,7 @@ function funMoment(message:string,at:Point){
  });
 }
 function checkFunMilestone(at:Point){
- const milestone=Math.floor(score/30);
+ const milestone=Math.floor(score/100);
  if(milestone<=lastFunMilestone)return;
  lastFunMilestone=milestone;
  const phrases=['FANTÁSTICO!','ESTUPENDO!','MARAVILHOSO!','GRANDE JOGADA!','SENSACIONAL!'];

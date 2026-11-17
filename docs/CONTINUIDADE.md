@@ -5,6 +5,8 @@
 # OldArcade — continuidade obrigatória
 
 ## ESTADO ATUAL PARA NOVO CHAT — 16/11/2026 (ler primeiro)
+- Feedback 16/11: elogios durante partida agora a cada 100 pontos (antes 30), tipografia maior. Evolution saiu do modo de progressão acelerada: `EVOLUTION_FAST_TEST=false`, marcos originais 0/100/250/600/1500/4000/10000; sem alterar velocidade da cobra, tiros ou padrões compartilhados. Sem merge/produção.
+
 - Feedback aprovado: primeira pontuação NÃO supera recorde pessoal/global inexistente. Efeitos de recorde só quando havia marca positiva anterior e foi superada; recorde global requer marca global conhecida positiva. Celebrações lúdicas independentes do ranking: mensagens variadas a cada 30 pontos e salvamentos de power-ups no último instante, não bloqueantes. Evolução permanece em Preview da branch.
 
 - Feedback: cobra Evolution acelera cedo demais. Ajustado somente Evolution: início 210 ms, aceleração de 7 ms por 100 pontos de pico, mínimo 145 ms; Clássico preservado.
