@@ -4,6 +4,16 @@
 
 # OldArcade — continuidade obrigatória
 
+## Tetris Sprint #002 — modo em validação (17/11/2026)
+- **Aprovação de escopo:** implementar somente Sprint (40 linhas no menor tempo); validar visualmente antes de desenvolver Sobrevivência. Sobrevivência continua **pendente** e não deve ser implementada antecipadamente.
+- Branch de Preview existente: `feat/tetris-jogo-002`, PR #2. Preservar Clássico `/jogos/tetris/`; novo Sprint `/jogos/tetris/sprint/` com modo competitivo `tetris-sprint`.
+- Mecânica compartilhada: um único `src/components/TetrisGame.astro` + `src/scripts/tetris.ts` para os dois modos. O Sprint utiliza os mesmos blocos, reserva, ghost, animação do hard drop, countdown, controles desktop/mobile, tela cheia, efeitos e relógio efetivo; velocidade fixa, meta configurada no catálogo `targetLines:40`, tempo parando em pausas e transições; falha por tabuleiro lotado não dispara registro.
+- **Ranking compartilhado ampliado:** `src/data/rankingRules.js` e `ranking:'time'` definem o menor resultado; API D1 de leaderboard existente usa ordenação `ASC` e comparação de UPDATE `<` para Sprint, mantendo `DESC` e `>` no Clássico; os valores de tempo são ms inteiros positivos e devem coincidir com `durationMs`. Mesma tabela, sem migração. `GameRanking`, `GameHud`, rankings gerais, conta e compartilhamento recebem a métrica declarativamente. Classificação exclusiva da conta e do ID `tetris-sprint`.
+- SEO da rota, histórico editorial e contador globais por modalidade reutilizados. Tetris continua sendo jogo #002 (Sprint **não** soma outro título). Clássico mantém pontuação por linhas, sem alterações de regra.
+- Cobertura: `tests-api/tetris-sprint.test.mjs` (critério, formato, API e validação); `tests/tetris-sprint.spec.ts` (página, navegação, teclado, pausa, ranking, não registrar tentativa incompleta e fullscreen ultrawide); contratos atualizados em `tests-api/game-modes.test.mjs` e `game-page-contract.test.mjs`. A verificação CI e Preview da última revisão deve ser checada antes de declarar sucesso. Validação visual é exclusiva do proprietário.
+- **Restrições:** sem merge, deploy de produção, SQL/D1, Lovable ou créditos. Próxima ação: confirmar CI, passar link Preview Sprint para teste do proprietário, não iniciar Sobrevivência.
+
+
 ## PENDENTE — observabilidade e relatórios de produção (planejar depois)
 - **Status:** backlog, não implementar agora. Solicitação do proprietário em 17/11/2026, inspirada no monitoramento do Chueire Imóveis e KitCasaPré.
 - **Alertas críticos por e-mail:** avisar rapidamente sobre indisponibilidade de jogos/site, falhas de autenticação, erros em API/Cloudflare/D1 e impossibilidade de registrar resultados/rankings. Registrar contexto mínimo (momento, ambiente, jogo/fluxo, erro, frequência), agrupar repetições e evitar exposição de dados pessoais.
