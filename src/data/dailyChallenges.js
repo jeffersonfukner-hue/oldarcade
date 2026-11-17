@@ -13,7 +13,9 @@ export const DAILY_MODES=Object.freeze({
 });
 export function dailyMode(game){return Object.hasOwn(DAILY_MODES,game)?DAILY_MODES[game]:null}
 export function dateInSaoPaulo(now=new Date()){
- return new Intl.DateTimeFormat('en-CA',{timeZone:DAILY_TIME_ZONE,year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
+ const parts=new Intl.DateTimeFormat('en-US',{timeZone:DAILY_TIME_ZONE,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
+ const p=(name)=>parts.find(x=>x.type===name)?.value;
+ return p('year')+'-'+p('month')+'-'+p('day');
 }
 export function validDailyDate(date){return typeof date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(date)&&!Number.isNaN(Date.parse(date+'T12:00:00Z'))&&new Date(date+'T12:00:00Z').toISOString().slice(0,10)===date}
 export function dailySeed(game,date,seedVersion=1){
