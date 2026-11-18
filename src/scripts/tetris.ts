@@ -43,7 +43,7 @@ let best=0,plays=0;
 try{const saved=JSON.parse(localStorage.getItem(key)||'{}');best=Number.isSafeInteger(saved.best)&&saved.best>=0?saved.best:0;plays=Number.isSafeInteger(saved.plays)&&saved.plays>=0?saved.plays:0}catch{}
 function save(){try{localStorage.setItem(key,JSON.stringify({best,plays}))}catch{}}
 type DailyMission={version:number;kind:string;metric:string;target:number|null;timeLimitMs:number|null;title:string;description:string;sequence?:number[]};
-type DailyAttempt={date:string;token:string;seed:number;mission?:DailyMission};
+type DailyAttempt={date:string;token:string;seed:number;mission?:DailyMission;practice?:boolean};
 type DailyResult={date:string;token:string;score:number;durationMs:number;linesCleared?:number;clearSequence?:number[]};
 let dailyAttempt:DailyAttempt|null=null;
 let pendingDailyFinish:DailyResult|null=null;
@@ -273,7 +273,7 @@ function start(daily:DailyAttempt|null=null){
  finishSequence++;stopDropAnimation();window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  clock.reset();board=empty();bag=[];queue=[];reserve=null;reserveUsed=false;
  piece=null;score=0;lines=0;level=1;globalProvisional=false;screen.removeAttribute('data-survival-danger');drawNext();
- const event=recordGameStart(modeId);counters.recordPlay(event);
+ if(!daily?.practice){const event=recordGameStart(modeId);counters.recordPlay(event)}
  if(!dailyAttempt){plays++;save()}
  spawn();update();centerGameBoard(screen,stage);countdownStart(true);
 }
@@ -283,6 +283,22 @@ function finish(completed=false){
  // Amostrar o relógio antes de deixar playing, inclusive no último encaixe.
  const duration=clock.milliseconds();
  state='over';stopDropAnimation();globalProvisional=false;window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
+ if(dailyAttempt?.practice){
+  const attempt=dailyAttempt;
+  const mission=attempt.mission;
+  const success=mission?.metric==='sequence'
+    ?dailyClears.length===mission.sequence?.length&&dailyClears.every((n,i)=>n===mission.sequence?.[i])
+    :mission?.kind==='quads'
+    ?score>=(mission.target??Infinity)&&dailyClears.length>0&&dailyClears.every(n=>n===4)
+    :mission?.metric==='lines'?lines>=(mission.target??Infinity)
+    :mission?.metric==='score'?score>=(mission.target??Infinity)
+    :false;
+  dailyAttempt=null;dailyRandom=Math.random;
+  update();draw();
+  show(success?'🏆 MISSÃO CUMPRIDA!':'META NÃO ALCANÇADA',(mission?.description||'')+' · '+score+' pontos · '+lines+' linhas. Tente novamente no laboratório acima.','▶ Jogar Tetris livre');
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'finished'}}));
+  return;
+ }
  if(dailyAttempt){
   const attempt=dailyAttempt;
   pendingDailyFinish={date:attempt.date,token:attempt.token,score,durationMs:duration,linesCleared:lines,clearSequence:[...dailyClears]};
@@ -375,6 +391,16 @@ async function submitDailyFinish(){
   if(state==='over'){show('Resultado pendente','A tentativa foi preservada. Reenvie sem repetir a partida.','↻ Reenviar resultado diário');startButton.disabled=false}
  }finally{dailyRequestPending=false}
 }
+document.addEventListener('oldarcade:daily-practice-start',event=>{
+ const detail=(event as CustomEvent<{game:string;date:string;seed:number;mission:DailyMission}>).detail;
+ if(detail?.game!=='tetris'||modeId!=='tetris')return;
+ if(state==='playing'||state==='paused'||state==='countdown'||dailyRequestPending||dailyAttempt){
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-practice-rejected',{detail:{game:'tetris'}}));return;
+ }
+ pendingDailyFinish=null;
+ try{sessionStorage.removeItem('oldarcade:daily:tetris:pending')}catch{}
+ start({date:detail.date,token:'',seed:detail.seed,mission:detail.mission,practice:true});
+});
 document.addEventListener('oldarcade:daily-start-request',event=>{
  const data=(event as CustomEvent<{game:string;date:string}>).detail;
  if(data?.game!=='tetris'||modeId!=='tetris')return;
