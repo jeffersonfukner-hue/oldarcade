@@ -135,7 +135,7 @@ test('calendário logado permanece visível e bloqueado se consulta do históric
  const original=db.prepare;
  db.prepare=(sql)=>{
   const stmt=original(sql);
-  if(sql.includes('SELECT challenge_date,outcome FROM daily_challenge_attempts')){
+  if(sql.includes('FROM daily_challenge_attempts')&&sql.includes('SELECT challenge_date,outcome')){
    stmt.all=async()=>{throw Error('D1_ERROR: no such table: daily_challenge_attempts')};
   }
   return stmt;
