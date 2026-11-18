@@ -7,7 +7,7 @@ import {setCountdownOverlay} from './gameCountdownOverlay';
 import {formatRankingValue} from '../data/rankingRules.js';
 import {gameModes} from '../data/gameModes.js';
 import {tetrisLevel,tetrisGravityMs} from '../data/tetrisRules.js';
-import {seededRandom} from '../data/dailyChallenges.js';
+import {seededRandom,dailyMissionWon} from '../data/dailyChallenges.js';
 
 type PieceName='I'|'O'|'T'|'S'|'Z'|'J'|'L';
 type Cell=0|PieceName;
@@ -286,13 +286,8 @@ function finish(completed=false){
  if(dailyAttempt?.practice){
   const attempt=dailyAttempt;
   const mission=attempt.mission;
-  const success=completed&&(mission?.metric==='sequence'
-    ?dailyClears.length===mission.sequence?.length&&dailyClears.every((n,i)=>n===mission.sequence?.[i])
-    :mission?.kind==='quads'
-    ?score>=(mission.target??Infinity)&&dailyClears.length>0&&dailyClears.every(n=>n===4)
-    :mission?.metric==='lines'?lines>=(mission.target??Infinity)
-    :mission?.metric==='score'||mission?.metric==='quadscore'?score>=(mission.target??Infinity)
-    :false);
+  // Mesmo avaliador de missão da API. Derrota nunca pode marcar vitória.
+  const success=completed&&dailyMissionWon(mission,{score,durationMs:duration,linesCleared:lines,clearSequence:dailyClears})===true;
   dailyAttempt=null;dailyRandom=Math.random;
   update();draw();
   show(success?'🏆 MISSÃO CUMPRIDA!':'META NÃO ALCANÇADA',(mission?.description||'')+' · '+score+' pontos · '+lines+' linhas. Tente novamente no laboratório acima.','▶ Jogar Tetris livre');
