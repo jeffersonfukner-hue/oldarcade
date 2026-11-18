@@ -27,10 +27,11 @@ const gameScreen = document.querySelector<HTMLElement>('#game-screen')!;
 const hud = document.querySelector<HTMLElement>('#hud-status')!;
 const countValue = document.querySelector<HTMLElement>('#countdown-value')!;
 const evolutionPreview=location.pathname.replace(/\/+$/,'')==='/jogos/snake/evolution';
-type DailyAttempt={date:string;token:string;seed:number};
+type DailyMission={version:number;kind:string;metric:string;target:number|null;timeLimitMs:number|null;title:string;description:string};
+type DailyAttempt={date:string;token:string;seed:number;mission?:DailyMission};
 let dailyAttempt:DailyAttempt|null=null;
 let dailyRandom:()=>number=Math.random;
-let pendingDailyFinish:{date:string;token:string;score:number;durationMs:number}|null=null;
+let pendingDailyFinish:{date:string;token:string;score:number;durationMs:number;linesCleared?:number}|null=null;
 const modeId=evolutionPreview?'snake-evolution':'snake';
 const globalCounters=setupGlobalGameCounters(modeId);
 const leaderboard=setupGlobalLeaderboard(modeId);
@@ -328,7 +329,10 @@ function checkFunMilestone(at:Point){
 }
 function placeFood(){const free:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y});if(!free.length){end(true);return}food=free[Math.floor(dailyRandom()*free.length)]}
 function schedule(){window.clearTimeout(timer);if(state==='playing')timer=window.setTimeout(tick,(evolutionPreview?Math.max(145,210-Math.floor(peakScore/100)*7):Math.max(75,155-Math.floor(score/50)*8))+(evolutionPreview&&evolutionClock<slowUntil?85:0))}
-function tick(){if(state!=='playing')return;direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const rawHead={x:snake[0].x+d.x,y:snake[0].y+d.y};const exit=evolutionPreview?borderExit(rawHead):null;const head=evolutionPreview?{x:(rawHead.x+size)%size,y:(rawHead.y+size)%size}:rawHead;const picked=evolutionPreview?items.find(i=>same(i.point,head)):undefined;const eating=evolutionPreview?Boolean(picked&&picked.kind!=='shrink'&&picked.kind!=='slow'&&picked.kind!=='blaster'&&picked.kind!=='scare'):head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if((!evolutionPreview&&(head.x<0||head.x>=size||head.y<0||head.y>=size))||(exit&&borderAt(exit.side,exit.index))||body.some(p=>p.x===head.x&&p.y===head.y)||(evolutionPreview&&obstacles.some(p=>same(p,head)))){end(false);return}snake.unshift(head);
+function tick(){if(state!=='playing')return;
+ const mission=dailyAttempt?.mission;
+ if(mission?.version===2&&mission.timeLimitMs!==null&&gameClock.milliseconds()>=mission.timeLimitMs){end(mission.kind==='survival');return}
+ direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const rawHead={x:snake[0].x+d.x,y:snake[0].y+d.y};const exit=evolutionPreview?borderExit(rawHead):null;const head=evolutionPreview?{x:(rawHead.x+size)%size,y:(rawHead.y+size)%size}:rawHead;const picked=evolutionPreview?items.find(i=>same(i.point,head)):undefined;const eating=evolutionPreview?Boolean(picked&&picked.kind!=='shrink'&&picked.kind!=='slow'&&picked.kind!=='blaster'&&picked.kind!=='scare'):head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if((!evolutionPreview&&(head.x<0||head.x>=size||head.y<0||head.y>=size))||(exit&&borderAt(exit.side,exit.index))||body.some(p=>p.x===head.x&&p.y===head.y)||(evolutionPreview&&obstacles.some(p=>same(p,head)))){end(false);return}snake.unshift(head);
  // Aviso temático de risco: somente quando há pouco espaço, sem criar frutas ou alterar pontos.
  const freeNeighbors=[{x:head.x+1,y:head.y},{x:head.x-1,y:head.y},{x:head.x,y:head.y+1},{x:head.x,y:head.y-1}].filter(p=>p.x>=0&&p.x<size&&p.y>=0&&p.y<size&&!snake.some(q=>q.x===p.x&&q.y===p.y)).length;
  if(score>=30&&snake.length>=12&&freeNeighbors<=1&&!dangerAnnounced){dangerAnnounced=true;arcadePersonality(modeId,'danger')}
@@ -355,6 +359,10 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
   celebrate('global');
   document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:modeId,kind:'provisional',message:'Você passou a marca global! Confirmação ao final da partida.'}}));
  }
+ if(dailyAttempt?.mission?.version===2&&dailyAttempt.mission.metric==='score'
+   &&dailyAttempt.mission.target!==null&&score>=dailyAttempt.mission.target){
+   end(true);return;
+  }
  draw();refresh();schedule()}
 function cancelCountdown(){window.clearTimeout(countdownTimer);setCountdownOverlay(overlay,countValue,startBtn,false)}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
@@ -373,7 +381,7 @@ function end(won:boolean){
  }
  if(!dailyAttempt)store();refresh();
  if(dailyAttempt){
-  const attempt=dailyAttempt;pendingDailyFinish={date:attempt.date,token:attempt.token,score,durationMs};
+  const attempt=dailyAttempt;pendingDailyFinish={date:attempt.date,token:attempt.token,score,durationMs,linesCleared:0};
   document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'pending'}}));
   try{sessionStorage.setItem('oldarcade:daily:snake:pending',JSON.stringify(pendingDailyFinish))}catch{}
   dailyAttempt=null;dailyRandom=Math.random;
@@ -393,13 +401,14 @@ async function saveDailyResult(sequence:number){
  startBtn.disabled=true;
  try{
   const response=await fetch('/api/daily/snake',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'finish',...attempt})});
-  const result=await response.json() as {error?:string;saved?:boolean};
+  const result=await response.json() as {error?:string;saved?:boolean;missionSuccess?:boolean|null;mission?:DailyMission};
   if(!response.ok||!result.saved)throw Error(result.error||'Erro ao registrar o desafio diário.');
   pendingDailyFinish=null;
   try{sessionStorage.removeItem('oldarcade:daily:snake:pending')}catch{}
   document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'snake'}}));
   if(sequence===endSequence&&state==='over'){
-   show('Desafio concluído','Você marcou '+attempt.score+' pontos em '+Math.round(attempt.durationMs/1000)+' segundos. Seu resultado está no perfil.','▶ Jogar Clássico');
+   const missionTitle=result.mission?.version===2?(result.missionSuccess?'🏆 Missão cumprida!':'Meta não alcançada'):'Desafio concluído';
+    show(missionTitle,'Você marcou '+attempt.score+' pontos em '+Math.round(attempt.durationMs/1000)+' segundos. '+(result.mission?.version===2?'Objetivo: '+result.mission.description+' ':'')+'Resultado salvo em Minha Conta.','▶ Jogar Clássico');
    startBtn.disabled=false;
   }
  }catch(error){
@@ -421,9 +430,9 @@ document.addEventListener('oldarcade:daily-start-request',event=>{
   if(info)info.textContent='Reservando sua única tentativa com o servidor…';
   try{
    const response=await fetch('/api/daily/snake',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'start',date:request.date})});
-   const data=await response.json() as {error?:string;date?:string;token?:string;seed?:number};
+   const data=await response.json() as {error?:string;date?:string;token?:string;seed?:number;mission?:DailyMission};
    if(!response.ok||!data.date||!data.token||!Number.isSafeInteger(data.seed))throw Error(data.error||'Não foi possível reservar sua tentativa.');
-   start({date:data.date,token:data.token,seed:data.seed!});
+   start({date:data.date,token:data.token,seed:data.seed!,mission:data.mission});
    if(info)info.textContent='Desafio '+data.date+' iniciado. Boa sorte: esta é sua única tentativa!';
    document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'snake'}}));
   }catch(error){
