@@ -113,3 +113,40 @@ test('Calendário explica a diferença entre desafio disponível, em partida, in
  await expect(state).toContainText('230 pontos');
  await expect(page.locator('[data-daily-play-indicator]')).toBeHidden();
 });
+
+test('Tetris exibe meta exata e destaca próxima limpeza na lateral sem usar tentativa',async({page})=>{
+ const mission={version:3,kind:'sequence',metric:'sequence',target:5,timeLimitMs:null,
+  title:'Código de linhas',description:'Elimine linhas exatamente nesta ordem: 1 → 4 → 3 → 3 → 2.',
+  sequence:[1,4,3,3,2]};
+ await page.route('**/api/daily/tetris**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+  game:'tetris',today:'2026-11-20',month:'2026-11',days:[],mission,
+  account:{nickname:'Teste Arcade'},historyAvailable:true
+ })}));
+ await page.goto('/jogos/tetris/');
+ const calendar=page.locator('[data-daily-calendar=tetris]');
+ await expect(calendar.locator('[data-daily-mission-name]')).toHaveText('Código de linhas');
+ await expect(calendar.locator('[data-daily-mission-rules]')).toContainText('1 → 4 → 3 → 3 → 2');
+ await page.evaluate(()=>{
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'playing'}}));
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-progress',{detail:{game:'tetris',score:1000,linesCleared:5,clearSequence:[1,4],durationMs:30000}}));
+ });
+ const side=page.locator('[data-daily-mission-sidebar] .daily-live-tracker');
+ await expect(side).toBeVisible();
+ await expect(side.locator('.daily-live-next')).toHaveText('PRÓXIMA LIMPEZA: 3 LINHAS');
+ await expect(side.locator('.daily-live-sequence .done')).toHaveCount(2);
+ await expect(side.locator('.daily-live-sequence .next')).toHaveText('3');
+});
+
+test('Visitante conhece a meta especial do Snake antes de criar conta',async({page})=>{
+ await page.route('**/api/daily/snake**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+  game:'snake',today:'2026-11-20',month:'2026-11',days:[],account:null,
+  mission:{version:3,kind:'gauntlet',metric:'score',target:70,timeLimitMs:95000,
+   title:'Fuga dos inimigos',description:'Colete 7 frutas desviando de 3 obstáculos e 2 inimigos.'}
+ })}));
+ await page.goto('/jogos/snake/');
+ const calendar=page.locator('[data-daily-calendar=snake]');
+ await expect(calendar.locator('[data-daily-mission-name]')).toHaveText('Fuga dos inimigos');
+ await expect(calendar.locator('[data-daily-mission-rules]')).toContainText('7 frutas');
+ await expect(calendar.locator('[data-daily-start]')).toBeHidden();
+ await expect(calendar.locator('[data-daily-login]')).toBeVisible();
+});
