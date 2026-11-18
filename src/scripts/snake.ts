@@ -437,11 +437,12 @@ async function saveDailyResult(sequence:number){
   const result=await response.json() as {error?:string;saved?:boolean;missionSuccess?:boolean|null;mission?:DailyMission};
   if(!response.ok||!result.saved)throw Error(result.error||'Erro ao registrar o desafio diário.');
   pendingDailyFinish=null;
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'finished'}}));
   try{sessionStorage.removeItem('oldarcade:daily:snake:pending')}catch{}
   document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'snake'}}));
   if(sequence===endSequence&&state==='over'){
-   const missionTitle=result.mission?.version===2?(result.missionSuccess?'🏆 Missão cumprida!':'Meta não alcançada'):'Desafio concluído';
-    show(missionTitle,'Você marcou '+attempt.score+' pontos em '+Math.round(attempt.durationMs/1000)+' segundos. '+(result.mission?.version===2?'Objetivo: '+result.mission.description+' ':'')+'Resultado salvo em Minha Conta.','▶ Jogar Clássico');
+   const missionTitle=(result.mission?.version??0)>=2?(result.missionSuccess?'🏆 Missão cumprida!':'Meta não alcançada'):'Desafio concluído';
+    show(missionTitle,'Você marcou '+attempt.score+' pontos em '+Math.round(attempt.durationMs/1000)+' segundos. '+((result.mission?.version??0)>=2?'Objetivo: '+result.mission.description+' ':'')+'Resultado salvo em Minha Conta.','▶ Jogar Clássico');
    startBtn.disabled=false;
   }
  }catch(error){
