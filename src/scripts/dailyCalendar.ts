@@ -34,6 +34,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
  const startLab=element.querySelector<HTMLButtonElement>('[data-daily-preview-start]')!;
  if(previewHost)lab.hidden=false;
  let previewOffset=0,practiceMission:DailyMission|null=null,practiceRunning=false;
+ let finalPracticeProgress:DailyProgress|null=null;
  const practiceDate=()=>new Date(Date.parse('2026-11-20T12:00:00Z')+previewOffset*86400000).toISOString().slice(0,10);
  const sidebar=document.querySelector<HTMLElement>('[data-daily-mission-sidebar]');
  const tracker=sidebar?document.createElement('section'):null;
@@ -83,7 +84,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   if(!mission)return;
   practiceMission=mission;
   brief.hidden=false;briefTitle.textContent='TESTE LIVRE · '+mission.title;briefRules.textContent=mission.description;
-  if(tracker){drawTracker(mission,null);tracker.hidden=false;if(sidebar)sidebar.hidden=false}
+  if(tracker){drawTracker(mission,finalPracticeProgress);tracker.hidden=false;if(sidebar)sidebar.hidden=false}
   nextLab.disabled=practiceRunning;
   startLab.disabled=practiceRunning;
   startLab.textContent=practiceRunning?'▶ Missão em andamento':'▶ Jogar missão de teste';
@@ -92,11 +93,12 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   nextLab.addEventListener('click',()=>{
    if(practiceRunning)return;
    previewOffset++;
+   finalPracticeProgress=null;
    showPracticeMission();
   });
   startLab.addEventListener('click',()=>{
    if(practiceRunning||!practiceMission)return;
-   practiceRunning=true;showPracticeMission();
+   practiceRunning=true;finalPracticeProgress=null;showPracticeMission();
    document.dispatchEvent(new CustomEvent('oldarcade:daily-practice-start',{
     detail:{game,date:practiceDate(),mission:practiceMission,seed:dailySeed(game,practiceDate(),3)}
    }));
@@ -218,6 +220,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   const progress=(event as CustomEvent<DailyProgress>).detail;
   const mission=practiceRunning?practiceMission:current?.mission;
   if(progress?.game!==game||!mission||!tracker)return;
+  if(previewHost&&practiceRunning)finalPracticeProgress=progress;
   drawTracker(mission,progress);tracker.hidden=false;if(sidebar)sidebar.hidden=false;
  });
  document.addEventListener('oldarcade:daily-phase',event=>{
@@ -237,6 +240,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   const data=(event as CustomEvent<{game:string;success:boolean;mission:string}>).detail;
   if(!previewHost||data?.game!==game)return;
   practiceRunning=false;
+  if(tracker&&practiceMission){drawTracker(practiceMission,finalPracticeProgress);tracker.hidden=false;if(sidebar)sidebar.hidden=false}
   nextLab.disabled=false;
   startLab.disabled=false;
   startLab.textContent='↻ Tentar novamente';
