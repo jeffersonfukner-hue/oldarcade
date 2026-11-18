@@ -767,8 +767,9 @@ document.addEventListener('oldarcade:player-game-records',event=>{
 });
 document.addEventListener('oldarcade:personal-record',event=>{
  const detail=(event as CustomEvent<{score:number}>).detail;
+ if((detail as {available?:boolean}|undefined)?.available===false)return;
  const value=detail?.score;
- personalCloudBest=Number.isFinite(value)&&typeof value==='number'&&value>0?value:null;
+ personalCloudBest=typeof value==='number'&&Number.isFinite(value)&&value>0?value:null;
  refresh();
 });
 // Ao entrar no site já autenticado ou conectar pelo modal global, buscar
