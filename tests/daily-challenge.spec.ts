@@ -150,3 +150,42 @@ test('Visitante conhece a meta especial do Snake antes de criar conta',async({pa
  await expect(calendar.locator('[data-daily-start]')).toBeHidden();
  await expect(calendar.locator('[data-daily-login]')).toBeVisible();
 });
+
+test('Snake mostra a missão acima das estatísticas durante o jogo',async({page})=>{
+ const mission={version:3,kind:'obstacles',metric:'score',target:60,timeLimitMs:null,
+  title:'Labirinto de frutas',description:'Colete 6 frutas desviando de 5 obstáculos.'};
+ await page.route('**/api/daily/snake**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+  game:'snake',today:'2026-11-20',month:'2026-11',days:[],mission,account:{nickname:'Jogador'},historyAvailable:true
+ })}));
+ await page.goto('/jogos/snake/');
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}})));
+ const side=page.locator('[data-daily-mission-sidebar]');
+ const tracker=side.locator('.daily-live-tracker');
+ await expect(tracker).toBeVisible();
+ await expect(tracker).toContainText('Labirinto de frutas');
+ await expect(tracker).toContainText('6 frutas');
+ await expect(side.locator('> :first-child')).toHaveClass(/daily-live-tracker/);
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:daily-progress',{detail:{
+  game:'snake',score:30,durationMs:22000,linesCleared:0,clearSequence:[]
+ }})));
+ await expect(tracker.locator('.daily-live-progress')).toContainText('3 / 6');
+});
+
+test('Tetris não mostra 5/4 como missão concluída',async({page})=>{
+ const mission={version:3,kind:'doubles',metric:'sequence',target:4,timeLimitMs:null,
+  title:'Duplas perfeitas',description:'Complete 4 limpezas de exatamente 2 linhas.',sequence:[2,2,2,2]};
+ await page.route('**/api/daily/tetris**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+  game:'tetris',today:'2026-11-20',month:'2026-11',days:[],mission,account:{nickname:'Jogador'},historyAvailable:true
+ })}));
+ await page.goto('/jogos/tetris/');
+ await page.evaluate(()=>{
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'playing'}}));
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-progress',{detail:{
+   game:'tetris',score:1500,durationMs:120000,linesCleared:10,clearSequence:[2,2,2,2,2]
+  }}));
+ });
+ const side=page.locator('[data-daily-mission-sidebar] .daily-live-tracker');
+ await expect(side.locator('.daily-live-progress')).toContainText('4 / 4');
+ await expect(side).toContainText('Etapas excedidas');
+ await expect(side.locator('.daily-live-sequence .done')).toHaveCount(4);
+});
