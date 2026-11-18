@@ -7,6 +7,7 @@ import {centerGameBoard} from './gameViewport';
 import { setupGlobalGameCounters } from './globalGameCounters';
 import {recordGameStart,recordGameFinish} from './gameEvents';
 import {seededRandom,dailyMissionWon} from '../data/dailyChallenges.js';
+import {initialMissionState,advanceDailyMission} from '../data/dailyMissionEngine.js';
 type Direction = 'up'|'down'|'left'|'right';
 type Point = {x:number;y:number};
 type Score = {name:string;score:number;at:number};
@@ -357,7 +358,10 @@ function placeFood(){const free:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<
 function schedule(){window.clearTimeout(timer);if(state==='playing')timer=window.setTimeout(tick,(evolutionPreview?Math.max(145,210-Math.floor(peakScore/100)*7):Math.max(75,155-Math.floor(score/50)*8))+(evolutionPreview&&evolutionClock<slowUntil?85:0))}
 function tick(){if(state!=='playing')return;
  const mission=dailyAttempt?.mission;
- if(mission?.version===2&&mission.timeLimitMs!==null&&gameClock.milliseconds()>=mission.timeLimitMs){end(mission.kind==='survival');return}
+ if(mission&&mission.version>=2&&mission.timeLimitMs!==null&&gameClock.milliseconds()>=mission.timeLimitMs){
+  missionState=advanceDailyMission(mission,missionState,{type:'tick',score,linesCleared:0,durationMs:gameClock.milliseconds()});
+  end(missionState.status==='won');return;
+ }
  direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const rawHead={x:snake[0].x+d.x,y:snake[0].y+d.y};const exit=evolutionPreview?borderExit(rawHead):null;const head=evolutionPreview?{x:(rawHead.x+size)%size,y:(rawHead.y+size)%size}:rawHead;const picked=evolutionPreview?items.find(i=>same(i.point,head)):undefined;const eating=evolutionPreview?Boolean(picked&&picked.kind!=='shrink'&&picked.kind!=='slow'&&picked.kind!=='blaster'&&picked.kind!=='scare'):head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if((!evolutionPreview&&(head.x<0||head.x>=size||head.y<0||head.y>=size))||(exit&&borderAt(exit.side,exit.index))||body.some(p=>p.x===head.x&&p.y===head.y)||((evolutionPreview||dailyHazardActive())&&obstacles.some(p=>same(p,head)))){end(false);return}snake.unshift(head);
  // Aviso temático de risco: somente quando há pouco espaço, sem criar frutas ou alterar pontos.
  const freeNeighbors=[{x:head.x+1,y:head.y},{x:head.x-1,y:head.y},{x:head.x,y:head.y+1},{x:head.x,y:head.y-1}].filter(p=>p.x>=0&&p.x<size&&p.y>=0&&p.y<size&&!snake.some(q=>q.x===p.x&&q.y===p.y)).length;
@@ -390,16 +394,18 @@ function tick(){if(state!=='playing')return;
   celebrate('global');
   document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:modeId,kind:'provisional',message:'Você passou a marca global! Confirmação ao final da partida.'}}));
  }
- if(dailyAttempt?.mission&&dailyAttempt.mission.version>=2&&dailyAttempt.mission.metric==='score'
-   &&dailyAttempt.mission.target!==null&&score>=dailyAttempt.mission.target){
-   end(true);return;
-  }
+ const activeMission=dailyAttempt?.mission;
+ if(activeMission&&activeMission.version>=2){
+  missionState=advanceDailyMission(activeMission,missionState,{type:'tick',score,linesCleared:0,durationMs:gameClock.milliseconds()});
+  if(missionState.status!=='playing'){end(missionState.status==='won');return}
+ }
  if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-progress',{detail:{game:'snake',score,linesCleared:0,clearSequence:[],durationMs:gameClock.milliseconds()}}));
  draw();refresh();schedule()}
 function cancelCountdown(){window.clearTimeout(countdownTimer);setCountdownOverlay(overlay,countValue,startBtn,false)}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
+let missionState=initialMissionState();
 const gameClock=setupGameClock(gameScreen,()=>state==='playing');
-function start(daily:DailyAttempt|null=null){dailyAttempt=daily;
+function start(daily:DailyAttempt|null=null){dailyAttempt=daily;missionState=initialMissionState();
  if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}}));dailyRandom=daily?seededRandom(daily.seed):Math.random;gameClock.reset();endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];enemies=[];scareUntil=0;evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
  setupDailyHazards();
  didCelebratePersonal=false;lastFunMilestone=0;lastFunAt=-100;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
@@ -418,7 +424,7 @@ function end(won:boolean){
   const mission=attempt.mission;
   const duration=gameClock.milliseconds();
   // Mesmo avaliador de missão da API. Colisão nunca pode marcar vitória.
-  const success=won&&dailyMissionWon(mission,{score,durationMs:duration,linesCleared:0,clearSequence:[]})===true;
+  const success=won&&missionState.status==='won'&&dailyMissionWon(mission,{score,durationMs:duration,linesCleared:0,clearSequence:[]})===true;
   dailyAttempt=null;dailyRandom=Math.random;
   show(success?'🏆 MISSÃO CUMPRIDA!':'META NÃO ALCANÇADA',
     (mission?.description||'')+' · '+score+' pontos · '+Math.floor(duration/1000)+' s. Teste quantas vezes quiser.','▶ Jogar Snake livre');
