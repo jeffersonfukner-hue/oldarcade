@@ -582,3 +582,33 @@ html,body{touch-action:manipulation}
 @media(max-width:630px){.oa-home-intro{grid-template-columns:1fr}.oa-home-intro-art{display:none}.home-game-grid{grid-template-columns:1fr}.home-game-art{aspect-ratio:2.8/1}.home-daily-spotlight{padding:15px;gap:12px}.home-daily-action{grid-column:1/-1}.home-daily-spotlight h2{font-size:1.22rem}.home-game-modes a{min-height:70px}}
 @media(max-width:400px){.home-daily-emblem{width:50px;height:50px}.home-daily-spotlight{grid-template-columns:50px minmax(0,1fr)}.home-game-art-title{font-size:1.75rem}.home-game-art{min-height:120px}.home-mode-label{font-size:.7rem}.arcade-activity{padding:9px}.oa-library-count{font-size:.65rem}}
 @media(prefers-reduced-motion:reduce){.home-game-card,.home-game-art img,.home-game-modes a{transition:none!important}}
+
+
+/* Autenticação global: modal acessível, sem alterar rota nem rolagem do jogo. */
+.oa-auth-overlay[hidden],.oa-auth-dialog [hidden]{display:none!important}
+.oa-auth-overlay{position:fixed;inset:0;z-index:1500;display:grid;place-items:center;padding:18px;background:#020716df;backdrop-filter:blur(9px);overflow:auto}
+body.oa-auth-open{overflow:hidden}
+.oa-auth-dialog{width:min(100%,480px);max-height:calc(100dvh - 36px);overflow:auto;background:linear-gradient(150deg,#252346,#151d34 68%);border:1px solid #8e78c4;border-radius:var(--oa-radius,16px);padding:24px;box-shadow:0 20px 65px #000c,0 0 35px #7f55c52c}
+.oa-auth-heading{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.oa-auth-heading>div:nth-child(2){min-width:0;flex:1}
+.oa-auth-symbol{display:grid;place-items:center;width:46px;height:46px;flex:none;background:#393166;border:1px solid #9275dc;border-radius:12px;font-size:1.4rem}
+.oa-auth-heading .eyebrow{font-size:.65rem;color:#d6b8ff}
+.oa-auth-heading h2{margin:4px 0 0;font-size:1.36rem}
+.oa-auth-close{border:1px solid #5c628a;background:#252e4d;color:#fff;border-radius:9px;width:34px;height:34px;font-size:1.4rem}
+.oa-auth-lede{font-size:.83rem;line-height:1.5;margin:0 0 15px}
+.oa-auth-tabs{display:flex;gap:7px;margin:0 0 16px}
+.oa-auth-tabs button{flex:1;background:#232b48;border:1px solid #516083;border-radius:10px;color:#e8eaff;font-weight:800;padding:10px}
+.oa-auth-tabs button[aria-pressed=true]{background:#563c93;border-color:#b18cf5;color:white}
+.oa-auth-dialog form{display:grid;gap:11px}
+.oa-auth-dialog form>label{display:grid;gap:5px;color:#e2e8ff;font-size:.82rem;font-weight:750}
+.oa-auth-dialog input:not([type=checkbox]){width:100%;min-width:0;padding:11px 12px;background:#0c1429;border:1px solid #4b5982;border-radius:9px;color:#fff}
+.oa-auth-dialog form .btn{justify-self:stretch;padding:11px}
+.oa-auth-notifications{border:1px solid #47567a;border-radius:11px;padding:12px;display:grid;gap:9px}
+.oa-auth-notifications legend{font-size:.76rem;font-weight:750;color:#b7bbdf}
+.oa-auth-notifications label{font-size:.8rem;display:flex;align-items:center;gap:8px}
+.oa-auth-recovery{background:#2a274e;border:1px solid #a38bd6;border-radius:12px;padding:15px;margin:16px 0}
+.oa-auth-recovery p{font-size:.82rem;line-height:1.45;margin:8px 0}
+.oa-auth-recovery code{display:block;overflow-wrap:anywhere;color:#ffe09f;font-weight:800;margin:12px 0}
+.oa-auth-message{font-size:.82rem;color:#ffd7a1;line-height:1.45;min-height:1px;margin:9px 0}
+.oa-auth-footnote{color:#9aacc9;font-size:.72rem;line-height:1.4;margin:9px 0 0}
+@media(max-width:520px){.oa-auth-overlay{padding:10px}.oa-auth-dialog{padding:16px;max-height:calc(100dvh - 20px)}.oa-auth-heading h2{font-size:1.2rem}}
