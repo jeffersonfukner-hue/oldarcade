@@ -118,3 +118,20 @@ test('propriedade: 500 trilhas aleatórias não ultrapassam meta nem reabrem est
   assert.equal(state.status,'won'===terminal?'won':'lost');
  }
 });
+
+test('game over jamais aprova missão por pontuação armazenada',()=>{
+ const goal={version:3,kind:'obstacles',metric:'score',target:50,timeLimitMs:null};
+ const result=replayDailyMission(goal,[{type:'end',score:999,linesCleared:0,durationMs:1000}]);
+ assert.equal(result.status,'lost');
+ assert.equal(result.reason,'game-over');
+ assert.strictEqual(advanceDailyMission(goal,result,{type:'tick',score:1000,linesCleared:0,durationMs:2000}),result);
+});
+test('Snake: fruta, obstáculos, sobrevivência e limite de tempo',()=>{
+ const scoreGoal={version:3,kind:'gauntlet',metric:'score',target:50,timeLimitMs:30000};
+ const tick=(score,durationMs)=>({type:'tick',score,durationMs,linesCleared:0});
+ assert.equal(replayDailyMission(scoreGoal,[tick(20,10000),tick(50,25000)]).status,'won');
+ assert.equal(replayDailyMission(scoreGoal,[tick(20,31000),tick(50,32000)]).status,'lost');
+ const survive={version:3,kind:'survival',metric:'duration',target:20000,timeLimitMs:20000};
+ assert.equal(replayDailyMission(survive,[tick(0,10000),tick(0,20000)]).status,'won');
+ assert.equal(replayDailyMission(survive,[tick(0,8000),{type:'end',score:0,linesCleared:0,durationMs:9000}]).status,'lost');
+});
