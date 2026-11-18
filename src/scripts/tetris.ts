@@ -359,7 +359,7 @@ async function submitDailyFinish(){
   pendingDailyFinish=null;
   document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'finished'}}));
   try{sessionStorage.removeItem('oldarcade:daily:tetris:pending')}catch{}
-  const status=result.mission?.version>=2?
+  const status=(result.mission?.version??0)>=2?
     (result.missionSuccess?'🏆 Missão cumprida!':'Meta não alcançada.'):'Desafio concluído!';
   if(info)info.textContent=status+' Resultado salvo em Minha Conta.';
   if(state==='over'){
