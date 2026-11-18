@@ -4,6 +4,12 @@
 
 # OldArcade — continuidade obrigatória
 
+## Snake em tela cheia — edição histórica não é desafio (18/11/2026)
+- Print real: Snake em tela cheia com **"Partida diária original"**, texto "Não havia meta de vitória", HUD **"Frutas: 0/0"**, placar 100 em 29s e faixa de missão ocupando toda a largura. Trata-se da **versão v1** da missão de 18/11/2026, intencionalmente sem meta; **não inventar meta retroativamente**, nem exibir contagem vazia como missão. O usuário espera desafio real nas missões novas.
+- `src/scripts/dailyCalendar.ts` agora identifica `mission.kind==='legacy'` e **oculta tracker e contador** em vez de mostrar 0/0. Escuta evento `oldarcade:daily-mission-selected` emitido pelo início real de Snake e Tetris, de modo que o HUD segue a **missão da partida**, e não a selecionada no calendário nem o laboratório do Preview. Durante partida v1, indicador muda para **"PARTIDA DIÁRIA HISTÓRICA"** e a descrição informa explicitamente "sem desafio". A renderização do calendário no Preview não substitui a missão histórica por uma missão de treino enquanto a partida estiver em andamento.
+- Tela cheia Snake: `src/pages/jogos/snake.astro` limita largura do painel de missão ao conjunto tabuleiro+placar e compacta o cartão, responsivo. E2E cobre edição histórica sem contador e largura do cartão em modo de tela cheia simulado.
+- A aplicação continua no GitHub em `feat/tetris-jogo-002`; verificar CI e QA visual antes de aprovação. Não publicar produção, não mexer D1 ou Lovable, não usar Work.
+
 ## Snake Diário — localização do painel e inconsistência 0/7 (18/11/2026)
 - Proprietário apontou no print de Snake: cartão "Corrida contra o relógio" em **coluna errada**, dentro das estatísticas secundárias "Seu desempenho" à direita do jogo; overlay mostrava vitória 70 pontos em 17s, mas o cartão exibia **Frutas: 0/7**.
 - Correção na branch `feat/tetris-jogo-002`: `src/pages/jogos/snake.astro` cria `[data-daily-mission-sidebar]` dentro de `#game-stage` **entre cabeçalho e tabuleiro**, ocupando largura da coluna principal e com CSS responsivo; remove atributo do `aside` de desempenho. Estatísticas permanecem independentes.
