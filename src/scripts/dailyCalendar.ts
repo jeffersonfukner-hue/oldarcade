@@ -35,6 +35,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
  if(previewHost)lab.hidden=false;
  let previewOffset=0,practiceMission:DailyMission|null=null,practiceRunning=false;
  let finalPracticeProgress:DailyProgress|null=null;
+ let activeMission:DailyMission|null=null;
  const practiceDate=()=>new Date(Date.parse('2026-11-20T12:00:00Z')+previewOffset*86400000).toISOString().slice(0,10);
  const sidebar=document.querySelector<HTMLElement>('[data-daily-mission-sidebar]');
  const tracker=sidebar?document.createElement('section'):null;
@@ -49,6 +50,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
    mission.metric==='duration'?Math.floor((progress?.durationMs??0)/1000):
    mission.metric==='sequence'?progress?.clearSequence.length??0:progress?.score??0;
   const goal=mission.metric==='duration'?Math.ceil((mission.target??0)/1000):mission.target??0;
+  if(mission.kind==='legacy'||goal<=0){tracker.hidden=true;return}
   const overflow=mission.metric==='sequence'&&actual>goal;
   const value=Math.min(Math.max(0,actual),goal);
   const counter=document.createElement('div');counter.className='daily-live-progress';
@@ -140,7 +142,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   const mission=hasMission?(selectedDate===payload.today?payload.mission:dailyMission(game,selectedDate,selectedRow?.version)):null;
   brief.hidden=!mission;
   if(mission&&!previewHost){briefTitle.textContent=mission.title;briefRules.textContent=mission.description}
-  if(tracker&&mission&&!previewHost){drawTracker(mission,null);tracker.hidden=enginePhase==='idle';if(sidebar)sidebar.hidden=tracker.hidden}
+  if(tracker&&mission&&!previewHost&&enginePhase==='idle'){drawTracker(mission,null);tracker.hidden=mission.kind==='legacy';if(sidebar?.hasAttribute('data-daily-mission-inline'))sidebar.hidden=tracker.hidden}
   if(previewHost&&!practiceRunning)showPracticeMission();
   const active=month===today.slice(0,7);
   const todayRow=payload.days.find(x=>x.date===today);
@@ -218,10 +220,24 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
  });
  document.addEventListener('oldarcade:daily-progress',event=>{
   const progress=(event as CustomEvent<DailyProgress>).detail;
-  const mission=practiceRunning?practiceMission:current?.mission;
-  if(progress?.game!==game||!mission||!tracker)return;
+  const mission=practiceRunning?practiceMission:activeMission;
+  if(progress?.game!==game||!mission||mission.kind==='legacy'||!tracker)return;
   if(previewHost&&practiceRunning)finalPracticeProgress=progress;
   drawTracker(mission,progress);tracker.hidden=false;if(sidebar)sidebar.hidden=false;
+ });
+ document.addEventListener('oldarcade:daily-mission-selected',event=>{
+  const detail=(event as CustomEvent<{game:string;mission:DailyMission|null}>).detail;
+  if(detail?.game!==game)return;
+  activeMission=detail.mission;
+  if(!tracker)return;
+  if(!activeMission||activeMission.kind==='legacy'){
+   tracker.hidden=true;
+   if(sidebar?.hasAttribute('data-daily-mission-inline'))sidebar.hidden=true;
+  }else{
+   drawTracker(activeMission,null);
+   tracker.hidden=false;
+   if(sidebar)sidebar.hidden=false;
+  }
  });
  document.addEventListener('oldarcade:daily-phase',event=>{
   const detail=(event as CustomEvent<{game:string;phase:'idle'|'playing'|'pending'|'finished'}>).detail;
@@ -229,7 +245,10 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   enginePhase=detail.phase;
   const indicator=document.querySelector<HTMLElement>('[data-daily-play-indicator]');
   if(indicator)indicator.hidden=enginePhase!=='playing';
-  if(tracker){tracker.hidden=enginePhase==='idle'&&!previewHost;if(sidebar?.hasAttribute('data-daily-mission-inline'))sidebar.hidden=tracker.hidden}
+  if(tracker){
+   tracker.hidden=(activeMission?.kind==='legacy')||(enginePhase==='idle'&&!previewHost);
+   if(sidebar?.hasAttribute('data-daily-mission-inline'))sidebar.hidden=tracker.hidden;
+  }
   if(previewHost&&practiceRunning&&enginePhase==='finished'){
    practiceRunning=false;nextLab.disabled=false;startLab.disabled=false;
    startLab.textContent='↻ Tentar novamente';
