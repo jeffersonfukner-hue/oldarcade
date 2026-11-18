@@ -48,6 +48,8 @@ type DailyAttempt={date:string;token:string;seed:number;mission?:DailyMission;pr
 type DailyResult={date:string;token:string;score:number;durationMs:number;linesCleared?:number;clearSequence?:number[]};
 let dailyAttempt:DailyAttempt|null=null;
 let pendingDailyFinish:DailyResult|null=null;
+let retryDailyDate:string|null=null;
+let retryPractice:DailyAttempt|null=null;
 let dailyRandom:()=>number=Math.random;
 let dailyRequestPending=false;
 let dailyClears:number[]=[];
@@ -273,10 +275,13 @@ function countdownStart(first:boolean){
 function start(daily:DailyAttempt|null=null){
  if(dailyRequestPending)return;
  dailyAttempt=daily;
+ retryDailyDate=null;retryPractice=null;
+ delete startButton.dataset.dailyRetryMission;
  dailyClears=[];
  missionState=initialMissionState();
- if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-mission-selected',{detail:{game:'tetris',mission:dailyAttempt.mission??null}}));
- if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'playing'}}));dailyRandom=daily?seededRandom(daily.seed):Math.random;
+ document.dispatchEvent(new CustomEvent('oldarcade:daily-mission-selected',{detail:{game:'tetris',mission:dailyAttempt?.mission??null}}));
+ document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:dailyAttempt?'playing':'idle'}}));
+ dailyRandom=daily?seededRandom(daily.seed):Math.random;
  finishSequence++;stopDropAnimation();window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  clock.reset();board=empty();bag=[];queue=[];reserve=null;reserveUsed=false;
  piece=null;score=0;lines=0;level=1;globalProvisional=false;screen.removeAttribute('data-survival-danger');drawNext();
@@ -296,8 +301,9 @@ function finish(completed=false){
   // Mesmo avaliador de missão da API. Derrota nunca pode marcar vitória.
   const success=completed&&missionState.status==='won'&&dailyMissionWon(mission,{score,durationMs:duration,linesCleared:lines,clearSequence:dailyClears})===true;
   dailyAttempt=null;dailyRandom=Math.random;
+  if(!success)retryPractice=attempt;
   update();draw();
-  show(success?'🏆 MISSÃO CUMPRIDA!':'META NÃO ALCANÇADA',(mission?.description||'')+' · '+score+' pontos · '+lines+' linhas. Tente novamente no laboratório acima.','▶ Jogar Tetris livre');
+  show(success?'🏆 MISSÃO CUMPRIDA!':'META NÃO ALCANÇADA',(mission?.description||'')+' · '+score+' pontos · '+lines+' linhas. '+(success?'':'Quer começar novamente este desafio de treino?'),success?'▶ Jogar Tetris livre':'↻ Tentar desafio novamente');
   document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:success?'finished':'idle'}}));
   document.dispatchEvent(new CustomEvent('oldarcade:daily-practice-result',{detail:{game:'tetris',success,mission:mission?.title||'',score,linesCleared:lines}}));
   return;
@@ -380,14 +386,17 @@ async function submitDailyFinish(){
   try{sessionStorage.removeItem('oldarcade:daily:tetris:pending')}catch{}
   const won=result.missionSuccess===true||result.mission?.version===1;
   const status=won?'🏆 Missão cumprida!':'Meta ainda não alcançada';
-  if(info)info.textContent=won?'Vitória registrada!':'Missão preservada. Você pode repetir até vencer.';
+  retryDailyDate=won?null:attempt.date;
+  if(won)delete startButton.dataset.dailyRetryMission;
+  else startButton.dataset.dailyRetryMission='true';
+  if(info)info.textContent=won?'Vitória registrada!':'Missão não cumprida. Você pode tentar novamente.';
   if(state==='over'){
-   show(status,'Você fez '+attempt.score+' pontos e eliminou '+attempt.linesCleared+' linhas. '+(won?'Objetivo concluído.':'A missão continua disponível para uma nova tentativa.'),'▶ Jogar Tetris livre');
+   show(status,'Você fez '+attempt.score+' pontos e eliminou '+attempt.linesCleared+' linhas. '+(won?'Objetivo concluído.':'Quer começar novamente este desafio?'),won?'▶ Jogar Tetris livre':'↻ Tentar desafio novamente');
    startButton.disabled=false;
   }
   document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:won?'finished':'idle'}}));
   document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'tetris'}}));
-  if(startButton.dataset.dailyRetry==='true'){delete startButton.dataset.dailyRetry;startButton.textContent='▶ Jogar Tetris livre'}
+  if(startButton.dataset.dailyRetry==='true')delete startButton.dataset.dailyRetry;
  }catch(error){
   if(info)info.textContent=(error instanceof Error?error.message:'Falha ao salvar')+' · Você pode reenviar o resultado, sem refazer a partida.';
   startButton.dataset.dailyRetry='true';
@@ -440,6 +449,10 @@ try{
 }catch{}
 startButton.addEventListener('click',()=>{
  if(startButton.dataset.dailyRetry==='true'){void submitDailyFinish();return}
+ if(retryPractice){const attempt=retryPractice;start(attempt);return}
+ if(startButton.dataset.dailyRetryMission==='true'&&retryDailyDate){
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-start-request',{detail:{game:'tetris',date:retryDailyDate}}));return;
+ }
  if(state==='paused')pause();else start();
 });
 pauseButton.addEventListener('click',pause);
