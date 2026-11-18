@@ -20,6 +20,11 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
  const start=element.querySelector<HTMLButtonElement>('[data-daily-start]')!;
  const done=element.querySelector<HTMLElement>('[data-daily-result]')!;
  const guestExplanation=element.querySelector<HTMLElement>('[data-daily-guest-explanation]')!;
+ const stateBox=element.querySelector<HTMLElement>('[data-daily-status]')!;
+ const stateTitle=element.querySelector<HTMLElement>('[data-daily-state-title]')!;
+ const stateDescription=element.querySelector<HTMLElement>('[data-daily-state-description]')!;
+ let enginePhase:'idle'|'playing'|'pending'|'finished'='idle';
+ const setState=(kind:string,title:string,description:string)=>{stateBox.dataset.status=kind;stateTitle.textContent=title;stateDescription.textContent=description};
  let today='',month='',current:CalendarResponse|null=null,sequence=0;
  const render=(payload:CalendarResponse)=>{
   const statuses=new Map(payload.days.map(row=>[row.date,row.status]));
@@ -42,25 +47,55 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   today=payload.today;month=payload.month;current=payload;
   monthLabel.textContent=monthName(month);
   const active=month===today.slice(0,7);
-  const attempted=payload.days.some(x=>x.date===today);
+  const todayRow=payload.days.find(x=>x.date===today);
+  const attempted=!!todayRow;
+  const currentMonth=active;
   login.hidden=!!payload.account;guestExplanation.hidden=true;start.hidden=!payload.account||!active||attempted||payload.historyAvailable===false;start.disabled=!payload.account||!active||attempted||payload.historyAvailable===false;
   done.hidden=!payload.account||!attempted;prev.disabled=false;next.disabled=month>=today.slice(0,7);
-  info.textContent=payload.historyAvailable===false?(payload.error||'Calendário temporariamente indisponível para iniciar novas tentativas.'):!payload.account?'Quer participar? Clique no dia de hoje. Jogar normalmente não exige cadastro; a conta gratuita libera o desafio, os rankings e seu histórico.':attempted?'Sua tentativa de hoje já foi utilizada. O próximo desafio abre amanhã.':active?'Desafio disponível para sua conta: uma única tentativa hoje.':'Somente os desafios do dia atual podem ser iniciados.';
+  if(payload.historyAvailable===false){
+   setState('unavailable','Não foi possível verificar seu desafio','O histórico de tentativas está indisponível. Não sabemos se você já participou; iniciar fica bloqueado por segurança.');
+   info.textContent=payload.error||'Não foi possível consultar a participação. Tente novamente mais tarde.';
+  }else if(!payload.account){
+   setState('guest','Desafio de hoje disponível para quem tem conta','É grátis: entre para registrar sua tentativa, sua pontuação e seu histórico.');
+   info.textContent='Selecione o dia de hoje ou use o botão de entrada para participar.';
+  }else if(todayRow?.status==='finished'||enginePhase==='finished'){
+   setState('finished','Desafio de hoje concluído','Sua pontuação já foi registrada. Consulte o resultado em Minha Conta; o próximo desafio abre amanhã.');
+   info.textContent='Participação concluída. Este desafio não pode ser repetido.';
+  }else if(todayRow?.status==='started'){
+   if(enginePhase==='playing'){
+    setState('playing','Desafio em andamento','Sua única tentativa está acontecendo no tabuleiro abaixo. Continue a partida para registrar a pontuação.');
+    info.textContent='A partida está em andamento. Use os controles do jogo abaixo.';
+   }else if(enginePhase==='pending'){
+    setState('pending','Resultado aguardando confirmação','Sua partida terminou, mas o envio da pontuação ainda precisa ser confirmado. Reenvie pelo botão do jogo.');
+    info.textContent='Não inicie outra partida; utilize a opção de reenviar o resultado.';
+   }else{
+    setState('started','Tentativa iniciada, sem conclusão confirmada','Este dia já teve uma tentativa reservada. Se a partida foi interrompida ou a página foi fechada, não é possível jogá-la novamente.');
+    info.textContent='Nenhuma pontuação concluída foi confirmada para esta tentativa. O próximo desafio abre amanhã.';
+   }
+  }else if(currentMonth){
+   setState('available','Desafio de hoje disponível','Você ainda não iniciou sua tentativa. Uma vez iniciada, ela não poderá ser repetida.');
+   info.textContent='Clique em Iniciar desafio de hoje para jogar '+DAILY_MODES[game as keyof typeof DAILY_MODES].title+' Clássico com sequência igual para todos.';
+  }else{
+   setState('past','Calendário de desafios anteriores','Datas anteriores são apenas para consulta. Volte ao mês atual para participar.');
+   info.textContent='Selecione o mês atual para ver a disponibilidade do desafio de hoje.';
+  }
  };
  const load=async(wanted?:string)=>{
   const seq=++sequence;
   info.textContent='Consultando o calendário e sua participação…';
+  setState('loading','Verificando seu desafio…','Consultando sua participação no servidor.');
   prev.disabled=true;next.disabled=true;
   try{
    const url='/api/daily/'+encodeURIComponent(game)+(wanted?'?month='+encodeURIComponent(wanted):'');
    const response=await fetch(url,{cache:'no-store'});
    if(seq!==sequence)return;
-   if(response.status===401){days.replaceChildren();monthLabel.textContent='Desafio Diário';info.textContent='Entre na sua conta para jogar. Cada desafio permite somente uma tentativa por dia.';login.hidden=false;guestExplanation.hidden=false;start.hidden=true;done.hidden=true;return}
+   if(response.status===401){setState('guest','Entre para participar','A conta gratuita habilita os desafios e seu histórico.');days.replaceChildren();monthLabel.textContent='Desafio Diário';info.textContent='Entre na sua conta para jogar. Cada desafio permite somente uma tentativa por dia.';login.hidden=false;guestExplanation.hidden=false;start.hidden=true;done.hidden=true;return}
    const payload=await response.json() as CalendarResponse&{error?:string};
    if(!response.ok)throw Error(payload.error||'Não foi possível consultar os desafios.');
    render(payload);
   }catch(error){
    if(seq!==sequence)return;
+   setState('unavailable','Não foi possível consultar o desafio','A disponibilidade não foi confirmada. Nenhuma tentativa será iniciada até a consulta voltar a funcionar.');
    monthLabel.textContent='Não foi possível carregar';
    days.replaceChildren();
    prev.disabled=true;next.disabled=true;
@@ -76,11 +111,17 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   // O motor executa o POST atômico. O calendário só solicita iniciar.
   document.dispatchEvent(new CustomEvent('oldarcade:daily-start-request',{detail:{game,date:today}}));
  });
+ document.addEventListener('oldarcade:daily-phase',event=>{
+  const detail=(event as CustomEvent<{game:string;phase:'idle'|'playing'|'pending'|'finished'}>).detail;
+  if(detail?.game!==game)return;
+  enginePhase=detail.phase;
+  if(current)render(current);
+ });
  document.addEventListener('oldarcade:daily-status-changed',event=>{
   const data=(event as CustomEvent<{game:string}>).detail;
   if(data?.game===game)void load(month||undefined);
  });
- document.addEventListener('oldarcade:account-changed',()=>void load(month||undefined));
+ document.addEventListener('oldarcade:account-changed',()=>{enginePhase='idle';void load(month||undefined)});
  window.addEventListener('pageshow',event=>{if(event.persisted)void load(month||undefined)});
  void load();
 }
