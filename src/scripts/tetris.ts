@@ -142,13 +142,14 @@ function land(){
   lines+=cleared;
   const oldLevel=level;level=tetrisLevel(modeId,lines,clock.milliseconds());
   const points=[0,100,300,500,800][cleared]*oldLevel;
-  if((dailyAttempt?.mission?.version??0)>=3)dailyClears.push(cleared);
-  if(timed)update();else award(points);
-  const dailyMission=dailyAttempt?.mission;
-  if(dailyMission&&dailyMission.version>=2&&dailyMission.metric==='score'&&score>=dailyMission.target!){finish(true);return}
-  if(dailyMission&&dailyMission.version>=3&&dailyMission.kind==='quads'&&cleared!==4){finish(false);return}
-  if(dailyMission&&dailyMission.version>=3&&dailyMission.kind==='sequence'&&cleared!==dailyMission.sequence?.[dailyClears.length-1]){finish(false);return}
-  if(dailyMission&&dailyMission.version>=3&&(dailyMission.kind==='quads'||dailyMission.kind==='sequence')&&dailyClears.length===dailyMission.target){finish(true);return}
+   if((dailyAttempt?.mission?.version??0)>=3)dailyClears.push(cleared);
+   const dailyMission=dailyAttempt?.mission;
+   // Em "Pontos só com Tetris", qualquer limpeza de 1/2/3 linhas perde antes de pontuar.
+   if(dailyMission&&dailyMission.version>=3&&dailyMission.kind==='quads'&&cleared!==4){finish(false);return}
+   if(dailyMission&&dailyMission.version>=3&&dailyMission.kind==='sequence'&&cleared!==dailyMission.sequence?.[dailyClears.length-1]){finish(false);return}
+   if(timed)update();else award(points);
+   if(dailyMission&&dailyMission.version>=2&&(dailyMission.metric==='score'||dailyMission.metric==='quadscore')&&score>=dailyMission.target!){finish(true);return}
+   if(dailyMission&&dailyMission.version>=3&&dailyMission.kind==='sequence'&&dailyClears.length===dailyMission.target){finish(true);return}
   if(dailyMission&&dailyMission.version>=2&&dailyMission.metric==='lines'&&lines>=dailyMission.target!){finish(true);return}
   showScoreFeedback(screen,canvas,timed?cleared:points,timed?(cleared===1?'linha eliminada':'linhas eliminadas'):cleared===4?'TETRIS! 4 linhas':cleared===1?'1 linha':cleared+' linhas',completed[0],ROWS);
   // Clássico pontua linhas; Sprint utiliza somente tempo de conclusão.
