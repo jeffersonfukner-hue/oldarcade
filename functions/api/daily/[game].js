@@ -43,11 +43,20 @@ export async function onRequestGet(ctx){
   return reply({...publicCalendar,
    days:(results.results||[]).map(row=>({date:row.challenge_date,status:row.outcome,score:row.outcome==='finished'?row.score:null,durationMs:row.outcome==='finished'?row.duration_ms:null})),
    account:{nickname:player.nickname},historyAvailable:true});
- }catch{
-  // O calendário continua visível, mas a tentativa fica BLOQUEADA até
-  // verificarmos o histórico. Nunca disponibilizar replay por erro do banco.
+ }catch(cause){
+  // O erro anterior ocultava se o problema era tabela ausente ou falha de
+  // consulta. Diagnóstico não expõe SQL, credenciais ou dados de terceiros.
+  const missingTable=/no such table: (?:main\\.)?daily_challenge_attempts/i.test(String(cause?.message||cause));
+  console.error('[daily-calendar] Falha ao consultar desafios', {
+   game,month,code:missingTable?'SCHEMA_MISSING':'HISTORY_QUERY_FAILED',
+   message:String(cause?.message||cause).slice(0,280)
+  });
+  // Nunca reabrir tentativa única com base em uma consulta incompleta.
   return reply({...publicCalendar,account:{nickname:player.nickname},historyAvailable:false,
-   error:'Não foi possível consultar suas tentativas. O jogo diário ficará bloqueado até a consulta funcionar.'});
+   errorCode:missingTable?'SCHEMA_MISSING':'HISTORY_QUERY_FAILED',
+   error:missingTable
+    ?'A tabela de desafios diários não foi encontrada no banco conectado a este Preview. É necessário conferir a conexão do D1 antes de liberar a tentativa.'
+    :'Não foi possível consultar suas tentativas neste momento. Sua participação não foi alterada.'});
  }
 }
 export async function onRequestPost(ctx){
