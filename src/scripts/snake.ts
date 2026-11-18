@@ -416,6 +416,10 @@ function start(daily:DailyAttempt|null=null){dailyAttempt=daily;missionState=ini
  resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}if(!dailyAttempt){saved.plays++;store()}if(!daily?.practice)globalCounters.recordPlay(recordGameStart(modeId));draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){
  const durationMs=gameClock.milliseconds();roundDurationMs=durationMs;
+ // Enviar progresso final antes de encerrar a missão para evitar 0/7 após 7 frutas.
+ if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-progress',{
+  detail:{game:'snake',score,linesCleared:0,clearSequence:[],durationMs}
+ }));
  state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
  if(!dailyAttempt&&score>saved.best)saved.best=score;
  if(!dailyAttempt&&saved.nickname.trim()){
