@@ -194,7 +194,7 @@ test('recorde global é exibido como desafio e ranking usa texto seguro',async({
 
 test('página de conta mostra cadastro com e-mail opcional e não exige conta para jogar',async({page})=>{
  await page.goto('/conta/');
- await expect(page.getByRole('heading',{name:/Seu nickname, seus desafios/})).toBeVisible();
+ await expect(page.getByRole('heading',{name:/Seu arcade. Seu progresso./})).toBeVisible();
  await page.getByRole('button',{name:'Criar conta'}).click();
  await expect(page.locator('#register-email')).not.toHaveAttribute('required');
  await expect(page.locator('#register-password')).toHaveAttribute('minlength','8');
