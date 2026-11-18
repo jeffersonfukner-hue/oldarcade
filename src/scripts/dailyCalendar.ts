@@ -143,7 +143,12 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   brief.hidden=!mission;
   if(mission&&!previewHost){briefTitle.textContent=mission.title;briefRules.textContent=mission.description}
   if(tracker&&mission&&!previewHost&&enginePhase==='idle'){drawTracker(mission,null);tracker.hidden=mission.kind==='legacy';if(sidebar?.hasAttribute('data-daily-mission-inline'))sidebar.hidden=tracker.hidden}
-  if(previewHost&&!practiceRunning)showPracticeMission();
+  if(previewHost&&!practiceRunning&&enginePhase==='idle')showPracticeMission();
+  if(activeMission&&!practiceRunning&&enginePhase==='playing'){
+   brief.hidden=false;
+   briefTitle.textContent=activeMission.kind==='legacy'?'EDIÇÃO HISTÓRICA · sem desafio':activeMission.title;
+   briefRules.textContent=activeMission.description;
+  }
   const active=month===today.slice(0,7);
   const todayRow=payload.days.find(x=>x.date===today);
   const selectedCompleted=selectedRow?.status==='finished';
@@ -244,7 +249,10 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   if(detail?.game!==game)return;
   enginePhase=detail.phase;
   const indicator=document.querySelector<HTMLElement>('[data-daily-play-indicator]');
-  if(indicator)indicator.hidden=enginePhase!=='playing';
+  if(indicator){
+   indicator.hidden=enginePhase!=='playing';
+   indicator.textContent=activeMission?.kind==='legacy'?'★ PARTIDA DIÁRIA HISTÓRICA':'★ DESAFIO DIÁRIO EM ANDAMENTO';
+  }
   if(tracker){
    tracker.hidden=(activeMission?.kind==='legacy')||(enginePhase==='idle'&&!previewHost);
    if(sidebar?.hasAttribute('data-daily-mission-inline'))sidebar.hidden=tracker.hidden;
