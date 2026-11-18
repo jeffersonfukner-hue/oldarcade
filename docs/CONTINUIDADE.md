@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## Snake — controles e recorde autenticado (18/11/2026)
+- O proprietário mostrou 3 capturas: controles direcionais ocupando espaço desnecessário abaixo do jogo em desktop; estando autenticado, o Snake mostrava **Recorde pessoal: 0** e **Recorde local: 0**, embora houvesse recordes por conta.
+- Em `src/pages/jogos/snake.astro`, controles de direção são ocultados **somente com ponteiro fino e hover (mouse/desktop)**; dispositivos de toque continuam com botões e gestos. O campo lateral tem ID próprio `snake-best-label` para diferenciar estado autenticado de local.
+- Em `src/scripts/snake.ts`, quando há conta ativa, HUD e lateral usam o recorde da **conta**, não máximo misturado entre localStorage e banco. Sem recorde na conta exibe **—**, não 0 inventado; sem conta permanece “Recorde local”. Após `oldarcade:account-changed`, reconsulta autenticação e ranking. Falha de ranking não apaga recorde confirmado.
+- Em `src/scripts/globalLeaderboard.ts`, o evento de recorde pessoal usa `mine.score` ou fallback `myGames`; consultas simultâneas enfileiram atualização posterior à autenticação, impedindo que resultado anônimo pré-login fique na tela.
+- E2E Snake adicionado para troca de conta anon→autenticado (recorde 340), ausência de recorde (“—”) e ocultação dos controles conforme tipo de ponteiro. Verificar CI e Preview do HEAD antes da aprovação; sem merge, produção, Lovable, Work nem ações D1.
+
 ## Snake em tela cheia — edição histórica não é desafio (18/11/2026)
 - Print real: Snake em tela cheia com **"Partida diária original"**, texto "Não havia meta de vitória", HUD **"Frutas: 0/0"**, placar 100 em 29s e faixa de missão ocupando toda a largura. Trata-se da **versão v1** da missão de 18/11/2026, intencionalmente sem meta; **não inventar meta retroativamente**, nem exibir contagem vazia como missão. O usuário espera desafio real nas missões novas.
 - `src/scripts/dailyCalendar.ts` agora identifica `mission.kind==='legacy'` e **oculta tracker e contador** em vez de mostrar 0/0. Escuta evento `oldarcade:daily-mission-selected` emitido pelo início real de Snake e Tetris, de modo que o HUD segue a **missão da partida**, e não a selecionada no calendário nem o laboratório do Preview. Durante partida v1, indicador muda para **"PARTIDA DIÁRIA HISTÓRICA"** e a descrição informa explicitamente "sem desafio". A renderização do calendário no Preview não substitui a missão histórica por uma missão de treino enquanto a partida estiver em andamento.
