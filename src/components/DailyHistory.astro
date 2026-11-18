@@ -39,9 +39,9 @@
     const heading=document.createElement('strong');heading.textContent=DAILY_MODES[item.game as keyof typeof DAILY_MODES].title+' · '+item.date.split('-').reverse().join('/');
     const performance=document.createElement('p');
     const meta=document.createElement('p');meta.className='daily-history-meta';
-    meta.textContent=item.mission?.version>=2?item.mission.title+' · '+item.mission.description:'Edição original: pontuação livre';
+    meta.textContent=(item.mission?.version??0)>=2?item.mission.title+' · '+item.mission.description:'Edição original: pontuação livre';
     performance.textContent=item.status==='finished'?
-     (item.mission?.version>=2?(item.missionSuccess?'🏆 Missão cumprida':'Meta não alcançada')+' · ':'')+
+     ((item.mission?.version??0)>=2?(item.missionSuccess?'🏆 Missão cumprida':'Meta não alcançada')+' · ':'')+
       'Pontuação: '+item.score+' pontos · Tempo: '+Math.floor((item.durationMs||0)/1000)+' s'+
       (typeof item.linesCleared==='number'?' · '+item.linesCleared+' linhas':'')
      :'Tentativa utilizada; partida não concluída ou resultado não confirmado.';
