@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {DAILY_MODES,dateInSaoPaulo,dailySeed,seededRandom,validDailyDate} from '../src/data/dailyChallenges.js';
+import {DAILY_MODES,dateInSaoPaulo,dailySeed,seededRandom,validDailyDate,dailyVersionForDate,dailyMission,dailyMissionWon} from '../src/data/dailyChallenges.js';
 import {onRequestGet,onRequestPost} from '../functions/api/daily/[game].js';
 import {onRequestGet as getProfile} from '../functions/api/daily/profile.js';
 
@@ -19,10 +19,21 @@ const mockDb=()=>{
    args:[],bind(...args){this.args=args;return this},
    async first(){
     if(sql.includes('player_sessions'))return {id:'user-1',nickname:'Jogador teste',email:null,email_verified:0};
+    if(sql.includes('SELECT seed_version FROM daily_challenge_attempts')){
+     const [game,date,player,hash]=this.args;
+     const item=attempts.get(game+':'+date+':'+player);
+     return item&&item.tokenHash===hash&&item.status==='started'?{seed_version:item.version}:null;
+    }
     return null;
    },
    async all(){
-    if(sql.includes('daily_challenge_attempts'))return {results:[...attempts.values()].map(x=>({challenge_date:x.date,outcome:x.status,score:x.score??null,duration_ms:x.durationMs??null}))};
+    if(sql.includes('daily_challenge_attempts')){
+     const game=this.args[0],player=this.args[1];
+     return {results:[...attempts.values()].filter(x=>!sql.includes('WHERE game=')||x.game===game&&x.player===player).map(x=>({
+      challenge_date:x.date,outcome:x.status,score:x.score??null,duration_ms:x.durationMs??null,
+      seed_version:x.version,lines_cleared:x.linesCleared??null,mission_success:x.missionSuccess??null
+     }))};
+    }
     return {results:[]};
    },
    async run(){
@@ -34,10 +45,13 @@ const mockDb=()=>{
      return {meta:{changes:1}};
     }
     if(sql.includes('UPDATE daily_challenge_attempts')){
-     const [score,durationMs,finished,game,date,player,hash]=this.args;
+     const modern=sql.includes('lines_cleared=?');
+     const [score,durationMs,finished,...rest]=this.args;
+     const [game,date,player,hash]=modern?rest.slice(2):rest;
      const item=attempts.get(game+':'+date+':'+player);
      if(!item||item.status!=='started'||item.tokenHash!==hash)return {meta:{changes:0}};
      Object.assign(item,{score,durationMs,finished,status:'finished'});
+     if(modern){item.linesCleared=rest[0];item.missionSuccess=rest[1]}
      return {meta:{changes:1}};
     }
     return {meta:{changes:0}};
@@ -93,7 +107,12 @@ test('usuário logado reserva exatamente uma tentativa e só uma conclusão',asy
  assert.equal(secondFinish.status,409);
  const today=await onRequestGet({params:{game:'snake'},env:{OLDARCADE_STATS_DB:db},request:request('GET',null,true)});
  assert.equal(today.status,200);
- assert.deepEqual((await today.json()).days,[{date:day,status:'finished',score:100,durationMs:10000}]);
+ const record=(await today.json()).days[0];
+ assert.equal(record.date,day);
+ assert.equal(record.status,'finished');
+ assert.equal(record.score,100);
+ assert.equal(record.durationMs,10000);
+ assert.equal(record.version,dailyVersionForDate(day));
 });
 test('datas passadas e futuras não podem iniciar desafio; origem inválida é proibida',async()=>{
  const {db}=mockDb();
@@ -161,4 +180,45 @@ test('consulta de calendário autenticado usa só identidade, sem colunas opcion
  const sessionSql=queries.find(sql=>sql.includes('player_sessions'));
  assert.match(sessionSql,/SELECT a\.id,a\.nickname FROM player_sessions/);
  assert.doesNotMatch(sessionSql,/daily_email_opt_in|record_email_opt_in/);
+});
+
+test('gerador cria metas variadas e determinísticas em 1000 dias sem cadastro manual',()=>{
+ const start=Date.parse('2026-11-20T12:00:00Z');
+ for(const game of ['snake','tetris']){
+  const distinct=new Set(),families=new Set(),difficulties=new Set();
+  let previous='';
+  for(let offset=0;offset<1000;offset++){
+   const date=new Date(start+offset*86400000).toISOString().slice(0,10);
+   const mission=dailyMission(game,date);
+   const again=dailyMission(game,date);
+   assert.deepEqual(mission,again);
+   assert.equal(mission.version,3);
+   assert.ok(mission.target>0);
+   assert.ok(mission.description.length>25);
+   assert.notEqual(mission.kind,previous,'não repetir família em dias consecutivos');
+   previous=mission.kind;
+   families.add(mission.kind);difficulties.add(mission.difficulty);
+   distinct.add(JSON.stringify([mission.kind,mission.target,mission.sequence,mission.hazards,mission.timeLimitMs]));
+  }
+  assert.equal(families.size,5);
+  assert.ok(distinct.size>75,'metas suficientemente variadas');
+  assert.equal(difficulties.size,3);
+ }
+});
+
+test('missões Tetris exatas não aceitam limpeza errada nem total de linhas enganoso',()=>{
+ const date='2026-11-24';
+ for(let offset=0;offset<100;offset++){
+  const day=new Date(Date.parse(date+'T12:00:00Z')+offset*86400000).toISOString().slice(0,10);
+  const mission=dailyMission('tetris',day);
+  if(mission.kind==='quads'){
+   assert.equal(dailyMissionWon(mission,{score:99999,durationMs:10000,linesCleared:mission.target*4,clearSequence:[1,2,3,4]}),false);
+   assert.equal(dailyMissionWon(mission,{score:800,durationMs:10000,linesCleared:mission.target*4,clearSequence:Array(mission.target).fill(4)}),true);
+  }
+  if(mission.kind==='sequence'){
+   const sequence=mission.sequence;
+   assert.equal(dailyMissionWon(mission,{score:9999,durationMs:10000,linesCleared:sequence.reduce((a,b)=>a+b,0),clearSequence:[...sequence].reverse()}),sequence.join(',')===[...sequence].reverse().join(','));
+   assert.equal(dailyMissionWon(mission,{score:9999,durationMs:10000,linesCleared:sequence.reduce((a,b)=>a+b,0),clearSequence:sequence}),true);
+  }
+ }
 });
