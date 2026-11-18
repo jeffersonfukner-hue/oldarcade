@@ -129,3 +129,34 @@ test('Tetris usa a infraestrutura diária compartilhada, sem misturar pontuaçã
  const again=await onRequestPost(ctx({action:'finish',date:day,token,score:12300,durationMs:5000}));
  assert.equal(again.status,409);
 });
+
+test('calendário logado permanece visível e bloqueado se consulta do histórico falhar',async()=>{
+ const {db}=mockDb();
+ const original=db.prepare;
+ db.prepare=(sql)=>{
+  const stmt=original(sql);
+  if(sql.includes('SELECT challenge_date,outcome FROM daily_challenge_attempts')){
+   stmt.all=async()=>{throw Error('D1_ERROR: no such table: daily_challenge_attempts')};
+  }
+  return stmt;
+ };
+ const response=await onRequestGet({params:{game:'snake'},env:{OLDARCADE_STATS_DB:db},request:request('GET',null,true)});
+ assert.equal(response.status,200);
+ const body=await response.json();
+ assert.equal(body.account.nickname,'Jogador teste');
+ assert.equal(body.historyAvailable,false);
+ assert.equal(body.today,dateInSaoPaulo());
+ assert.deepEqual(body.days,[]);
+ assert.match(body.error,/bloqueado/);
+});
+test('consulta de calendário autenticado usa só identidade, sem colunas opcionais de preferências',async()=>{
+ const {db,queries}=mockDb();
+ const response=await onRequestGet({params:{game:'snake'},env:{OLDARCADE_STATS_DB:db},request:request('GET',null,true)});
+ assert.equal(response.status,200);
+ const body=await response.json();
+ assert.equal(body.account.nickname,'Jogador teste');
+ assert.equal(body.historyAvailable,true);
+ const sessionSql=queries.find(sql=>sql.includes('player_sessions'));
+ assert.match(sessionSql,/SELECT a\.id,a\.nickname FROM player_sessions/);
+ assert.doesNotMatch(sessionSql,/daily_email_opt_in|record_email_opt_in/);
+});
