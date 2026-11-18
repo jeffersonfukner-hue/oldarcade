@@ -65,3 +65,19 @@ test('Calendário de outra conta não reaproveita participação ao usar Voltar'
  await expect(calendar.locator('.daily-day[data-status="finished"]')).toHaveCount(0);
  await expect(calendar.locator('[data-daily-start]')).toBeVisible();
 });
+
+test('Se D1 falhar no histórico autenticado, calendário continua visível mas não libera outra tentativa',async({page})=>{
+ await page.route('**/api/daily/snake**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+  game:'snake',today:'2026-11-17',month:'2026-11',timezone:'America/Sao_Paulo',
+  days:[],account:{nickname:'Jogador autenticado'},historyAvailable:false,
+  error:'Não foi possível consultar suas tentativas. O jogo diário ficará bloqueado até a consulta funcionar.'
+ })}));
+ await page.goto('/jogos/snake/');
+ const calendar=page.locator('[data-daily-calendar="snake"]');
+ await expect(calendar.locator('[data-daily-month]')).toContainText(/novembro de 2026/i);
+ await expect(calendar.locator('.daily-day')).toHaveCount(30);
+ await expect(calendar.locator('.daily-day[data-status="today"]')).toBeDisabled();
+ await expect(calendar.locator('[data-daily-start]')).toBeHidden();
+ await expect(calendar.locator('[data-daily-info]')).toContainText('Não foi possível consultar suas tentativas');
+ await expect(calendar.locator('[data-daily-login]')).toBeHidden();
+});
