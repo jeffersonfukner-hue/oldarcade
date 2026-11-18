@@ -43,7 +43,7 @@ const recordTabs=document.querySelector<HTMLElement>('#record-auth-tabs')!;
 const recordSigned=document.querySelector<HTMLElement>('#record-signed')!;
 const recoveryPanel=document.querySelector<HTMLElement>('#record-recovery')!;
 let account:{nickname:string}|null=null;
-let personalCloudBest=0;
+let personalCloudBest:number|null=null;
 let accountGameRecords:{game:string;score:number}[]=[];
 function drawAccountResults(){
  const signed=Boolean(account);
@@ -309,12 +309,14 @@ let wasNativeFullscreen=false;
 const floatLayer=document.querySelector<HTMLElement>('#score-float-layer')!;
 function setStatus(value:string){hud.textContent='● '+value}
 function text(id:string,value:string){const el=document.getElementById(id);if(el)el.textContent=value}
-function refresh(){const best=Math.max(saved.best,personalCloudBest);
+function refresh(){
+ const best=account?personalCloudBest:saved.best;
+ text('snake-best-label',account?'Recorde pessoal':'Recorde local');
  const shownGlobal=provisionalGlobal?score:globalBest;
  text('hud-global-best',shownGlobal===null?'—':String(shownGlobal));
  text('global-best',shownGlobal===null?'—':String(shownGlobal));
  text('hud-global-label',provisionalGlobal?'Recorde global (provisório):':'Recorde global:');
- text('global-best-label',provisionalGlobal?'Recorde global (provisório)':'Recorde global (contas)');text('score',String(score));text('best',String(best));text('hud-score',String(score));text('hud-best',String(best));text('plays',String(saved.plays));text('visits',String(saved.visits));const body=document.getElementById('rank-body')!;body.replaceChildren();if(!saved.scores.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=3;td.textContent='Salve um nickname e jogue uma partida para aparecer no ranking.';tr.append(td);body.append(tr)}else saved.scores.slice(0,10).forEach((entry,i)=>{const tr=document.createElement('tr');[String(i+1),entry.name,String(entry.score)].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td)});body.append(tr)})}
+ text('global-best-label',provisionalGlobal?'Recorde global (provisório)':'Recorde global (contas)');text('score',String(score));text('best',best===null?'—':String(best));text('hud-score',String(score));text('hud-best',best===null?'—':String(best));text('plays',String(saved.plays));text('visits',String(saved.visits));const body=document.getElementById('rank-body')!;body.replaceChildren();if(!saved.scores.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=3;td.textContent='Salve um nickname e jogue uma partida para aparecer no ranking.';tr.append(td);body.append(tr)}else saved.scores.slice(0,10).forEach((entry,i)=>{const tr=document.createElement('tr');[String(i+1),entry.name,String(entry.score)].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td)});body.append(tr)})}
 function draw(){ctx.fillStyle='#071a20';ctx.fillRect(0,0,600,600);ctx.strokeStyle='#122c32';ctx.lineWidth=1;for(let n=0;n<=size;n++){ctx.beginPath();ctx.moveTo(n*cell,0);ctx.lineTo(n*cell,600);ctx.moveTo(0,n*cell);ctx.lineTo(600,n*cell);ctx.stroke()}if(evolutionPreview){for(const item of items){const colors={normal:'#ff657c',rare:'#ffdc51',shrink:'#a17bff',slow:'#71d8ff',blaster:'#ff9c3d',scare:'#60e4cf'};ctx.fillStyle=colors[item.kind];ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*(item.kind==='rare'?.4:.33),0,Math.PI*2);ctx.fill();if(item.expires){ctx.strokeStyle='#fff9';ctx.lineWidth=3;ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*.44,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(0,(item.expires-evolutionClock)/(item.kind==='rare'?38:45)));ctx.stroke()}}for(const block of obstacles){const hits=obstacleHits.get(block.x+','+block.y)??0;ctx.fillStyle='#8392a5';ctx.fillRect(block.x*cell+3,block.y*cell+3,cell-6,cell-6);if(hits){ctx.strokeStyle='#20242e';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(block.x*cell+cell*.25,block.y*cell+4);ctx.lineTo(block.x*cell+cell*.5,block.y*cell+cell*.55);ctx.lineTo(block.x*cell+cell*.72,block.y*cell+cell-4);ctx.stroke()}}for(const wall of borderWalls){if(wall.restoreAt)continue;ctx.fillStyle='#cf79ee';const x=wall.side==='left'?0:wall.side==='right'?size-1:wall.index;const y=wall.side==='top'?0:wall.side==='bottom'?size-1:wall.index;const thickness=cell*.22;if(wall.side==='top')ctx.fillRect(x*cell,y*cell,cell,thickness);else if(wall.side==='bottom')ctx.fillRect(x*cell,(y+1)*cell-thickness,cell,thickness);else if(wall.side==='left')ctx.fillRect(x*cell,y*cell,thickness,cell);else ctx.fillRect((x+1)*cell-thickness,y*cell,thickness,cell)}for(const enemy of enemies){
  const cx=enemy.point.x*cell+cell/2,cy=enemy.point.y*cell+cell/2;
  ctx.fillStyle=evolutionClock<scareUntil?'#6988ff':enemy.kind==='hunter'?'#fa668b':enemy.kind==='ambusher'?'#f6b66e':'#c69cf9';
@@ -411,7 +413,7 @@ let missionState=initialMissionState();
 const gameClock=setupGameClock(gameScreen,()=>state==='playing');
 function start(daily:DailyAttempt|null=null){dailyAttempt=daily;missionState=initialMissionState();
  if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-mission-selected',{detail:{game:'snake',mission:dailyAttempt.mission??null}}));
- if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}}));dailyRandom=daily?seededRandom(daily.seed):Math.random;gameClock.reset();endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];enemies=[];scareUntil=0;evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
+ if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}}));dailyRandom=daily?seededRandom(daily.seed):Math.random;gameClock.reset();endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];enemies=[];scareUntil=0;evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=account?(personalCloudBest??0):saved.best;
  setupDailyHazards();
  didCelebratePersonal=false;lastFunMilestone=0;lastFunAt=-100;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
  resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}if(!dailyAttempt){saved.plays++;store()}if(!daily?.practice)globalCounters.recordPlay(recordGameStart(modeId));draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
@@ -765,11 +767,22 @@ document.addEventListener('oldarcade:player-game-records',event=>{
 });
 document.addEventListener('oldarcade:personal-record',event=>{
  const detail=(event as CustomEvent<{score:number}>).detail;
- personalCloudBest=Number(detail?.score)||0;
+ const value=detail?.score;
+ personalCloudBest=Number.isFinite(value)&&typeof value==='number'&&value>0?value:null;
  refresh();
 });
-void checkAccount();
-// Consultar somente na entrada da página e ao final da partida.
+// Ao entrar no site já autenticado ou conectar pelo modal global, buscar
+// explicitamente o recorde daquela conta. O ranking iniciado antes do login
+// pode ter retornado mine=null e não pode permanecer como fonte da sessão.
+void checkAccount().then(()=>{refresh();void leaderboard.refresh('initial')});
+document.addEventListener('oldarcade:account-changed',()=>{
+ account=null;
+ personalCloudBest=null;
+ accountGameRecords=[];
+ refresh();
+ void checkAccount().then(()=>{refresh();void leaderboard.refresh('initial')});
+});
+// Consultar somente na entrada da página, mudança de conta e fim da partida.
 
 startBtn.addEventListener('click',()=>{
  if(startBtn.dataset.dailyRetry==='true'){
