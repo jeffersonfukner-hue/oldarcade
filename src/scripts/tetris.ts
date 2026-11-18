@@ -146,10 +146,10 @@ function land(){
    const dailyMission=dailyAttempt?.mission;
    // Em "Pontos só com Tetris", qualquer limpeza de 1/2/3 linhas perde antes de pontuar.
    if(dailyMission&&dailyMission.version>=3&&dailyMission.kind==='quads'&&cleared!==4){finish(false);return}
-   if(dailyMission&&dailyMission.version>=3&&dailyMission.kind==='sequence'&&cleared!==dailyMission.sequence?.[dailyClears.length-1]){finish(false);return}
+   if(dailyMission&&dailyMission.version>=3&&dailyMission.metric==='sequence'&&cleared!==dailyMission.sequence?.[dailyClears.length-1]){finish(false);return}
    if(timed)update();else award(points);
    if(dailyMission&&dailyMission.version>=2&&(dailyMission.metric==='score'||dailyMission.metric==='quadscore')&&score>=dailyMission.target!){finish(true);return}
-   if(dailyMission&&dailyMission.version>=3&&dailyMission.kind==='sequence'&&dailyClears.length===dailyMission.target){finish(true);return}
+   if(dailyMission&&dailyMission.version>=3&&dailyMission.metric==='sequence'&&dailyClears.length===dailyMission.sequence?.length){finish(true);return}
   if(dailyMission&&dailyMission.version>=2&&dailyMission.metric==='lines'&&lines>=dailyMission.target!){finish(true);return}
   showScoreFeedback(screen,canvas,timed?cleared:points,timed?(cleared===1?'linha eliminada':'linhas eliminadas'):cleared===4?'TETRIS! 4 linhas':cleared===1?'1 linha':cleared+' linhas',completed[0],ROWS);
   // Clássico pontua linhas; Sprint utiliza somente tempo de conclusão.
@@ -291,12 +291,13 @@ function finish(completed=false){
     :mission?.kind==='quads'
     ?score>=(mission.target??Infinity)&&dailyClears.length>0&&dailyClears.every(n=>n===4)
     :mission?.metric==='lines'?lines>=(mission.target??Infinity)
-    :mission?.metric==='score'?score>=(mission.target??Infinity)
+    :mission?.metric==='score'||mission?.metric==='quadscore'?score>=(mission.target??Infinity)
     :false;
   dailyAttempt=null;dailyRandom=Math.random;
   update();draw();
   show(success?'🏆 MISSÃO CUMPRIDA!':'META NÃO ALCANÇADA',(mission?.description||'')+' · '+score+' pontos · '+lines+' linhas. Tente novamente no laboratório acima.','▶ Jogar Tetris livre');
-  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'finished'}}));
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:success?'finished':'idle'}}));
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-practice-result',{detail:{game:'tetris',success,mission:mission?.title||'',score,linesCleared:lines}}));
   return;
  }
  if(dailyAttempt){
