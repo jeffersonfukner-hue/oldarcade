@@ -442,7 +442,7 @@ async function saveDailyResult(sequence:number){
   document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'snake'}}));
   if(sequence===endSequence&&state==='over'){
    const missionTitle=(result.mission?.version??0)>=2?(result.missionSuccess?'🏆 Missão cumprida!':'Meta não alcançada'):'Desafio concluído';
-    show(missionTitle,'Você marcou '+attempt.score+' pontos em '+Math.round(attempt.durationMs/1000)+' segundos. '+((result.mission?.version??0)>=2?'Objetivo: '+result.mission.description+' ':'')+'Resultado salvo em Minha Conta.','▶ Jogar Clássico');
+    show(missionTitle,'Você marcou '+attempt.score+' pontos em '+Math.round(attempt.durationMs/1000)+' segundos. '+((result.mission?.version??0)>=2?'Objetivo: '+(result.mission?.description||'')+' ':'')+'Resultado salvo em Minha Conta.','▶ Jogar Clássico');
    startBtn.disabled=false;
   }
  }catch(error){
