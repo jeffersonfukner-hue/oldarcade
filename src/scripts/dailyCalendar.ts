@@ -37,23 +37,26 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
  const practiceDate=()=>new Date(Date.parse('2026-11-20T12:00:00Z')+previewOffset*86400000).toISOString().slice(0,10);
  const sidebar=document.querySelector<HTMLElement>('[data-daily-mission-sidebar]');
  const tracker=sidebar?document.createElement('section'):null;
- if(tracker){tracker.className='daily-live-tracker';tracker.setAttribute('role','status');tracker.setAttribute('aria-label','Progresso da missão diária');tracker.hidden=true;sidebar!.append(tracker);if(sidebar!.hasAttribute('data-daily-mission-inline'))sidebar!.hidden=true}
+ if(tracker){tracker.className='daily-live-tracker';tracker.setAttribute('role','status');tracker.setAttribute('aria-label','Progresso da missão diária');tracker.hidden=true;sidebar!.prepend(tracker);if(sidebar!.hasAttribute('data-daily-mission-inline'))sidebar!.hidden=true}
  const drawTracker=(mission:DailyMission,progress:DailyProgress|null)=>{
   if(!tracker)return;
   tracker.replaceChildren();
   const eyebrow=document.createElement('span');eyebrow.className='eyebrow';eyebrow.textContent='🎯 MISSÃO DIÁRIA';
   const name=document.createElement('strong');name.textContent=mission.title;
   const detail=document.createElement('p');detail.textContent=mission.description;
-  const value=mission.metric==='lines'?progress?.linesCleared??0:
+  const actual=mission.metric==='lines'?progress?.linesCleared??0:
    mission.metric==='duration'?Math.floor((progress?.durationMs??0)/1000):
-   mission.metric==='quads'||mission.metric==='sequence'?progress?.clearSequence.length??0:progress?.score??0;
+   mission.metric==='sequence'?progress?.clearSequence.length??0:progress?.score??0;
   const goal=mission.metric==='duration'?Math.ceil((mission.target??0)/1000):mission.target??0;
+  const overflow=mission.metric==='sequence'&&actual>goal;
+  const value=Math.min(Math.max(0,actual),goal);
   const counter=document.createElement('div');counter.className='daily-live-progress';
   counter.textContent=mission.metric==='quadscore'?'Pontos só com 4 linhas: '+value+' / '+goal:
    mission.metric==='sequence'?'Sequência: '+value+' / '+goal+' etapas':
    mission.metric==='duration'?'Tempo sobrevivido: '+value+' / '+goal+' s':
    mission.metric==='lines'?'Linhas: '+value+' / '+goal:mission.metric==='score'?'Frutas: '+Math.floor(value/10)+' / '+Math.floor(goal/10):'Pontos: '+value+' / '+goal;
   tracker.append(eyebrow,name,detail,counter);
+  if(overflow){const warning=document.createElement('div');warning.className='daily-live-warning';warning.textContent='Etapas excedidas — missão não concluída';tracker.append(warning)}
   if(mission.sequence){
    const seq=document.createElement('div');seq.className='daily-live-sequence';
    const cleared=progress?.clearSequence??[];
@@ -229,6 +232,17 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
    startLab.textContent='↻ Tentar novamente';
   }
   if(current)render(current);
+ });
+ document.addEventListener('oldarcade:daily-practice-result',event=>{
+  const data=(event as CustomEvent<{game:string;success:boolean;mission:string}>).detail;
+  if(!previewHost||data?.game!==game)return;
+  practiceRunning=false;
+  nextLab.disabled=false;
+  startLab.disabled=false;
+  startLab.textContent='↻ Tentar novamente';
+  setState(data.success?'finished':'available',data.success?'🏆 Missão cumprida!':'Meta não alcançada',
+   data.success?'Você venceu o teste. Pode escolher outra missão.':'Esta partida não cumpriu o objetivo. Você pode tentar quantas vezes quiser.');
+  info.textContent=data.success?'Desafio de teste vencido.':'Desafio de teste perdido. A missão continua disponível.';
  });
  document.addEventListener('oldarcade:daily-status-changed',event=>{
   const data=(event as CustomEvent<{game:string}>).detail;
