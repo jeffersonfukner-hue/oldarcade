@@ -145,9 +145,11 @@ test('calendário logado permanece visível e bloqueado se consulta do históric
  const body=await response.json();
  assert.equal(body.account.nickname,'Jogador teste');
  assert.equal(body.historyAvailable,false);
+ assert.equal(body.errorCode,'SCHEMA_MISSING');
+ assert.match(body.error,/tabela de desafios diários não foi encontrada/);
  assert.equal(body.today,dateInSaoPaulo());
  assert.deepEqual(body.days,[]);
- assert.match(body.error,/bloqueado/);
+ assert.match(body.error,/conexão do D1/);
 });
 test('consulta de calendário autenticado usa só identidade, sem colunas opcionais de preferências',async()=>{
  const {db,queries}=mockDb();
