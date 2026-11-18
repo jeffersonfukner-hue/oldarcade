@@ -289,9 +289,9 @@ function finish(completed=false){
   try{sessionStorage.setItem('oldarcade:daily:tetris:pending',JSON.stringify(pendingDailyFinish))}catch{}
   dailyAttempt=null;dailyRandom=Math.random;
   update();draw();
-  celebrate(completed?'mission':'defeat',completed?'Meta diária alcançada! Registrando seu resultado.':'Desafio encerrado. Seu resultado ficará disponível em Minha Conta.',true);
+  show('Resultado da missão','Registrando sua tentativa e verificando se a meta foi atingida…','▶ Jogar Tetris livre');
+  startButton.disabled=true;
   void submitDailyFinish();
-  window.setTimeout(()=>{if(sequence===finishSequence&&state==='over')show(completed?'Meta alcançada!':'Desafio Diário encerrado','Você fez '+score+' pontos e eliminou '+lines+' linhas. Sua tentativa foi utilizada; amanhã haverá outra missão.','▶ Jogar Tetris livre')},4000);
   return;
  }
  if(survival){
@@ -359,13 +359,19 @@ async function submitDailyFinish(){
   pendingDailyFinish=null;
   document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'finished'}}));
   try{sessionStorage.removeItem('oldarcade:daily:tetris:pending')}catch{}
-  if(info)info.textContent=result.mission?.version===2?(result.missionSuccess?'🏆 Missão cumprida! Resultado salvo em Minha Conta.':'Meta não alcançada. Resultado salvo em Minha Conta.'):'Desafio concluído! Consulte o resultado em Minha Conta.';
+  const status=result.mission?.version>=2?
+    (result.missionSuccess?'🏆 Missão cumprida!':'Meta não alcançada.'):'Desafio concluído!';
+  if(info)info.textContent=status+' Resultado salvo em Minha Conta.';
+  if(state==='over'){
+   show(status,'Você fez '+attempt.score+' pontos e eliminou '+attempt.linesCleared+' linhas. '+(result.mission?.description||'')+' Resultado registrado.','▶ Jogar Tetris livre');
+   startButton.disabled=false;
+  }
   document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'tetris'}}));
   if(startButton.dataset.dailyRetry==='true'){delete startButton.dataset.dailyRetry;startButton.textContent='▶ Jogar Tetris livre'}
  }catch(error){
   if(info)info.textContent=(error instanceof Error?error.message:'Falha ao salvar')+' · Você pode reenviar o resultado, sem refazer a partida.';
   startButton.dataset.dailyRetry='true';
-  if(state==='over')startButton.textContent='↻ Reenviar resultado diário';
+  if(state==='over'){show('Resultado pendente','A tentativa foi preservada. Reenvie sem repetir a partida.','↻ Reenviar resultado diário');startButton.disabled=false}
  }finally{dailyRequestPending=false}
 }
 document.addEventListener('oldarcade:daily-start-request',event=>{
