@@ -390,7 +390,7 @@ function tick(){if(state!=='playing')return;
   celebrate('global');
   document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:modeId,kind:'provisional',message:'Você passou a marca global! Confirmação ao final da partida.'}}));
  }
- if((dailyAttempt?.mission?.version??0)>=2&&dailyAttempt!.mission!.metric==='score'
+ if(dailyAttempt?.mission&&dailyAttempt.mission.version>=2&&dailyAttempt.mission.metric==='score'
    &&dailyAttempt.mission.target!==null&&score>=dailyAttempt.mission.target){
    end(true);return;
   }
