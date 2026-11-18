@@ -1,4 +1,4 @@
-import {currentPlayer,reply,sameOrigin,parseBody,randomToken,digest} from '../_lib/auth.js';
+import {currentPlayer,sessionCookie,reply,sameOrigin,parseBody,randomToken,digest} from '../_lib/auth.js';
 import {dailyMode,dateInSaoPaulo,validDailyDate,dailySeed} from '../../../src/data/dailyChallenges.js';
 
 const validMonth=(month)=>typeof month==='string'&&/^\d{4}-(0[1-9]|1[0-2])$/.test(month);
@@ -26,7 +26,7 @@ export async function onRequestGet(ctx){
  // sessão já existente, com somente as duas colunas necessárias.
  let player=null;
  try{
-  const token=ctx.request.headers.get('Cookie')?.match(/(?:^|;\\s*)oldarcade_session=([0-9a-f]{64})(?:;|$)/)?.[1];
+  const token=sessionCookie(ctx.request);
   if(token){
    const hash=await digest(token);
    player=await db.prepare('SELECT a.id,a.nickname FROM player_sessions s JOIN player_accounts a ON a.id=s.player_id WHERE s.token_hash=? AND s.expires_at>?')
