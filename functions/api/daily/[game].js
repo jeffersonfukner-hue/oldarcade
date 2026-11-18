@@ -1,5 +1,5 @@
 import {sessionCookie,reply,sameOrigin,parseBody,randomToken,digest} from '../_lib/auth.js';
-import {dailyMode,dateInSaoPaulo,validDailyDate,dailySeed} from '../../../src/data/dailyChallenges.js';
+import {dailyMode,dateInSaoPaulo,validDailyDate,dailySeed,dailyVersionForDate,dailyMission,dailyMissionWon} from '../../../src/data/dailyChallenges.js';
 
 const validMonth=(month)=>typeof month==='string'&&/^\d{4}-(0[1-9]|1[0-2])$/.test(month);
 const dateMonth=(date)=>date.slice(0,7);
@@ -24,7 +24,7 @@ export async function onRequestGet(ctx){
  const today=dateInSaoPaulo();
  const month=new URL(ctx.request.url).searchParams.get('month')||dateMonth(today);
  if(!validMonth(month)||month>dateMonth(today))return bodyError('Mês inválido ou ainda não disponível.',400);
- const publicCalendar={game,today,month,timezone:'America/Sao_Paulo',days:[],account:null};
+ const publicCalendar={game,today,month,timezone:'America/Sao_Paulo',days:[],account:null,mission:dailyMission(game,today)};
  const db=ctx.env?.OLDARCADE_STATS_DB;
  if(!db)return reply({...publicCalendar,historyAvailable:false,error:'Serviço de desafios temporariamente indisponível.'});
  // Carregar o calendário não pode depender da tabela de tentativas nem das
@@ -38,10 +38,10 @@ export async function onRequestGet(ctx){
  if(!player)return reply(publicCalendar);
  try{
   const results=await db.prepare(
-   'SELECT challenge_date,outcome,score,duration_ms FROM daily_challenge_attempts WHERE game=? AND player_id=? AND challenge_date>=? AND challenge_date<? ORDER BY challenge_date'
+   'SELECT challenge_date,outcome,score,duration_ms,seed_version,lines_cleared,mission_success FROM daily_challenge_attempts WHERE game=? AND player_id=? AND challenge_date>=? AND challenge_date<? ORDER BY challenge_date'
   ).bind(game,player.id,month+'-01',month+'-32').all();
   return reply({...publicCalendar,
-   days:(results.results||[]).map(row=>({date:row.challenge_date,status:row.outcome,score:row.outcome==='finished'?row.score:null,durationMs:row.outcome==='finished'?row.duration_ms:null})),
+   days:(results.results||[]).map(row=>({date:row.challenge_date,status:row.outcome,score:row.outcome==='finished'?row.score:null,durationMs:row.outcome==='finished'?row.duration_ms:null,linesCleared:row.outcome==='finished'?row.lines_cleared:null,missionSuccess:row.outcome==='finished'?row.mission_success===null?null:row.mission_success===1:null,version:row.seed_version})),
    account:{nickname:player.nickname},historyAvailable:true});
  }catch(cause){
   // O erro anterior ocultava se o problema era tabela ausente ou falha de
@@ -69,13 +69,17 @@ export async function onRequestPost(ctx){
  if(data?.action==='start'){
   if(!validDailyDate(data.date)||data.date!==today)return bodyError('Somente o desafio de hoje pode ser iniciado.',400);
   const token=randomToken(),hash=await digest(token);
+  const version=dailyVersionForDate(today);
+  const mission=dailyMission(game,today,version);
   try{
+   // Sem migração 0010, não consumir uma tentativa v2 que não poderá ser avaliada.
+   if(version>=2)await auth.db.prepare('SELECT lines_cleared,mission_success FROM daily_challenge_attempts LIMIT 0').all();
    const result=await auth.db.prepare(
     'INSERT INTO daily_challenge_attempts(game,challenge_date,player_id,seed_version,started_at_ms,attempt_token_hash) VALUES(?,?,?,?,?,?) ON CONFLICT(game,challenge_date,player_id) DO NOTHING'
-   ).bind(game,today,auth.player.id,config.seedVersion,now,hash).run();
+   ).bind(game,today,auth.player.id,version,now,hash).run();
    if(result.meta?.changes!==1)return bodyError('Você já utilizou sua única tentativa neste desafio.',409);
-   return reply({game,date:today,token,seed:dailySeed(game,today,config.seedVersion),
-    rules:config.rules,startedAt:now,expiresAt:now+86400000},201);
+   return reply({game,date:today,token,seed:dailySeed(game,today,version),mission,
+    rules:mission?.description||config.rules,startedAt:now,expiresAt:now+86400000},201);
   }catch{return bodyError('Não foi possível reservar a tentativa. Nenhum jogo deve ser iniciado sem confirmação.',503)}
  }
  if(data?.action==='finish'){
@@ -86,11 +90,29 @@ export async function onRequestPost(ctx){
   if(!Number.isSafeInteger(data.durationMs)||data.durationMs<0||data.durationMs>86400000)return bodyError('Duração inválida.',400);
   try{
    const tokenHash=await digest(data.token);
-   const result=await auth.db.prepare(
-    "UPDATE daily_challenge_attempts SET outcome='finished',score=?,duration_ms=?,finished_at_ms=? WHERE game=? AND challenge_date=? AND player_id=? AND attempt_token_hash=? AND outcome='started' AND started_at_ms<=? AND started_at_ms>=?"
-   ).bind(data.score,data.durationMs,now,game,data.date,auth.player.id,tokenHash,now,now-86400000).run();
+   const existing=await auth.db.prepare(
+    "SELECT seed_version FROM daily_challenge_attempts WHERE game=? AND challenge_date=? AND player_id=? AND attempt_token_hash=? AND outcome='started'"
+   ).bind(game,data.date,auth.player.id,tokenHash).first();
+   if(!existing)return bodyError('Tentativa já concluída, expirada ou pertencente a outra conta.',409);
+   const version=existing.seed_version;
+   const mission=dailyMission(game,data.date,version);
+   if(!mission)return bodyError('Versão de desafio não reconhecida.',409);
+   let won=null;
+   let result;
+   if(version>=2){
+    if(!Number.isSafeInteger(data.linesCleared)||data.linesCleared<0||data.linesCleared>1000)return bodyError('Quantidade de linhas inválida.',400);
+    if(game==='snake'&&data.linesCleared!==0)return bodyError('Linhas não se aplicam ao Snake.',400);
+    won=dailyMissionWon(mission,{score:data.score,durationMs:data.durationMs,linesCleared:data.linesCleared});
+    result=await auth.db.prepare(
+     "UPDATE daily_challenge_attempts SET outcome='finished',score=?,duration_ms=?,finished_at_ms=?,lines_cleared=?,mission_success=? WHERE game=? AND challenge_date=? AND player_id=? AND attempt_token_hash=? AND outcome='started' AND started_at_ms<=? AND started_at_ms>=?"
+    ).bind(data.score,data.durationMs,now,data.linesCleared,won?1:0,game,data.date,auth.player.id,tokenHash,now,now-86400000).run();
+   }else{
+    result=await auth.db.prepare(
+     "UPDATE daily_challenge_attempts SET outcome='finished',score=?,duration_ms=?,finished_at_ms=? WHERE game=? AND challenge_date=? AND player_id=? AND attempt_token_hash=? AND outcome='started' AND started_at_ms<=? AND started_at_ms>=?"
+    ).bind(data.score,data.durationMs,now,game,data.date,auth.player.id,tokenHash,now,now-86400000).run();
+   }
    if(result.meta?.changes!==1)return bodyError('Tentativa já concluída, expirada ou pertencente a outra conta.',409);
-   return reply({saved:true,date:data.date,score:data.score,durationMs:data.durationMs});
+   return reply({saved:true,date:data.date,score:data.score,durationMs:data.durationMs,linesCleared:data.linesCleared??null,missionSuccess:won,mission});
   }catch{return bodyError('Não foi possível confirmar o resultado. Reenvie a mesma tentativa sem iniciar outra.',503)}
  }
  return bodyError('Operação desconhecida.',400);
