@@ -417,13 +417,14 @@ function end(won:boolean){
   const attempt=dailyAttempt;
   const mission=attempt.mission;
   const duration=gameClock.milliseconds();
-  const success=mission?.metric==='score'?score>=(mission.target??Infinity)&&
+  const success=won&&(mission?.metric==='score'?score>=(mission.target??Infinity)&&
     (mission.timeLimitMs===null||duration<=mission.timeLimitMs)
-    :mission?.metric==='duration'?duration>=(mission.target??Infinity):false;
+    :mission?.metric==='duration'?duration>=(mission.target??Infinity):false);
   dailyAttempt=null;dailyRandom=Math.random;
   show(success?'🏆 MISSÃO CUMPRIDA!':'META NÃO ALCANÇADA',
     (mission?.description||'')+' · '+score+' pontos · '+Math.floor(duration/1000)+' s. Teste quantas vezes quiser.','▶ Jogar Snake livre');
-  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'finished'}}));
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:success?'finished':'idle'}}));
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-practice-result',{detail:{game:'snake',success,mission:mission?.title||'',score,durationMs:duration}}));
   return;
  }
  if(dailyAttempt){
