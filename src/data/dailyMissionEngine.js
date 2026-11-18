@@ -28,6 +28,7 @@ export function advanceDailyMission(mission,state,event){
    return {...state,clearSequence,score,linesCleared,durationMs,status:'lost',reason:'wrong-clear'};
  }
  const next={...state,clearSequence,score,linesCleared,durationMs};
+ if(event.type==='end')return {...next,status:'lost',reason:'game-over'};
  const timedOut=mission.timeLimitMs!==null&&durationMs>mission.timeLimitMs;
  // A tolerância de rede é assunto do servidor; o jogo encerra no limite exato.
  if(timedOut)return {...next,status:'lost',reason:'timeout'};
@@ -37,7 +38,6 @@ export function advanceDailyMission(mission,state,event){
  else if(mission.metric==='lines')win=linesCleared>=mission.target;
  else if(mission.metric==='score')win=score>=mission.target;
  else if(mission.metric==='duration')win=durationMs>=mission.target;
- if(event.type==='end'&&!win)return {...next,status:'lost',reason:'game-over'};
  return win?{...next,status:'won',reason:'goal'}:next;
 }
 
