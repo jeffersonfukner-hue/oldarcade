@@ -17,6 +17,7 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
     <section class="game-layout" aria-label="Jogo Snake e estatísticas">
       <div class="panel game-stage" id="game-stage" data-arcade-viewport data-board-shape="square">
         <div class="game-topline"><strong>◼ SNAKE <span class="muted">· Original OldArcade</span></strong><span class="oa-daily-playing-indicator" data-daily-play-indicator hidden>★ DESAFIO DIÁRIO EM ANDAMENTO</span><div class="actions"><button id="pause-btn" type="button">Pausar</button><button id="fullscreen-btn" type="button" aria-label="Ativar tela cheia do jogo">⛶ Tela cheia (F)</button></div></div>
+        <div class="snake-mission-area" data-daily-mission-sidebar data-daily-mission-inline hidden aria-label="Objetivo e progresso da missão Snake"></div>
         <div class="arcade-game-layout"><GameHud statusId="hud-status" scoreId="hud-score" bestId="hud-best" globalId="hud-global-best" globalLabelId="hud-global-label" hint="F: tela cheia · Espaço: pausa" /><div class="screen-wrap oa-board-slot oa-board-surface" id="game-screen"><canvas id="snake-canvas" width="600" height="600" aria-label="Tabuleiro do jogo Snake com 20 linhas e 20 colunas"></canvas><div id="score-float-layer" class="score-float-layer" aria-hidden="true"></div><div id="record-celebration-layer" class="record-celebration-layer" aria-hidden="true"></div><div id="record-live-alert" class="record-live-alert" role="status" aria-live="polite" aria-atomic="true" hidden></div><div class="game-overlay" id="game-overlay"><h2 id="overlay-title">Preparado para jogar?</h2><p id="overlay-text">Use as setas ou WASD para virar. No celular, deslize no tabuleiro ou use os botões abaixo.</p><strong id="countdown-value" class="countdown-value" hidden aria-live="assertive"></strong><button class="btn" id="start-btn" type="button">▶ Começar partida</button></div></div></div>
         <div class="record-modal" id="record-modal" role="dialog" aria-modal="true" aria-labelledby="record-modal-title" hidden>
           <div class="record-modal-inner">
@@ -59,7 +60,7 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
           </div>
         </div><div class="touch-controls" aria-label="Controles de direção"><button class="up" data-direction="up" aria-label="Cima">↑</button><button class="left" data-direction="left" aria-label="Esquerda">←</button><button class="down" data-direction="down" aria-label="Baixo">↓</button><button class="right" data-direction="right" aria-label="Direita">→</button></div>
       </div>
-      <aside class="panel" data-daily-mission-sidebar aria-label="Dados do jogador"><h2>Seu desempenho</h2><div class="stats-list"><div class="stat-row"><span>Pontos atuais</span><strong id="score">0</strong></div><div class="stat-row"><span>Recorde local</span><strong id="best">0</strong></div><div class="stat-row"><span>Partidas neste dispositivo</span><strong id="plays">0</strong></div><div class="stat-row"><span>Visitas neste dispositivo</span><strong id="visits">0</strong></div></div><p id="challenge-text" class="challenge-text">Bata seu recorde e desafie os melhores jogadores.</p><div class="stat-row"><span id="global-best-label">Recorde global (contas)</span><strong id="global-best">—</strong></div><div class="global-stats"><h3>Comunidade OldArcade</h3><div class="stats-list"><div class="stat-row"><span>Visitas globais</span><strong id="global-visits">—</strong></div><div class="stat-row"><span>Partidas globais</span><strong id="global-plays">—</strong></div></div><p id="global-stats-status" class="small muted" role="status">Consultando Cloudflare…</p></div><form id="nickname-form"><label for="nickname" class="small">Nickname para participar do ranking local</label><div class="nickname-form"><input id="nickname" maxlength="18" autocomplete="nickname" placeholder="Seu nickname" /><button type="submit">Salvar</button></div><p class="small muted" id="nick-status" aria-live="polite"></p></form><p class="small muted">O nickname e o ranking ficam salvos neste navegador. Só pontuações de jogadores com nickname entram no ranking; visitas e partidas globais incluem todos.</p></aside>
+      <aside class="panel" aria-label="Dados do jogador"><h2>Seu desempenho</h2><div class="stats-list"><div class="stat-row"><span>Pontos atuais</span><strong id="score">0</strong></div><div class="stat-row"><span>Recorde local</span><strong id="best">0</strong></div><div class="stat-row"><span>Partidas neste dispositivo</span><strong id="plays">0</strong></div><div class="stat-row"><span>Visitas neste dispositivo</span><strong id="visits">0</strong></div></div><p id="challenge-text" class="challenge-text">Bata seu recorde e desafie os melhores jogadores.</p><div class="stat-row"><span id="global-best-label">Recorde global (contas)</span><strong id="global-best">—</strong></div><div class="global-stats"><h3>Comunidade OldArcade</h3><div class="stats-list"><div class="stat-row"><span>Visitas globais</span><strong id="global-visits">—</strong></div><div class="stat-row"><span>Partidas globais</span><strong id="global-plays">—</strong></div></div><p id="global-stats-status" class="small muted" role="status">Consultando Cloudflare…</p></div><form id="nickname-form"><label for="nickname" class="small">Nickname para participar do ranking local</label><div class="nickname-form"><input id="nickname" maxlength="18" autocomplete="nickname" placeholder="Seu nickname" /><button type="submit">Salvar</button></div><p class="small muted" id="nick-status" aria-live="polite"></p></form><p class="small muted">O nickname e o ranking ficam salvos neste navegador. Só pontuações de jogadores com nickname entram no ranking; visitas e partidas globais incluem todos.</p></aside>
     </section>
 
     <GameShare gameSlug="snake" gameName="Snake" />
@@ -83,6 +84,20 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
       <p class="small muted">Este registro documenta nossa versão jogável, não a cronologia do jogo original. As versões são atualizadas junto com o código no GitHub.</p>
     </section>
   </div>
+  <style>
+    .snake-mission-area[hidden]{display:none!important}
+    .snake-mission-area{margin-bottom:14px;max-width:100%}
+    .snake-mission-area :global(.daily-live-tracker){margin:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(165px,215px);column-gap:18px;row-gap:5px;align-items:center;padding:14px 18px}
+    .snake-mission-area :global(.daily-live-tracker > .eyebrow){grid-column:1;grid-row:1}
+    .snake-mission-area :global(.daily-live-tracker > strong){grid-column:1;grid-row:2;font-size:1.2rem}
+    .snake-mission-area :global(.daily-live-tracker > p){grid-column:1;grid-row:3;font-size:.85rem}
+    .snake-mission-area :global(.daily-live-progress){grid-column:2;grid-row:1 / span 3;font-size:1.2rem;display:grid;place-items:center;min-height:72px}
+    .snake-mission-area :global(.daily-live-warning){grid-column:1/-1}
+    @media(max-width:620px){
+      .snake-mission-area :global(.daily-live-tracker){grid-template-columns:minmax(0,1fr);padding:12px}
+      .snake-mission-area :global(.daily-live-progress){grid-column:1;grid-row:4;min-height:44px}
+    }
+  </style>
   <script>
     import '../../scripts/snake.ts';
 
