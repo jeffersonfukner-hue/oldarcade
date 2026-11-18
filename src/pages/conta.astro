@@ -204,6 +204,11 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
   }
   // A página Minha conta também pode voltar do cache de navegação.
   // O componente global confirma a sessão e envia seu estado atualizado.
+  // Um login feito pelo modal global nesta página atualiza o painel sem navegação.
+  document.addEventListener('oldarcade:account-changed',event=>{
+   const player=(event as CustomEvent<{player:{nickname:string}|null}>).detail?.player||null;
+   showPlayer(player,false);
+  });
   document.addEventListener('oldarcade:session-refreshed',event=>{
    const player=(event as CustomEvent<{player:{nickname:string}|null}>).detail?.player||null;
    showPlayer(player,false);
