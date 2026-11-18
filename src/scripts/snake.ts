@@ -28,7 +28,7 @@ const hud = document.querySelector<HTMLElement>('#hud-status')!;
 const countValue = document.querySelector<HTMLElement>('#countdown-value')!;
 const evolutionPreview=location.pathname.replace(/\/+$/,'')==='/jogos/snake/evolution';
 type DailyMission={version:number;kind:string;metric:string;target:number|null;timeLimitMs:number|null;title:string;description:string;hazards?:{obstacles:number;enemies:number}};
-type DailyAttempt={date:string;token:string;seed:number;mission?:DailyMission};
+type DailyAttempt={date:string;token:string;seed:number;mission?:DailyMission;practice?:boolean};
 let dailyAttempt:DailyAttempt|null=null;
 let dailyRandom:()=>number=Math.random;
 let pendingDailyFinish:{date:string;token:string;score:number;durationMs:number;linesCleared?:number}|null=null;
@@ -390,7 +390,7 @@ function tick(){if(state!=='playing')return;
   celebrate('global');
   document.dispatchEvent(new CustomEvent('oldarcade:celebrate',{detail:{game:modeId,kind:'provisional',message:'Você passou a marca global! Confirmação ao final da partida.'}}));
  }
- if(dailyAttempt?.mission?.version===2&&dailyAttempt.mission.metric==='score'
+ if((dailyAttempt?.mission?.version??0)>=2&&dailyAttempt!.mission!.metric==='score'
    &&dailyAttempt.mission.target!==null&&score>=dailyAttempt.mission.target){
    end(true);return;
   }
@@ -403,7 +403,7 @@ function start(daily:DailyAttempt|null=null){dailyAttempt=daily;
  if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}}));dailyRandom=daily?seededRandom(daily.seed):Math.random;gameClock.reset();endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];enemies=[];scareUntil=0;evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
  setupDailyHazards();
  didCelebratePersonal=false;lastFunMilestone=0;lastFunAt=-100;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
- resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}if(!dailyAttempt){saved.plays++;store()}globalCounters.recordPlay(recordGameStart(modeId));draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
+ resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}if(!dailyAttempt){saved.plays++;store()}if(!daily?.practice)globalCounters.recordPlay(recordGameStart(modeId));draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){
  const durationMs=gameClock.milliseconds();roundDurationMs=durationMs;
  state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
@@ -413,6 +413,19 @@ function end(won:boolean){
   saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20);
  }
  if(!dailyAttempt)store();refresh();
+ if(dailyAttempt?.practice){
+  const attempt=dailyAttempt;
+  const mission=attempt.mission;
+  const duration=gameClock.milliseconds();
+  const success=mission?.metric==='score'?score>=(mission.target??Infinity)&&
+    (mission.timeLimitMs===null||duration<=mission.timeLimitMs)
+    :mission?.metric==='duration'?duration>=(mission.target??Infinity):false;
+  dailyAttempt=null;dailyRandom=Math.random;
+  show(success?'🏆 MISSÃO CUMPRIDA!':'META NÃO ALCANÇADA',
+    (mission?.description||'')+' · '+score+' pontos · '+Math.floor(duration/1000)+' s. Teste quantas vezes quiser.','▶ Jogar Snake livre');
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'finished'}}));
+  return;
+ }
  if(dailyAttempt){
   const attempt=dailyAttempt;pendingDailyFinish={date:attempt.date,token:attempt.token,score,durationMs,linesCleared:0};
   document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'pending'}}));
@@ -454,6 +467,16 @@ async function saveDailyResult(sequence:number){
   }
  }
 }
+document.addEventListener('oldarcade:daily-practice-start',event=>{
+ const detail=(event as CustomEvent<{game:string;date:string;seed:number;mission:DailyMission}>).detail;
+ if(detail?.game!=='snake'||evolutionPreview)return;
+ if(state==='playing'||state==='paused'||state==='countdown'||dailyAttempt){
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-practice-rejected',{detail:{game:'snake'}}));return;
+ }
+ pendingDailyFinish=null;
+ try{sessionStorage.removeItem('oldarcade:daily:snake:pending')}catch{}
+ start({date:detail.date,token:'',seed:detail.seed,mission:detail.mission,practice:true});
+});
 document.addEventListener('oldarcade:daily-start-request',event=>{
  const request=(event as CustomEvent<{game:string;date:string}>).detail;
  if(request?.game!=='snake'||evolutionPreview)return;
