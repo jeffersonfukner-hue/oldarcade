@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## Snake Diário — localização do painel e inconsistência 0/7 (18/11/2026)
+- Proprietário apontou no print de Snake: cartão "Corrida contra o relógio" em **coluna errada**, dentro das estatísticas secundárias "Seu desempenho" à direita do jogo; overlay mostrava vitória 70 pontos em 17s, mas o cartão exibia **Frutas: 0/7**.
+- Correção na branch `feat/tetris-jogo-002`: `src/pages/jogos/snake.astro` cria `[data-daily-mission-sidebar]` dentro de `#game-stage` **entre cabeçalho e tabuleiro**, ocupando largura da coluna principal e com CSS responsivo; remove atributo do `aside` de desempenho. Estatísticas permanecem independentes.
+- Em `src/scripts/snake.ts`, `end(won)` emite `oldarcade:daily-progress` final **antes** de limpar o estado da missão; `src/scripts/dailyCalendar.ts` guarda `finalPracticeProgress` entre a mensagem de encerramento e a próxima partida e não reinicia o cartão em 0/x imediatamente após a vitória. Nova missão e iniciar teste zeram o progresso.
+- E2E adiciona verificação do contêiner no palco principal e 7/7 quando recebe score 70. Verificar CI no HEAD antes de dizer que passou; Preview e teste real ainda pendentes.
+- Contexto de aceite: a missão deve ter destaque no **palco do jogo**, jamais na lateral de estatísticas; resultado final e contador precisam concordar. Sem Work/Lovable/merge/publicação.
+
 ## Correção crítica das missões — 18/11/2026
 - Relato com evidência: no Tetris, missão "Duplas perfeitas" marcou **5/4 etapas** e chegou a aparentar conclusão após derrota; no Snake, o jogador iniciou missão diária mas **o objetivo não aparecia na área do jogo**.
 - **Causa real:** `src/scripts/tetris.ts` só verificava conclusão/erro de sequência em `kind==='sequence'`, mas a biblioteca produz `kind==='singles'`, `'doubles'`, `'timed-sequence'`; todas usam `metric==='sequence'`. Correção: aplicar verificação por **métrica**, com derrota imediata em limpeza fora de ordem e vitória no número exato de etapas. O sucesso no laboratório também requer `finish(completed=true)`, não apenas comparar contadores após a derrota.
