@@ -275,6 +275,7 @@ function start(daily:DailyAttempt|null=null){
  dailyAttempt=daily;
  dailyClears=[];
  missionState=initialMissionState();
+ if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-mission-selected',{detail:{game:'tetris',mission:dailyAttempt.mission??null}}));
  if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'playing'}}));dailyRandom=daily?seededRandom(daily.seed):Math.random;
  finishSequence++;stopDropAnimation();window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  clock.reset();board=empty();bag=[];queue=[];reserve=null;reserveUsed=false;
