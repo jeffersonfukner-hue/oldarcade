@@ -1,5 +1,5 @@
 import {DAILY_MODES} from '../data/dailyChallenges.js';
-type DailyResponse={today:string;days:Array<{date:string;status:'started'|'finished'}>;account:{nickname:string}|null};
+type DailyResponse={today:string;days:Array<{date:string;status:'started'|'finished'}>;account:{nickname:string}|null;historyAvailable?:boolean};
 const root=document.querySelector<HTMLElement>('[data-home-daily]');
 if(root){
  const name=root.querySelector<HTMLElement>('[data-home-daily-name]')!;
@@ -20,7 +20,7 @@ if(root){
    if(current!==sequence)return;
    const eligible=games.flatMap(([game,config],i)=>{
     const state=data[i];
-    if(!state?.today)return [];
+    if(!state?.today||state.historyAvailable===false)return [];
     if(state.account&&state.days?.some(day=>day.date===state.today))return [];
     return [{game,config,loggedIn:!!state.account}];
    });
