@@ -1,11 +1,13 @@
 type Player={nickname:string};
 const accountLabels=document.querySelectorAll<HTMLElement>('[data-player-name]');
 const accountLinks=document.querySelectorAll<HTMLAnchorElement>('[data-player-account-link]');
+const authEntries=document.querySelectorAll<HTMLElement>('[data-auth-entry]');
 let identityChanged=false,checkVersion=0;
 function updatePlayer(player:Player|null){
  const name=player?.nickname||'Minha conta';
  accountLabels.forEach(el=>{el.textContent=name});
  accountLinks.forEach(el=>{el.setAttribute('aria-label',player?'Minha conta: '+name:'Minha conta')});
+ authEntries.forEach(el=>{el.hidden=!!player});
 }
 document.addEventListener('oldarcade:account-changed',e=>{
  const player=(e as CustomEvent<{player:Player|null}>).detail?.player||null;
