@@ -769,3 +769,43 @@ test('todos os modos Snake recebem automaticamente o overlay global de contagem 
   await expect(page.locator(mode.overlay)).toBeHidden({timeout:5500});
  }
 });
+
+test('Snake mostra recorde pessoal da conta após login sem reutilizar o recorde local',async({page})=>{
+ let logged=false;
+ await page.route('**/api/auth/me',route=>route.fulfill({status:200,contentType:'application/json',
+  body:JSON.stringify({player:logged?{nickname:'Jogador Teste'}:null})}));
+ await page.route('**/api/games/snake/leaderboard',route=>route.fulfill({
+  status:200,contentType:'application/json',body:JSON.stringify({
+   available:true,top:[{nickname:'Líder',score:390,rank:1,achievedAt:'2026-11-17T12:00:00Z',durationMs:25000}],
+   mine:logged?{nickname:'Jogador Teste',score:340,rank:2,achievedAt:'2026-11-17T12:00:00Z',durationMs:30000}:null,
+   myGames:logged?[{game:'snake',score:340}]:[]
+  })
+ }));
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#snake-best-label')).toHaveText('Recorde local');
+ logged=true;
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:account-changed',{detail:{player:{nickname:'Jogador Teste'}}})));
+ await expect(page.locator('#snake-best-label')).toHaveText('Recorde pessoal');
+ await expect(page.locator('#hud-best')).toHaveText('340');
+ await expect(page.locator('#best')).toHaveText('340');
+ await expect(page.locator('#hud-global-best')).toHaveText('390');
+});
+
+test('Snake não inventa recorde na conta sem pontuação registrada',async({page})=>{
+ await page.route('**/api/auth/me',route=>route.fulfill({status:200,contentType:'application/json',
+  body:JSON.stringify({player:{nickname:'Sem recorde'}})}));
+ await page.route('**/api/games/snake/leaderboard',route=>route.fulfill({
+  status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[],mine:null,myGames:[]})
+ }));
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#snake-best-label')).toHaveText('Recorde pessoal');
+ await expect(page.locator('#best')).toHaveText('—');
+});
+
+test('Controles direcionais Snake aparecem somente para dispositivos com toque',async({page,isMobile})=>{
+ await page.goto('/jogos/snake/');
+ const controls=page.locator('#game-stage > .touch-controls');
+ const pointerFine=await page.evaluate(()=>matchMedia('(hover:hover) and (pointer:fine)').matches);
+ if(pointerFine)await expect(controls).toBeHidden();
+ else await expect(controls).toBeVisible();
+});
