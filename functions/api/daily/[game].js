@@ -41,7 +41,7 @@ export async function onRequestGet(ctx){
    'SELECT challenge_date,outcome,score,duration_ms,seed_version,lines_cleared,mission_success FROM daily_challenge_attempts WHERE game=? AND player_id=? AND challenge_date>=? AND challenge_date<? ORDER BY challenge_date'
   ).bind(game,player.id,month+'-01',month+'-32').all();
   return reply({...publicCalendar,
-   days:(results.results||[]).map(row=>({date:row.challenge_date,status:row.outcome,score:row.outcome==='finished'?row.score:null,durationMs:row.outcome==='finished'?row.duration_ms:null,linesCleared:row.outcome==='finished'?row.lines_cleared:null,missionSuccess:row.outcome==='finished'?row.mission_success===null?null:row.mission_success===1:null,version:row.seed_version})),
+   days:(results.results||[]).map(row=>({date:row.challenge_date,status:row.seed_version>=2&&row.mission_success===0?'started':row.outcome,score:row.mission_success===0?null:row.outcome==='finished'?row.score:null,durationMs:row.mission_success===0?null:row.outcome==='finished'?row.duration_ms:null,linesCleared:row.mission_success===0?null:row.outcome==='finished'?row.lines_cleared:null,missionSuccess:row.outcome==='finished'?row.mission_success===null?null:row.mission_success===1:null,version:row.seed_version})),
    account:{nickname:player.nickname},historyAvailable:true});
  }catch(cause){
   // O erro anterior ocultava se o problema era tabela ausente ou falha de
@@ -88,10 +88,12 @@ export async function onRequestPost(ctx){
      'SELECT seed_version,outcome,mission_success FROM daily_challenge_attempts WHERE game=? AND challenge_date=? AND player_id=?'
     ).bind(game,requestedDate,auth.player.id).first();
     if(!row)return bodyError('A missão não foi recebida naquela data.',404);
-    if(row.outcome==='finished'||row.mission_success===1||row.seed_version===1)
+    if(row.mission_success===1||row.seed_version===1||(row.outcome==='finished'&&row.mission_success!==0))
      return bodyError('Missão já concluída ou edição histórica sem metas.',409);
+    // Resgatar falhas gravadas como "finished" pela implementação anterior.
+    // O esquema existente exige que registros "started" tenham métricas nulas.
     const refreshed=await auth.db.prepare(
-     "UPDATE daily_challenge_attempts SET attempt_token_hash=?,started_at_ms=? WHERE game=? AND challenge_date=? AND player_id=? AND outcome='started'"
+     "UPDATE daily_challenge_attempts SET attempt_token_hash=?,started_at_ms=?,outcome='started',score=NULL,duration_ms=NULL,finished_at_ms=NULL,lines_cleared=NULL,mission_success=NULL WHERE game=? AND challenge_date=? AND player_id=? AND (outcome='started' OR (outcome='finished' AND mission_success=0))"
     ).bind(hash,now,game,requestedDate,auth.player.id).run();
     if(refreshed.meta?.changes!==1)return bodyError('Missão já concluída.',409);
    }
