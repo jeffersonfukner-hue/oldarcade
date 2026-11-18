@@ -164,7 +164,7 @@ test('Snake mostra a missão acima das estatísticas durante o jogo',async({page
  await expect(tracker).toBeVisible();
  await expect(tracker).toContainText('Labirinto de frutas');
  await expect(tracker).toContainText('6 frutas');
- await expect(side.locator('> :first-child')).toHaveClass(/daily-live-tracker/);
+ await expect(side.locator(':scope > :first-child')).toHaveClass(/daily-live-tracker/);
  await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:daily-progress',{detail:{
   game:'snake',score:30,durationMs:22000,linesCleared:0,clearSequence:[]
  }})));
