@@ -14,6 +14,7 @@ if(element){
  const code=overlay.querySelector<HTMLElement>('[data-auth-recovery-code]')!;
  const done=overlay.querySelector<HTMLButtonElement>('[data-auth-recovery-done]')!;
  let lastFocus:HTMLElement|null=null,waiting=false;
+ let savedScrollX=0,savedScrollY=0;
  function choose(tab:'login'|'register'){
   login.hidden=tab!=='login';register.hidden=tab!=='register';
   tabs.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.authTab===tab)));
@@ -25,10 +26,13 @@ if(element){
   overlay.hidden=true;recovery.hidden=true;login.reset();register.reset();
   document.body.classList.remove('oa-auth-open');
   lastFocus?.focus({preventScroll:true});lastFocus=null;
+  // O modal não muda rota, posição nem estado da partida.
+  window.requestAnimationFrame(()=>window.scrollTo(savedScrollX,savedScrollY));
  }
  function open(tab:'login'|'register'='login'){
   if(!overlay.hidden)return;
   lastFocus=document.activeElement instanceof HTMLElement?document.activeElement:null;
+  savedScrollX=window.scrollX;savedScrollY=window.scrollY;
   overlay.hidden=false;document.body.classList.add('oa-auth-open');
   recovery.hidden=true;message.textContent='';
   choose(tab);
