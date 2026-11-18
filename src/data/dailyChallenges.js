@@ -40,9 +40,10 @@ export function seededRandom(seed){
  * retrospectivamente (também servirão ao replay histórico com moedas).
  */
 export const DAILY_MISSION_V2_START='2026-11-19';
-export const DAILY_MISSION_VERSION=2;
+export const DAILY_MISSION_VERSION=3;
+export const DAILY_MISSION_V3_START='2026-11-20';
 export function dailyVersionForDate(date){
- return typeof date==='string'&&date>=DAILY_MISSION_V2_START?DAILY_MISSION_VERSION:1;
+ return typeof date==='string'&&date>=DAILY_MISSION_V3_START?3:typeof date==='string'&&date>=DAILY_MISSION_V2_START?2:1;
 }
 export function dailyMission(game,date,version=dailyVersionForDate(date)){
  if(!dailyMode(game)||!validDailyDate(date))return null;
@@ -50,9 +51,9 @@ export function dailyMission(game,date,version=dailyVersionForDate(date)){
   version:1,id:'legacy',kind:'legacy',metric:'score',target:null,timeLimitMs:null,
   title:'Partida diária original',description:'Edição anterior: maior pontuação em uma tentativa. Não havia meta de vitória.'
  });
- if(version!==DAILY_MISSION_VERSION)return null;
+ if(version!==2&&version!==3)return null;
  const day=Math.round((Date.parse(date+'T12:00:00Z')-Date.parse(DAILY_MISSION_V2_START+'T12:00:00Z'))/86400000);
- const variant=((day+(game==='tetris'?1:0))%3+3)%3; // missões consecutivas nunca repetem o mesmo tipo
+ const variant=((day+(game==='tetris'?1:0))%(version>=3?5:3)+(version>=3?5:3))%(version>=3?5:3); // alterna famílias de missão
  const random=seededRandom(dailySeed(game,date,version));
  const tier=Math.floor(random()*5);
  const variation=Math.floor(random()*5);
@@ -67,10 +68,22 @@ export function dailyMission(game,date,version=dailyVersionForDate(date)){
    const seconds=55+tier*10+variation*5;
    mission={kind:'rush',metric:'score',target:fruits*10,timeLimitMs:seconds*1000,
     title:'Corrida contra o relógio',description:'Coma '+fruits+' frutas ('+(fruits*10)+' pontos) em até '+seconds+' segundos, sem bater.'};
-  }else{
+  }else if(variant===2){
    const seconds=35+tier*10+variation*5;
    mission={kind:'survival',metric:'duration',target:seconds*1000,timeLimitMs:seconds*1000,
     title:'Sobrevivência',description:'Mantenha a cobra viva durante '+seconds+' segundos. Não é necessário comer uma quantidade específica de frutas.'};
+  }else if(variant===3){
+   const fruits=5+tier+variation;
+   const blocks=3+tier+variation;
+   mission={kind:'obstacles',metric:'score',target:fruits*10,timeLimitMs:null,
+    title:'Labirinto de frutas',description:'Colete '+fruits+' frutas desviando de '+blocks+' obstáculos fixos.',
+    hazards:{obstacles:blocks,enemies:0}};
+  }else{
+   const fruits=4+tier+variation;
+   const seconds=55+tier*12+variation*5;
+   mission={kind:'gauntlet',metric:'score',target:fruits*10,timeLimitMs:seconds*1000,
+    title:'Fuga dos inimigos',description:'Colete '+fruits+' frutas em até '+seconds+' segundos enquanto desvia dos inimigos e obstáculos.',
+    hazards:{obstacles:2+Math.floor(tier/2),enemies:1+Math.floor(tier/3)}};
   }
  }else{
   if(variant===0){
@@ -82,23 +95,34 @@ export function dailyMission(game,date,version=dailyVersionForDate(date)){
    const seconds=65+tier*15+variation*10;
    mission={kind:'rush',metric:'lines',target:cleared,timeLimitMs:seconds*1000,
     title:'Sprint relâmpago',description:'Elimine '+cleared+' linhas em até '+seconds+' segundos.'};
-  }else{
+  }else if(variant===2){
    const points=300+tier*200+variation*100;
    mission={kind:'score',metric:'score',target:points,timeLimitMs:null,
     title:'Caça aos pontos',description:'Alcance '+points+' pontos antes do fim da partida.'};
+  }else if(variant===3){
+   const quads=1+Math.floor(tier/2)+Math.floor(variation/3);
+   mission={kind:'quads',metric:'quads',target:quads,timeLimitMs:null,
+    title:'Somente Tetris!',description:'Faça '+quads+' limpeza(s) de exatamente 4 linhas. Eliminar 1, 2 ou 3 linhas de uma vez encerra a missão com derrota.'};
+  }else{
+   const length=3+tier%3+variation%2;
+   const sequence=Array.from({length},()=>1+Math.floor(random()*4));
+   mission={kind:'sequence',metric:'sequence',target:length,timeLimitMs:null,sequence,
+    title:'Código de linhas',description:'Elimine linhas exatamente nesta ordem: '+sequence.join(' → ')+'. Cada limpeza deve coincidir com o próximo número.'};
   }
  }
- return Object.freeze({...mission,version,id:'v2-'+game+'-'+date+'-'+mission.kind,
+ return Object.freeze({...mission,version,id:'v'+version+'-'+game+'-'+date+'-'+mission.kind,
   game,date,difficulty:1+tier%3});
 }
 /** Resultado da missão calculado no servidor a partir de métricas objetivas. */
 export function dailyMissionWon(mission,progress){
  if(!mission||mission.kind==='legacy')return null;
- const {score,durationMs,linesCleared}=progress;
+ const {score,durationMs,linesCleared,clearSequence}=progress;
  if(!Number.isSafeInteger(score)||!Number.isSafeInteger(durationMs)||!Number.isSafeInteger(linesCleared))return false;
  if(mission.timeLimitMs!==null&&durationMs>mission.timeLimitMs+1500)return false;
  if(mission.metric==='score')return score>=mission.target;
  if(mission.metric==='duration')return durationMs>=mission.target;
  if(mission.metric==='lines')return linesCleared>=mission.target;
+ if(mission.metric==='quads')return Array.isArray(clearSequence)&&clearSequence.length===mission.target&&clearSequence.every(n=>n===4);
+ if(mission.metric==='sequence')return Array.isArray(clearSequence)&&clearSequence.length===mission.sequence.length&&mission.sequence.every((n,i)=>clearSequence[i]===n);
  return false;
 }
