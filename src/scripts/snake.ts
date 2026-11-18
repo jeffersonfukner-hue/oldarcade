@@ -447,22 +447,24 @@ async function saveDailyResult(sequence:number){
  startBtn.disabled=true;
  try{
   const response=await fetch('/api/daily/snake',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'finish',...attempt})});
-  const result=await response.json() as {error?:string;saved?:boolean;missionSuccess?:boolean|null;mission?:DailyMission};
-  if(!response.ok||!result.saved)throw Error(result.error||'Erro ao registrar o desafio diário.');
+  const result=await response.json() as {error?:string;saved?:boolean;retryAvailable?:boolean;missionSuccess?:boolean|null;mission?:DailyMission};
+  if(!response.ok||(!result.saved&&!result.retryAvailable))throw Error(result.error||'Erro ao registrar a missão diária.');
   pendingDailyFinish=null;
-  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'finished'}}));
+  const won=result.missionSuccess===true||result.mission?.version===1;
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:won?'finished':'idle'}}));
   try{sessionStorage.removeItem('oldarcade:daily:snake:pending')}catch{}
   document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'snake'}}));
   if(sequence===endSequence&&state==='over'){
-   const missionTitle=(result.mission?.version??0)>=2?(result.missionSuccess?'🏆 Missão cumprida!':'Meta não alcançada'):'Desafio concluído';
-    show(missionTitle,'Você marcou '+attempt.score+' pontos em '+Math.round(attempt.durationMs/1000)+' segundos. '+((result.mission?.version??0)>=2?'Objetivo: '+(result.mission?.description||'')+' ':'')+'Resultado salvo em Minha Conta.','▶ Jogar Clássico');
+   show(won?'🏆 Missão cumprida!':'Meta não alcançada — tente novamente',
+    'Você marcou '+attempt.score+' pontos em '+Math.round(attempt.durationMs/1000)+' segundos. '+
+    (won?'Missão concluída!':'Sua missão continua disponível até você alcançar a meta.'),'▶ Jogar Snake livre');
    startBtn.disabled=false;
   }
  }catch(error){
   const message=error instanceof Error?error.message:'Não foi possível registrar.';
   try{sessionStorage.setItem('oldarcade:daily:snake:pending',JSON.stringify(attempt))}catch{}
   if(sequence===endSequence&&state==='over'){
-   show('Resultado pendente','Sua tentativa não pode ser repetida. O resultado foi preservado neste navegador para reenvio. '+message,'↻ Reenviar resultado');
+   show('Resultado pendente','O resultado foi preservado neste navegador para reenvio. '+message,'↻ Reenviar resultado');
    startBtn.disabled=false;startBtn.dataset.dailyRetry='true';
   }
  }
