@@ -1,5 +1,5 @@
 import {DAILY_MODES} from '../data/dailyChallenges.js';
-type DayStatus={date:string;status:'started'|'finished'};
+type DayStatus={date:string;status:'started'|'finished';score?:number|null;durationMs?:number|null};
 type CalendarResponse={game:string;today:string;month:string;days:DayStatus[];account:{nickname:string}|null;historyAvailable?:boolean;error?:string};
 const monthName=(month:string)=>new Date(month+'-15T12:00:00Z').toLocaleDateString('pt-BR',{month:'long',year:'numeric',timeZone:'UTC'});
 const moveMonth=(month:string,step:number)=>{
@@ -59,7 +59,8 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
    setState('guest','Desafio de hoje disponível para quem tem conta','É grátis: entre para registrar sua tentativa, sua pontuação e seu histórico.');
    info.textContent='Selecione o dia de hoje ou use o botão de entrada para participar.';
   }else if(todayRow?.status==='finished'||enginePhase==='finished'){
-   setState('finished','Desafio de hoje concluído','Sua pontuação já foi registrada. Consulte o resultado em Minha Conta; o próximo desafio abre amanhã.');
+   const result=typeof todayRow?.score==='number'?' Você marcou '+todayRow.score.toLocaleString('pt-BR')+' pontos.':'';
+   setState('finished','Desafio de hoje concluído',result+' Sua tentativa foi registrada. Consulte o histórico em Minha Conta; o próximo desafio abre amanhã.');
    info.textContent='Participação concluída. Este desafio não pode ser repetido.';
   }else if(todayRow?.status==='started'){
    if(enginePhase==='playing'){
