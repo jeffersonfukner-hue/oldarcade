@@ -24,6 +24,11 @@ const mockDb=()=>{
      const item=attempts.get(game+':'+date+':'+player);
      return item&&item.tokenHash===hash&&item.status==='started'?{seed_version:item.version}:null;
     }
+    if(sql.includes('SELECT seed_version,outcome,mission_success FROM daily_challenge_attempts')){
+     const [game,date,player]=this.args;
+     const item=attempts.get(game+':'+date+':'+player);
+     return item?{seed_version:item.version,outcome:item.status,mission_success:item.missionSuccess??null}:null;
+    }
     return null;
    },
    async all(){
@@ -39,12 +44,20 @@ const mockDb=()=>{
    async run(){
     if(sql.includes('INSERT INTO daily_challenge_attempts')){
      const [game,date,player,version,started,tokenHash]=this.args;
+     if(sql.includes('WHERE ?=?')&&this.args[6]!==this.args[7])return {meta:{changes:0}};
      const key=game+':'+date+':'+player;
      if(attempts.has(key))return {meta:{changes:0}};
      attempts.set(key,{game,date,player,version,started,tokenHash,status:'started'});
      return {meta:{changes:1}};
     }
     if(sql.includes('UPDATE daily_challenge_attempts')){
+     if(sql.includes('SET attempt_token_hash=?')){
+      const [hash,started,game,date,player]=this.args;
+      const item=attempts.get(game+':'+date+':'+player);
+      if(!item||item.status==='finished'&&item.missionSuccess!==0)return {meta:{changes:0}};
+      Object.assign(item,{tokenHash:hash,started,status:'started',score:null,durationMs:null,finished:null,linesCleared:null,missionSuccess:null});
+      return {meta:{changes:1}};
+     }
      const modern=sql.includes('lines_cleared=?');
      const [score,durationMs,finished,...rest]=this.args;
      const [game,date,player,hash]=modern?rest.slice(2):rest;
@@ -114,11 +127,11 @@ test('usuário logado reserva exatamente uma tentativa e só uma conclusão',asy
  assert.equal(record.durationMs,10000);
  assert.equal(record.version,dailyVersionForDate(day));
 });
-test('datas passadas e futuras não podem iniciar desafio; origem inválida é proibida',async()=>{
+test('datas antigas não recebidas e datas futuras não iniciam missão; origem inválida é proibida',async()=>{
  const {db}=mockDb();
  for(const date of ['2000-01-01','2099-12-31']){
   const res=await onRequestPost({params:{game:'snake'},env:{OLDARCADE_STATS_DB:db},request:request('POST',{action:'start',date},true)});
-  assert.equal(res.status,400);
+  assert.equal(res.status,date==='2000-01-01'?404:400);
  }
  const res=await onRequestPost({params:{game:'snake'},env:{OLDARCADE_STATS_DB:db},request:new Request(origin+'/api/daily/snake',{method:'POST',headers:{'Origin':'https://evil.invalid','Content-Type':'application/json','Cookie':'oldarcade_session='+session},body:JSON.stringify({action:'start',date:dateInSaoPaulo()})})});
  assert.equal(res.status,403);
