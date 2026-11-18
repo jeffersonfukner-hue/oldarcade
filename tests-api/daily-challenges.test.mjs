@@ -22,7 +22,7 @@ const mockDb=()=>{
     return null;
    },
    async all(){
-    if(sql.includes('daily_challenge_attempts'))return {results:[...attempts.values()].map(x=>({challenge_date:x.date,outcome:x.status}))};
+    if(sql.includes('daily_challenge_attempts'))return {results:[...attempts.values()].map(x=>({challenge_date:x.date,outcome:x.status,score:x.score??null,duration_ms:x.durationMs??null}))};
     return {results:[]};
    },
    async run(){
@@ -93,7 +93,7 @@ test('usuário logado reserva exatamente uma tentativa e só uma conclusão',asy
  assert.equal(secondFinish.status,409);
  const today=await onRequestGet({params:{game:'snake'},env:{OLDARCADE_STATS_DB:db},request:request('GET',null,true)});
  assert.equal(today.status,200);
- assert.deepEqual((await today.json()).days,[{date:day,status:'finished'}]);
+ assert.deepEqual((await today.json()).days,[{date:day,status:'finished',score:100,durationMs:10000}]);
 });
 test('datas passadas e futuras não podem iniciar desafio; origem inválida é proibida',async()=>{
  const {db}=mockDb();
