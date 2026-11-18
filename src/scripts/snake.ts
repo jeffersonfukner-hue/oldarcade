@@ -359,7 +359,8 @@ function tick(){if(state!=='playing')return;direction=next;const delta:Record<Di
 function cancelCountdown(){window.clearTimeout(countdownTimer);setCountdownOverlay(overlay,countValue,startBtn,false)}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 const gameClock=setupGameClock(gameScreen,()=>state==='playing');
-function start(daily:DailyAttempt|null=null){dailyAttempt=daily;dailyRandom=daily?seededRandom(daily.seed):Math.random;gameClock.reset();endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];enemies=[];scareUntil=0;evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
+function start(daily:DailyAttempt|null=null){dailyAttempt=daily;
+ if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}}));dailyRandom=daily?seededRandom(daily.seed):Math.random;gameClock.reset();endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];enemies=[];scareUntil=0;evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
  didCelebratePersonal=false;lastFunMilestone=0;lastFunAt=-100;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
  resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}if(!dailyAttempt){saved.plays++;store()}globalCounters.recordPlay(recordGameStart(modeId));draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){
@@ -373,6 +374,7 @@ function end(won:boolean){
  if(!dailyAttempt)store();refresh();
  if(dailyAttempt){
   const attempt=dailyAttempt;pendingDailyFinish={date:attempt.date,token:attempt.token,score,durationMs};
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'pending'}}));
   try{sessionStorage.setItem('oldarcade:daily:snake:pending',JSON.stringify(pendingDailyFinish))}catch{}
   dailyAttempt=null;dailyRandom=Math.random;
   overlay.hidden=true;const sequence=++endSequence;
