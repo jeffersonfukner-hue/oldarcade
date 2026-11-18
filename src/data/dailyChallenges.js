@@ -101,10 +101,10 @@ export function dailyMission(game,date,version=dailyVersionForDate(date)){
     title:'Caça aos pontos',description:'Alcance '+points+' pontos antes do fim da partida.'};
   }else if(variant===3){
    const quads=1+Math.floor(tier/2)+Math.floor(variation/3);
-   mission={kind:'quads',metric:'quads',target:quads,timeLimitMs:null,
-    title:'Somente Tetris!',description:'Faça '+quads+' limpeza(s) de exatamente 4 linhas. Eliminar 1, 2 ou 3 linhas de uma vez encerra a missão com derrota.'};
+   mission={kind:'quads',metric:'quadscore',target:quads*800,timeLimitMs:null,
+    title:'Pontos só com Tetris!',description:'Marque '+(quads*800)+' pontos fazendo exclusivamente limpezas de 4 linhas. Se limpar 1, 2 ou 3 linhas, a missão termina com derrota.'};
   }else{
-   const length=3+tier%3+variation%2;
+   const length=3+tier%4+variation%2;
    const sequence=Array.from({length},()=>1+Math.floor(random()*4));
    mission={kind:'sequence',metric:'sequence',target:length,timeLimitMs:null,sequence,
     title:'Código de linhas',description:'Elimine linhas exatamente nesta ordem: '+sequence.join(' → ')+'. Cada limpeza deve coincidir com o próximo número.'};
@@ -122,7 +122,7 @@ export function dailyMissionWon(mission,progress){
  if(mission.metric==='score')return score>=mission.target;
  if(mission.metric==='duration')return durationMs>=mission.target;
  if(mission.metric==='lines')return linesCleared>=mission.target;
- if(mission.metric==='quads')return Array.isArray(clearSequence)&&clearSequence.length===mission.target&&clearSequence.every(n=>n===4);
+ if(mission.metric==='quadscore')return score>=mission.target&&Array.isArray(clearSequence)&&clearSequence.length>0&&clearSequence.every(n=>n===4);
  if(mission.metric==='sequence')return Array.isArray(clearSequence)&&clearSequence.length===mission.sequence.length&&mission.sequence.every((n,i)=>clearSequence[i]===n);
  return false;
 }
