@@ -410,6 +410,7 @@ function show(headline:string,description:string,button:string){cancelCountdown(
 let missionState=initialMissionState();
 const gameClock=setupGameClock(gameScreen,()=>state==='playing');
 function start(daily:DailyAttempt|null=null){dailyAttempt=daily;missionState=initialMissionState();
+ if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-mission-selected',{detail:{game:'snake',mission:dailyAttempt.mission??null}}));
  if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}}));dailyRandom=daily?seededRandom(daily.seed):Math.random;gameClock.reset();endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];enemies=[];scareUntil=0;evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
  setupDailyHazards();
  didCelebratePersonal=false;lastFunMilestone=0;lastFunAt=-100;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
