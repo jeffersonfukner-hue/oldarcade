@@ -212,8 +212,10 @@ test('missões Tetris exatas não aceitam limpeza errada nem total de linhas eng
   const day=new Date(Date.parse(date+'T12:00:00Z')+offset*86400000).toISOString().slice(0,10);
   const mission=dailyMission('tetris',day);
   if(mission.kind==='quads'){
-   assert.equal(dailyMissionWon(mission,{score:99999,durationMs:10000,linesCleared:mission.target*4,clearSequence:[1,2,3,4]}),false);
-   assert.equal(dailyMissionWon(mission,{score:800,durationMs:10000,linesCleared:mission.target*4,clearSequence:Array(mission.target).fill(4)}),true);
+   const quads=mission.target/800;
+   assert.equal(dailyMissionWon(mission,{score:99999,durationMs:10000,linesCleared:10,clearSequence:[1,2,3,4]}),false);
+   assert.equal(dailyMissionWon(mission,{score:mission.target-100,durationMs:10000,linesCleared:quads*4,clearSequence:Array(quads).fill(4)}),false);
+   assert.equal(dailyMissionWon(mission,{score:mission.target,durationMs:10000,linesCleared:quads*4,clearSequence:Array(quads).fill(4)}),true);
   }
   if(mission.kind==='sequence'){
    const sequence=mission.sequence;
