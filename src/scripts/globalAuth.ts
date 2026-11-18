@@ -1,7 +1,9 @@
+export {};
 type Player={nickname:string};
 type AuthResult={player?:Player;recoveryCode?:string;error?:string};
-const overlay=document.querySelector<HTMLElement>('[data-global-auth]');
-if(overlay){
+const element=document.querySelector<HTMLElement>('[data-global-auth]');
+if(element){
+ const overlay=element;
  const dialog=overlay.querySelector<HTMLElement>('.oa-auth-dialog')!;
  const closeButton=overlay.querySelector<HTMLButtonElement>('[data-auth-close]')!;
  const tabs=Array.from(overlay.querySelectorAll<HTMLButtonElement>('[data-auth-tab]'));
@@ -43,7 +45,7 @@ if(overlay){
   event.preventDefault();
   open(trigger.dataset.authTrigger==='register'?'register':'login');
  });
- closeButton.addEventListener('click',close);
+ closeButton.addEventListener('click',()=>close());
  overlay.addEventListener('click',event=>{if(event.target===overlay)close()});
  document.addEventListener('keydown',event=>{
   if(overlay.hidden)return;
