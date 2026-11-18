@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## Home arcade — organização e qualidade visual implementadas (2026-11-18)
+- **Decisão do proprietário:** a prioridade é o resultado **dentro do site**, com organização e acabamento equivalente ao conceito apresentado, sem insistência em formato PNG versus SVG. Cards e menus precisam ser apresentáveis e consistentes com o perfil já aprovado.
+- `src/pages/index.astro`: substituída abertura inchada por hero compacto com identidade arcade; contadores continuam em linha; mantido apenas um destaque rotativo de Desafio Diário; dois cards (Snake e Tetris), cada um com três modos derivados de `gameModes.js`; artes existentes continuam representando a mecânica de forma honesta; links de ranking, conta e história mantidos. Não inserir um card por modalidade.
+- `src/styles/global.css`: Home remodelada com bordas e superfícies de `--oa-*` do design system global já usado em Minha Conta; navegação lateral com estado ativo legível; CTA diário dourado e marca de 24h; arte com overlay e letreiro por jogo; botões dos modos com ícone, rótulo e seta; estados hover/focus; layouts de desktop/tablet/celular e movimentos reduzidos. Não duplica a lógica da API.
+- Testes legados ajustados para cabeçalhos atuais de Home e Conta; novos testes de catálogo e desafios permanecem. **CI/Preview precisam ser confirmados para HEAD; não declarar aprovação visual do proprietário.**
+- GitHub branch `feat/tetris-jogo-002`, PR #2, sem merge nem publicação oficial. SQL 0008 e 0009 confirmados aplicados no Preview; nenhum SQL adicional desta mudança.
+
 ## Design System global e perfil estatístico — implementação concreta (17/11/2026)
 - O proprietário constatou inconsistência visual entre cards, bordas e layouts em Home, Perfil e demais páginas; **regra aprovada é identidade visual única do site inteiro**, não desenhos pontuais. Documentação anterior já exigia componentes reutilizáveis, portanto executar, não reabrir discussão.
 - Implementado em `src/styles/global.css`: tokens de superfícies, contornos, cores, cantos, sombras e cards compartilhados; aplicado a `.panel`, `.game-card`, `.home-game-card`, `.rankings-panel`, `.account-record-card`, `.account-kpi`, `.account-settings`, `.daily-history-entry`; botões coerentes, responsividade global.
