@@ -11,10 +11,14 @@ if(!mode)throw new Error('Desafio Diário não habilitado para '+game);
   <div class="daily-header-copy">
    <span class="eyebrow">UMA NOVA CHANCE A CADA DIA</span>
    <h2 id={`daily-title-${game}`}>{mode.label}</h2>
-   <p>{mode.rules}</p>
+   <p>{game==='snake'?'Objetivo de hoje: marque o máximo de pontos no Snake Clássico. Todos recebem a mesma sequência de frutas.':'Objetivo de hoje: marque o máximo de pontos no Tetris Clássico. Todos recebem a mesma sequência de peças.'}</p>
   </div>
   <div class="daily-attempt-note" aria-label="Uma tentativa por dia"><strong>1</strong><span>tentativa<br/>por dia</span></div>
  </header>
+ <div class="daily-challenge-state" data-daily-status data-status="loading" role="status" aria-live="polite">
+  <span class="daily-challenge-state-dot" aria-hidden="true"></span>
+  <div><strong data-daily-state-title>Consultando seu desafio…</strong><p data-daily-state-description>Verificando disponibilidade e participação da sua conta.</p></div>
+ </div>
  <div class="daily-calendar-main">
   <div class="daily-calendar-bar">
    <button type="button" data-daily-previous aria-label="Mês anterior"><span aria-hidden="true">‹</span></button>
@@ -38,7 +42,7 @@ if(!mode)throw new Error('Desafio Diário não habilitado para '+game);
    <a class="btn daily-auth-button" data-daily-login data-auth-trigger="login" href="/conta/" hidden>🔓 Entrar ou criar conta grátis →</a>
    <button class="btn daily-play-button" type="button" data-daily-start hidden disabled>▶ Iniciar desafio de hoje</button>
   </div>
-  <p class="daily-finished-note" data-daily-result hidden>Você já utilizou sua tentativa. Consulte seu desempenho em <a href="/conta/#daily-history">Minha conta →</a>.</p>
+  <p class="daily-finished-note" data-daily-result hidden>O desempenho registrado fica em <a href="/conta/#daily-history">Minha Conta →</a>. Desafios consumidos não podem ser repetidos.</p>
  </div>
  <div data-daily-guest-explanation class="daily-guest-explanation" hidden role="status">
   <strong>🔓 Desafio exclusivo para quem tem conta.</strong>
@@ -59,6 +63,20 @@ if(!mode)throw new Error('Desafio Diário não habilitado para '+game);
  .daily-attempt-note{flex:none;display:flex;gap:7px;align-items:center;padding:9px 12px;border:1px solid #76628f;border-radius:12px;background:#26253f}
  .daily-attempt-note strong{font-size:1.7rem;color:#ffe39d;line-height:1}
  .daily-attempt-note span{font-size:.66rem;color:#d6cbec;line-height:1.25}
+ .daily-challenge-state{display:flex;gap:12px;align-items:center;padding:14px 24px;background:#18263e;border-bottom:1px solid #38486b}
+ .daily-challenge-state-dot{height:13px;width:13px;border-radius:50%;flex:none;background:#8693b0;box-shadow:0 0 0 4px #8693b022}
+ .daily-challenge-state strong{font-size:.93rem;color:#edf2ff}
+ .daily-challenge-state p{margin:3px 0 0;font-size:.78rem;color:#b5c4df;line-height:1.45}
+ .daily-challenge-state[data-status="available"]{background:#173b34}
+ .daily-challenge-state[data-status="available"] .daily-challenge-state-dot{background:#6ce4b0;box-shadow:0 0 0 4px #6ce4b030}
+ .daily-challenge-state[data-status="playing"]{background:#273259}
+ .daily-challenge-state[data-status="playing"] .daily-challenge-state-dot{background:#a6a6ff;box-shadow:0 0 0 4px #a6a6ff33}
+ .daily-challenge-state[data-status="finished"]{background:#194036}
+ .daily-challenge-state[data-status="finished"] .daily-challenge-state-dot{background:#70dbb1}
+ .daily-challenge-state[data-status="started"],.daily-challenge-state[data-status="pending"]{background:#49371f}
+ .daily-challenge-state[data-status="started"] .daily-challenge-state-dot,.daily-challenge-state[data-status="pending"] .daily-challenge-state-dot{background:#f4c77e}
+ .daily-challenge-state[data-status="unavailable"]{background:#3b2736}
+ .daily-challenge-state[data-status="unavailable"] .daily-challenge-state-dot{background:#f094a4}
  .daily-calendar-main{padding:20px 24px 15px}
  .daily-calendar-bar{display:flex;align-items:center;justify-content:space-between;gap:13px;margin-bottom:14px}
  .daily-calendar-bar button{width:40px;height:40px;display:grid;place-items:center;flex:none;border:1px solid #52638e;border-radius:10px;background:#263452;color:#e9edff;font-size:1.5rem}
@@ -99,7 +117,7 @@ if(!mode)throw new Error('Desafio Diário não habilitado para '+game);
  .daily-guest-explanation strong{color:#f4ddff;font-size:.88rem}
  .daily-guest-explanation p{margin:6px 0 0;color:#c5c9e7;font-size:.78rem;line-height:1.5}
  .daily-calendar-timezone{margin:0;padding:9px 24px 13px;color:#8395b8;font-size:.69rem;line-height:1.4;background:#11192f}
- @media(max-width:600px){.daily-header{padding:17px;gap:11px;flex-wrap:wrap}.daily-header-icon{height:49px;width:49px;font-size:1.4rem}.daily-attempt-note{margin-left:auto}.daily-calendar-main{padding:15px 13px}.daily-calendar-weekdays,.daily-calendar-grid{gap:4px}.daily-day{min-height:43px;font-size:.86rem}.daily-day-spacer{min-height:43px}.daily-calendar-footer{padding:15px}.daily-guest-explanation{margin:10px 15px 0}.daily-calendar-timezone{padding:8px 15px 13px}}
+ @media(max-width:600px){.daily-header{padding:17px;gap:11px;flex-wrap:wrap}.daily-challenge-state{padding:13px 15px}.daily-header-icon{height:49px;width:49px;font-size:1.4rem}.daily-attempt-note{margin-left:auto}.daily-calendar-main{padding:15px 13px}.daily-calendar-weekdays,.daily-calendar-grid{gap:4px}.daily-day{min-height:43px;font-size:.86rem}.daily-day-spacer{min-height:43px}.daily-calendar-footer{padding:15px}.daily-guest-explanation{margin:10px 15px 0}.daily-calendar-timezone{padding:8px 15px 13px}}
  @media(max-width:390px){.daily-header-copy .eyebrow{font-size:.58rem}.daily-attempt-note{padding:6px 9px}.daily-day{min-height:39px;font-size:.8rem}.daily-calendar-weekdays,.daily-calendar-grid{gap:3px}.daily-calendar-legend{gap:9px}}
  @media(prefers-reduced-motion:reduce){.daily-day{transition:none}}
 </style>
