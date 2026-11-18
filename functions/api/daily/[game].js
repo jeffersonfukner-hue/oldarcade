@@ -1,14 +1,20 @@
-import {currentPlayer,sessionCookie,reply,sameOrigin,parseBody,randomToken,digest} from '../_lib/auth.js';
+import {sessionCookie,reply,sameOrigin,parseBody,randomToken,digest} from '../_lib/auth.js';
 import {dailyMode,dateInSaoPaulo,validDailyDate,dailySeed} from '../../../src/data/dailyChallenges.js';
 
 const validMonth=(month)=>typeof month==='string'&&/^\d{4}-(0[1-9]|1[0-2])$/.test(month);
 const dateMonth=(date)=>date.slice(0,7);
 const bodyError=(message,status)=>reply({error:message},status);
+async function dailyPlayer(db,request){
+ const token=sessionCookie(request);
+ if(!token)return null;
+ return db.prepare('SELECT a.id,a.nickname FROM player_sessions s JOIN player_accounts a ON a.id=s.player_id WHERE s.token_hash=? AND s.expires_at>?')
+  .bind(await digest(token),Math.floor(Date.now()/1000)).first();
+}
 async function playerAndDb(ctx){
  const db=ctx.env?.OLDARCADE_STATS_DB;
  if(!db)return {error:bodyError('Desafio diário indisponível neste ambiente.',503)};
  try{
-  const player=await currentPlayer(db,ctx.request);
+  const player=await dailyPlayer(db,ctx.request);
   return player?{db,player}:{error:bodyError('Entre na sua conta para participar do desafio diário.',401)};
  }catch{return {error:bodyError('Não foi possível verificar sua conta.',503)}}
 }
@@ -26,13 +32,7 @@ export async function onRequestGet(ctx){
  // sessão já existente, com somente as duas colunas necessárias.
  let player=null;
  try{
-  const token=sessionCookie(ctx.request);
-  if(token){
-   const hash=await digest(token);
-   player=await db.prepare('SELECT a.id,a.nickname FROM player_sessions s JOIN player_accounts a ON a.id=s.player_id WHERE s.token_hash=? AND s.expires_at>?')
-    .bind(hash,Math.floor(Date.now()/1000)).first();
-  }
- }catch{
+  player=await dailyPlayer(db,ctx.request); }catch{
   return reply({...publicCalendar,historyAvailable:false,error:'Não foi possível verificar a sessão. Tente novamente.'});
  }
  if(!player)return reply(publicCalendar);
