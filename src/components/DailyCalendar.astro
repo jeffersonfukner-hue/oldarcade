@@ -1,5 +1,4 @@
 ---
-/** Calendário compartilhado por título. A API determina data, participação e sessão. */
 import {dailyMode} from '../data/dailyChallenges.js';
 interface Props{game:string}
 const {game}=Astro.props;
@@ -7,36 +6,101 @@ const mode=dailyMode(game);
 if(!mode)throw new Error('Desafio Diário não habilitado para '+game);
 ---
 <section class="section panel daily-calendar" data-daily-calendar={game} aria-labelledby={`daily-title-${game}`}>
- <span class="eyebrow">Benefício extra de quem participa</span>
- <h2 id={`daily-title-${game}`}>📅 {mode.label}</h2>
- <p class="small muted">{mode.rules}</p>
- <div class="daily-calendar-bar">
-  <button type="button" data-daily-previous aria-label="Mês anterior">‹</button>
-  <strong data-daily-month aria-live="polite">Consultando calendário…</strong>
-  <button type="button" data-daily-next aria-label="Próximo mês">›</button>
+ <header class="daily-header">
+  <div class="daily-header-icon" aria-hidden="true">★<span>24H</span></div>
+  <div class="daily-header-copy">
+   <span class="eyebrow">UMA NOVA CHANCE A CADA DIA</span>
+   <h2 id={`daily-title-${game}`}>{mode.label}</h2>
+   <p>{mode.rules}</p>
+  </div>
+  <div class="daily-attempt-note" aria-label="Uma tentativa por dia"><strong>1</strong><span>tentativa<br/>por dia</span></div>
+ </header>
+ <div class="daily-calendar-main">
+  <div class="daily-calendar-bar">
+   <button type="button" data-daily-previous aria-label="Mês anterior"><span aria-hidden="true">‹</span></button>
+   <div class="daily-month-heading"><span>SEU CALENDÁRIO</span><strong data-daily-month aria-live="polite">Consultando calendário…</strong></div>
+   <button type="button" data-daily-next aria-label="Próximo mês"><span aria-hidden="true">›</span></button>
+  </div>
+  <div class="daily-calendar-weekdays" aria-hidden="true">{['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(day=><span>{day}</span>)}</div>
+  <div data-daily-days class="daily-calendar-grid" role="group" aria-label="Dias do desafio diário"></div>
+  <div class="daily-calendar-legend">
+   <span><i class="daily-legend-marker is-today"></i>Hoje</span>
+   <span><i class="daily-legend-marker is-finished"></i>Concluído</span>
+   <span><i class="daily-legend-marker is-locked"></i>Indisponível</span>
+  </div>
  </div>
- <div class="daily-calendar-weekdays" aria-hidden="true">{['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(day=><span>{day}</span>)}</div>
- <div data-daily-days class="daily-calendar-grid" role="group" aria-label="Dias do desafio diário"></div>
- <p class="small muted" data-daily-info role="status" aria-live="polite">Verificando sua conta e seus desafios…</p>
- <p class="small muted">O dia começa e termina à meia-noite, no horário de Brasília. Datas passadas não podem ser jogadas novamente.</p>
- <div data-daily-guest-explanation class="contact-note" hidden role="status"><strong>Este desafio é exclusivo para quem tem conta.</strong><p class="small">Você pode jogar livremente sem cadastro. A conta gratuita permite guardar seu histórico, disputar rankings e participar do desafio de cada dia. O login existe para identificar sua tentativa e impedir repetições, não para cobrar pelo jogo.</p></div><a class="btn secondary" data-daily-login data-auth-trigger="login" href="/conta/" hidden>🔐 Entrar ou criar conta grátis</a>
- <button class="btn" type="button" data-daily-start hidden disabled>▶ Iniciar desafio de hoje</button>
- <p class="small muted" data-daily-result hidden>Você já utilizou sua tentativa. Consulte seu desempenho em <a href="/conta/#daily-history">Minha conta</a>.</p>
+ <div class="daily-calendar-footer">
+  <div class="daily-footer-copy">
+   <strong>Pronto para tentar?</strong>
+   <p data-daily-info role="status" aria-live="polite">Verificando sua conta e seus desafios…</p>
+  </div>
+  <div class="daily-footer-actions">
+   <a class="btn daily-auth-button" data-daily-login data-auth-trigger="login" href="/conta/" hidden>🔓 Entrar ou criar conta grátis →</a>
+   <button class="btn daily-play-button" type="button" data-daily-start hidden disabled>▶ Iniciar desafio de hoje</button>
+  </div>
+  <p class="daily-finished-note" data-daily-result hidden>Você já utilizou sua tentativa. Consulte seu desempenho em <a href="/conta/#daily-history">Minha conta →</a>.</p>
+ </div>
+ <div data-daily-guest-explanation class="daily-guest-explanation" hidden role="status">
+  <strong>🔓 Desafio exclusivo para quem tem conta.</strong>
+  <p>Você pode jogar livremente sem cadastro. A conta gratuita permite guardar seu histórico, disputar rankings e participar do desafio de cada dia. O login só identifica sua participação: não há cobrança.</p>
+ </div>
+ <p class="daily-calendar-timezone">Datas pelo horário de Brasília. Os desafios anteriores não podem ser repetidos.</p>
 </section>
-<style>
- .daily-calendar{max-width:900px}
- .daily-calendar-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:1rem 0 .75rem}
- .daily-calendar-bar button{width:40px;min-height:40px;border:1px solid #6374a4;border-radius:9px;background:#1f2948;color:#fff;font-size:1.5rem}
- .daily-calendar-weekdays,.daily-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;text-align:center}
- .daily-calendar-weekdays span{font-size:.78rem;color:#aab9d9;font-weight:700;padding:.4rem 0}
- .daily-day{border:1px solid #344561;background:#121b32;min-height:46px;border-radius:9px;color:#c6d4ef;padding:5px 1px;font-variant-numeric:tabular-nums}
- .daily-day[data-status="today"]{border-color:#af99ff;color:#fff;box-shadow:inset 0 0 0 1px #6556aa}
- .daily-day[data-status="finished"]{background:#1c4036;color:#c2ffe2}
- .daily-day[data-status="started"]{background:#493c24;color:#ffe5ab}
- .daily-day[disabled]{cursor:default}
- .daily-day .daily-mark{display:block;font-size:.7rem;line-height:1.1}
- .daily-day-spacer{min-height:44px}
+<style is:global>
+ .daily-calendar{max-width:900px;overflow:hidden;padding:0!important;background:linear-gradient(155deg,#1b2540,#121b30 72%)!important;border:1px solid #51618a!important;border-radius:18px!important;box-shadow:0 14px 40px #0208186b}
  .daily-calendar [hidden]{display:none!important}
- @media(max-width:420px){.daily-calendar-grid{gap:3px}.daily-day{min-height:42px;font-size:.8rem}}
+ .daily-header{display:flex;align-items:center;gap:16px;padding:22px 24px;background:radial-gradient(ellipse at 92% 10%,#68428b55,transparent 55%),linear-gradient(100deg,#252345,#18243c);border-bottom:1px solid #4a4a79}
+ .daily-header-icon{display:flex;align-items:center;justify-content:center;flex-direction:column;width:62px;height:62px;flex:none;border:1px solid #e4abff;border-radius:15px;background:linear-gradient(145deg,#a86bec,#6346a8);box-shadow:0 4px 18px #7b42bb77;color:#ffdd88;font-size:1.8rem;font-weight:900}
+ .daily-header-icon span{font-size:.61rem;letter-spacing:.1em;color:#fff}
+ .daily-header-copy{min-width:0;flex:1}
+ .daily-header-copy .eyebrow{color:#d5b2ff;font-size:.67rem;letter-spacing:.12em}
+ .daily-header-copy h2{margin:4px 0 5px;font-size:clamp(1.24rem,2.65vw,1.7rem);line-height:1.2}
+ .daily-header-copy p{margin:0;color:#bdc9e1;font-size:.82rem;line-height:1.5}
+ .daily-attempt-note{flex:none;display:flex;gap:7px;align-items:center;padding:9px 12px;border:1px solid #76628f;border-radius:12px;background:#26253f}
+ .daily-attempt-note strong{font-size:1.7rem;color:#ffe39d;line-height:1}
+ .daily-attempt-note span{font-size:.66rem;color:#d6cbec;line-height:1.25}
+ .daily-calendar-main{padding:20px 24px 15px}
+ .daily-calendar-bar{display:flex;align-items:center;justify-content:space-between;gap:13px;margin-bottom:14px}
+ .daily-calendar-bar button{width:40px;height:40px;display:grid;place-items:center;flex:none;border:1px solid #52638e;border-radius:10px;background:#263452;color:#e9edff;font-size:1.5rem}
+ .daily-calendar-bar button:hover:not(:disabled){border-color:#b397ff;background:#383e70}
+ .daily-calendar-bar button:disabled{opacity:.35;cursor:default}
+ .daily-month-heading{text-align:center;display:grid;gap:3px}
+ .daily-month-heading span{font-size:.62rem;letter-spacing:.15em;color:#9ba8cb;font-weight:850}
+ .daily-month-heading strong{font-size:.99rem;text-transform:capitalize;color:#f6f2ff}
+ .daily-calendar-weekdays,.daily-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;text-align:center}
+ .daily-calendar-weekdays{margin-bottom:7px}
+ .daily-calendar-weekdays span{font-size:.7rem;color:#aebee0;font-weight:850;padding:5px 0}
+ .daily-day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;min-height:48px;border:1px solid #3e4e71;border-radius:9px;background:#202b46;color:#dce5fb;font-size:.97rem;font-weight:750;font-variant-numeric:tabular-nums;transition:background .18s,border-color .18s,transform .18s}
+ .daily-day[data-status="past"],.daily-day[data-status="future"]{background:#182139;color:#7788a8;border-color:#283852}
+ .daily-day[data-status="today"]{background:linear-gradient(150deg,#ffe49f,#f3ba61);border:1px solid #fff1be;color:#281a28;font-size:1.04rem;box-shadow:0 0 0 2px #e9b76333,0 4px 18px #f2b85a36}
+ .daily-day[data-status="today"]:hover{transform:translateY(-2px);background:#ffe5af;box-shadow:0 6px 22px #f7bb6480}
+ .daily-day[data-status="started"]{background:#594324;color:#ffe4a1;border-color:#ad8744}
+ .daily-day[data-status="finished"]{background:#19493e;color:#aeffdf;border-color:#298b73}
+ .daily-day[disabled]{cursor:default}
+ .daily-day .daily-mark{display:block;min-height:11px;font-size:.57rem;letter-spacing:.03em;font-weight:900;line-height:1}
+ .daily-day-spacer{min-height:48px}
+ .daily-calendar-legend{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:14px;margin-top:16px}
+ .daily-calendar-legend>span{display:flex;align-items:center;gap:6px;color:#9eadd0;font-size:.72rem}
+ .daily-legend-marker{width:9px;height:9px;border-radius:3px;background:#293754;border:1px solid #5b6886}
+ .daily-legend-marker.is-today{background:#ffd888;border-color:#ffe8b0}
+ .daily-legend-marker.is-finished{background:#42bb9e;border-color:#88ead6}
+ .daily-calendar-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px 18px;padding:19px 24px;background:#11192f;border-top:1px solid #384665}
+ .daily-footer-copy{min-width:0;flex:1}
+ .daily-footer-copy strong{font-size:.95rem;color:#fff}
+ .daily-footer-copy p{margin:5px 0 0;color:#aebcda;font-size:.79rem;line-height:1.4}
+ .daily-footer-actions{display:flex;gap:9px;flex-wrap:wrap}
+ .daily-footer-actions .btn{font-size:.82rem;min-height:43px;padding:10px 15px}
+ .daily-auth-button{background:linear-gradient(#ffd88c,#f2ab58);border-color:#ffe8a6;color:#211b30;font-weight:900}
+ .daily-auth-button:hover{background:#ffe3ac;color:#211b30}
+ .daily-play-button{background:#6546b9;border-color:#bb99fb}
+ .daily-finished-note{width:100%;margin:0;color:#b7e5d3;font-size:.8rem}
+ .daily-finished-note a{color:#8beacb;text-decoration:underline}
+ .daily-guest-explanation{margin:14px 24px 0;padding:13px 15px;border:1px solid #a383d6;border-radius:11px;background:#272344}
+ .daily-guest-explanation strong{color:#f4ddff;font-size:.88rem}
+ .daily-guest-explanation p{margin:6px 0 0;color:#c5c9e7;font-size:.78rem;line-height:1.5}
+ .daily-calendar-timezone{margin:0;padding:9px 24px 13px;color:#8395b8;font-size:.69rem;line-height:1.4;background:#11192f}
+ @media(max-width:600px){.daily-header{padding:17px;gap:11px;flex-wrap:wrap}.daily-header-icon{height:49px;width:49px;font-size:1.4rem}.daily-attempt-note{margin-left:auto}.daily-calendar-main{padding:15px 13px}.daily-calendar-weekdays,.daily-calendar-grid{gap:4px}.daily-day{min-height:43px;font-size:.86rem}.daily-day-spacer{min-height:43px}.daily-calendar-footer{padding:15px}.daily-guest-explanation{margin:10px 15px 0}.daily-calendar-timezone{padding:8px 15px 13px}}
+ @media(max-width:390px){.daily-header-copy .eyebrow{font-size:.58rem}.daily-attempt-note{padding:6px 9px}.daily-day{min-height:39px;font-size:.8rem}.daily-calendar-weekdays,.daily-calendar-grid{gap:3px}.daily-calendar-legend{gap:9px}}
+ @media(prefers-reduced-motion:reduce){.daily-day{transition:none}}
 </style>
 <script>import '../scripts/dailyCalendar.ts';</script>
