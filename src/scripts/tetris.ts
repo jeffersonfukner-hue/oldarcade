@@ -286,13 +286,13 @@ function finish(completed=false){
  if(dailyAttempt?.practice){
   const attempt=dailyAttempt;
   const mission=attempt.mission;
-  const success=mission?.metric==='sequence'
+  const success=completed&&(mission?.metric==='sequence'
     ?dailyClears.length===mission.sequence?.length&&dailyClears.every((n,i)=>n===mission.sequence?.[i])
     :mission?.kind==='quads'
     ?score>=(mission.target??Infinity)&&dailyClears.length>0&&dailyClears.every(n=>n===4)
     :mission?.metric==='lines'?lines>=(mission.target??Infinity)
     :mission?.metric==='score'||mission?.metric==='quadscore'?score>=(mission.target??Infinity)
-    :false;
+    :false);
   dailyAttempt=null;dailyRandom=Math.random;
   update();draw();
   show(success?'🏆 MISSÃO CUMPRIDA!':'META NÃO ALCANÇADA',(mission?.description||'')+' · '+score+' pontos · '+lines+' linhas. Tente novamente no laboratório acima.','▶ Jogar Tetris livre');
