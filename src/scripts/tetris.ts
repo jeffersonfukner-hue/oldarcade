@@ -121,7 +121,6 @@ function update(){
 }
 function award(points:number){
  score+=points;
- if(dailyAttempt?.mission?.version===2&&dailyAttempt.mission.metric==='score'&&score>=dailyAttempt.mission.target!){update();finish(true);return}
  if(!timed&&!dailyAttempt){if(score>best){best=score;save()};recordGameScore(modeId,score)}
  update();
 }
@@ -142,14 +141,14 @@ function land(){
   lines+=cleared;
   const oldLevel=level;level=tetrisLevel(modeId,lines,clock.milliseconds());
   const points=[0,100,300,500,800][cleared]*oldLevel;
-  if(dailyAttempt?.mission?.version>=3)dailyClears.push(cleared);
+  if((dailyAttempt?.mission?.version??0)>=3)dailyClears.push(cleared);
   if(timed)update();else award(points);
-  if(state==='over')return;
   const dailyMission=dailyAttempt?.mission;
-  if(dailyMission?.version>=3&&dailyMission.kind==='quads'&&cleared!==4){finish(false);return}
+  if(dailyMission&&dailyMission.version>=2&&dailyMission.metric==='score'&&score>=dailyMission.target!){finish(true);return}
+  if(dailyMission&&dailyMission.version>=3&&dailyMission.kind==='quads'&&cleared!==4){finish(false);return}
   if(dailyMission?.version>=3&&dailyMission.kind==='sequence'&&cleared!==dailyMission.sequence?.[dailyClears.length-1]){finish(false);return}
   if(dailyMission?.version>=3&&(dailyMission.kind==='quads'||dailyMission.kind==='sequence')&&dailyClears.length===dailyMission.target){finish(true);return}
-  if(dailyMission?.version>=2&&dailyMission.metric==='lines'&&lines>=dailyMission.target!){finish(true);return}
+  if(dailyMission&&dailyMission.version>=2&&dailyMission.metric==='lines'&&lines>=dailyMission.target!){finish(true);return}
   showScoreFeedback(screen,canvas,timed?cleared:points,timed?(cleared===1?'linha eliminada':'linhas eliminadas'):cleared===4?'TETRIS! 4 linhas':cleared===1?'1 linha':cleared+' linhas',completed[0],ROWS);
   // Clássico pontua linhas; Sprint utiliza somente tempo de conclusão.
   if(sprint&&lines>=TARGET_LINES){finish(true);return}
