@@ -110,7 +110,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
    const date=payload.month+'-'+String(i).padStart(2,'0');
    const participated=statuses.get(date)||(date===payload.today&&enginePhase!=='idle'?'started':undefined);
    const claimable=!!payload.account&&payload.historyAvailable!==false&&
-    (date===payload.today&&!participated||participated==='started');
+    (date===payload.today&&!participated||participated==='started'&&payload.days.find(row=>row.date===date)?.version!==1);
    const status=participated==='started'?'available':participated|| (date===payload.today?'today':date<payload.today?'past':'future');
    const button=document.createElement('button');button.type='button';button.disabled=!claimable;
    if(!button.disabled)button.addEventListener('click',()=>{
@@ -119,6 +119,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
     start.focus({preventScroll:true});
    });
    button.className='daily-day';button.dataset.status=status;
+   button.setAttribute('aria-pressed',String(date===selectedDate));
    button.setAttribute('aria-label',date+' · '+(participated==='finished'?'missão concluída':participated==='started'?'missão pendente, continuar':date===payload.today?'missão de hoje disponível':date<payload.today?'não recebida':'ainda não disponível'));
    button.textContent=String(i);
    const detail=document.createElement('span');detail.className='daily-mark';
@@ -135,7 +136,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   brief.hidden=!mission;
   if(mission&&!previewHost){briefTitle.textContent=mission.title;briefRules.textContent=mission.description}
   if(tracker&&mission&&!previewHost){drawTracker(mission,null);tracker.hidden=enginePhase==='idle';if(sidebar)sidebar.hidden=tracker.hidden}
-  if(previewHost)showPracticeMission();
+  if(previewHost&&!practiceRunning)showPracticeMission();
   const active=month===today.slice(0,7);
   const todayRow=payload.days.find(x=>x.date===today);
   const selectedCompleted=selectedRow?.status==='finished';
@@ -163,10 +164,13 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
    const result=typeof selectedRow?.score==='number'?' Você marcou '+selectedRow.score.toLocaleString('pt-BR')+' pontos.':'';
    setState('finished','🏆 Missão concluída',result+' Meta atingida. Esta missão permanece registrada no seu histórico.');
    info.textContent='Objetivo cumprido! Escolha outra missão disponível no calendário.';
+  }else if(selectedRow?.version===1&&selectedRow.status==='started'){
+   setState('past','Edição original, sem meta de vitória','Esta edição antiga não possuía objetivo de conclusão. As novas missões ficam disponíveis até vencer.');
+   info.textContent='Não é possível concluir uma missão sem meta. Selecione uma missão nova para participar.';
   }else if(resumable){
    setState('available','Missão recebida · disponível até vencer','Você pode tentar novamente, mesmo depois da data original. Só a vitória encerra esta missão.');
    info.textContent=mission?.description||'Clique para continuar a missão.';
-  }else if(currentMonth){
+  }else if(currentMonth&&selectedDate===today){
    setState('available','Missão de hoje disponível','Ao receber a missão, ela ficará disponível até você completar o objetivo, mesmo nos próximos dias.');
    info.textContent=mission?.description||'Escolha a missão de hoje.';
   }else{
