@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## Regra global de acesso sem sair da página — 18/11/2026
+- **Decisão obrigatória do proprietário:** entrar ou cadastrar-se **nunca** deve redirecionar o jogador para Meu Perfil nem mudar rota/scroll/contexto atual; perfil é página de consulta acessada **apenas por escolha explícita**. Sair do site não requer passar por perfil. A autenticação deve abrir modal no próprio local, e ao concluir fechar modal e continuar exatamente onde estava.
+- Implementado `src/components/GlobalAuthModal.astro` e `src/scripts/globalAuth.ts`, instalados uma vez no `src/layouts/Base.astro`. Reutilizam POST `/api/auth/login` e `/api/auth/register`; disparam `oldarcade:account-changed` para atualizar header, ranking, calendários e demais consumidores. Mostram código de recuperação quando cadastro retorna um; sem redirecionamento ou reinicialização do jogo. Links `data-auth-trigger` acionam modal com fallback `/conta/` para navegador sem JS.
+- Menu global oferece **Entrar** (modal) enquanto visitante e oculta esse link ao conectar; **Minha conta** é link explícito para perfil. Calendário diário Snake/Tetris abre o mesmo modal quando visitante toca no dia de hoje, e CTA `Entrar ou criar conta` também o utiliza. Depois de entrar, o calendário atualiza elegibilidade na mesma rota. Minha Conta reage a `oldarcade:account-changed` se aberta intencionalmente.
+- Calendário compartilhado `src/components/DailyCalendar.astro` redesenhado com cabeçalho arcade, mês, células com estados distinguíveis e maior contraste, legenda e CTA. Estilos `is:global` alcançam dias criados dinamicamente pelo script (Astro scoped CSS anterior não alcançava esses elementos, causando visual cinza de botões desabilitados).
+- Testes E2E: `tests/global-auth-modal.spec.ts`, mais testes diários existentes. **Confirmar CI do HEAD e Preview** antes de marcar validado. Sem deploy de produção. Não pedir SQL 0008/0009 outra vez.
+
 ## Home arcade — organização e qualidade visual implementadas (2026-11-18)
 - **Decisão do proprietário:** a prioridade é o resultado **dentro do site**, com organização e acabamento equivalente ao conceito apresentado, sem insistência em formato PNG versus SVG. Cards e menus precisam ser apresentáveis e consistentes com o perfil já aprovado.
 - `src/pages/index.astro`: substituída abertura inchada por hero compacto com identidade arcade; contadores continuam em linha; mantido apenas um destaque rotativo de Desafio Diário; dois cards (Snake e Tetris), cada um com três modos derivados de `gameModes.js`; artes existentes continuam representando a mecânica de forma honesta; links de ranking, conta e história mantidos. Não inserir um card por modalidade.
