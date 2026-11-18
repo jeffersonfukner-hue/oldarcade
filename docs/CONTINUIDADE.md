@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## Design System global e perfil estatístico — implementação concreta (17/11/2026)
+- O proprietário constatou inconsistência visual entre cards, bordas e layouts em Home, Perfil e demais páginas; **regra aprovada é identidade visual única do site inteiro**, não desenhos pontuais. Documentação anterior já exigia componentes reutilizáveis, portanto executar, não reabrir discussão.
+- Implementado em `src/styles/global.css`: tokens de superfícies, contornos, cores, cantos, sombras e cards compartilhados; aplicado a `.panel`, `.game-card`, `.home-game-card`, `.rankings-panel`, `.account-record-card`, `.account-kpi`, `.account-settings`, `.daily-history-entry`; botões coerentes, responsividade global.
+- Reorganizado `src/pages/conta.astro` em **dashboard**: identidade do jogador, 3 KPIs (modalidades com recorde, lideranças #1, pódios Top 3), grupos Snake/Tetris de cards homogêneos, recorde pessoal e posição global em destaque, próximo desafio em texto curto, missões em detalhes recolhíveis, CTA por modo. Histórico diário preservado; preferências de e-mail ficam em seção posterior e distinta. Dados reais vêm de endpoints atuais; sem números inventados; KPIs zeram ao trocar sessão.
+- Corrigidos testes legados da Home que exigiam um card por modalidade, incompatíveis com a decisão explícita de um card por título. Adicionado `tests/account-dashboard.spec.ts` para desktop e celular; **validar CI do HEAD, não declarar aprovado sem conclusão**.
+- Arte raster premium ainda não foi efetivamente substituída no repositório; SVGs anteriores são provisórios. Não afirmar que a imagem gerada em conversa esteja no site. Sem merge ou publicação oficial.
+- O trabalho foi realizado em commits da branch `feat/tetris-jogo-002`. O proprietário faz QA final como jogador, não teste fragmentado ou conferência de JSON. SQLs 0008/0009 já confirmados como aplicados no D1 Preview.
+
 ## Home consolidada, logo provisória e SQL 0009 confirmado (17/11/2026)
 - O proprietário confirmou **SQL 0009 executado no D1 Preview**. Não solicitar novamente; registro baseado na confirmação do proprietário, não numa leitura direta do banco. SQL 0008 já havia sido confirmado. Produção não autorizada.
 - Home anteriormente sobrecarregada com um card por modo: agora **um card por título**, Snake e Tetris, cada um com três links de modos obtidos do catálogo central `gameModes.js`. Arte vetorial original reutilizável em `public/images/snake-arcade.svg` e `tetris-arcade.svg`; responsividade em `src/styles/global.css`. Preservar header, atividades compactas, SEO verdadeiro, contadores e navegação.
