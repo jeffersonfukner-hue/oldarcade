@@ -27,7 +27,7 @@ const gameScreen = document.querySelector<HTMLElement>('#game-screen')!;
 const hud = document.querySelector<HTMLElement>('#hud-status')!;
 const countValue = document.querySelector<HTMLElement>('#countdown-value')!;
 const evolutionPreview=location.pathname.replace(/\/+$/,'')==='/jogos/snake/evolution';
-type DailyMission={version:number;kind:string;metric:string;target:number|null;timeLimitMs:number|null;title:string;description:string};
+type DailyMission={version:number;kind:string;metric:string;target:number|null;timeLimitMs:number|null;title:string;description:string;hazards?:{obstacles:number;enemies:number}};
 type DailyAttempt={date:string;token:string;seed:number;mission?:DailyMission};
 let dailyAttempt:DailyAttempt|null=null;
 let dailyRandom:()=>number=Math.random;
@@ -148,6 +148,24 @@ let items:Item[]=[];let obstacles:Point[]=[];let obstacleHits=new Map<string,num
 type Enemy={point:Point;kind:'hunter'|'ambusher'|'wanderer';heading:Direction};
 let enemies:Enemy[]=[];let scareUntil=0;let projectiles:Projectile[]=[];let evolutionClock=0;let slowUntil=0;let blasterUntil=0;let nextShotAt=0;let lastRescue=-100;let peakScore=0;
 const same=(a:Point,b:Point)=>a.x===b.x&&a.y===b.y;
+const dailyHazardActive=()=>!evolutionPreview&&!!dailyAttempt?.mission?.hazards;
+function setupDailyHazards(){
+ const hazards=dailyAttempt?.mission?.hazards;
+ if(!hazards||evolutionPreview)return;
+ const positions:Point[]=[];
+ for(let y=2;y<size-2;y++)for(let x=2;x<size-2;x++){
+  if(y===10&&x>=5&&x<=15)continue;
+  positions.push({x,y});
+ }
+ for(let i=positions.length-1;i>0;i--){
+  const j=Math.floor(dailyRandom()*(i+1));
+  [positions[i],positions[j]]=[positions[j],positions[i]];
+ }
+ obstacles=positions.slice(0,hazards.obstacles);
+ enemies=positions.slice(hazards.obstacles,hazards.obstacles+hazards.enemies)
+  .map((point,index)=>({point,kind:(index%2===0?'hunter':'ambusher') as Enemy['kind'],heading:'right' as Direction}));
+}
+
 const occupied=(p:Point)=>snake.some(q=>same(p,q))||items.some(q=>same(p,q.point))||obstacles.some(q=>same(p,q))||enemies.some(q=>same(p,q.point));
 function freeCell():Point|null{const cells:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!occupied({x,y}))cells.push({x,y});return cells.length?cells[Math.floor(Math.random()*cells.length)]:null}
 function addItem(kind:Item['kind'],lifetime=0){const point=kind==='shrink'?reachableRescueCell():freeCell();if(!point)return false;items.push({point,kind,expires:lifetime?evolutionClock+lifetime:0});return true}
@@ -183,15 +201,17 @@ function regenerateBorders(){for(const wall of borderWalls){if(wall.restoreAt&&e
 
 /** Inimigos com decisões simples: perseguição, emboscada e patrulha. Só a cabeça sofre dano. */
 function updateEnemies(){
- if(peakScore<10000)return;
+ if(dailyHazardActive()){
+  if(evolutionClock%3!==0)return;
+ }else if(peakScore<10000)return;
  const max=peakScore>=16000?3:peakScore>=12500?2:1;
- if(enemies.length<max&&evolutionClock%50===0){
+ if(!dailyHazardActive()&&enemies.length<max&&evolutionClock%50===0){
   const point=freeCell();
   if(point&&Math.abs(point.x-snake[0].x)+Math.abs(point.y-snake[0].y)>6){
    enemies.push({point,kind:(['hunter','ambusher','wanderer'] as const)[enemies.length],heading:'right'});
   }
  }
- if(enemies.length&&evolutionClock%55===0&&!items.some(i=>i.kind==='scare'))addItem('scare',50);
+ if(!dailyHazardActive()&&enemies.length&&evolutionClock%55===0&&!items.some(i=>i.kind==='scare'))addItem('scare',50);
  if(evolutionClock%3!==0)return;
  const offsets:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};
  const head=snake[0];
@@ -301,7 +321,13 @@ function draw(){ctx.fillStyle='#071a20';ctx.fillRect(0,0,600,600);ctx.strokeStyl
  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx-5,cy-3,3,0,Math.PI*2);ctx.arc(cx+5,cy-3,3,0,Math.PI*2);ctx.fill();
  ctx.fillStyle='#172633';ctx.beginPath();ctx.arc(cx-5,cy-3,1.4,0,Math.PI*2);ctx.arc(cx+5,cy-3,1.4,0,Math.PI*2);ctx.fill();
  }
- if(projectiles.length){ctx.fillStyle='#f7f2d2';for(const shot of projectiles){const p=shot.point;ctx.beginPath();ctx.arc(p.x*cell+cell/2,p.y*cell+cell/2,cell*.16,0,Math.PI*2);ctx.fill()}}}else{ctx.fillStyle='#ff657c';ctx.beginPath();ctx.arc(food.x*cell+cell/2,food.y*cell+cell/2,cell*.35,0,Math.PI*2);ctx.fill()}snake.forEach((piece,i)=>{ctx.fillStyle=i===0?'#a0ffd0':'#46dca2';ctx.fillRect(piece.x*cell+2,piece.y*cell+2,cell-4,cell-4)});}
+ if(projectiles.length){ctx.fillStyle='#f7f2d2';for(const shot of projectiles){const p=shot.point;ctx.beginPath();ctx.arc(p.x*cell+cell/2,p.y*cell+cell/2,cell*.16,0,Math.PI*2);ctx.fill()}}}else{
+ ctx.fillStyle='#ff657c';ctx.beginPath();ctx.arc(food.x*cell+cell/2,food.y*cell+cell/2,cell*.35,0,Math.PI*2);ctx.fill();
+ if(dailyHazardActive()){
+  for(const block of obstacles){ctx.fillStyle='#8598ad';ctx.fillRect(block.x*cell+4,block.y*cell+4,cell-8,cell-8);ctx.strokeStyle='#ffba82';ctx.lineWidth=2;ctx.strokeRect(block.x*cell+5,block.y*cell+5,cell-10,cell-10)}
+  for(const enemy of enemies){const cx=enemy.point.x*cell+cell/2,cy=enemy.point.y*cell+cell/2;ctx.fillStyle='#f45d83';ctx.beginPath();ctx.arc(cx,cy,cell*.33,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(cx-7,cy-4,4,4);ctx.fillRect(cx+3,cy-4,4,4)}
+ }
+}snake.forEach((piece,i)=>{ctx.fillStyle=i===0?'#a0ffd0':'#46dca2';ctx.fillRect(piece.x*cell+2,piece.y*cell+2,cell-4,cell-4)});}
 function floatPoints(at:Point,amount:number){
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
  const board=canvas.getBoundingClientRect();
@@ -327,12 +353,12 @@ function checkFunMilestone(at:Point){
  funMoment(reached.message,at);
  lastFunAt=evolutionClock;
 }
-function placeFood(){const free:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y});if(!free.length){end(true);return}food=free[Math.floor(dailyRandom()*free.length)]}
+function placeFood(){const free:Point[]=[];for(let x=0;x<size;x++)for(let y=0;y<size;y++)if(!snake.some(p=>p.x===x&&p.y===y)&&!obstacles.some(p=>p.x===x&&p.y===y)&&!enemies.some(p=>p.point.x===x&&p.point.y===y))free.push({x,y});if(!free.length){end(true);return}food=free[Math.floor(dailyRandom()*free.length)]}
 function schedule(){window.clearTimeout(timer);if(state==='playing')timer=window.setTimeout(tick,(evolutionPreview?Math.max(145,210-Math.floor(peakScore/100)*7):Math.max(75,155-Math.floor(score/50)*8))+(evolutionPreview&&evolutionClock<slowUntil?85:0))}
 function tick(){if(state!=='playing')return;
  const mission=dailyAttempt?.mission;
  if(mission?.version===2&&mission.timeLimitMs!==null&&gameClock.milliseconds()>=mission.timeLimitMs){end(mission.kind==='survival');return}
- direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const rawHead={x:snake[0].x+d.x,y:snake[0].y+d.y};const exit=evolutionPreview?borderExit(rawHead):null;const head=evolutionPreview?{x:(rawHead.x+size)%size,y:(rawHead.y+size)%size}:rawHead;const picked=evolutionPreview?items.find(i=>same(i.point,head)):undefined;const eating=evolutionPreview?Boolean(picked&&picked.kind!=='shrink'&&picked.kind!=='slow'&&picked.kind!=='blaster'&&picked.kind!=='scare'):head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if((!evolutionPreview&&(head.x<0||head.x>=size||head.y<0||head.y>=size))||(exit&&borderAt(exit.side,exit.index))||body.some(p=>p.x===head.x&&p.y===head.y)||(evolutionPreview&&obstacles.some(p=>same(p,head)))){end(false);return}snake.unshift(head);
+ direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const rawHead={x:snake[0].x+d.x,y:snake[0].y+d.y};const exit=evolutionPreview?borderExit(rawHead):null;const head=evolutionPreview?{x:(rawHead.x+size)%size,y:(rawHead.y+size)%size}:rawHead;const picked=evolutionPreview?items.find(i=>same(i.point,head)):undefined;const eating=evolutionPreview?Boolean(picked&&picked.kind!=='shrink'&&picked.kind!=='slow'&&picked.kind!=='blaster'&&picked.kind!=='scare'):head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if((!evolutionPreview&&(head.x<0||head.x>=size||head.y<0||head.y>=size))||(exit&&borderAt(exit.side,exit.index))||body.some(p=>p.x===head.x&&p.y===head.y)||((evolutionPreview||dailyHazardActive())&&obstacles.some(p=>same(p,head)))){end(false);return}snake.unshift(head);
  // Aviso temático de risco: somente quando há pouco espaço, sem criar frutas ou alterar pontos.
  const freeNeighbors=[{x:head.x+1,y:head.y},{x:head.x-1,y:head.y},{x:head.x,y:head.y+1},{x:head.x,y:head.y-1}].filter(p=>p.x>=0&&p.x<size&&p.y>=0&&p.y<size&&!snake.some(q=>q.x===p.x&&q.y===p.y)).length;
  if(score>=30&&snake.length>=12&&freeNeighbors<=1&&!dangerAnnounced){dangerAnnounced=true;arcadePersonality(modeId,'danger')}
@@ -344,7 +370,12 @@ function tick(){if(state!=='playing')return;
   moveProjectiles();
   if(evolutionClock<blasterUntil&&evolutionClock>=nextShotAt){fireBlaster();nextShotAt=evolutionClock+4}
  }
- if(eating){const gained=evolutionPreview&&picked?.kind==='rare'?50:10;score+=gained;peakScore=Math.max(peakScore,score);floatPoints(head,gained);checkFunMilestone(head);
+ if(dailyHazardActive()){
+   evolutionClock++;
+   updateEnemies();
+   if(checkEnemyHead())return;
+  }
+  if(eating){const gained=evolutionPreview&&picked?.kind==='rare'?50:10;score+=gained;peakScore=Math.max(peakScore,score);floatPoints(head,gained);checkFunMilestone(head);
  if(!dailyAttempt&&score>saved.best){saved.best=score;store()}
  if(!evolutionPreview)placeFood();if(state!=='playing'){draw();return}}else if(!eating)snake.pop();
  if(!dailyAttempt&&score>saved.best){saved.best=score;store()}
@@ -363,12 +394,14 @@ function tick(){if(state!=='playing')return;
    &&dailyAttempt.mission.target!==null&&score>=dailyAttempt.mission.target){
    end(true);return;
   }
+ if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-progress',{detail:{game:'snake',score,linesCleared:0,clearSequence:[],durationMs:gameClock.milliseconds()}}));
  draw();refresh();schedule()}
 function cancelCountdown(){window.clearTimeout(countdownTimer);setCountdownOverlay(overlay,countValue,startBtn,false)}
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 const gameClock=setupGameClock(gameScreen,()=>state==='playing');
 function start(daily:DailyAttempt|null=null){dailyAttempt=daily;
  if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}}));dailyRandom=daily?seededRandom(daily.seed):Math.random;gameClock.reset();endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];enemies=[];scareUntil=0;evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=Math.max(saved.best,personalCloudBest);
+ setupDailyHazards();
  didCelebratePersonal=false;lastFunMilestone=0;lastFunAt=-100;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
  resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}if(!dailyAttempt){saved.plays++;store()}globalCounters.recordPlay(recordGameStart(modeId));draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
 function end(won:boolean){
