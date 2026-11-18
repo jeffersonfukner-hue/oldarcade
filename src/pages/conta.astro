@@ -35,21 +35,6 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
      <button class="btn" type="submit">Criar minha conta</button>
     </form>
    </div>
-   <section id="account-preferences" class="section panel account-settings" aria-labelledby="account-preferences-heading" hidden>
-    <div class="account-section-title"><div><span class="eyebrow">Seu perfil</span><h3 id="account-preferences-heading">E-mail e notificações</h3></div><span class="account-section-icon" aria-hidden="true">⚙️</span></div>
-    <p class="small muted">Defina os avisos que gostaria de receber. O envio por e-mail ainda não está ativo.</p>
-    <form id="account-preferences-form">
-     <label for="account-profile-email">Meu e-mail (opcional)</label>
-     <input id="account-profile-email" type="email" maxlength="254" autocomplete="email" placeholder="seu@email.com"/>
-     <p id="account-email-verification" class="small muted"></p>
-     <fieldset class="notification-choices"><legend>Quero receber avisos sobre</legend>
-      <label class="email-opt-in"><input id="account-record-alerts" type="checkbox"/> Alguém superar meu recorde</label>
-      <label class="email-opt-in"><input id="account-daily-alerts" type="checkbox"/> Novo Desafio Diário disponível</label>
-     </fieldset>
-     <button class="btn secondary" type="submit">Salvar minhas preferências</button>
-     <p class="small muted" id="account-preferences-message" role="status" aria-live="polite"></p>
-    </form>
-   </section>
    <section id="account-records" class="section account-dashboard" aria-labelledby="account-records-heading" hidden>
     <div class="account-section-title"><div><span class="eyebrow">Painel do jogador</span><h3 id="account-records-heading">Meu desempenho</h3></div><a class="btn secondary" href="/rankings/">Ver rankings →</a></div>
     <div class="account-kpi-grid" aria-label="Resumo do desempenho">
@@ -74,6 +59,21 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
     </section>)}
     <p class="small muted" id="account-records-status" role="status"></p>
     <DailyHistory />
+   </section>
+   <section id="account-preferences" class="section panel account-settings" aria-labelledby="account-preferences-heading" hidden>
+    <div class="account-section-title"><div><span class="eyebrow">Seu perfil</span><h3 id="account-preferences-heading">E-mail e notificações</h3></div><span class="account-section-icon" aria-hidden="true">⚙️</span></div>
+    <p class="small muted">Defina os avisos que gostaria de receber. O envio por e-mail ainda não está ativo.</p>
+    <form id="account-preferences-form">
+     <label for="account-profile-email">Meu e-mail (opcional)</label>
+     <input id="account-profile-email" type="email" maxlength="254" autocomplete="email" placeholder="seu@email.com"/>
+     <p id="account-email-verification" class="small muted"></p>
+     <fieldset class="notification-choices"><legend>Quero receber avisos sobre</legend>
+      <label class="email-opt-in"><input id="account-record-alerts" type="checkbox"/> Alguém superar meu recorde</label>
+      <label class="email-opt-in"><input id="account-daily-alerts" type="checkbox"/> Novo Desafio Diário disponível</label>
+     </fieldset>
+     <button class="btn secondary" type="submit">Salvar minhas preferências</button>
+     <p class="small muted" id="account-preferences-message" role="status" aria-live="polite"></p>
+    </form>
    </section>
    <p id="account-message" class="small" role="status" aria-live="polite"></p>
    <div id="recovery-box" class="contact-note" hidden>
