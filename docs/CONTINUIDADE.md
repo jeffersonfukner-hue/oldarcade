@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## Correção crítica das missões — 18/11/2026
+- Relato com evidência: no Tetris, missão "Duplas perfeitas" marcou **5/4 etapas** e chegou a aparentar conclusão após derrota; no Snake, o jogador iniciou missão diária mas **o objetivo não aparecia na área do jogo**.
+- **Causa real:** `src/scripts/tetris.ts` só verificava conclusão/erro de sequência em `kind==='sequence'`, mas a biblioteca produz `kind==='singles'`, `'doubles'`, `'timed-sequence'`; todas usam `metric==='sequence'`. Correção: aplicar verificação por **métrica**, com derrota imediata em limpeza fora de ordem e vitória no número exato de etapas. O sucesso no laboratório também requer `finish(completed=true)`, não apenas comparar contadores após a derrota.
+- O HUD em `src/scripts/dailyCalendar.ts` limita visualização de progresso a `meta` (nunca mostrar **5/4**) e indica dados excedidos como tentativa não concluída. O painel Snake agora é inserido **antes das estatísticas**, permanecendo visível logo no início da lateral, inclusive em missões especiais.
+- Treino Snake: `end(won=false)` (colisão/fim) não pode gerar vitória mesmo se o placar estiver alto; eventos de resultado de treino distinguem sucesso e derrota para liberar o botão de tentar novamente. O laboratório do Preview é repetível, não consome tentativa oficial.
+- Novos testes E2E: Snake mostrando missão no primeiro elemento da lateral e progresso de frutas; Tetris impedindo 5/4. Testes existentes de API foram ajustados aos contratos atuais de missão recebida até completar. **CI do HEAD precisa confirmar; não afirmar validação final sem resultado.**
+- O proprietário **não quer Work** para este fluxo; executar GitHub pelo chat, sem Lovable, sem merge nem deploy de produção. Evitar voltar a sugerir Work por reflexo.
+ 
 ## Missões diárias variáveis automaticamente — 18/11/2026 (implementação na PR #2)
 - Pedido do proprietário: o Desafio Diário não pode ser apenas jogar Clássico; deve apresentar **meta objetiva, vitória/derrota e variedade autossustentável por 100, 500, 1.000+ dias**, sem cadastro manual de desafios. Novas ideias: Tetris apenas limpar 4 linhas (limpezas de 1/2/3 causam derrota), sequência exata de limpezas visível com destaque na lateral; Snake obstáculos, inimigos, objetivos combinados.
 - O proprietário confirmou **SQL 0010 já executado no D1 Preview `oldarcade-stats-preview`**: adicionadas colunas `lines_cleared` e `mission_success` na tabela `daily_challenge_attempts`. Não solicitar novamente. Produção não alterada.
