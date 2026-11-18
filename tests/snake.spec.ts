@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('home oferece navegação e HTML pesquisável', async ({page}) => {
   await page.goto('/');
   await expect(page).toHaveTitle(/OldArcade/);
-  await expect(page.getByRole('heading', {name:/Chegou Tetris!/i})).toBeVisible();
+  await expect(page.getByRole('heading', {name:/Os clássicos nunca/i})).toBeVisible();
   await expect(page.locator('#featured-game-link')).toHaveAttribute('href','/jogos/tetris/');
   await expect(page.locator('meta[name=description]')).toHaveAttribute('content', /jogue Snake/i);
   await expect(page.locator('meta[name=robots]')).toHaveAttribute('content', /noindex/);
