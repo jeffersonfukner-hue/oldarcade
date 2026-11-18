@@ -46,7 +46,7 @@ export async function onRequestGet(ctx){
  }catch(cause){
   // O erro anterior ocultava se o problema era tabela ausente ou falha de
   // consulta. Diagnóstico não expõe SQL, credenciais ou dados de terceiros.
-  const missingTable=/no such table: (?:main\\.)?daily_challenge_attempts/i.test(String(cause?.message||cause));
+  const missingTable=/no such table: (?:main\.)?daily_challenge_attempts/i.test(String(cause?.message||cause));
   console.error('[daily-calendar] Falha ao consultar desafios', {
    game,month,code:missingTable?'SCHEMA_MISSING':'HISTORY_QUERY_FAILED',
    message:String(cause?.message||cause).slice(0,280)
