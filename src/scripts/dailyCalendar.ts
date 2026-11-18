@@ -28,7 +28,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
  const brief=element.querySelector<HTMLElement>('[data-daily-mission-brief]')!;
  const briefTitle=element.querySelector<HTMLElement>('[data-daily-mission-name]')!;
  const briefRules=element.querySelector<HTMLElement>('[data-daily-mission-rules]')!;
- const previewHost=/^(?:[a-z0-9-]+\\.)?oldarcade-17c\\.pages\\.dev$/.test(location.hostname);
+ const previewHost=location.hostname==='oldarcade-17c.pages.dev'||location.hostname.endsWith('.oldarcade-17c.pages.dev');
  const lab=element.querySelector<HTMLElement>('[data-daily-preview-lab]')!;
  const nextLab=element.querySelector<HTMLButtonElement>('[data-daily-preview-next]')!;
  const startLab=element.querySelector<HTMLButtonElement>('[data-daily-preview-start]')!;
@@ -37,7 +37,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
  const practiceDate=()=>new Date(Date.parse('2026-11-20T12:00:00Z')+previewOffset*86400000).toISOString().slice(0,10);
  const sidebar=document.querySelector<HTMLElement>('[data-daily-mission-sidebar]');
  const tracker=sidebar?document.createElement('section'):null;
- if(tracker){tracker.className='daily-live-tracker';tracker.setAttribute('role','status');tracker.setAttribute('aria-label','Progresso da missão diária');tracker.hidden=true;sidebar!.prepend(tracker);sidebar!.hidden=true}
+ if(tracker){tracker.className='daily-live-tracker';tracker.setAttribute('role','status');tracker.setAttribute('aria-label','Progresso da missão diária');tracker.hidden=true;sidebar!.append(tracker);if(sidebar!.hasAttribute('data-daily-mission-inline'))sidebar!.hidden=true}
  const drawTracker=(mission:DailyMission,progress:DailyProgress|null)=>{
   if(!tracker)return;
   tracker.replaceChildren();
@@ -203,8 +203,8 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   enginePhase=detail.phase;
   const indicator=document.querySelector<HTMLElement>('[data-daily-play-indicator]');
   if(indicator)indicator.hidden=enginePhase!=='playing';
-  if(tracker){tracker.hidden=enginePhase==='idle'&&!previewHost;if(sidebar)sidebar.hidden=tracker.hidden}
-  if(previewHost&&practiceRunning&&(enginePhase==='finished'||enginePhase==='pending')){
+  if(tracker){tracker.hidden=enginePhase==='idle'&&!previewHost;if(sidebar?.hasAttribute('data-daily-mission-inline'))sidebar.hidden=tracker.hidden}
+  if(previewHost&&practiceRunning&&enginePhase==='finished'){
    practiceRunning=false;nextLab.disabled=false;startLab.disabled=false;
    startLab.textContent='↻ Tentar novamente';
   }
