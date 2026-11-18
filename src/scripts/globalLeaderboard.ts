@@ -15,6 +15,7 @@ export function setupGlobalLeaderboard(game='snake'){
  let lastGlobalScore:number|null=null;
  let loadedGlobal=false;
  let loading=false;
+ let queuedRefresh=false;
  let latestBoard:Board|null=null;
  let roundStartBoard:Board|null=null;
  const myResult=document.querySelector<HTMLElement>('#my-global-rank')!;
@@ -38,7 +39,8 @@ export function setupGlobalLeaderboard(game='snake'){
    lastGlobalScore=globalScore;loadedGlobal=true;
    document.dispatchEvent(new CustomEvent('oldarcade:global-record',{detail:{score:globalScore,previousScore,changed,source}}));
   }
-  document.dispatchEvent(new CustomEvent('oldarcade:personal-record',{detail:{score:data.mine?.score||0}}));
+  const personal=data.mine?.score??data.myGames?.find(item=>item.game===game)?.score??null;
+  document.dispatchEvent(new CustomEvent('oldarcade:personal-record',{detail:{score:personal,available:data.available}}));
   if(!data.available||!Array.isArray(data.top)){
    best.textContent='—';status.textContent='Ranking global indisponível neste ambiente.';
    challenge.textContent='Bata seu recorde e desafie os melhores jogadores.';return;
@@ -93,14 +95,17 @@ export function setupGlobalLeaderboard(game='snake'){
   return 'Ainda não há recordes de contas cadastradas.';
  }
  async function refresh(source:'initial'|'end'='initial'):Promise<Board|null>{
-  if(loading)return null;
+  if(loading){queuedRefresh=true;return null}
   loading=true;
   try{
    const r=await fetch(endpoint,{cache:'no-store'});if(!r.ok)throw Error('API indisponível');
    const data=await r.json() as Board;
    draw(data,source);return data;
   }catch{if(!loadedGlobal)draw({available:false});return null}
-  finally{loading=false}
+  finally{
+   loading=false;
+   if(queuedRefresh){queuedRefresh=false;void refresh('initial')}
+  }
  }
  async function submit(score:number,durationMs:number):Promise<Board>{
   const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score,durationMs})});
