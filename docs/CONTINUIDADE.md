@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## Tetris Diário — reinício após derrota (18/11/2026)
+- Relato do proprietário: após errar uma missão de sequência, botão do overlay iniciava Tetris Clássico, mas a missão permanecia visível, dando falsa impressão de continuação do Desafio Diário.
+- Corrigido em `src/scripts/tetris.ts`: ao salvar derrota na API, overlay pergunta se deseja tentar a missão novamente; o botão reaproveita `oldarcade:daily-start-request` com a mesma data, solicitando novo token/seed ao servidor. Não inicia Clássico por engano. No laboratório de treino, o reinício reaproveita missão e seed sem acessar D1; iniciar Clássico limpa seleção da missão/tracker.
+- API já suportava várias tentativas da mesma missão até vitória, mantendo uma única linha de desafio no banco (conflito por conta/jogo/data). Não considerar uma derrota como vitória ou como nova missão do dia.
+- Teste Playwright adicionado em `tests/tetris-daily.spec.ts`: falhar, oferecer reinício e voltar ao countdown da mesma missão. CI no commit `13e46b71` ainda pendente de conclusão na última consulta; o proprietário valida o Preview visualmente. Sem merge ou produção.
+
+
 ## Snake — controles e recorde autenticado (18/11/2026)
 - O proprietário mostrou 3 capturas: controles direcionais ocupando espaço desnecessário abaixo do jogo em desktop; estando autenticado, o Snake mostrava **Recorde pessoal: 0** e **Recorde local: 0**, embora houvesse recordes por conta.
 - Em `src/pages/jogos/snake.astro`, controles de direção são ocultados **somente com ponteiro fino e hover (mouse/desktop)**; dispositivos de toque continuam com botões e gestos. O campo lateral tem ID próprio `snake-best-label` para diferenciar estado autenticado de local.
