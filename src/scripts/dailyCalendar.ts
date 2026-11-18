@@ -1,6 +1,6 @@
 import {DAILY_MODES} from '../data/dailyChallenges.js';
 type DayStatus={date:string;status:'started'|'finished'};
-type CalendarResponse={game:string;today:string;month:string;days:DayStatus[];account:{nickname:string}|null};
+type CalendarResponse={game:string;today:string;month:string;days:DayStatus[];account:{nickname:string}|null;historyAvailable?:boolean;error?:string};
 const monthName=(month:string)=>new Date(month+'-15T12:00:00Z').toLocaleDateString('pt-BR',{month:'long',year:'numeric',timeZone:'UTC'});
 const moveMonth=(month:string,step:number)=>{
  const [year,number]=month.split('-').map(Number);
@@ -30,7 +30,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
    const date=payload.month+'-'+String(i).padStart(2,'0');
    const participated=statuses.get(date);
    const status=participated|| (date===payload.today?'today':date<payload.today?'past':'future');
-   const button=document.createElement('button');button.type='button';button.disabled=!(date===payload.today&&!participated&&payload.month===payload.today.slice(0,7));
+   const button=document.createElement('button');button.type='button';button.disabled=!(date===payload.today&&!participated&&payload.month===payload.today.slice(0,7)&&payload.historyAvailable!==false);
    if(!button.disabled)button.addEventListener('click',()=>{if(payload.account){start.click()}else{guestExplanation.hidden=false;info.textContent='Crie uma conta gratuita para aproveitar este benefício e guardar sua participação.';document.dispatchEvent(new CustomEvent('oldarcade:open-auth'))}});
    button.className='daily-day';button.dataset.status=status;button.setAttribute('aria-label',date+' · '+(participated==='finished'?'concluído':participated==='started'?'tentativa utilizada':date===payload.today?'disponível hoje':date<payload.today?'encerrado':'ainda não disponível'));
    button.textContent=String(i);
@@ -43,13 +43,14 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   monthLabel.textContent=monthName(month);
   const active=month===today.slice(0,7);
   const attempted=payload.days.some(x=>x.date===today);
-  login.hidden=!!payload.account;guestExplanation.hidden=true;start.hidden=!payload.account||!active||attempted;start.disabled=!payload.account||!active||attempted;
-  done.hidden=!payload.account||!attempted;next.disabled=month>=today.slice(0,7);
-  info.textContent=!payload.account?'Quer participar? Clique no dia de hoje. Jogar normalmente não exige cadastro; a conta gratuita libera o desafio, os rankings e seu histórico.':attempted?'Sua tentativa de hoje já foi utilizada. O próximo desafio abre amanhã.':active?'Desafio disponível para sua conta: uma única tentativa hoje.':'Somente os desafios do dia atual podem ser iniciados.';
+  login.hidden=!!payload.account;guestExplanation.hidden=true;start.hidden=!payload.account||!active||attempted||payload.historyAvailable===false;start.disabled=!payload.account||!active||attempted||payload.historyAvailable===false;
+  done.hidden=!payload.account||!attempted;prev.disabled=false;next.disabled=month>=today.slice(0,7);
+  info.textContent=payload.historyAvailable===false?(payload.error||'Calendário temporariamente indisponível para iniciar novas tentativas.'):!payload.account?'Quer participar? Clique no dia de hoje. Jogar normalmente não exige cadastro; a conta gratuita libera o desafio, os rankings e seu histórico.':attempted?'Sua tentativa de hoje já foi utilizada. O próximo desafio abre amanhã.':active?'Desafio disponível para sua conta: uma única tentativa hoje.':'Somente os desafios do dia atual podem ser iniciados.';
  };
  const load=async(wanted?:string)=>{
   const seq=++sequence;
   info.textContent='Consultando o calendário e sua participação…';
+  prev.disabled=true;next.disabled=true;
   try{
    const url='/api/daily/'+encodeURIComponent(game)+(wanted?'?month='+encodeURIComponent(wanted):'');
    const response=await fetch(url,{cache:'no-store'});
@@ -60,7 +61,10 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
    render(payload);
   }catch(error){
    if(seq!==sequence)return;
-   info.textContent=error instanceof Error?error.message:'Não foi possível carregar o calendário.';
+   monthLabel.textContent='Não foi possível carregar';
+   days.replaceChildren();
+   prev.disabled=true;next.disabled=true;
+   info.textContent=(error instanceof Error?error.message:'Não foi possível carregar o calendário.')+' Atualize a página para tentar novamente.';
    start.hidden=true;done.hidden=true;login.hidden=true;guestExplanation.hidden=true;
   }
  };
