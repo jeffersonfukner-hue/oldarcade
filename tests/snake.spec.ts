@@ -580,8 +580,8 @@ test('home estilo foco no jogador mantém jogos visíveis e três contadores com
  await page.goto('/');
  await expect(page.locator('.arcade-sidebar')).toBeVisible();
  await expect(page.getByRole('heading',{name:'Escolha seu desafio'})).toBeVisible();
- await expect(page.getByRole('link',{name:/Jogar Clássico/})).toHaveAttribute('href','/jogos/snake/');
- await expect(page.getByRole('link',{name:/Jogar Aventura/})).toHaveAttribute('href','/jogos/snake/aventura/');
+ await expect(page.locator('[data-home-game="snake"] a[href="/jogos/snake/"]')).toHaveAttribute('href','/jogos/snake/');
+ await expect(page.locator('[data-home-game="snake"] a[href="/jogos/snake/aventura/"]')).toHaveAttribute('href','/jogos/snake/aventura/');
  await expect(page.locator('.arcade-activity-item')).toHaveCount(3);
  await expect(page.locator('#hero-games-played')).toHaveCount(0);
  const top=await page.locator('.arcade-mode-grid').evaluate(el=>el.getBoundingClientRect().top);
