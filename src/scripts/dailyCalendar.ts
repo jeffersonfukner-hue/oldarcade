@@ -1,6 +1,8 @@
 import {DAILY_MODES} from '../data/dailyChallenges.js';
-type DayStatus={date:string;status:'started'|'finished';score?:number|null;durationMs?:number|null};
-type CalendarResponse={game:string;today:string;month:string;days:DayStatus[];account:{nickname:string}|null;historyAvailable?:boolean;error?:string};
+type DailyMission={version:number;kind:string;title:string;description:string;metric:string;target:number|null;timeLimitMs:number|null;sequence?:number[]};
+type DailyProgress={game:string;score:number;linesCleared:number;durationMs:number;clearSequence:number[]};
+type DayStatus={date:string;status:'started'|'finished';score?:number|null;durationMs?:number|null;missionSuccess?:boolean|null;version?:number};
+type CalendarResponse={game:string;today:string;month:string;days:DayStatus[];account:{nickname:string}|null;historyAvailable?:boolean;error?:string;mission?:DailyMission|null};
 const monthName=(month:string)=>new Date(month+'-15T12:00:00Z').toLocaleDateString('pt-BR',{month:'long',year:'numeric',timeZone:'UTC'});
 const moveMonth=(month:string,step:number)=>{
  const [year,number]=month.split('-').map(Number);
@@ -23,6 +25,44 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
  const stateBox=element.querySelector<HTMLElement>('[data-daily-status]')!;
  const stateTitle=element.querySelector<HTMLElement>('[data-daily-state-title]')!;
  const stateDescription=element.querySelector<HTMLElement>('[data-daily-state-description]')!;
+ const brief=element.querySelector<HTMLElement>('[data-daily-mission-brief]')!;
+ const briefTitle=element.querySelector<HTMLElement>('[data-daily-mission-name]')!;
+ const briefRules=element.querySelector<HTMLElement>('[data-daily-mission-rules]')!;
+ const sidebar=document.querySelector<HTMLElement>('[data-daily-mission-sidebar]');
+ const tracker=sidebar?document.createElement('section'):null;
+ if(tracker){tracker.className='daily-live-tracker';tracker.setAttribute('role','status');tracker.setAttribute('aria-label','Progresso da missão diária');tracker.hidden=true;sidebar!.prepend(tracker)}
+ const drawTracker=(mission:DailyMission,progress:DailyProgress|null)=>{
+  if(!tracker)return;
+  tracker.replaceChildren();
+  const eyebrow=document.createElement('span');eyebrow.className='eyebrow';eyebrow.textContent='🎯 MISSÃO DIÁRIA';
+  const name=document.createElement('strong');name.textContent=mission.title;
+  const detail=document.createElement('p');detail.textContent=mission.description;
+  const value=mission.metric==='lines'?progress?.linesCleared??0:
+   mission.metric==='duration'?Math.floor((progress?.durationMs??0)/1000):
+   mission.metric==='quads'||mission.metric==='sequence'?progress?.clearSequence.length??0:progress?.score??0;
+  const goal=mission.metric==='duration'?Math.ceil((mission.target??0)/1000):mission.target??0;
+  const counter=document.createElement('div');counter.className='daily-live-progress';
+  counter.textContent=mission.metric==='quads'?'Tetris completos: '+value+' / '+goal:
+   mission.metric==='sequence'?'Sequência: '+value+' / '+goal+' etapas':
+   mission.metric==='duration'?'Tempo sobrevivido: '+value+' / '+goal+' s':
+   mission.metric==='lines'?'Linhas: '+value+' / '+goal:'Pontos: '+value+' / '+goal;
+  tracker.append(eyebrow,name,detail,counter);
+  if(mission.sequence){
+   const seq=document.createElement('div');seq.className='daily-live-sequence';
+   const cleared=progress?.clearSequence??[];
+   for(const [i,n] of mission.sequence.entries()){
+    const chip=document.createElement('span');chip.textContent=String(n);
+    chip.className=i<cleared.length?'done':i===cleared.length?'next':'future';
+    chip.setAttribute('aria-label','Passo '+(i+1)+': '+n+' linhas'+(i===cleared.length?', próximo':''));
+    seq.append(chip);
+   }
+   tracker.append(seq);
+   const next=mission.sequence[cleared.length];
+   if(next!==undefined){const emphasis=document.createElement('div');emphasis.className='daily-live-next';emphasis.textContent='PRÓXIMA LIMPEZA: '+next+' LINHA'+(next===1?'':'S');tracker.append(emphasis)}
+  }
+  if(mission.kind==='quads'){const emphasis=document.createElement('div');emphasis.className='daily-live-next';emphasis.textContent='SOMENTE 4 LINHAS DE UMA VEZ!';tracker.append(emphasis)}
+ };
+
  let enginePhase:'idle'|'playing'|'pending'|'finished'='idle';
  const setState=(kind:string,title:string,description:string)=>{stateBox.dataset.status=kind;stateTitle.textContent=title;stateDescription.textContent=description};
  let today='',month='',current:CalendarResponse|null=null,sequence=0;
@@ -47,6 +87,10 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   days.replaceChildren(...cells);
   today=payload.today;month=payload.month;current=payload;
   monthLabel.textContent=monthName(month);
+  const mission=payload.mission;
+  brief.hidden=!mission;
+  if(mission){briefTitle.textContent=mission.title;briefRules.textContent=mission.description}
+  if(tracker&&mission){drawTracker(mission,null);tracker.hidden=enginePhase==='idle'}
   const active=month===today.slice(0,7);
   const todayRow=payload.days.find(x=>x.date===today);
   const attempted=!!todayRow||enginePhase!=='idle';
@@ -67,14 +111,15 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
    info.textContent='Não inicie outra partida; utilize a opção de reenviar o resultado.';
   }else if(todayRow?.status==='finished'||enginePhase==='finished'){
    const result=typeof todayRow?.score==='number'?' Você marcou '+todayRow.score.toLocaleString('pt-BR')+' pontos.':'';
-   setState('finished','Desafio de hoje concluído',result+' Sua tentativa foi registrada. Consulte o histórico em Minha Conta; o próximo desafio abre amanhã.');
+   const missionResult=todayRow?.missionSuccess===true?'🏆 META ATINGIDA!':todayRow?.missionSuccess===false?'Meta não alcançada.':'Desafio de hoje concluído';
+   setState('finished',missionResult,result+' Sua tentativa foi registrada. Consulte o histórico em Minha Conta; o próximo desafio abre amanhã.');
    info.textContent='Participação concluída. Este desafio não pode ser repetido.';
   }else if(todayRow?.status==='started'){
    setState('started','Tentativa iniciada, sem conclusão confirmada','Este dia já teve uma tentativa reservada. Se a partida foi interrompida ou a página foi fechada, não é possível jogá-la novamente.');
    info.textContent='Nenhuma pontuação concluída foi confirmada para esta tentativa. O próximo desafio abre amanhã.';
   }else if(currentMonth){
    setState('available','Desafio de hoje disponível','Você ainda não iniciou sua tentativa. Uma vez iniciada, ela não poderá ser repetida.');
-   info.textContent='Clique em Iniciar desafio de hoje para jogar '+DAILY_MODES[game as keyof typeof DAILY_MODES].title+' Clássico com sequência igual para todos.';
+   info.textContent=mission?'Objetivo: '+mission.description:'Clique em Iniciar desafio de hoje.';
   }else{
    setState('past','Calendário de desafios anteriores','Datas anteriores são apenas para consulta. Volte ao mês atual para participar.');
    info.textContent='Selecione o mês atual para ver a disponibilidade do desafio de hoje.';
@@ -111,12 +156,18 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   // O motor executa o POST atômico. O calendário só solicita iniciar.
   document.dispatchEvent(new CustomEvent('oldarcade:daily-start-request',{detail:{game,date:today}}));
  });
+ document.addEventListener('oldarcade:daily-progress',event=>{
+  const progress=(event as CustomEvent<DailyProgress>).detail;
+  if(progress?.game!==game||!current?.mission||!tracker)return;
+  drawTracker(current.mission,progress);tracker.hidden=false;
+ });
  document.addEventListener('oldarcade:daily-phase',event=>{
   const detail=(event as CustomEvent<{game:string;phase:'idle'|'playing'|'pending'|'finished'}>).detail;
   if(detail?.game!==game)return;
   enginePhase=detail.phase;
   const indicator=document.querySelector<HTMLElement>('[data-daily-play-indicator]');
   if(indicator)indicator.hidden=enginePhase!=='playing';
+  if(tracker)tracker.hidden=enginePhase==='idle';
   if(current)render(current);
  });
  document.addEventListener('oldarcade:daily-status-changed',event=>{
