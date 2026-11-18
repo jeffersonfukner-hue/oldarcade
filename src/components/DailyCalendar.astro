@@ -9,11 +9,11 @@ if(!mode)throw new Error('Desafio Diário não habilitado para '+game);
  <header class="daily-header">
   <div class="daily-header-icon" aria-hidden="true">★<span>24H</span></div>
   <div class="daily-header-copy">
-   <span class="eyebrow">UMA NOVA CHANCE A CADA DIA</span>
+   <span class="eyebrow">UMA MISSÃO NOVA A CADA DIA</span>
    <h2 id={`daily-title-${game}`}>{mode.label}</h2>
-   <p>Uma missão diferente por dia, com meta conhecida antes de jogar. A mesma regra e sequência valem para todos.</p>
+   <p>Receba uma missão por dia. Se não vencer, ela permanece disponível até você cumprir a meta — mesmo em outra data.</p>
   </div>
-  <div class="daily-attempt-note" aria-label="Uma tentativa por dia"><strong>1</strong><span>tentativa<br/>por dia</span></div>
+  <div class="daily-attempt-note" aria-label="Uma missão nova por dia"><strong>1</strong><span>nova missão<br/>por dia</span></div>
  </header>
  <div class="daily-mission-brief" data-daily-mission-brief hidden><div class="daily-mission-badge" aria-hidden="true">🎯</div><div><span class="eyebrow">MISSÃO DE HOJE</span><strong data-daily-mission-name>Preparando missão</strong><p data-daily-mission-rules></p></div></div>
  <div class="daily-challenge-state" data-daily-status data-status="loading" role="status" aria-live="polite">
@@ -50,13 +50,13 @@ if(!mode)throw new Error('Desafio Diário não habilitado para '+game);
    <a class="btn daily-auth-button" data-daily-login data-auth-trigger="login" href="/conta/" hidden>🔓 Entrar ou criar conta grátis →</a>
    <button class="btn daily-play-button" type="button" data-daily-start hidden disabled>▶ Iniciar desafio de hoje</button>
   </div>
-  <p class="daily-finished-note" data-daily-result hidden>O desempenho registrado fica em <a href="/conta/#daily-history">Minha Conta →</a>. Desafios consumidos não podem ser repetidos.</p>
+  <p class="daily-finished-note" data-daily-result hidden>Missões concluídas ficam em <a href="/conta/#daily-history">Minha Conta →</a>. Missões pendentes podem ser repetidas até vencer.</p>
  </div>
  <div data-daily-guest-explanation class="daily-guest-explanation" hidden role="status">
   <strong>🔓 Desafio exclusivo para quem tem conta.</strong>
   <p>Você pode jogar livremente sem cadastro. A conta gratuita permite guardar seu histórico, disputar rankings e participar do desafio de cada dia. O login só identifica sua participação: não há cobrança.</p>
  </div>
- <p class="daily-calendar-timezone">Datas pelo horário de Brasília. Os desafios anteriores não podem ser repetidos.</p>
+ <p class="daily-calendar-timezone">Datas pelo horário de Brasília. Missões recebidas continuam disponíveis até a vitória; missões anteriores não recebidas não podem ser reivindicadas.</p>
 </section>
 <style is:global>
  .daily-calendar{max-width:900px;overflow:hidden;padding:0!important;background:linear-gradient(155deg,#1b2540,#121b30 72%)!important;border:1px solid #51618a!important;border-radius:18px!important;box-shadow:0 14px 40px #0208186b}
