@@ -18,21 +18,37 @@ export async function onRequestGet(ctx){
  const today=dateInSaoPaulo();
  const month=new URL(ctx.request.url).searchParams.get('month')||dateMonth(today);
  if(!validMonth(month)||month>dateMonth(today))return bodyError('Mês inválido ou ainda não disponível.',400);
- const auth=await playerAndDb(ctx);
- if(auth.error){
-  // Visitantes podem ver o calendário público; login é obrigatório para
-  // iniciar a partida e consultar a participação pessoal.
-  if(auth.error.status===401)return reply({game,today,month,timezone:'America/Sao_Paulo',days:[],account:null});
-  return auth.error;
- }
+ const publicCalendar={game,today,month,timezone:'America/Sao_Paulo',days:[],account:null};
+ const db=ctx.env?.OLDARCADE_STATS_DB;
+ if(!db)return reply({...publicCalendar,historyAvailable:false,error:'Serviço de desafios temporariamente indisponível.'});
+ // Carregar o calendário não pode depender da tabela de tentativas nem das
+ // preferências opcionais de e-mail da conta. O login é identificado pela
+ // sessão já existente, com somente as duas colunas necessárias.
+ let player=null;
  try{
-  const results=await auth.db.prepare(
+  const token=ctx.request.headers.get('Cookie')?.match(/(?:^|;\\s*)oldarcade_session=([0-9a-f]{64})(?:;|$)/)?.[1];
+  if(token){
+   const hash=await digest(token);
+   player=await db.prepare('SELECT a.id,a.nickname FROM player_sessions s JOIN player_accounts a ON a.id=s.player_id WHERE s.token_hash=? AND s.expires_at>?')
+    .bind(hash,Math.floor(Date.now()/1000)).first();
+  }
+ }catch{
+  return reply({...publicCalendar,historyAvailable:false,error:'Não foi possível verificar a sessão. Tente novamente.'});
+ }
+ if(!player)return reply(publicCalendar);
+ try{
+  const results=await db.prepare(
    'SELECT challenge_date,outcome FROM daily_challenge_attempts WHERE game=? AND player_id=? AND challenge_date>=? AND challenge_date<? ORDER BY challenge_date'
-  ).bind(game,auth.player.id,month+'-01',month+'-32').all();
-  return reply({game,today,month,timezone:'America/Sao_Paulo',
+  ).bind(game,player.id,month+'-01',month+'-32').all();
+  return reply({...publicCalendar,
    days:(results.results||[]).map(row=>({date:row.challenge_date,status:row.outcome})),
-   account:{nickname:auth.player.nickname}});
- }catch{return bodyError('Histórico diário indisponível: estrutura ainda não ativada.',503)}
+   account:{nickname:player.nickname},historyAvailable:true});
+ }catch{
+  // O calendário continua visível, mas a tentativa fica BLOQUEADA até
+  // verificarmos o histórico. Nunca disponibilizar replay por erro do banco.
+  return reply({...publicCalendar,account:{nickname:player.nickname},historyAvailable:false,
+   error:'Não foi possível consultar suas tentativas. O jogo diário ficará bloqueado até a consulta funcionar.'});
+ }
 }
 export async function onRequestPost(ctx){
  const game=String(ctx.params?.game||'');
