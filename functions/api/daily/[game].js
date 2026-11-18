@@ -38,10 +38,10 @@ export async function onRequestGet(ctx){
  if(!player)return reply(publicCalendar);
  try{
   const results=await db.prepare(
-   'SELECT challenge_date,outcome FROM daily_challenge_attempts WHERE game=? AND player_id=? AND challenge_date>=? AND challenge_date<? ORDER BY challenge_date'
+   'SELECT challenge_date,outcome,score,duration_ms FROM daily_challenge_attempts WHERE game=? AND player_id=? AND challenge_date>=? AND challenge_date<? ORDER BY challenge_date'
   ).bind(game,player.id,month+'-01',month+'-32').all();
   return reply({...publicCalendar,
-   days:(results.results||[]).map(row=>({date:row.challenge_date,status:row.outcome})),
+   days:(results.results||[]).map(row=>({date:row.challenge_date,status:row.outcome,score:row.outcome==='finished'?row.score:null,durationMs:row.outcome==='finished'?row.duration_ms:null})),
    account:{nickname:player.nickname},historyAvailable:true});
  }catch{
   // O calendário continua visível, mas a tentativa fica BLOQUEADA até
