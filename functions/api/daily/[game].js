@@ -67,19 +67,36 @@ export async function onRequestPost(ctx){
  const data=await parseBody(ctx.request);
  const today=dateInSaoPaulo(),now=Date.now();
  if(data?.action==='start'){
-  if(!validDailyDate(data.date)||data.date!==today)return bodyError('Somente o desafio de hoje pode ser iniciado.',400);
+  if(!validDailyDate(data.date)||data.date>today)return bodyError('Data inválida ou futura.',400);
+  // A primeira entrada na missão precisa ocorrer no dia oficial. Depois disso,
+  // a mesma missão pode ser retomada quantas vezes for necessário até vencer.
+  const requestedDate=data.date;
+  const version=dailyVersionForDate(requestedDate);
+  const mission=dailyMission(game,requestedDate,version);
+  if(!mission)return bodyError('Missão não encontrada.',400);
   const token=randomToken(),hash=await digest(token);
-  const version=dailyVersionForDate(today);
-  const mission=dailyMission(game,today,version);
   try{
    // Sem migração 0010, não consumir uma tentativa v2 que não poderá ser avaliada.
    if(version>=2)await auth.db.prepare('SELECT lines_cleared,mission_success FROM daily_challenge_attempts LIMIT 0').all();
-   const result=await auth.db.prepare(
-    'INSERT INTO daily_challenge_attempts(game,challenge_date,player_id,seed_version,started_at_ms,attempt_token_hash) VALUES(?,?,?,?,?,?) ON CONFLICT(game,challenge_date,player_id) DO NOTHING'
-   ).bind(game,today,auth.player.id,version,now,hash).run();
-   if(result.meta?.changes!==1)return bodyError('Você já utilizou sua única tentativa neste desafio.',409);
-   return reply({game,date:today,token,seed:dailySeed(game,today,version),mission,
-    rules:mission?.description||config.rules,startedAt:now,expiresAt:now+86400000},201);
+   // CREATE vale apenas no dia original. Para missão já recebida,
+   // reutilizar a linha e emitir novo token (o anterior deixa de valer).
+   const inserted=await auth.db.prepare(
+    'INSERT INTO daily_challenge_attempts(game,challenge_date,player_id,seed_version,started_at_ms,attempt_token_hash) SELECT ?,?,?,?,?,? WHERE ?=? ON CONFLICT(game,challenge_date,player_id) DO NOTHING'
+   ).bind(game,requestedDate,auth.player.id,version,now,hash,requestedDate,today).run();
+   if(inserted.meta?.changes!==1){
+    const row=await auth.db.prepare(
+     'SELECT seed_version,outcome,mission_success FROM daily_challenge_attempts WHERE game=? AND challenge_date=? AND player_id=?'
+    ).bind(game,requestedDate,auth.player.id).first();
+    if(!row)return bodyError('A missão não foi recebida naquela data.',404);
+    if(row.outcome==='finished'||row.mission_success===1||row.seed_version===1)
+     return bodyError('Missão já concluída ou edição histórica sem metas.',409);
+    const refreshed=await auth.db.prepare(
+     "UPDATE daily_challenge_attempts SET attempt_token_hash=?,started_at_ms=? WHERE game=? AND challenge_date=? AND player_id=? AND outcome='started'"
+    ).bind(hash,now,game,requestedDate,auth.player.id).run();
+    if(refreshed.meta?.changes!==1)return bodyError('Missão já concluída.',409);
+   }
+   return reply({game,date:requestedDate,token,seed:dailySeed(game,requestedDate,version),mission,
+    rules:mission.description,startedAt:now,expiresAt:null,retry:inserted.meta?.changes!==1},201);
   }catch{return bodyError('Não foi possível reservar a tentativa. Nenhum jogo deve ser iniciado sem confirmação.',503)}
  }
  if(data?.action==='finish'){
@@ -113,13 +130,19 @@ export async function onRequestPost(ctx){
     }
     won=dailyMissionWon(mission,{score:data.score,durationMs:data.durationMs,
      linesCleared:data.linesCleared,clearSequence});
+    if(!won){
+     // Derrota é apenas uma tentativa de jogar: a missão permanece aberta,
+     // inclusive nos dias posteriores. Não gravar um falso "concluído".
+     return reply({saved:false,retryAvailable:true,date:data.date,score:data.score,
+      durationMs:data.durationMs,linesCleared:data.linesCleared,missionSuccess:false,mission});
+    }
     result=await auth.db.prepare(
-     "UPDATE daily_challenge_attempts SET outcome='finished',score=?,duration_ms=?,finished_at_ms=?,lines_cleared=?,mission_success=? WHERE game=? AND challenge_date=? AND player_id=? AND attempt_token_hash=? AND outcome='started' AND started_at_ms<=? AND started_at_ms>=?"
-    ).bind(data.score,data.durationMs,now,data.linesCleared,won?1:0,game,data.date,auth.player.id,tokenHash,now,now-86400000).run();
+     "UPDATE daily_challenge_attempts SET outcome='finished',score=?,duration_ms=?,finished_at_ms=?,lines_cleared=?,mission_success=? WHERE game=? AND challenge_date=? AND player_id=? AND attempt_token_hash=? AND outcome='started'"
+    ).bind(data.score,data.durationMs,now,data.linesCleared,1,game,data.date,auth.player.id,tokenHash).run();
    }else{
     result=await auth.db.prepare(
-     "UPDATE daily_challenge_attempts SET outcome='finished',score=?,duration_ms=?,finished_at_ms=? WHERE game=? AND challenge_date=? AND player_id=? AND attempt_token_hash=? AND outcome='started' AND started_at_ms<=? AND started_at_ms>=?"
-    ).bind(data.score,data.durationMs,now,game,data.date,auth.player.id,tokenHash,now,now-86400000).run();
+     "UPDATE daily_challenge_attempts SET outcome='finished',score=?,duration_ms=?,finished_at_ms=? WHERE game=? AND challenge_date=? AND player_id=? AND attempt_token_hash=? AND outcome='started'"
+    ).bind(data.score,data.durationMs,now,game,data.date,auth.player.id,tokenHash).run();
    }
    if(result.meta?.changes!==1)return bodyError('Tentativa já concluída, expirada ou pertencente a outra conta.',409);
    return reply({saved:true,date:data.date,score:data.score,durationMs:data.durationMs,linesCleared:data.linesCleared??null,missionSuccess:won,mission});
