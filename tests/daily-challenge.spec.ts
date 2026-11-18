@@ -207,3 +207,46 @@ test('Missão Snake fica na coluna do jogo com contagem consistente de frutas',a
  await expect(slot).toBeVisible();
  await expect(slot.locator('.daily-live-progress')).toContainText('7 / 7');
 });
+
+test('Edição histórica Snake não apresenta missão falsa nem frutas 0/0',async({page})=>{
+ const legacy={version:1,kind:'legacy',metric:'score',target:null,timeLimitMs:null,
+  title:'Partida diária original',description:'Edição anterior: maior pontuação em uma tentativa. Não havia meta de vitória.'};
+ await page.route('**/api/daily/snake**',route=>route.fulfill({
+  status:200,contentType:'application/json',body:JSON.stringify({
+   game:'snake',today:'2026-11-18',month:'2026-11',days:[],account:{nickname:'Tester'},
+   mission:legacy,historyAvailable:true
+  })
+ }));
+ await page.goto('/jogos/snake/');
+ const slot=page.locator('#game-stage > [data-daily-mission-sidebar]');
+ await page.evaluate(mission=>{
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-mission-selected',{detail:{game:'snake',mission}}));
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}}));
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-progress',{detail:{
+   game:'snake',score:100,linesCleared:0,durationMs:29000,clearSequence:[]
+  }}));
+ },legacy);
+ await expect(slot).toBeHidden();
+ await expect(page.locator('[data-daily-play-indicator]')).toContainText('PARTIDA DIÁRIA HISTÓRICA');
+ await expect(page.locator('[data-daily-mission-name]')).toContainText('sem desafio');
+});
+test('Snake em tela cheia mantém missão alinhada ao tabuleiro, não na largura toda',async({page})=>{
+ const mission={version:3,kind:'rush',metric:'score',target:70,timeLimitMs:65000,
+  title:'Corrida contra o relógio',description:'Coma 7 frutas em até 65 segundos sem bater.'};
+ await page.route('**/api/daily/snake**',route=>route.fulfill({status:200,contentType:'application/json',
+  body:JSON.stringify({game:'snake',today:'2026-11-20',month:'2026-11',days:[],account:null,mission})
+ }));
+ await page.goto('/jogos/snake/');
+ await page.evaluate(mission=>{
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-mission-selected',{detail:{game:'snake',mission}}));
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}}));
+  document.getElementById('game-stage')?.classList.add('game-stage-fallback');
+ },mission);
+ const values=await page.evaluate(()=>{
+  const stage=document.getElementById('game-stage')!,slot=stage.querySelector<HTMLElement>('.snake-mission-area')!;
+  return {stageWidth:stage.getBoundingClientRect().width,missionWidth:slot.getBoundingClientRect().width,
+   missionVisible:getComputedStyle(slot).display!=='none'};
+ });
+ expect(values.missionVisible).toBe(true);
+ expect(values.missionWidth).toBeLessThan(values.stageWidth);
+});
