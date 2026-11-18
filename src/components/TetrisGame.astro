@@ -49,6 +49,7 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
        <div class="tetris-mini"><span class="eyebrow">Próxima</span><canvas id="tetris-next" width="120" height="120" aria-label="Prévia da próxima peça"></canvas></div>
        <div class="tetris-mini"><span class="eyebrow">Reserva · C</span><canvas id="tetris-hold" width="120" height="120" aria-label="Peça reservada"></canvas></div>
        <div class="tetris-mini tetris-line-stat"><span class="eyebrow">Linhas</span><strong id="tetris-lines">{sprint?`0/${goal}`:"0"}</strong></div>
+       <div class="tetris-mission-slot" data-daily-mission-sidebar data-daily-mission-inline hidden aria-label="Missão diária ao lado das linhas"></div>
       </aside>
      </div>
     </div>
@@ -61,7 +62,7 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
      <button type="button" data-tetris-control="hold" aria-label="Reservar peça">Reserva</button>
     </div>
    </div>
-   <aside class="panel tetris-sidebar" data-daily-mission-sidebar aria-label="Progresso do jogador">
+   <aside class="panel tetris-sidebar" aria-label="Progresso do jogador">
     <span class="eyebrow">Seu desempenho</span><h2>O próximo encaixe conta.</h2>
     <div class="stats-list">
      <div class="stat-row"><span>{timed?"Melhor tempo local":"Melhor pontuação local"}</span><strong id="tetris-local-best">{timed?"—":"0"}</strong></div>
@@ -103,21 +104,32 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
   .tetris-mode-nav a{border:1px solid #445478;border-radius:10px;padding:8px 15px;color:#dce5ff;background:#18213b;font-weight:700}
   .tetris-mode-nav a[aria-current=page]{background:#7655fa;border-color:#a18cff;color:#fff}
   .tetris-playfield{display:flex;justify-content:center;align-items:flex-start;gap:12px;min-width:0;padding:12px 0}
-  .tetris-board-shell{width:min(300px,calc(100% - 116px));flex:none;border-color:#627da3;background:#071a20;align-self:flex-start}
+  .tetris-board-shell{width:min(300px,calc(100% - 175px));flex:none;border-color:#627da3;background:#071a20;align-self:flex-start}
   .tetris-board-shell canvas{width:100%;height:auto;max-width:none;aspect-ratio:1/2;touch-action:none}
   .tetris-board-shell .game-overlay{padding:10px;background:#071426e8;gap:9px}
   .tetris-board-shell .game-overlay h2{font-size:clamp(1rem,2.3vw,1.45rem)}
   .tetris-board-shell .game-overlay p{font-size:.85rem;line-height:1.5}
-  .tetris-preview-column{display:grid;gap:10px;min-width:92px;width:100px}
+  .tetris-preview-column{display:grid;align-content:start;gap:10px;min-width:145px;width:155px}
   .tetris-mini{border:1px solid #394c71;border-radius:12px;background:#101c32;padding:8px;text-align:center;display:grid;gap:4px}
   .tetris-mini .eyebrow{font-size:.6rem;letter-spacing:.08em}
   .tetris-mini canvas{width:100%;height:auto;aspect-ratio:1;background:#0a1729;border-radius:7px}
   .tetris-line-stat strong{font-size:1.65rem;color:#ffe278}
+  .tetris-mission-slot[hidden]{display:none!important}
+  .tetris-mission-slot{min-width:0}
+  .tetris-mission-slot .daily-live-tracker{margin:0;padding:11px 9px;gap:8px;border-radius:12px;border-width:1px;box-shadow:0 4px 16px #0a062b52}
+  .tetris-mission-slot .daily-live-tracker>.eyebrow{font-size:.6rem;letter-spacing:.05em}
+  .tetris-mission-slot .daily-live-tracker>strong{font-size:.98rem;line-height:1.25}
+  .tetris-mission-slot .daily-live-tracker>p{font-size:.7rem;line-height:1.4}
+  .tetris-mission-slot .daily-live-progress{font-size:.82rem;padding:8px}
+  .tetris-mission-slot .daily-live-sequence{gap:4px}
+  .tetris-mission-slot .daily-live-sequence span{width:26px;height:29px;font-size:.83rem}
+  .tetris-mission-slot .daily-live-next{font-size:.74rem;padding:8px 5px}
   .tetris-touch-controls{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin-top:12px}
   .tetris-touch-controls button{min-width:0;padding:11px 2px;min-height:46px;background:#223554;color:#fff;border:1px solid #56719c;border-radius:9px;font-weight:800;touch-action:manipulation}
   .tetris-touch-controls button:active{background:#7655fa}
   .tetris-sidebar h2{font-size:1.45rem}
-  @media(max-width:580px){.tetris-playfield{gap:8px}.tetris-preview-column{width:82px;min-width:82px}.tetris-board-shell{width:min(300px,calc(100% - 90px))}.tetris-mini{padding:5px}.tetris-touch-controls button{font-size:.86rem}.tetris-sidebar{margin-top:6px}}
+  @media(max-width:580px){.tetris-playfield{gap:8px}.tetris-preview-column{width:116px;min-width:116px}.tetris-board-shell{width:min(300px,calc(100% - 124px))}.tetris-mini{padding:5px}.tetris-touch-controls button{font-size:.86rem}.tetris-sidebar{margin-top:6px}.tetris-mission-slot .daily-live-tracker{padding:8px 6px}.tetris-mission-slot .daily-live-tracker>strong{font-size:.88rem}.tetris-mission-slot .daily-live-sequence span{width:22px;height:27px;font-size:.74rem}}
+  @media(max-width:370px){.tetris-preview-column{width:102px;min-width:102px}.tetris-board-shell{width:min(300px,calc(100% - 110px))}}
   @media(prefers-reduced-motion:reduce){.tetris-touch-controls button{transition:none}}
  </style>
 </GamePage>
