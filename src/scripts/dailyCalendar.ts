@@ -27,13 +27,14 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
  const setState=(kind:string,title:string,description:string)=>{stateBox.dataset.status=kind;stateTitle.textContent=title;stateDescription.textContent=description};
  let today='',month='',current:CalendarResponse|null=null,sequence=0;
  const render=(payload:CalendarResponse)=>{
+  if(current&&payload.today!==current.today)enginePhase='idle';
   const statuses=new Map(payload.days.map(row=>[row.date,row.status]));
   const {offset,days:count}=monthDays(payload.month);
   const cells:HTMLElement[]=[];
   for(let i=0;i<offset;i++){const space=document.createElement('span');space.className='daily-day-spacer';space.setAttribute('aria-hidden','true');cells.push(space)}
   for(let i=1;i<=count;i++){
    const date=payload.month+'-'+String(i).padStart(2,'0');
-   const participated=statuses.get(date);
+   const participated=statuses.get(date)||(date===payload.today&&enginePhase!=='idle'?'started':undefined);
    const status=participated|| (date===payload.today?'today':date<payload.today?'past':'future');
    const button=document.createElement('button');button.type='button';button.disabled=!(date===payload.today&&!participated&&payload.month===payload.today.slice(0,7)&&payload.historyAvailable!==false);
    if(!button.disabled)button.addEventListener('click',()=>{if(payload.account){start.click()}else{guestExplanation.hidden=false;info.textContent='Crie uma conta gratuita para aproveitar este benefício e guardar sua participação.';document.dispatchEvent(new CustomEvent('oldarcade:open-auth'))}});
@@ -48,7 +49,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   monthLabel.textContent=monthName(month);
   const active=month===today.slice(0,7);
   const todayRow=payload.days.find(x=>x.date===today);
-  const attempted=!!todayRow;
+  const attempted=!!todayRow||enginePhase!=='idle';
   const currentMonth=active;
   login.hidden=!!payload.account;guestExplanation.hidden=true;start.hidden=!payload.account||!active||attempted||payload.historyAvailable===false;start.disabled=!payload.account||!active||attempted||payload.historyAvailable===false;
   done.hidden=!payload.account||!attempted;prev.disabled=false;next.disabled=month>=today.slice(0,7);
@@ -58,21 +59,19 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   }else if(!payload.account){
    setState('guest','Desafio de hoje disponível para quem tem conta','É grátis: entre para registrar sua tentativa, sua pontuação e seu histórico.');
    info.textContent='Selecione o dia de hoje ou use o botão de entrada para participar.';
+  }else if(enginePhase==='playing'){
+   setState('playing','Desafio em andamento','Sua única tentativa está acontecendo no tabuleiro abaixo. Continue jogando para registrar a pontuação.');
+   info.textContent='A partida está em andamento. Use os controles do jogo abaixo.';
+  }else if(enginePhase==='pending'){
+   setState('pending','Resultado aguardando confirmação','Sua partida terminou, mas a pontuação ainda precisa ser confirmada. Reenvie pelo botão do jogo.');
+   info.textContent='Não inicie outra partida; utilize a opção de reenviar o resultado.';
   }else if(todayRow?.status==='finished'||enginePhase==='finished'){
    const result=typeof todayRow?.score==='number'?' Você marcou '+todayRow.score.toLocaleString('pt-BR')+' pontos.':'';
    setState('finished','Desafio de hoje concluído',result+' Sua tentativa foi registrada. Consulte o histórico em Minha Conta; o próximo desafio abre amanhã.');
    info.textContent='Participação concluída. Este desafio não pode ser repetido.';
   }else if(todayRow?.status==='started'){
-   if(enginePhase==='playing'){
-    setState('playing','Desafio em andamento','Sua única tentativa está acontecendo no tabuleiro abaixo. Continue a partida para registrar a pontuação.');
-    info.textContent='A partida está em andamento. Use os controles do jogo abaixo.';
-   }else if(enginePhase==='pending'){
-    setState('pending','Resultado aguardando confirmação','Sua partida terminou, mas o envio da pontuação ainda precisa ser confirmado. Reenvie pelo botão do jogo.');
-    info.textContent='Não inicie outra partida; utilize a opção de reenviar o resultado.';
-   }else{
-    setState('started','Tentativa iniciada, sem conclusão confirmada','Este dia já teve uma tentativa reservada. Se a partida foi interrompida ou a página foi fechada, não é possível jogá-la novamente.');
-    info.textContent='Nenhuma pontuação concluída foi confirmada para esta tentativa. O próximo desafio abre amanhã.';
-   }
+   setState('started','Tentativa iniciada, sem conclusão confirmada','Este dia já teve uma tentativa reservada. Se a partida foi interrompida ou a página foi fechada, não é possível jogá-la novamente.');
+   info.textContent='Nenhuma pontuação concluída foi confirmada para esta tentativa. O próximo desafio abre amanhã.';
   }else if(currentMonth){
    setState('available','Desafio de hoje disponível','Você ainda não iniciou sua tentativa. Uma vez iniciada, ela não poderá ser repetida.');
    info.textContent='Clique em Iniciar desafio de hoje para jogar '+DAILY_MODES[game as keyof typeof DAILY_MODES].title+' Clássico com sequência igual para todos.';
