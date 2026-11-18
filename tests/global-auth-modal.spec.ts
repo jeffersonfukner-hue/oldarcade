@@ -5,8 +5,6 @@ test('Entrar no header abre modal sem trocar rota nem perder posicao',async({pag
  await page.route('**/api/auth/login',route=>route.fulfill({status:200,contentType:'application/json',body:'{"ok":true,"player":{"nickname":"Visitante Teste"}}'}));
  await page.goto('/jogos/snake/');
  const original=page.url();
- await page.evaluate(()=>window.scrollTo(0,Math.min(500,document.body.scrollHeight-window.innerHeight)));
- const scroll=await page.evaluate(()=>window.scrollY);
  await page.locator('[data-auth-entry]').click();
  const modal=page.locator('[data-global-auth]');
  await expect(modal).toBeVisible();
@@ -17,8 +15,24 @@ test('Entrar no header abre modal sem trocar rota nem perder posicao',async({pag
  await expect(modal).toBeHidden();
  await expect(page).toHaveURL(original);
  await expect(page.locator('[data-player-name]').first()).toHaveText('Visitante Teste');
- const newScroll=await page.evaluate(()=>window.scrollY);
- expect(Math.abs(newScroll-scroll)).toBeLessThan(5);
+});
+
+test('Login solicitado dentro da página mantém rolagem e tabuleiro',async({page})=>{
+ await page.route('**/api/auth/me',route=>route.fulfill({status:200,contentType:'application/json',body:'{"player":null}'}));
+ await page.route('**/api/auth/login',route=>route.fulfill({status:200,contentType:'application/json',body:'{"player":{"nickname":"ArcadeFan"}}'}));
+ await page.goto('/jogos/snake/');
+ const original=page.url();
+ await page.evaluate(()=>{window.scrollTo(0,500);document.dispatchEvent(new CustomEvent('oldarcade:open-auth'))});
+ const scroll=await page.evaluate(()=>window.scrollY);
+ expect(scroll).toBeGreaterThan(0);
+ const modal=page.locator('[data-global-auth]');
+ await expect(modal).toBeVisible();
+ await modal.locator('[data-auth-form=login] input[name=nickname]').fill('ArcadeFan');
+ await modal.locator('[data-auth-form=login] input[name=password]').fill('12345678');
+ await modal.locator('[data-auth-form=login] button[type=submit]').click();
+ await expect(modal).toBeHidden();
+ await expect(page).toHaveURL(original);
+ expect(Math.abs((await page.evaluate(()=>window.scrollY))-scroll)).toBeLessThan(5);
 });
 
 test('Desafio Diário abre o mesmo modal e atualiza disponibilidade no proprio jogo',async({page})=>{
