@@ -87,6 +87,29 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
   <style>
     .snake-mission-area[hidden]{display:none!important}
     .snake-mission-area{margin-bottom:14px;max-width:100%}
+    /* Tela cheia usa a mesma largura útil do tabuleiro e placar, sem faixa vazia. */
+    #game-stage:fullscreen .snake-mission-area,
+    #game-stage.game-stage-fallback .snake-mission-area{
+      width:min(100%,calc(var(--oa-slot-max,640px) + 210px));
+      margin:0 auto 8px;
+      flex:none;
+    }
+    #game-stage:fullscreen .snake-mission-area :global(.daily-live-tracker),
+    #game-stage.game-stage-fallback .snake-mission-area :global(.daily-live-tracker){
+      padding:10px 14px;
+      grid-template-columns:minmax(0,1fr) minmax(118px,170px);
+      gap:2px 12px;
+    }
+    #game-stage:fullscreen .snake-mission-area :global(.daily-live-progress),
+    #game-stage.game-stage-fallback .snake-mission-area :global(.daily-live-progress){min-height:56px;font-size:1rem}
+    @media(max-width:720px){
+      #game-stage:fullscreen .snake-mission-area,
+      #game-stage.game-stage-fallback .snake-mission-area{width:100%}
+      #game-stage:fullscreen .snake-mission-area :global(.daily-live-tracker),
+      #game-stage.game-stage-fallback .snake-mission-area :global(.daily-live-tracker){grid-template-columns:minmax(0,1fr);padding:10px}
+      #game-stage:fullscreen .snake-mission-area :global(.daily-live-progress),
+      #game-stage.game-stage-fallback .snake-mission-area :global(.daily-live-progress){grid-column:1;grid-row:4;min-height:36px}
+    }
     .snake-mission-area :global(.daily-live-tracker){margin:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(165px,215px);column-gap:18px;row-gap:5px;align-items:center;padding:14px 18px}
     .snake-mission-area :global(.daily-live-tracker > .eyebrow){grid-column:1;grid-row:1}
     .snake-mission-area :global(.daily-live-tracker > strong){grid-column:1;grid-row:2;font-size:1.2rem}
