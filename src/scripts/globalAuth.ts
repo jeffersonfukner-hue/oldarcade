@@ -18,8 +18,8 @@ if(overlay){
   message.textContent='';
   (tab==='login'?login:register).querySelector<HTMLInputElement>('input')?.focus({preventScroll:true});
  }
- function close(){
-  if(waiting||overlay.hidden)return;
+ function close(force=false){
+  if((waiting&&!force)||overlay.hidden)return;
   overlay.hidden=true;recovery.hidden=true;login.reset();register.reset();
   document.body.classList.remove('oa-auth-open');
   lastFocus?.focus({preventScroll:true});lastFocus=null;
@@ -82,7 +82,7 @@ if(overlay){
      done.focus({preventScroll:true});
     }else{
      message.textContent='';
-     close();
+     close(true);
     }
    }catch(error){message.textContent=error instanceof Error?error.message:'Não foi possível concluir o acesso.'}
    finally{waiting=false;button.disabled=false}
