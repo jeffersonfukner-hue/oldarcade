@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## Desafio Diário — estados, objetivo e transparência de tentativa (18/11/2026)
+- Proprietário relatou que, mesmo com calendário visível, ele **parecia já jogado**, sem objetivo claro, sem dizer se partida está acontecendo, terminou ou se foi uma falha. Não considerar concluída uma tentativa apenas por ela estar marcada `started`.
+- `DailyCalendar.astro` agora explica objetivo real: **Snake Clássico / Tetris Clássico**, buscar maior pontuação, mesma sequência de frutas/peças por data, uma tentativa; card de estado grande e visível acima do calendário. `dailyCalendar.ts` apresenta estados independentes: **disponível**, **em andamento**, **tentativa iniciada mas sem conclusão confirmada**, **resultado pendente**, **concluído**, **histórico indisponível**, visitante e datas anteriores. Estado `started` sozinho NÃO afirma conclusão. Se DB falhar, não simula que a pessoa já jogou; mostra indisponibilidade e bloqueia nova partida (fail-safe).
+- Motores `snake.ts` e `tetris.ts` enviam `oldarcade:daily-phase` em início real, após fim pendente e após envio confirmado; selo `data-daily-play-indicator` aparece junto do tabuleiro enquanto jogo diário está ativo. O botão de iniciar some assim que o motor iniciar, antes mesmo do GET seguinte, impedindo duplo clique.
+- GET privado `/api/daily/{game}` devolve pontos e duração **somente para a própria conta** nos resultados `finished`; card informa pontuação quando a consulta confirma. Na Home, `historyAvailable:false` remove desafio da vitrine em vez de anunciar algo que não pode ser iniciado.
+- Cobertura API e E2E atualizada. CI ainda precisa confirmar HEAD. Não autorizar replay nem resetar tentativas existentes; nenhuma migração nova. Produção não autorizada.
+
 ## Bug do calendário somente quando logado — 18/11/2026
 - Relatado pelo proprietário: calendário diário permanece em carregamento quando **autenticado**, mas abre ao sair da conta. O bug **já ocorria antes da implementação do modal global de login**; portanto, não atribuir sua origem ao modal.
 - Investigação: GET `/api/daily/[game]` anteriormente usava `currentPlayer` (que consulta também colunas opcionais de preferências) e depois `daily_challenge_attempts`. O caminho público não lia o histórico; qualquer exceção do caminho autenticado devolvia 503, impedindo renderização. **A causa exata no D1 Preview não foi verificada por consulta direta.**
