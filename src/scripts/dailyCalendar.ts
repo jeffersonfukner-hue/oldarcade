@@ -31,7 +31,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
    const participated=statuses.get(date);
    const status=participated|| (date===payload.today?'today':date<payload.today?'past':'future');
    const button=document.createElement('button');button.type='button';button.disabled=!(date===payload.today&&!participated&&payload.month===payload.today.slice(0,7));
-   if(!button.disabled)button.addEventListener('click',()=>{if(payload.account){start.click()}else{guestExplanation.hidden=false;info.textContent='Crie uma conta gratuita para aproveitar este benefício e guardar sua participação.';login.focus()}});
+   if(!button.disabled)button.addEventListener('click',()=>{if(payload.account){start.click()}else{guestExplanation.hidden=false;info.textContent='Crie uma conta gratuita para aproveitar este benefício e guardar sua participação.';document.dispatchEvent(new CustomEvent('oldarcade:open-auth'))}});
    button.className='daily-day';button.dataset.status=status;button.setAttribute('aria-label',date+' · '+(participated==='finished'?'concluído':participated==='started'?'tentativa utilizada':date===payload.today?'disponível hoje':date<payload.today?'encerrado':'ainda não disponível'));
    button.textContent=String(i);
    const detail=document.createElement('span');detail.className='daily-mark';
