@@ -170,7 +170,7 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   }else if(resumable){
    setState('available','Missão recebida · disponível até vencer','Você pode tentar novamente, mesmo depois da data original. Só a vitória encerra esta missão.');
    info.textContent=mission?.description||'Clique para continuar a missão.';
-  }else if(currentMonth&&selectedDate===today){
+  }else if(active&&selectedDate===today){
    setState('available','Missão de hoje disponível','Ao receber a missão, ela ficará disponível até você completar o objetivo, mesmo nos próximos dias.');
    info.textContent=mission?.description||'Escolha a missão de hoje.';
   }else{
