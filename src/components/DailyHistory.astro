@@ -11,6 +11,9 @@
  .daily-history-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
  .daily-history-entry{padding:12px;border-radius:10px;border:1px solid #3c4c69;background:#151f38}
  .daily-history-entry p{margin:.3rem 0}
+ .daily-history-meta{font-size:.79rem;color:#b5c6e4;line-height:1.5}
+ .daily-history-won{color:#9cf7d1;font-weight:850}
+ .daily-history-result{font-weight:750}
 </style>
 <script>
  import {DAILY_MODES} from '../data/dailyChallenges.js';
@@ -25,7 +28,7 @@
    const response=await fetch('/api/daily/profile',{cache:'no-store'});
    if(seq!==sequence)return;
    if(response.status===401){status.textContent='Entre em sua conta para consultar o histórico.';return}
-   const data=await response.json() as {error?:string;results?:Array<{game:string;date:string;status:string;score:number|null;durationMs:number|null}>};
+   const data=await response.json() as {error?:string;results?:Array<{game:string;date:string;status:string;score:number|null;durationMs:number|null;linesCleared?:number|null;missionSuccess?:boolean|null;mission?:{version:number;title:string;description:string}}>};
    if(!response.ok)throw Error(data.error||'Não foi possível consultar o histórico.');
    const records=data.results??[];
    if(!records.length){status.textContent='Você ainda não participou de Desafios Diários.';return}
@@ -35,8 +38,15 @@
     const card=document.createElement('article');card.className='daily-history-entry';
     const heading=document.createElement('strong');heading.textContent=DAILY_MODES[item.game as keyof typeof DAILY_MODES].title+' · '+item.date.split('-').reverse().join('/');
     const performance=document.createElement('p');
-    performance.textContent=item.status==='finished'?'Pontuação: '+item.score+' pontos · Tempo: '+Math.floor((item.durationMs||0)/1000)+' s':'Tentativa utilizada; partida não concluída ou resultado não confirmado.';
-    card.append(heading,performance);list.append(card);
+    const meta=document.createElement('p');meta.className='daily-history-meta';
+    meta.textContent=item.mission?.version>=2?item.mission.title+' · '+item.mission.description:'Edição original: pontuação livre';
+    performance.textContent=item.status==='finished'?
+     (item.mission?.version>=2?(item.missionSuccess?'🏆 Missão cumprida':'Meta não alcançada')+' · ':'')+
+      'Pontuação: '+item.score+' pontos · Tempo: '+Math.floor((item.durationMs||0)/1000)+' s'+
+      (typeof item.linesCleared==='number'?' · '+item.linesCleared+' linhas':'')
+     :'Tentativa utilizada; partida não concluída ou resultado não confirmado.';
+    performance.className=item.status==='finished'?(item.missionSuccess?'daily-history-won':'daily-history-result'):'daily-history-pending';
+    card.append(heading,meta,performance);list.append(card);
    }
   }catch(error){if(seq===sequence)status.textContent=error instanceof Error?error.message:'Histórico indisponível.'}
  }
