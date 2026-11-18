@@ -126,7 +126,8 @@ function award(points:number){
 }
 function land(){
  if(!piece||state!=='playing')return;
- if((dailyAttempt?.mission?.version??0)>=2&&dailyAttempt!.mission!.timeLimitMs!==null&&clock.milliseconds()>=dailyAttempt.mission.timeLimitMs){finish(false);return}
+ const runningMission=dailyAttempt?.mission;
+ if(runningMission&&runningMission.version>=2&&runningMission.timeLimitMs!==null&&clock.milliseconds()>=runningMission.timeLimitMs){finish(false);return}
  for(let y=0;y<piece.shape.length;y++)for(let x=0;x<piece.shape[y].length;x++){
   if(!piece.shape[y][x])continue;
   const yy=piece.y+y;
@@ -147,7 +148,7 @@ function land(){
   if(dailyMission&&dailyMission.version>=2&&dailyMission.metric==='score'&&score>=dailyMission.target!){finish(true);return}
   if(dailyMission&&dailyMission.version>=3&&dailyMission.kind==='quads'&&cleared!==4){finish(false);return}
   if(dailyMission&&dailyMission.version>=3&&dailyMission.kind==='sequence'&&cleared!==dailyMission.sequence?.[dailyClears.length-1]){finish(false);return}
-  if(dailyMission?.version>=3&&(dailyMission.kind==='quads'||dailyMission.kind==='sequence')&&dailyClears.length===dailyMission.target){finish(true);return}
+  if(dailyMission&&dailyMission.version>=3&&(dailyMission.kind==='quads'||dailyMission.kind==='sequence')&&dailyClears.length===dailyMission.target){finish(true);return}
   if(dailyMission&&dailyMission.version>=2&&dailyMission.metric==='lines'&&lines>=dailyMission.target!){finish(true);return}
   showScoreFeedback(screen,canvas,timed?cleared:points,timed?(cleared===1?'linha eliminada':'linhas eliminadas'):cleared===4?'TETRIS! 4 linhas':cleared===1?'1 linha':cleared+' linhas',completed[0],ROWS);
   // Clássico pontua linhas; Sprint utiliza somente tempo de conclusão.
