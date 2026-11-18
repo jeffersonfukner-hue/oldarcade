@@ -53,3 +53,39 @@ test('Cadastro e perfil oferecem avisos separados e e-mail opcional',async({page
  await expect(page.locator('#register-alerts')).toBeVisible();
  await expect(page.locator('#register-daily-alerts')).toBeVisible();
 });
+
+
+test('Tetris oferece repetir o desafio após derrota e não inicia o Clássico',async({page})=>{
+ let starts=0,finishes=0;
+ const mission={version:3,kind:'timed-sequence',metric:'sequence',target:4,timeLimitMs:900,
+  title:'Duplas perfeitas',description:'Elimine 2 linhas quatro vezes seguidas em 900 ms.',sequence:[2,2,2,2]};
+ await page.route('**/api/auth/me',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({player:{nickname:'Jogador Tetris'}})}));
+ await page.route('**/api/daily/tetris**',async route=>{
+  if(route.request().method()==='POST'){
+   const {action}=route.request().postDataJSON() as {action:string};
+   if(action==='start'){
+    starts++;
+    return route.fulfill({status:201,contentType:'application/json',body:JSON.stringify({date:'2026-11-20',game:'tetris',token:'a'.repeat(64),seed:1234567,mission})});
+   }
+   if(action==='finish'){
+    finishes++;
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({saved:false,retryAvailable:true,missionSuccess:false,mission})});
+   }
+  }
+  return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+   game:'tetris',today:'2026-11-20',month:'2026-11',days:starts?[{date:'2026-11-20',status:'started'}]:[],
+   mission,account:{nickname:'Jogador Tetris'},historyAvailable:true
+  })});
+ });
+ await page.goto('/jogos/tetris/');
+ await page.locator('[data-daily-calendar="tetris"] [data-daily-start]').click();
+ await expect(page.locator('#tetris-overlay-title')).toHaveText('Meta ainda não alcançada',{timeout:15000});
+ await expect(page.locator('#tetris-overlay-text')).toContainText('Quer começar novamente este desafio?');
+ await expect(page.locator('#tetris-start')).toHaveText('↻ Tentar desafio novamente');
+ expect(starts).toBe(1);
+ expect(finishes).toBe(1);
+ await page.locator('#tetris-start').click();
+ await expect(page.locator('#tetris-countdown')).toHaveText('3');
+ expect(starts).toBe(2);
+ await expect(page.locator('[data-daily-mission-sidebar] .daily-live-tracker')).toContainText('Duplas perfeitas');
+});
