@@ -87,18 +87,32 @@ export function dailyMission(game,date,version=dailyVersionForDate(date)){
   }
  }else{
   if(variant===0){
-   const cleared=2+tier+variation;
-   mission={kind:'lines',metric:'lines',target:cleared,timeLimitMs:null,
-    title:'Mestre das linhas',description:'Elimine '+cleared+' linhas antes de empilhar blocos até o topo.'};
+   if(version===2){
+    const cleared=2+tier+variation;
+    mission={kind:'lines',metric:'lines',target:cleared,timeLimitMs:null,
+     title:'Mestre das linhas',description:'Elimine '+cleared+' linhas antes de empilhar blocos até o topo.'};
+   }else{
+    const count=3+tier%3+variation%2;
+    const sequence=Array(count).fill(1);
+    mission={kind:'singles',metric:'sequence',target:count,timeLimitMs:null,sequence,
+     title:'Um de cada vez',description:'Faça '+count+' limpezas de exatamente 1 linha, uma após outra. Limpar 2, 3 ou 4 de uma vez encerra a missão.'};
+   }
   }else if(variant===1){
    const cleared=2+tier+variation;
    const seconds=65+tier*15+variation*10;
    mission={kind:'rush',metric:'lines',target:cleared,timeLimitMs:seconds*1000,
     title:'Sprint relâmpago',description:'Elimine '+cleared+' linhas em até '+seconds+' segundos.'};
   }else if(variant===2){
-   const points=300+tier*200+variation*100;
-   mission={kind:'score',metric:'score',target:points,timeLimitMs:null,
-    title:'Caça aos pontos',description:'Alcance '+points+' pontos antes do fim da partida.'};
+   if(version===2){
+    const points=300+tier*200+variation*100;
+    mission={kind:'score',metric:'score',target:points,timeLimitMs:null,
+     title:'Caça aos pontos',description:'Alcance '+points+' pontos antes do fim da partida.'};
+   }else{
+    const count=2+tier%3+variation%2;
+    const sequence=Array(count).fill(2);
+    mission={kind:'doubles',metric:'sequence',target:count,timeLimitMs:null,sequence,
+     title:'Duplas perfeitas',description:'Complete '+count+' limpezas de exatamente 2 linhas consecutivas. Qualquer limpeza de 1, 3 ou 4 linhas encerra a missão.'};
+   }
   }else if(variant===3){
    const quads=1+Math.floor(tier/2)+Math.floor(variation/3);
    mission={kind:'quads',metric:'quadscore',target:quads*800,timeLimitMs:null,
