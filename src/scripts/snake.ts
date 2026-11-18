@@ -6,7 +6,7 @@ import { setupGlobalLeaderboard } from './globalLeaderboard';
 import {centerGameBoard} from './gameViewport';
 import { setupGlobalGameCounters } from './globalGameCounters';
 import {recordGameStart,recordGameFinish} from './gameEvents';
-import {seededRandom} from '../data/dailyChallenges.js';
+import {seededRandom,dailyMissionWon} from '../data/dailyChallenges.js';
 type Direction = 'up'|'down'|'left'|'right';
 type Point = {x:number;y:number};
 type Score = {name:string;score:number;at:number};
@@ -417,9 +417,8 @@ function end(won:boolean){
   const attempt=dailyAttempt;
   const mission=attempt.mission;
   const duration=gameClock.milliseconds();
-  const success=won&&(mission?.metric==='score'?score>=(mission.target??Infinity)&&
-    (mission.timeLimitMs===null||duration<=mission.timeLimitMs)
-    :mission?.metric==='duration'?duration>=(mission.target??Infinity):false);
+  // Mesmo avaliador de missão da API. Colisão nunca pode marcar vitória.
+  const success=won&&dailyMissionWon(mission,{score,durationMs:duration,linesCleared:0,clearSequence:[]})===true;
   dailyAttempt=null;dailyRandom=Math.random;
   show(success?'🏆 MISSÃO CUMPRIDA!':'META NÃO ALCANÇADA',
     (mission?.description||'')+' · '+score+' pontos · '+Math.floor(duration/1000)+' s. Teste quantas vezes quiser.','▶ Jogar Snake livre');
