@@ -15,28 +15,31 @@ const description='Jogue Snake e Tetris gratuitamente, acompanhe rankings por mo
   <div class="shell arcade-home">
     <div class="arcade-dashboard">
       <aside class="arcade-sidebar" aria-label="Atalhos do jogador">
-        <div class="arcade-sidebar-heading"><span class="eyebrow">Seu espaço</span><strong>Pronto para jogar?</strong><p>Seu próximo desafio está a um clique.</p></div>
+        <div class="arcade-sidebar-heading"><span class="eyebrow">SALA DE JOGOS</span><strong>Escolha sua fase.</strong><p>Um clássico de cada vez.</p></div>
         <nav class="arcade-side-nav" aria-label="Navegação da página inicial">
           <a class="active" href="#destaques" aria-current="location"><span aria-hidden="true">🎮</span> Jogos</a>
           <a href="/rankings/"><span aria-hidden="true">🏆</span> Rankings</a>
           <a href="/conta/" data-player-account-link><span aria-hidden="true">👤</span> <span data-player-name>Minha conta</span></a>
         </nav>
-        <div class="arcade-side-foot">
-          <span class="eyebrow">Desafie os líderes</span>
-          <p>Conheça os líderes e desafie jogadores em cada modalidade.</p>
-          <a href="/rankings/">Ver rankings <span aria-hidden="true">→</span></a>
-        </div>
+        <div class="arcade-side-foot"><span class="eyebrow">TOP DO ARCADE</span><strong>O próximo recorde pode ser seu.</strong><a href="/rankings/">Ver classificações <span aria-hidden="true">→</span></a></div>
       </aside>
       <div class="arcade-dashboard-main">
-        <section class="arcade-welcome" aria-labelledby="home-heading">
+        <section class="arcade-welcome oa-home-intro" aria-labelledby="home-heading">
           <div class="arcade-welcome-copy">
-            <span class="eyebrow">🎮 Novidade · Jogo #{String(newestGame[1].number).padStart(3,'0')}</span>
-            <h1 id="home-heading">Chegou <span class="accent">{newestGame[1].name}!</span></h1>
-            <p>{newestMode?.[1].description??'O mais novo desafio do OldArcade já está no catálogo.'} Grátis e direto no navegador.</p>
-            <a class="btn" id="featured-game-link" data-featured-game={newestGame[0]} href={newestMode?.[1].url??'#destaques'}>▶ Jogar {newestGame[1].name} agora</a>
+            <span class="eyebrow"><span class="oa-live-dot" aria-hidden="true"></span> OldArcade · Sua sala de jogos</span>
+            <h1 id="home-heading">Os clássicos nunca <span class="accent">saem de fase.</span></h1>
+            <p>Do Snake ao Tetris: escolha seu modo, supere sua marca e volte amanhã para um novo desafio.</p>
+            <div class="oa-intro-actions">
+              <a class="btn" id="featured-game-link" data-featured-game={newestGame[0]} href={newestMode?.[1].url??'#destaques'}>▶ Jogar {newestGame[1].name}</a>
+              <a class="btn secondary" href="#destaques">Explorar os jogos ↓</a>
+            </div>
           </div>
-          <div class="arcade-welcome-art" aria-hidden="true">
-            <div class="arcade-screen"><div class="arcade-screen-label">OLD ARCADE · #{String(newestGame[1].number).padStart(3,'0')}</div><div class="arcade-featured-symbol">{newestMode?.[1].symbol??'🎮'}</div><strong class="arcade-featured-name">{newestGame[1].name}</strong><div class="arcade-screen-bottom">● NOVO JOGO ●</div></div>
+          <div class="oa-home-intro-art" aria-hidden="true">
+            <div class="oa-intro-halo"></div>
+            <span class="oa-intro-pixel oa-intro-pixel-a">▣</span>
+            <span class="oa-intro-pixel oa-intro-pixel-b">✦</span>
+            <span class="oa-intro-pixel oa-intro-pixel-c">◈</span>
+            <span class="oa-intro-level">READY PLAYER ONE<span>● 2 JOGOS · 6 MODOS</span></span>
           </div>
         </section>
         <div class="arcade-activity" aria-label="Estatísticas reais do OldArcade">
@@ -45,23 +48,33 @@ const description='Jogue Snake e Tetris gratuitamente, acompanhe rankings por mo
           <div class="arcade-activity-item"><span aria-hidden="true">🏁</span><strong id="hero-total-plays">—</strong><span>Total de partidas</span></div>
         </div>
         <section id="home-daily" class="home-daily-spotlight" data-home-daily hidden aria-labelledby="home-daily-title">
+          <div class="home-daily-emblem" aria-hidden="true"><span>★</span><small>24H</small></div>
           <div class="home-daily-copy">
-            <span class="eyebrow">📅 Uma chance por dia · Benefício gratuito</span>
-            <h2 id="home-daily-title">Desafio Diário: <span data-home-daily-name></span></h2>
-            <p data-home-daily-copy>Uma tentativa por dia, uma surpresa diferente no OldArcade.</p>
+            <span class="eyebrow">DESAFIO DIÁRIO <span class="oa-daily-dot" aria-hidden="true">●</span> NOVA CHANCE AMANHÃ</span>
+            <h2 id="home-daily-title">Só uma tentativa. <span data-home-daily-name></span> é o desafio de hoje.</h2>
+            <p data-home-daily-copy>Um desafio especial está à sua espera.</p>
           </div>
-          <a class="btn" data-home-daily-link href="/conta/">Conhecer desafio</a>
+          <a class="btn home-daily-action" data-home-daily-link href="/conta/">Descobrir desafio →</a>
         </section>
         <section class="arcade-games" id="destaques" aria-labelledby="games-heading">
-          <div class="arcade-games-heading"><div><span class="eyebrow">Biblioteca de jogos</span><h2 id="games-heading">Escolha seu desafio</h2></div><span class="pill">{availableGames} {availableGames===1?'jogo':'jogos'} · {featuredModes.length} modos</span></div>
+          <div class="arcade-games-heading"><div><span class="eyebrow">Biblioteca de jogos</span><h2 id="games-heading">Escolha seu desafio</h2></div><span class="pill oa-library-count">{availableGames} jogos <span aria-hidden="true">•</span> {featuredModes.length} modalidades</span></div>
           <div class="arcade-mode-grid home-game-grid">
             {orderedGames.map(([id,game])=><article class="home-game-card" data-home-game={id}>
-              <div class="home-game-art"><img src={id==='snake'?'/images/snake-arcade.svg':'/images/tetris-arcade.svg'} alt={id==='snake'?'Cobrinha pixelada no tabuleiro neon':'Blocos de Tetris coloridos em queda'} loading="lazy" width="680" height="300" /></div>
+              <div class="home-game-art">
+                <img src={id==='snake'?'/images/snake-arcade.svg':'/images/tetris-arcade.svg'} alt={id==='snake'?'Cobrinha pixelada no tabuleiro neon':'Blocos de Tetris coloridos em queda'} loading="lazy" width="680" height="300" />
+                <span class="home-game-art-number" aria-hidden="true">#{String(game.number).padStart(3,'0')}</span>
+                <span class="home-game-art-title">{game.name}</span>
+                <span class="home-game-art-stamp">ORIGINAL ARCADE</span>
+              </div>
               <div class="home-game-body">
-                <div class="home-game-heading"><span class="eyebrow">Jogo #{String(game.number).padStart(3,'0')}</span><h3>{game.name}</h3></div>
-                <p>{id==='snake'?'A cobrinha clássica ganha aventuras, poderes e novas maneiras de desafiar seus reflexos.':'Encaixe as peças, limpe linhas e escolha entre pontuação, velocidade e resistência.'}</p>
+                <div class="home-game-heading"><div><span class="eyebrow">ESCOLHA SEU MODO</span><h3>{game.name}</h3></div><span class="home-game-mode-count">{modesByTitle[id].length} modos</span></div>
+                <p>{id==='snake'?'Colete frutas, cresça e encontre seu limite. Três formas de viver a clássica cobrinha.':'Encaixe as peças e limpe linhas. Jogue por pontos, contra o relógio ou até o limite.'}</p>
                 <nav class="home-game-modes" aria-label={'Modos do '+game.name}>
-                  {modesByTitle[id].map(([modeId,mode])=><a href={mode.url} aria-label={'Jogar '+mode.name}>{mode.symbol} {mode.name.slice(game.name.length).trim()||'Clássico'}</a>)}
+                  {modesByTitle[id].map(([modeId,mode])=><a href={mode.url} aria-label={'Jogar '+mode.name} title={mode.tagline}>
+                    <span class="home-mode-icon" aria-hidden="true">{mode.symbol}</span>
+                    <span class="home-mode-label">{mode.name.slice(game.name.length).trim()||'Clássico'}</span>
+                    <span class="home-mode-arrow" aria-hidden="true">↗</span>
+                  </a>)}
                 </nav>
               </div>
             </article>)}
