@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## Bug do calendário somente quando logado — 18/11/2026
+- Relatado pelo proprietário: calendário diário permanece em carregamento quando **autenticado**, mas abre ao sair da conta. O bug **já ocorria antes da implementação do modal global de login**; portanto, não atribuir sua origem ao modal.
+- Investigação: GET `/api/daily/[game]` anteriormente usava `currentPlayer` (que consulta também colunas opcionais de preferências) e depois `daily_challenge_attempts`. O caminho público não lia o histórico; qualquer exceção do caminho autenticado devolvia 503, impedindo renderização. **A causa exata no D1 Preview não foi verificada por consulta direta.**
+- Correções na branch: GET e POST usam `dailyPlayer` que lê da sessão somente ID e nickname, via `sessionCookie` compartilhado; GET devolve calendário público/identidade mesmo quando histórico falha, com `historyAvailable:false` e aviso explícito. O cliente `dailyCalendar.ts` sempre renderiza dias ao receber esse retorno, mas **bloqueia desafio** quando o histórico não pôde ser verificado (sem risco de permitir replay). Falha de rede deixa mensagem legível, não carregamento infinito.
+- Regressões: `tests-api/daily-challenges.test.mjs` verifica GET autenticado e tabela indisponível; `tests/daily-challenge.spec.ts` garante mês e dias renderizados com botão desativado. Confirmar CI/Preview HEAD antes de marcar validado com sessão real.
+- Migrações 0008 e 0009 foram confirmadas executadas pelo proprietário no D1 Preview; não solicitar reexecução sem evidência nova e aprovação. Sem merge nem publicação de produção.
+
 ## Regra global de acesso sem sair da página — 18/11/2026
 - **Decisão obrigatória do proprietário:** entrar ou cadastrar-se **nunca** deve redirecionar o jogador para Meu Perfil nem mudar rota/scroll/contexto atual; perfil é página de consulta acessada **apenas por escolha explícita**. Sair do site não requer passar por perfil. A autenticação deve abrir modal no próprio local, e ao concluir fechar modal e continuar exatamente onde estava.
 - Implementado `src/components/GlobalAuthModal.astro` e `src/scripts/globalAuth.ts`, instalados uma vez no `src/layouts/Base.astro`. Reutilizam POST `/api/auth/login` e `/api/auth/register`; disparam `oldarcade:account-changed` para atualizar header, ranking, calendários e demais consumidores. Mostram código de recuperação quando cadastro retorna um; sem redirecionamento ou reinicialização do jogo. Links `data-auth-trigger` acionam modal com fallback `/conta/` para navegador sem JS.
