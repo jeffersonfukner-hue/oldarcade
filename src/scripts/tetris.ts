@@ -374,15 +374,15 @@ async function submitDailyFinish(){
   const result=await response.json() as {error?:string;missionSuccess?:boolean|null;mission?:DailyMission};
   if(!response.ok)throw Error(result.error||'Falha ao registrar o desempenho.');
   pendingDailyFinish=null;
-  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'finished'}}));
   try{sessionStorage.removeItem('oldarcade:daily:tetris:pending')}catch{}
-  const status=(result.mission?.version??0)>=2?
-    (result.missionSuccess?'🏆 Missão cumprida!':'Meta não alcançada.'):'Desafio concluído!';
-  if(info)info.textContent=status+' Resultado salvo em Minha Conta.';
+  const won=result.missionSuccess===true||result.mission?.version===1;
+  const status=won?'🏆 Missão cumprida!':'Meta ainda não alcançada';
+  if(info)info.textContent=won?'Vitória registrada!':'Missão preservada. Você pode repetir até vencer.';
   if(state==='over'){
-   show(status,'Você fez '+attempt.score+' pontos e eliminou '+attempt.linesCleared+' linhas. '+(result.mission?.description||'')+' Resultado registrado.','▶ Jogar Tetris livre');
+   show(status,'Você fez '+attempt.score+' pontos e eliminou '+attempt.linesCleared+' linhas. '+(won?'Objetivo concluído.':'A missão continua disponível para uma nova tentativa.'),'▶ Jogar Tetris livre');
    startButton.disabled=false;
   }
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:won?'finished':'idle'}}));
   document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'tetris'}}));
   if(startButton.dataset.dailyRetry==='true'){delete startButton.dataset.dailyRetry;startButton.textContent='▶ Jogar Tetris livre'}
  }catch(error){
