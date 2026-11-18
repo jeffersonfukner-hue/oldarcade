@@ -1,4 +1,4 @@
-import {DAILY_MODES} from '../data/dailyChallenges.js';
+import {DAILY_MODES,dailyMission,dailySeed} from '../data/dailyChallenges.js';
 type DailyMission={version:number;kind:string;title:string;description:string;metric:string;target:number|null;timeLimitMs:number|null;sequence?:number[]};
 type DailyProgress={game:string;score:number;linesCleared:number;durationMs:number;clearSequence:number[]};
 type DayStatus={date:string;status:'started'|'finished';score?:number|null;durationMs?:number|null;missionSuccess?:boolean|null;version?:number};
@@ -28,9 +28,16 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
  const brief=element.querySelector<HTMLElement>('[data-daily-mission-brief]')!;
  const briefTitle=element.querySelector<HTMLElement>('[data-daily-mission-name]')!;
  const briefRules=element.querySelector<HTMLElement>('[data-daily-mission-rules]')!;
+ const previewHost=/^(?:[a-z0-9-]+\\.)?oldarcade-17c\\.pages\\.dev$/.test(location.hostname);
+ const lab=element.querySelector<HTMLElement>('[data-daily-preview-lab]')!;
+ const nextLab=element.querySelector<HTMLButtonElement>('[data-daily-preview-next]')!;
+ const startLab=element.querySelector<HTMLButtonElement>('[data-daily-preview-start]')!;
+ if(previewHost)lab.hidden=false;
+ let previewOffset=0,practiceMission:DailyMission|null=null,practiceRunning=false;
+ const practiceDate=()=>new Date(Date.parse('2026-11-20T12:00:00Z')+previewOffset*86400000).toISOString().slice(0,10);
  const sidebar=document.querySelector<HTMLElement>('[data-daily-mission-sidebar]');
  const tracker=sidebar?document.createElement('section'):null;
- if(tracker){tracker.className='daily-live-tracker';tracker.setAttribute('role','status');tracker.setAttribute('aria-label','Progresso da missão diária');tracker.hidden=true;sidebar!.prepend(tracker)}
+ if(tracker){tracker.className='daily-live-tracker';tracker.setAttribute('role','status');tracker.setAttribute('aria-label','Progresso da missão diária');tracker.hidden=true;sidebar!.prepend(tracker);sidebar!.hidden=true}
  const drawTracker=(mission:DailyMission,progress:DailyProgress|null)=>{
   if(!tracker)return;
   tracker.replaceChildren();
@@ -42,10 +49,10 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
    mission.metric==='quads'||mission.metric==='sequence'?progress?.clearSequence.length??0:progress?.score??0;
   const goal=mission.metric==='duration'?Math.ceil((mission.target??0)/1000):mission.target??0;
   const counter=document.createElement('div');counter.className='daily-live-progress';
-  counter.textContent=mission.metric==='quads'?'Tetris completos: '+value+' / '+goal:
+  counter.textContent=mission.metric==='quadscore'?'Pontos só com 4 linhas: '+value+' / '+goal:
    mission.metric==='sequence'?'Sequência: '+value+' / '+goal+' etapas':
    mission.metric==='duration'?'Tempo sobrevivido: '+value+' / '+goal+' s':
-   mission.metric==='lines'?'Linhas: '+value+' / '+goal:'Pontos: '+value+' / '+goal;
+   mission.metric==='lines'?'Linhas: '+value+' / '+goal:mission.metric==='score'?'Frutas: '+Math.floor(value/10)+' / '+Math.floor(goal/10):'Pontos: '+value+' / '+goal;
   tracker.append(eyebrow,name,detail,counter);
   if(mission.sequence){
    const seq=document.createElement('div');seq.className='daily-live-sequence';
@@ -66,6 +73,33 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
  let enginePhase:'idle'|'playing'|'pending'|'finished'='idle';
  const setState=(kind:string,title:string,description:string)=>{stateBox.dataset.status=kind;stateTitle.textContent=title;stateDescription.textContent=description};
  let today='',month='',current:CalendarResponse|null=null,sequence=0;
+ const showPracticeMission=()=>{
+  if(!previewHost)return;
+  const date=practiceDate();
+  const mission=dailyMission(game,date,3) as DailyMission|null;
+  if(!mission)return;
+  practiceMission=mission;
+  brief.hidden=false;briefTitle.textContent='TESTE LIVRE · '+mission.title;briefRules.textContent=mission.description;
+  if(tracker){drawTracker(mission,null);tracker.hidden=false;if(sidebar)sidebar.hidden=false}
+  nextLab.disabled=practiceRunning;
+  startLab.disabled=practiceRunning;
+  startLab.textContent=practiceRunning?'▶ Missão em andamento':'▶ Jogar missão de teste';
+ };
+ if(previewHost){
+  nextLab.addEventListener('click',()=>{
+   if(practiceRunning)return;
+   previewOffset++;
+   showPracticeMission();
+  });
+  startLab.addEventListener('click',()=>{
+   if(practiceRunning||!practiceMission)return;
+   practiceRunning=true;showPracticeMission();
+   document.dispatchEvent(new CustomEvent('oldarcade:daily-practice-start',{
+    detail:{game,date:practiceDate(),mission:practiceMission,seed:dailySeed(game,practiceDate(),3)}
+   }));
+  });
+  showPracticeMission();
+ }
  const render=(payload:CalendarResponse)=>{
   if(current&&payload.today!==current.today)enginePhase='idle';
   const statuses=new Map(payload.days.map(row=>[row.date,row.status]));
@@ -89,8 +123,9 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   monthLabel.textContent=monthName(month);
   const mission=payload.mission;
   brief.hidden=!mission;
-  if(mission){briefTitle.textContent=mission.title;briefRules.textContent=mission.description}
-  if(tracker&&mission){drawTracker(mission,null);tracker.hidden=enginePhase==='idle'}
+  if(mission&&!previewHost){briefTitle.textContent=mission.title;briefRules.textContent=mission.description}
+  if(tracker&&mission&&!previewHost){drawTracker(mission,null);tracker.hidden=enginePhase==='idle';if(sidebar)sidebar.hidden=tracker.hidden}
+  if(previewHost)showPracticeMission();
   const active=month===today.slice(0,7);
   const todayRow=payload.days.find(x=>x.date===today);
   const attempted=!!todayRow||enginePhase!=='idle';
@@ -158,8 +193,9 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
  });
  document.addEventListener('oldarcade:daily-progress',event=>{
   const progress=(event as CustomEvent<DailyProgress>).detail;
-  if(progress?.game!==game||!current?.mission||!tracker)return;
-  drawTracker(current.mission,progress);tracker.hidden=false;
+  const mission=practiceRunning?practiceMission:current?.mission;
+  if(progress?.game!==game||!mission||!tracker)return;
+  drawTracker(mission,progress);tracker.hidden=false;if(sidebar)sidebar.hidden=false;
  });
  document.addEventListener('oldarcade:daily-phase',event=>{
   const detail=(event as CustomEvent<{game:string;phase:'idle'|'playing'|'pending'|'finished'}>).detail;
@@ -167,7 +203,11 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   enginePhase=detail.phase;
   const indicator=document.querySelector<HTMLElement>('[data-daily-play-indicator]');
   if(indicator)indicator.hidden=enginePhase!=='playing';
-  if(tracker)tracker.hidden=enginePhase==='idle';
+  if(tracker){tracker.hidden=enginePhase==='idle'&&!previewHost;if(sidebar)sidebar.hidden=tracker.hidden}
+  if(previewHost&&practiceRunning&&(enginePhase==='finished'||enginePhase==='pending')){
+   practiceRunning=false;nextLab.disabled=false;startLab.disabled=false;
+   startLab.textContent='↻ Tentar novamente';
+  }
   if(current)render(current);
  });
  document.addEventListener('oldarcade:daily-status-changed',event=>{
