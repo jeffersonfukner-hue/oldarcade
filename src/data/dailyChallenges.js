@@ -98,10 +98,17 @@ export function dailyMission(game,date,version=dailyVersionForDate(date)){
      title:'Um de cada vez',description:'Faça '+count+' limpezas de exatamente 1 linha, uma após outra. Limpar 2, 3 ou 4 de uma vez encerra a missão.'};
    }
   }else if(variant===1){
-   const cleared=2+tier+variation;
-   const seconds=65+tier*15+variation*10;
-   mission={kind:'rush',metric:'lines',target:cleared,timeLimitMs:seconds*1000,
-    title:'Sprint relâmpago',description:'Elimine '+cleared+' linhas em até '+seconds+' segundos.'};
+   if(version===2){
+    const cleared=2+tier+variation;
+    const seconds=65+tier*15+variation*10;
+    mission={kind:'rush',metric:'lines',target:cleared,timeLimitMs:seconds*1000,
+     title:'Sprint relâmpago',description:'Elimine '+cleared+' linhas em até '+seconds+' segundos.'};
+   }else{
+    const seconds=80+tier*15+variation*10;
+    const sequence=[1+Math.floor(random()*2),2+Math.floor(random()*2),1+Math.floor(random()*3)];
+    mission={kind:'timed-sequence',metric:'sequence',target:sequence.length,timeLimitMs:seconds*1000,sequence,
+     title:'Código contra o tempo',description:'Complete a sequência '+sequence.join(' → ')+' em até '+seconds+' segundos. Uma limpeza errada encerra a missão.'};
+   }
   }else if(variant===2){
    if(version===2){
     const points=300+tier*200+variation*100;
