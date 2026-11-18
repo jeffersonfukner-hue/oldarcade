@@ -250,7 +250,8 @@ function countdownStart(first:boolean){
 }
 function start(daily:DailyAttempt|null=null){
  if(dailyRequestPending)return;
- dailyAttempt=daily;dailyRandom=daily?seededRandom(daily.seed):Math.random;
+ dailyAttempt=daily;
+ if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'playing'}}));dailyRandom=daily?seededRandom(daily.seed):Math.random;
  finishSequence++;stopDropAnimation();window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  clock.reset();board=empty();bag=[];queue=[];reserve=null;reserveUsed=false;
  piece=null;score=0;lines=0;level=1;globalProvisional=false;screen.removeAttribute('data-survival-danger');drawNext();
@@ -267,6 +268,7 @@ function finish(completed=false){
  if(dailyAttempt){
   const attempt=dailyAttempt;
   pendingDailyFinish={date:attempt.date,token:attempt.token,score,durationMs:duration};
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'pending'}}));
   try{sessionStorage.setItem('oldarcade:daily:tetris:pending',JSON.stringify(pendingDailyFinish))}catch{}
   dailyAttempt=null;dailyRandom=Math.random;
   update();draw();
@@ -338,6 +340,7 @@ async function submitDailyFinish(){
   const result=await response.json() as {error?:string};
   if(!response.ok)throw Error(result.error||'Falha ao registrar o desempenho.');
   pendingDailyFinish=null;
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'finished'}}));
   try{sessionStorage.removeItem('oldarcade:daily:tetris:pending')}catch{}
   if(info)info.textContent='Desafio concluído! Consulte o resultado em Minha Conta.';
   document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'tetris'}}));
