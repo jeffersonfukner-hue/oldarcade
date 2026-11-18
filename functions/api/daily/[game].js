@@ -102,7 +102,17 @@ export async function onRequestPost(ctx){
    if(version>=2){
     if(!Number.isSafeInteger(data.linesCleared)||data.linesCleared<0||data.linesCleared>1000)return bodyError('Quantidade de linhas inválida.',400);
     if(game==='snake'&&data.linesCleared!==0)return bodyError('Linhas não se aplicam ao Snake.',400);
-    won=dailyMissionWon(mission,{score:data.score,durationMs:data.durationMs,linesCleared:data.linesCleared});
+    let clearSequence=[];
+    if(version>=3&&game==='tetris'){
+     if(!Array.isArray(data.clearSequence)||data.clearSequence.length>1000
+       ||data.clearSequence.some(n=>!Number.isSafeInteger(n)||n<1||n>4))
+      return bodyError('Histórico de limpezas inválido.',400);
+     clearSequence=data.clearSequence;
+     if(clearSequence.reduce((sum,n)=>sum+n,0)!==data.linesCleared)
+      return bodyError('Quantidade de linhas inconsistente com as limpezas.',400);
+    }
+    won=dailyMissionWon(mission,{score:data.score,durationMs:data.durationMs,
+     linesCleared:data.linesCleared,clearSequence});
     result=await auth.db.prepare(
      "UPDATE daily_challenge_attempts SET outcome='finished',score=?,duration_ms=?,finished_at_ms=?,lines_cleared=?,mission_success=? WHERE game=? AND challenge_date=? AND player_id=? AND attempt_token_hash=? AND outcome='started' AND started_at_ms<=? AND started_at_ms>=?"
     ).bind(data.score,data.durationMs,now,data.linesCleared,won?1:0,game,data.date,auth.player.id,tokenHash,now,now-86400000).run();
