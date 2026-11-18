@@ -22,9 +22,9 @@ test('Login solicitado dentro da página mantém rolagem e tabuleiro',async({pag
  await page.route('**/api/auth/login',route=>route.fulfill({status:200,contentType:'application/json',body:'{"player":{"nickname":"ArcadeFan"}}'}));
  await page.goto('/jogos/snake/');
  const original=page.url();
- await page.evaluate(()=>{window.scrollTo(0,500);document.dispatchEvent(new CustomEvent('oldarcade:open-auth'))});
- const scroll=await page.evaluate(()=>window.scrollY);
+ const scroll=await page.evaluate(()=>{window.scrollTo(0,500);return window.scrollY});
  expect(scroll).toBeGreaterThan(0);
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:open-auth')));
  const modal=page.locator('[data-global-auth]');
  await expect(modal).toBeVisible();
  await modal.locator('[data-auth-form=login] input[name=nickname]').fill('ArcadeFan');
@@ -32,7 +32,7 @@ test('Login solicitado dentro da página mantém rolagem e tabuleiro',async({pag
  await modal.locator('[data-auth-form=login] button[type=submit]').click();
  await expect(modal).toBeHidden();
  await expect(page).toHaveURL(original);
- expect(Math.abs((await page.evaluate(()=>window.scrollY))-scroll)).toBeLessThan(5);
+ await expect.poll(async()=>Math.abs((await page.evaluate(()=>window.scrollY))-scroll)).toBeLessThan(5);
 });
 
 test('Desafio Diário abre o mesmo modal e atualiza disponibilidade no proprio jogo',async({page})=>{
