@@ -359,7 +359,11 @@ function schedule(){window.clearTimeout(timer);if(state==='playing')timer=window
 function tick(){if(state!=='playing')return;
  const mission=dailyAttempt?.mission;
  if(mission&&mission.version>=2&&mission.timeLimitMs!==null&&gameClock.milliseconds()>=mission.timeLimitMs){
-  missionState=advanceDailyMission(mission,missionState,{type:'tick',score,linesCleared:0,durationMs:gameClock.milliseconds()});
+  const elapsed=gameClock.milliseconds();
+  // Um tick pode chegar alguns ms depois do prazo; sobreviver até o
+  // limite é vitória, mas a corrida de frutas expirada é derrota.
+  const measured=mission.metric==='duration'?mission.timeLimitMs:elapsed;
+  missionState=advanceDailyMission(mission,missionState,{type:'tick',score,linesCleared:0,durationMs:measured});
   end(missionState.status==='won');return;
  }
  direction=next;const delta:Record<Direction,Point>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const d=delta[direction];const rawHead={x:snake[0].x+d.x,y:snake[0].y+d.y};const exit=evolutionPreview?borderExit(rawHead):null;const head=evolutionPreview?{x:(rawHead.x+size)%size,y:(rawHead.y+size)%size}:rawHead;const picked=evolutionPreview?items.find(i=>same(i.point,head)):undefined;const eating=evolutionPreview?Boolean(picked&&picked.kind!=='shrink'&&picked.kind!=='slow'&&picked.kind!=='blaster'&&picked.kind!=='scare'):head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if((!evolutionPreview&&(head.x<0||head.x>=size||head.y<0||head.y>=size))||(exit&&borderAt(exit.side,exit.index))||body.some(p=>p.x===head.x&&p.y===head.y)||((evolutionPreview||dailyHazardActive())&&obstacles.some(p=>same(p,head)))){end(false);return}snake.unshift(head);
