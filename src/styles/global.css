@@ -618,3 +618,18 @@ body.oa-auth-open{overflow:hidden}
 .oa-daily-playing-indicator{display:inline-flex;align-items:center;gap:5px;margin-inline:10px 0;padding:6px 9px;background:#413264;color:#ffe6a4;border:1px solid #bd9aee;border-radius:8px;font-size:.67rem;letter-spacing:.05em;font-weight:900;white-space:normal;line-height:1.2}
 .oa-daily-playing-indicator[hidden]{display:none!important}
 @media(max-width:600px){.oa-daily-playing-indicator{font-size:.58rem;padding:5px 7px;margin-left:4px}}
+
+
+/* Painel de missão compartilhado, integrado à lateral de cada jogo. */
+.daily-live-tracker[hidden]{display:none!important}
+.daily-live-tracker{display:flex;flex-direction:column;gap:8px;margin-bottom:19px;padding:16px;background:linear-gradient(145deg,#272850,#1b344b);border:2px solid #b088ed;border-radius:var(--oa-radius,16px);box-shadow:0 7px 26px #100b344a,inset 0 1px 0 #fff2}
+.daily-live-tracker>.eyebrow{font-size:.68rem;color:#ffc979}
+.daily-live-tracker>strong{font-size:1.26rem;color:white;line-height:1.25}
+.daily-live-tracker>p{margin:0;color:#d3d9f3;font-size:.79rem;line-height:1.5}
+.daily-live-progress{font-weight:900;font-variant-numeric:tabular-nums;font-size:1.06rem;color:#8df5d0;padding:11px 13px;background:#132739;border:1px solid #477c7d;border-radius:10px}
+.daily-live-sequence{display:flex;flex-wrap:wrap;gap:6px;padding:5px 0}
+.daily-live-sequence span{display:grid;place-items:center;width:34px;height:38px;border-radius:8px;border:1px solid #465674;background:#1b2742;color:#a6b5d1;font-weight:900;font-size:1rem;font-variant-numeric:tabular-nums}
+.daily-live-sequence span.done{background:#205044;border-color:#55c6aa;color:#b3ffe3}
+.daily-live-sequence span.next{background:#f4bf6d;border:2px solid #ffe3a4;color:#251b31;box-shadow:0 0 15px #f0c17977;transform:scale(1.08)}
+.daily-live-next{border:1px solid #f5d18a;border-radius:10px;background:#523e2f;padding:11px;font-weight:900;text-align:center;font-size:.82rem;color:#ffefbd;letter-spacing:.035em}
+@media(max-width:740px){.daily-live-tracker{padding:13px;margin-bottom:12px}.daily-live-sequence span{width:30px;height:35px}}
