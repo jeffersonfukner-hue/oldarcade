@@ -19,7 +19,7 @@ if(!mode)throw new Error('Desafio Diário não habilitado para '+game);
  <div data-daily-days class="daily-calendar-grid" role="group" aria-label="Dias do desafio diário"></div>
  <p class="small muted" data-daily-info role="status" aria-live="polite">Verificando sua conta e seus desafios…</p>
  <p class="small muted">O dia começa e termina à meia-noite, no horário de Brasília. Datas passadas não podem ser jogadas novamente.</p>
- <div data-daily-guest-explanation class="contact-note" hidden role="status"><strong>Este desafio é exclusivo para quem tem conta.</strong><p class="small">Você pode jogar livremente sem cadastro. A conta gratuita permite guardar seu histórico, disputar rankings e participar do desafio de cada dia. O login existe para identificar sua tentativa e impedir repetições, não para cobrar pelo jogo.</p></div><a class="btn secondary" data-daily-login href="/conta/" hidden>🔐 Entrar ou criar conta grátis</a>
+ <div data-daily-guest-explanation class="contact-note" hidden role="status"><strong>Este desafio é exclusivo para quem tem conta.</strong><p class="small">Você pode jogar livremente sem cadastro. A conta gratuita permite guardar seu histórico, disputar rankings e participar do desafio de cada dia. O login existe para identificar sua tentativa e impedir repetições, não para cobrar pelo jogo.</p></div><a class="btn secondary" data-daily-login data-auth-trigger="login" href="/conta/" hidden>🔐 Entrar ou criar conta grátis</a>
  <button class="btn" type="button" data-daily-start hidden disabled>▶ Iniciar desafio de hoje</button>
  <p class="small muted" data-daily-result hidden>Você já utilizou sua tentativa. Consulte seu desempenho em <a href="/conta/#daily-history">Minha conta</a>.</p>
 </section>
