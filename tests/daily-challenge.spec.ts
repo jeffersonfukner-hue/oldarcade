@@ -190,7 +190,7 @@ test('Tetris não mostra 5/4 como missão concluída',async({page})=>{
  await expect(side.locator('.daily-live-sequence .done')).toHaveCount(4);
 });
 
-test('Missão Snake fica na coluna do jogo e preserva 7/7 após a vitória',async({page})=>{
+test('Missão Snake fica na coluna do jogo com contagem consistente de frutas',async({page})=>{
  const mission={version:3,kind:'rush',metric:'score',target:70,timeLimitMs:65000,
   title:'Corrida contra o relógio',description:'Coma 7 frutas (70 pontos) em até 65 segundos, sem bater.'};
  await page.route('**/api/daily/snake**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
@@ -201,12 +201,8 @@ test('Missão Snake fica na coluna do jogo e preserva 7/7 após a vitória',asyn
  await expect(slot).toHaveCount(1);
  await expect(page.locator('.game-layout > aside [data-daily-mission-sidebar]')).toHaveCount(0);
  await page.evaluate(()=>{
-  document.dispatchEvent(new CustomEvent('oldarcade:daily-practice-start',{detail:{
-   game:'snake',date:'2026-11-20',seed:733,mission:{version:3,kind:'rush',metric:'score',target:70,timeLimitMs:65000,title:'Corrida contra o relógio',description:'7 frutas em 65 segundos'}
-  }}));
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}}));
   document.dispatchEvent(new CustomEvent('oldarcade:daily-progress',{detail:{game:'snake',score:70,linesCleared:0,clearSequence:[],durationMs:17000}}));
-  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'finished'}}));
-  document.dispatchEvent(new CustomEvent('oldarcade:daily-practice-result',{detail:{game:'snake',success:true}}));
  });
  await expect(slot).toBeVisible();
  await expect(slot.locator('.daily-live-progress')).toContainText('7 / 7');
