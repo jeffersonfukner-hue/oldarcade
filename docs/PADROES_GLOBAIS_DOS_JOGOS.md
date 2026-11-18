@@ -17,6 +17,23 @@
 - Exigir verificação de obra, edição, plataforma, disponibilidade regional, direitos de imagens e destinação. Identificar publicidade/comissões sem disfarçar recomendações de conteúdo independente; atributos adequados para links patrocinados.
 - **Ainda não implementado:** não exibir placeholders vazios nem inserir links de compra sem validação e autorização. A história do Tetris usa `src/components/TetrisHistory.astro` nos três modos; o padrão futuro deve ser reaproveitável também para Snake e os demais jogos.
 
+## Critérios de qualidade de missões — pesquisa e decisão em 18/11/2026
+
+Referências: guia oficial do Tetris Effect: Connected, que traz desafios de precisão (limpar linha em cada colocação) em vez de somente pontuar; Tetris 99, com missões que rendem tickets de personalização; pesquisas sobre design de jogos, que destacam objetivo claro, feedback imediato, desafio adequado e variedade procedural.
+- Tetris Effect: https://tetriseffect.game/beginners-community-guide/
+- Nintendo / Tetris 99: https://www.nintendo.com/us/store/products/tetris-99-switch/
+- Revisão científica dos motivadores de games: https://ieeexplore.ieee.org/document/9173738
+- Procedural content e frustração: https://cdn.aaai.org/ojs/12442/12442-52-15970-1-2-20201228.pdf
+
+**Critério de aceite para chamar algo de Desafio Diário:**
+1. Tem **verbo de ação específico** (ex.: fazer limpezas apenas de 4 linhas, obedecer ordem, fugir de inimigos), uma **restrição** e condição de vitória/derrota; "fazer mais pontos" sozinho NÃO é desafio.
+2. A regra, a próxima ação necessária e o progresso aparecem **junto ao tabuleiro**, sem rolar a página; no Tetris, imediatamente abaixo de **LINHAS**.
+3. Uma missão precisa terminar assim que for vencida ou perdida; não continuar indefinidamente com pontuação livre.
+4. Deve ser verificável e reproduzível: seed, data, versão e regras concretas. Testes de unidade validam missões de 1000 datas, mas isso NÃO substitui testes de jogabilidade e equilíbrio.
+5. Progressão perceptível com variedade de família e dificuldade calibrada; **uma missão diferente não significa missão boa**. Antes da publicação oficial, revisar metas impossíveis, frustrantes ou triviais e fazer QA humano no Preview.
+6. Preview permite **laboratório de treino repetível**, sem registrar tentativa no D1, pontuação oficial ou criar ranking. Testar várias missões, ajustar prazer e dificuldade, somente depois aprovar modo diário definitivo.
+7. Recompensa e antecipação são backlog (moeda virtual e cosméticos); não lançar monetização nesta etapa.
+
 ## Desafio Diário — contrato global aprovado e gerador permanente de missões
 
 - **Exclusivo para jogadores autenticados:** visitante visualiza calendário e **objetivo da missão antes de entrar**, com convite que abre o modal global sem mudar de página/rolagem. A conta gratuita guarda histórico, vitória/derrota e permite participar; não habilitar tentativas por simples verificação no front-end.
