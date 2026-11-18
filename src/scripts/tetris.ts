@@ -42,13 +42,14 @@ const key=survival?'oldarcade:tetris:survival:v1':sprint?'oldarcade:tetris:sprin
 let best=0,plays=0;
 try{const saved=JSON.parse(localStorage.getItem(key)||'{}');best=Number.isSafeInteger(saved.best)&&saved.best>=0?saved.best:0;plays=Number.isSafeInteger(saved.plays)&&saved.plays>=0?saved.plays:0}catch{}
 function save(){try{localStorage.setItem(key,JSON.stringify({best,plays}))}catch{}}
-type DailyMission={version:number;kind:string;metric:string;target:number|null;timeLimitMs:number|null;title:string;description:string};
+type DailyMission={version:number;kind:string;metric:string;target:number|null;timeLimitMs:number|null;title:string;description:string;sequence?:number[]};
 type DailyAttempt={date:string;token:string;seed:number;mission?:DailyMission};
-type DailyResult={date:string;token:string;score:number;durationMs:number;linesCleared?:number};
+type DailyResult={date:string;token:string;score:number;durationMs:number;linesCleared?:number;clearSequence?:number[]};
 let dailyAttempt:DailyAttempt|null=null;
 let pendingDailyFinish:DailyResult|null=null;
 let dailyRandom:()=>number=Math.random;
 let dailyRequestPending=false;
+let dailyClears:number[]=[];
 let board:Cell[][]=[],piece:Falling|null=null,bag:PieceName[]=[],queue:PieceName[]=[];
 let reserve:PieceName|null=null,reserveUsed=false,score=0,lines=0,level=1,state:State='ready';
 let globalTarget:number|null=null,personalTarget:number|null=null,globalProvisional=false;
@@ -103,6 +104,10 @@ function move(dx:number){
  piece.x+=dx;draw();
 }
 const displayBest=()=>timed?(best>0?formatRankingValue(modeId,best):'—'):String(best);
+function dailyProgress(){
+ if(!dailyAttempt)return;
+ document.dispatchEvent(new CustomEvent('oldarcade:daily-progress',{detail:{game:'tetris',score,linesCleared:lines,clearSequence:[...dailyClears],durationMs:clock.milliseconds()}}));
+}
 function update(){
  node('tetris-status').textContent=state==='playing'?'● Jogando':state==='paused'?'● Pausado':state==='countdown'?'● Preparando':state==='over'?'● Fim de jogo':'● Pronto';
  node('tetris-score').textContent=survival?formatRankingValue(modeId,clock.milliseconds()):sprint?lines+'/'+TARGET_LINES:String(score);
@@ -112,6 +117,7 @@ function update(){
  node('tetris-plays').textContent=String(plays);
  node('tetris-local-best').textContent=displayBest();node('tetris-sidebar-level').textContent=sprint?lines+'/'+TARGET_LINES:survival?'Onda '+level:String(level);
  node('tetris-global').textContent=timed?formatRankingValue(modeId,globalTarget):String(globalProvisional?score:globalTarget??'—');node('tetris-provisional').hidden=timed||!globalProvisional;
+ dailyProgress();
 }
 function award(points:number){
  score+=points;
@@ -136,8 +142,14 @@ function land(){
   lines+=cleared;
   const oldLevel=level;level=tetrisLevel(modeId,lines,clock.milliseconds());
   const points=[0,100,300,500,800][cleared]*oldLevel;
+  if(dailyAttempt?.mission?.version>=3)dailyClears.push(cleared);
   if(timed)update();else award(points);
-  if(dailyAttempt?.mission?.version===2&&dailyAttempt.mission.metric==='lines'&&lines>=dailyAttempt.mission.target!){finish(true);return}
+  if(state==='over')return;
+  const dailyMission=dailyAttempt?.mission;
+  if(dailyMission?.version>=3&&dailyMission.kind==='quads'&&cleared!==4){finish(false);return}
+  if(dailyMission?.version>=3&&dailyMission.kind==='sequence'&&cleared!==dailyMission.sequence?.[dailyClears.length-1]){finish(false);return}
+  if(dailyMission?.version>=3&&(dailyMission.kind==='quads'||dailyMission.kind==='sequence')&&dailyClears.length===dailyMission.target){finish(true);return}
+  if(dailyMission?.version>=2&&dailyMission.metric==='lines'&&lines>=dailyMission.target!){finish(true);return}
   showScoreFeedback(screen,canvas,timed?cleared:points,timed?(cleared===1?'linha eliminada':'linhas eliminadas'):cleared===4?'TETRIS! 4 linhas':cleared===1?'1 linha':cleared+' linhas',completed[0],ROWS);
   // Clássico pontua linhas; Sprint utiliza somente tempo de conclusão.
   if(sprint&&lines>=TARGET_LINES){finish(true);return}
@@ -255,6 +267,7 @@ function countdownStart(first:boolean){
 function start(daily:DailyAttempt|null=null){
  if(dailyRequestPending)return;
  dailyAttempt=daily;
+ dailyClears=[];
  if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'playing'}}));dailyRandom=daily?seededRandom(daily.seed):Math.random;
  finishSequence++;stopDropAnimation();window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  clock.reset();board=empty();bag=[];queue=[];reserve=null;reserveUsed=false;
@@ -271,7 +284,7 @@ function finish(completed=false){
  state='over';stopDropAnimation();globalProvisional=false;window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  if(dailyAttempt){
   const attempt=dailyAttempt;
-  pendingDailyFinish={date:attempt.date,token:attempt.token,score,durationMs:duration,linesCleared:lines};
+  pendingDailyFinish={date:attempt.date,token:attempt.token,score,durationMs:duration,linesCleared:lines,clearSequence:[...dailyClears]};
   document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'pending'}}));
   try{sessionStorage.setItem('oldarcade:daily:tetris:pending',JSON.stringify(pendingDailyFinish))}catch{}
   dailyAttempt=null;dailyRandom=Math.random;
@@ -450,3 +463,10 @@ board=empty();drawNext();draw();update();
 
 // Atualização do cronômetro visual, sem alterar a física nem contar pausas.
 if(survival)window.setInterval(()=>{if(state==='playing')update()},250);
+// A missão cronometrada encerra no prazo mesmo se o jogador não posicionar nenhuma peça.
+window.setInterval(()=>{
+ if(state!=='playing'||!dailyAttempt?.mission||dailyAttempt.mission.version<2)return;
+ const limit=dailyAttempt.mission.timeLimitMs;
+ if(limit!==null&&clock.milliseconds()>=limit)finish(false);
+ else dailyProgress();
+},180);
