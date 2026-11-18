@@ -115,6 +115,8 @@ for(const element of document.querySelectorAll<HTMLElement>('[data-daily-calenda
   const detail=(event as CustomEvent<{game:string;phase:'idle'|'playing'|'pending'|'finished'}>).detail;
   if(detail?.game!==game)return;
   enginePhase=detail.phase;
+  const indicator=document.querySelector<HTMLElement>('[data-daily-play-indicator]');
+  if(indicator)indicator.hidden=enginePhase!=='playing';
   if(current)render(current);
  });
  document.addEventListener('oldarcade:daily-status-changed',event=>{
