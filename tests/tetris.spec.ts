@@ -5,7 +5,7 @@ test('Tetris #002 usa catálogo, página SEO e componentes globais',async({page}
  await expect(page.locator('#hero-published-games')).toHaveText('2');
  await expect(page.locator('#featured-game-link')).toHaveAttribute('href','/jogos/tetris/');
  await expect(page.locator('#featured-game-link')).toHaveAttribute('data-featured-game','tetris');
- await expect(page.getByRole('heading',{name:/Chegou Tetris/})).toBeVisible();
+ await expect(page.getByRole('heading',{name:/Os clássicos nunca/})).toBeVisible();
  await expect(page.locator('.home-game-card').first()).toContainText('Tetris');
  await expect(page.locator('.arcade-mode-grid a[href="/jogos/snake/"]')).toHaveCount(1);
  await expect(page.locator('.arcade-mode-grid a[href="/jogos/tetris/"]')).toHaveCount(1);
