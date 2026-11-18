@@ -81,3 +81,35 @@ test('Se D1 falhar no histórico autenticado, calendário continua visível mas 
  await expect(calendar.locator('[data-daily-info]')).toContainText('Não foi possível consultar suas tentativas');
  await expect(calendar.locator('[data-daily-login]')).toBeHidden();
 });
+
+test('Calendário explica a diferença entre desafio disponível, em partida, iniciado e concluído',async({page})=>{
+ let status:'available'|'started'|'finished'='available';
+ await page.route('**/api/daily/snake**',route=>{
+  const entries=status==='available'?[]:[{date:'2026-11-17',status,score:status==='finished'?230:null,durationMs:status==='finished'?9000:null}];
+  return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+   game:'snake',today:'2026-11-17',month:'2026-11',days:entries,
+   account:{nickname:'Jogador teste'},historyAvailable:true
+  })});
+ });
+ await page.goto('/jogos/snake/');
+ const calendar=page.locator('[data-daily-calendar="snake"]');
+ const state=calendar.locator('[data-daily-status]');
+ await expect(state).toHaveAttribute('data-status','available');
+ await expect(state).toContainText('Desafio de hoje disponível');
+ await expect(calendar.locator('[data-daily-start]')).toBeVisible();
+ status='started';
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'snake'}})));
+ await expect(state).toHaveAttribute('data-status','started');
+ await expect(state).toContainText('Tentativa iniciada, sem conclusão confirmada');
+ await expect(calendar.locator('[data-daily-start]')).toBeHidden();
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}})));
+ await expect(state).toHaveAttribute('data-status','playing');
+ await expect(state).toContainText('Desafio em andamento');
+ await expect(page.locator('[data-daily-play-indicator]')).toBeVisible();
+ status='finished';
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'finished'}})));
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'snake'}})));
+ await expect(state).toHaveAttribute('data-status','finished');
+ await expect(state).toContainText('230 pontos');
+ await expect(page.locator('[data-daily-play-indicator]')).toBeHidden();
+});
