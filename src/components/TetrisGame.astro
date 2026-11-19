@@ -1,6 +1,7 @@
 ---
 import GamePage from './GamePage.astro';
 import GameHud from './GameHud.astro';
+import GameStageHeader from './GameStageHeader.astro';
 import GameRanking from './GameRanking.astro';
 import GameShare from './GameShare.astro';
 import TetrisHistory from './TetrisHistory.astro';
@@ -36,9 +37,8 @@ import GameGuide from './GameGuide.astro';
   {DAILY_CHALLENGES_ENABLED && (modeId==='tetris'?<DailyCalendar game="tetris" />:<p class="panel small">📅 <strong>Desafio Diário do Tetris:</strong> uma única tentativa por dia para jogadores com conta. <a href="/jogos/tetris/#daily-title-tetris">Conhecer o desafio →</a></p>)}
   <GameLayout label="Jogar Tetris" className="tetris-main-layout">
    <div class="panel game-stage" id="tetris-stage" data-game-mode={modeId} data-arcade-viewport data-board-shape="portrait">
-    <div class="game-topline"><strong>▣ TETRIS <span class="muted">· {survival?"Sobrevivência":sprint?"Sprint":"Clássico"}</span></strong><span class="oa-daily-playing-indicator" data-daily-play-indicator hidden>★ DESAFIO DIÁRIO EM ANDAMENTO</span><div class="actions"><button type="button" id="tetris-pause">Pausar</button><button type="button" id="tetris-fullscreen" aria-label="Alternar tela cheia do Tetris">⛶ Tela cheia (F)</button></div></div>
+    <GameStageHeader title="▣ TETRIS" subtitle={survival?"Sobrevivência":sprint?"Sprint":"Clássico"} pauseId="tetris-pause" fullscreenId="tetris-fullscreen" fullscreenLabel="Alternar tela cheia do Tetris"><span class="oa-daily-playing-indicator" data-daily-play-indicator hidden>★ DESAFIO DIÁRIO EM ANDAMENTO</span></GameStageHeader>
     <div class="arcade-game-layout">
-     <GameHud statusId="tetris-status" scoreId="tetris-score" bestId="tetris-best" globalId="tetris-global" levelId={timed?undefined:"tetris-level"} scoreLabel={survival?"Tempo sobrevivido":sprint?"Linhas":"Pontos"} bestLabel={timed?"Melhor tempo da conta":"Recorde da conta"} globalLabel={timed?"Tempo líder":"Recorde global"} provisionalId="tetris-provisional" hint="F: tela cheia · Espaço: queda · P: pausa" />
      <div class="tetris-playfield oa-board-slot">
       <div class="tetris-board-shell screen-wrap oa-board-surface" id="tetris-screen">
        <canvas id="tetris-canvas" width="300" height="600" aria-label="Tabuleiro do Tetris com 10 colunas e 20 linhas"></canvas>
@@ -54,6 +54,7 @@ import GameGuide from './GameGuide.astro';
        <div class="tetris-mini"><span class="eyebrow">Reserva · C</span><canvas id="tetris-hold" width="120" height="120" aria-label="Peça reservada"></canvas></div>
        <div class="tetris-mini tetris-line-stat"><span class="eyebrow">Linhas</span><strong id="tetris-lines">{sprint?`0/${goal}`:"0"}</strong></div>
        <div class="tetris-mission-slot" data-daily-mission-sidebar data-daily-mission-inline hidden aria-label="Missão diária ao lado das linhas"></div>
+        <GameHud compact statusId="tetris-status" scoreId="tetris-score" bestId="tetris-best" globalId="tetris-global" levelId={timed?undefined:"tetris-level"} scoreLabel={survival?"Tempo sobrevivido":sprint?"Linhas":"Pontos"} bestLabel={timed?"Melhor tempo da conta":"Recorde da conta"} globalLabel={timed?"Tempo líder":"Recorde global"} provisionalId="tetris-provisional" hint="F: tela cheia · Espaço: queda · P: pausa" />
       </aside>
      </div>
     </div>

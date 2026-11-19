@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## Tetris: cabeçalho e HUD compacto junto ao tabuleiro — 19/11/2026
+- Piloto aprovada conceitualmente pelo proprietário: cabeçalho global `GameStageHeader.astro` (título, pausa, fullscreen) e painel contextual adaptável. `GameHud.astro` ganha prop opcional `compact` com ícones, títulos/nomes acessíveis e IDs intactos.
+- Clássico, Sprint e Sobrevivência têm Próxima/Reserva/Linhas e HUD na mesma coluna ao lado do tabuleiro; regras, próxima peça, reserva, rankings, cronômetro e controles preservados. Layout do stage centralizado com largura adequada, evitando dispersão no widescreen.
+- Snake/Pixel Quest ainda conservam visual anterior (mesmo componente aceita HUD padrão). Após teste e aceite do piloto, expandir para todos os jogos.
+- Sem deploy, merge, créditos ou banco. CI e aprovação visual do Preview ainda necessários.
+
+
+
 ## Ajuste de centralização do conjunto jogável — 19/11/2026
 - Após comparar prints dos três jogos, Snake e Pixel Quest já utilizam o espaço adequado. O Tetris mantinha desbalanceamento entre tabuleiro + prévia/reserva e HUD.
 - Contrato global do `oa-board-slot` agora centraliza qualquer conjunto jogável. O grupo Tetris usa grid explícito (tabuleiro 10×20 limitado a 320px; coluna de próxima peça, reserva e linhas de até 200px), ocupando até 540px sem expandir ou distorcer o canvas. Layout móvel mantém coluna estreita para peças.

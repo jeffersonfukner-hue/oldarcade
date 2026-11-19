@@ -48,7 +48,8 @@ test('Layouts mobile 390 e 320 com HUD acima e sem rolagem horizontal',async({pa
    }).slice(0,12).map(el=>({tag:el.tagName,id:el.id,classes:el.className?.toString().slice(0,60),left:Math.round(el.getBoundingClientRect().left),right:Math.round(el.getBoundingClientRect().right)}));
    return {above:hud.bottom<=board.top+1,overflow:document.documentElement.scrollWidth>innerWidth+1,offenders};
   });
-  expect(geometry.above,route+' '+width).toBe(true);
+  if(!route.includes('tetris'))expect(geometry.above,route+' '+width).toBe(true);
+  else await expect(page.locator('#tetris-stage .oa-hud-compact')).toBeVisible();
   expect(geometry.overflow,route+' '+width+' '+JSON.stringify(geometry.offenders)).toBe(false);
  }
 });
@@ -61,7 +62,7 @@ test('Formato portrait se adapta a 900px sem apertar o tabuleiro',async({page})=
   const board=stage.querySelector('#tetris-screen')!.getBoundingClientRect();
   return {stacked:hud.bottom<=board.top+1,overflow:document.documentElement.scrollWidth>innerWidth+1};
  });
- expect(dims.stacked).toBe(true);
+ expect(dims.stacked).toBe(false);
  expect(dims.overflow).toBe(false);
 });
 
@@ -121,7 +122,7 @@ test('Conjunto Tetris fica centralizado no slot compartilhado, com proporção p
    const parent=layout.getBoundingClientRect(),g=group.getBoundingClientRect(),b=board.getBoundingClientRect(),p=preview.getBoundingClientRect();
    const style=getComputedStyle(layout);
    const stacked=style.gridTemplateAreas.includes('"stats" "board"');
-   const available=stacked?parent:{left:parent.left,right:layout.querySelector('.game-hud')!.getBoundingClientRect().left};
+   const available=parent;
    return {
     centerDiff:Math.abs((g.left+g.right)/2-(available.left+available.right)/2),
     ratio:b.height/b.width,
@@ -134,5 +135,20 @@ test('Conjunto Tetris fica centralizado no slot compartilhado, com proporção p
   expect(geometry.ratio,'proporção 10x20 '+width).toBeLessThan(2.05);
   expect(geometry.previewNextToBoard,'próxima/reserva '+width).toBe(true);
   expect(geometry.overflow,'sem rolagem horizontal '+width).toBe(false);
+ }
+});
+
+test('HUD contextual do Tetris preserva IDs e cabeçalho global',async({page})=>{
+ for(const route of ['/jogos/tetris/','/jogos/tetris/sprint/','/jogos/tetris/sobrevivencia/']){
+  await page.goto(route);
+  const stage=page.locator('#tetris-stage');
+  await expect(stage.locator('.oa-stage-header')).toBeVisible();
+  await expect(stage.locator('#tetris-pause')).toHaveCount(1);
+  await expect(stage.locator('#tetris-fullscreen')).toHaveCount(1);
+  await expect(stage.locator('.tetris-preview-column .oa-hud-compact')).toBeVisible();
+  await expect(stage.locator('.arcade-game-layout>.game-hud')).toHaveCount(0);
+  for(const id of ['tetris-status','tetris-score','tetris-best','tetris-global']){
+   await expect(stage.locator('#'+id)).toHaveCount(1);
+  }
  }
 });
