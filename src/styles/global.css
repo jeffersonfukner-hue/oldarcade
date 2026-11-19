@@ -756,3 +756,26 @@ body.oa-auth-open{overflow:hidden}
  .oa-game-layout.tetris-main-layout .tetris-preview-column>.oa-hud-compact>[data-game-clock]{grid-column:1}
  .oa-hud-compact>.oa-hud-metric{padding:3px 0;gap:3px}
 }
+
+/* O cabeçalho acompanha o grupo jogável em vez de ocupar cantos distantes. */
+.oa-game-layout.tetris-main-layout .game-stage>.oa-stage-header{
+ width:min(100%,580px);margin:0 auto 14px
+}
+.oa-game-layout.tetris-main-layout .game-stage>.arcade-game-layout{
+ width:min(100%,580px);margin-inline:auto
+}
+/* Em tela cheia o painel é full screen, mas o conjunto Tetris permanece unido. */
+.oa-game-layout.tetris-main-layout>.game-stage:fullscreen,
+.oa-game-layout.tetris-main-layout>.game-stage.game-stage-fallback{
+ width:100%;max-width:100%
+}
+.oa-game-layout.tetris-main-layout>.game-stage:fullscreen .arcade-game-layout,
+.oa-game-layout.tetris-main-layout>.game-stage.game-stage-fallback .arcade-game-layout{
+ display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"board";
+ justify-items:center;align-items:center;align-content:center;
+ width:min(100%,580px);margin:auto
+}
+.oa-game-layout.tetris-main-layout>.game-stage:fullscreen .tetris-playfield.oa-board-slot,
+.oa-game-layout.tetris-main-layout>.game-stage.game-stage-fallback .tetris-playfield.oa-board-slot{
+ width:min(100%,580px)
+}

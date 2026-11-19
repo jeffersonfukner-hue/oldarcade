@@ -152,3 +152,22 @@ test('HUD contextual do Tetris preserva IDs e cabeçalho global',async({page})=>
   }
  }
 });
+
+test('Tetris mantém comandos e HUD agrupados ao alternar tela cheia',async({page})=>{
+ await page.goto('/jogos/tetris/');
+ const stage=page.locator('#tetris-stage');
+ const button=stage.locator('#tetris-fullscreen');
+ await button.click();
+ await expect.poll(async()=>stage.evaluate(el=>document.fullscreenElement===el||el.classList.contains('game-stage-fallback'))).toBe(true);
+ const positions=await page.evaluate(()=>{
+  const stage=document.querySelector('#tetris-stage')!;
+  const header=stage.querySelector('.oa-stage-header')!.getBoundingClientRect();
+  const group=stage.querySelector('.tetris-playfield')!.getBoundingClientRect();
+  const hud=stage.querySelector('.oa-hud-compact')!.getBoundingClientRect();
+  const board=stage.querySelector('#tetris-screen')!.getBoundingClientRect();
+  return {aligned:Math.abs((header.left+header.right)/2-(group.left+group.right)/2)<28,side:hud.left>=board.right-2};
+ });
+ expect(positions.aligned).toBe(true);
+ expect(positions.side).toBe(true);
+ await button.click();
+});

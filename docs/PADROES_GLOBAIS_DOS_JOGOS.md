@@ -47,6 +47,12 @@ Referências: guia oficial do Tetris Effect: Connected, que traz desafios de pre
 - **Migrações:** proprietário confirmou execução manual da `0008` (tabela das tentativas) e `0010` (colunas de linhas/sucesso) no **D1 Preview**; `0009` também foi confirmada anteriormente. Não solicitar repetição sem evidência nova. Produção não autorizada, sem merge/publicação automática.
 - **Futuro opcional:** desbloqueio de replay **recreativo** de desafios anteriores com moeda do site é backlog, não reabre a tentativa oficial nem modifica ranking; ver `docs/BACKLOG_MOEDA_ARCADE.md`.
 
+## Piloto do HUD contextual compacto — Tetris (19/11/2026)
+- A página do jogo tem duas camadas: `GameStageHeader.astro` (título + botões de pausa e fullscreen, com indicadores opcionais) e corpo com tabuleiro e barra contextual à direita. O cabeçalho mantém o mesmo limite horizontal do conjunto jogável, inclusive em tela cheia.
+- `GameHud.astro` tem prop **`compact` opcional**. Ícones + valores substituem rótulos extensos; `title`/rótulos acessíveis preservam significado; IDs são mantidos para não afetar scripts. Padrão antigo continua disponível para Snake/Pixel Quest sem regressão.
+- No Tetris Clássico, Sprint e Sobrevivência: Próxima, Reserva, Linhas, missão (se ativa) e placar compacto aparecem no **mesmo grupo lateral**, em vez de um HUD independente no canto oposto do card. O cronômetro é inserido pelo módulo comum, não duplicado.
+- Testes de layout devem confirmar o cabeçalho e o HUD em todas as modalidades, sem perder canvas 10×20, pausa, fullscreen, contagem e ranking. Expandir este visual para Snake/Pixel Quest só após aceite visual do piloto no Preview manual.
+
 ## Contrato global de informação secundária — revisão 19/11/2026
 - `GameGuide.astro` é a estrutura visual única para instruções; conteúdo permanece específico à mecânica.
 - `GameDevelopmentHistory.astro` lê `gameRegistry.ts` (única fonte de versões, datas e marcos), sem histórico por cópia de HTML.
