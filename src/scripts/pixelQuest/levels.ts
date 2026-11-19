@@ -3,7 +3,8 @@ export type EntityKind='player'|'crystal'|'patroller'|'checkpoint'|'exit';
 export type Entity={kind:EntityKind;x:number;y:number};
 export type Level={id:string;world:string;width:number;height:number;tileSize:32;tiles:Tile[][];entities:Entity[]};
 export function tileAt(level:Level,col:number,row:number):Tile {
- if(col<0||col>=level.width||row>=level.height)return 1;
+ if(col<0||col>=level.width||row<0)return 1;
+ if(row>=level.height)return 0;
  return level.tiles[row]?.[col]??0;
 }
 export function validateLevel(level:Level):void {

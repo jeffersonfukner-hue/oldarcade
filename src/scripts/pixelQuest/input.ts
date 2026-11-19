@@ -2,7 +2,7 @@ import type {InputFrame} from './physics';
 export function setupPlatformInput(root:HTMLElement){
  const keyboard=new Set<string>(),touch=new Set<string>();
  const aliases:Record<string,string>={arrowleft:'left',a:'left',arrowright:'right',d:'right',arrowup:'jump',w:'jump',' ':'jump'};
- const onKeyDown=(event:KeyboardEvent)=>{const key=aliases[event.key.toLowerCase()];if(key&&!event.ctrlKey&&!event.altKey&&!event.metaKey){event.preventDefault();keyboard.add(key)}};
+ const onKeyDown=(event:KeyboardEvent)=>{if((event.target as HTMLElement|null)?.matches('input,textarea,select,[contenteditable]'))return;const key=aliases[event.key.toLowerCase()];if(key&&!event.ctrlKey&&!event.altKey&&!event.metaKey){event.preventDefault();keyboard.add(key)}};
  const onKeyUp=(event:KeyboardEvent)=>{const key=aliases[event.key.toLowerCase()];if(key){event.preventDefault();keyboard.delete(key)}};
  const reset=()=>{keyboard.clear();touch.clear()};
  window.addEventListener('keydown',onKeyDown);
