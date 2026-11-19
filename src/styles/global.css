@@ -651,7 +651,7 @@ body.oa-auth-open{overflow:hidden}
 .oa-game-layout>aside.panel{grid-column:1;width:100%;min-width:0}
 .oa-game-layout>aside.panel:not(.tetris-sidebar){padding:18px 24px}
 .oa-game-layout>aside.panel:not(.tetris-sidebar)>h2{font-size:1.25rem;margin:0 0 12px}
-.oa-game-layout .arcade-game-layout>.oa-board-slot{grid-area:board;min-width:0;max-width:100%}
+.oa-game-layout .arcade-game-layout>.oa-board-slot{grid-area:board;min-width:0;max-width:100%;justify-self:center;margin-inline:auto}
 .oa-game-layout .arcade-game-layout>.screen-wrap.oa-board-slot{justify-self:center;width:min(100%,var(--oa-board-max,760px))}
 @media(max-width:900px){
  .oa-game-layout [data-board-shape="portrait"] .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:10px}
@@ -703,8 +703,34 @@ body.oa-auth-open{overflow:hidden}
 .oa-game-page .game-share .share-feedback{margin-top:8px}
 .oa-game-page .ranking-overflow{overflow-x:auto;max-width:100%}
 /* Tetris: ampliar o tabuleiro sem perder sua proporção de 10x20 nem as prévias. */
-[data-board-shape="portrait"]{--oa-board-max:340px}
-.tetris-main-layout .tetris-playfield{grid-template-columns:minmax(0,340px) minmax(180px,230px);justify-content:center;gap:18px}
-.tetris-main-layout .tetris-board-shell{max-width:340px}
-@media(max-width:620px){.tetris-main-layout .tetris-playfield{grid-template-columns:minmax(0,1fr) 96px;gap:8px}}
+/* O mesmo slot compartilhado centraliza o grupo funcional de cada jogo.
+   No Tetris o grupo inclui tabuleiro (10x20), próximo, reserva e linhas. */
+[data-board-shape="portrait"]{--oa-board-max:320px}
+.oa-game-layout .tetris-playfield.oa-board-slot{
+ display:grid;
+ width:min(100%,540px);
+ grid-template-columns:minmax(0,320px) minmax(0,200px);
+ gap:18px;
+ justify-content:center;
+ align-items:start;
+ padding:12px 0;
+}
+.oa-game-layout .tetris-playfield .tetris-board-shell{
+ width:100%;
+ max-width:320px;
+ min-width:0;
+}
+.oa-game-layout .tetris-playfield .tetris-preview-column{
+ min-width:0;
+ width:100%;
+}
+@media(max-width:620px){
+ .oa-game-layout .tetris-playfield.oa-board-slot{
+  width:100%;
+  grid-template-columns:minmax(0,1fr) 96px;
+  gap:8px;
+ }
+ .oa-game-layout .tetris-playfield .tetris-board-shell{max-width:320px}
+}
+
 @media(max-width:420px){.oa-game-page .game-share{padding:14px}.oa-game-page .oa-performance-panel{padding:14px}.oa-game-page .section.panel{padding:16px}}

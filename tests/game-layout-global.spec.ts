@@ -108,3 +108,31 @@ test('Compartilhamento expande somente quando solicitado',async({page})=>{
  await expect(details).toHaveAttribute('open','');
  await expect(page.locator('[data-share-network="whatsapp"]')).toBeVisible();
 });
+
+test('Conjunto Tetris fica centralizado no slot compartilhado, com proporção preservada',async({page})=>{
+ for(const width of [1440,1024,820,390,320]){
+  await page.setViewportSize({width,height:900});
+  await page.goto('/jogos/tetris/');
+  const geometry=await page.evaluate(()=>{
+   const layout=document.querySelector('#tetris-stage .arcade-game-layout')!;
+   const group=document.querySelector('#tetris-stage .tetris-playfield')!;
+   const board=document.querySelector('#tetris-screen')!;
+   const preview=document.querySelector('#tetris-stage .tetris-preview-column')!;
+   const parent=layout.getBoundingClientRect(),g=group.getBoundingClientRect(),b=board.getBoundingClientRect(),p=preview.getBoundingClientRect();
+   const style=getComputedStyle(layout);
+   const stacked=style.gridTemplateAreas.includes('"stats" "board"');
+   const available=stacked?parent:{left:parent.left,right:layout.querySelector('.game-hud')!.getBoundingClientRect().left};
+   return {
+    centerDiff:Math.abs((g.left+g.right)/2-(available.left+available.right)/2),
+    ratio:b.height/b.width,
+    previewNextToBoard:p.left>=b.right-1,
+    overflow:document.documentElement.scrollWidth>innerWidth+1
+   };
+  });
+  expect(geometry.centerDiff,'centralização '+width).toBeLessThanOrEqual(22);
+  expect(geometry.ratio,'proporção 10x20 '+width).toBeGreaterThan(1.95);
+  expect(geometry.ratio,'proporção 10x20 '+width).toBeLessThan(2.05);
+  expect(geometry.previewNextToBoard,'próxima/reserva '+width).toBe(true);
+  expect(geometry.overflow,'sem rolagem horizontal '+width).toBe(false);
+ }
+});

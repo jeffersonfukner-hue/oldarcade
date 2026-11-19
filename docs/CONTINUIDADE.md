@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## Ajuste de centralização do conjunto jogável — 19/11/2026
+- Após comparar prints dos três jogos, Snake e Pixel Quest já utilizam o espaço adequado. O Tetris mantinha desbalanceamento entre tabuleiro + prévia/reserva e HUD.
+- Contrato global do `oa-board-slot` agora centraliza qualquer conjunto jogável. O grupo Tetris usa grid explícito (tabuleiro 10×20 limitado a 320px; coluna de próxima peça, reserva e linhas de até 200px), ocupando até 540px sem expandir ou distorcer o canvas. Layout móvel mantém coluna estreita para peças.
+- Removidos overrides finais conflitantes para Tetris. Nenhuma regra da partida, ranking ou API alterada. Teste geométrico cross-viewport (1440, 1024, 820, 390 e 320px) adicionado; CI e Preview ainda precisam confirmar.
+
+
+
 ## Revisão editorial global — 19/11/2026 (segunda revisão)
 - Após análise dos 15 prints, padronizados guias via `GameGuide.astro`, seções de histórico via `GameDevelopmentHistory.astro`, cards de compartilhamento e os painéis informativos; cada jogo mantém regras/formatos próprios.
 - Histórico de versões/marcos permanece exclusivamente em `gameRegistry.ts`: nenhum marco histórico foi reescrito, nenhuma versão foi incrementada artificialmente. Snake Aventura filtra marcos desse modo e usa o mesmo histórico de versões do jogo #001.
