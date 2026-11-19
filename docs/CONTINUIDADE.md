@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## Pixel Quest #003 — Etapa A implementada (19/11/2026)
+- **Branch:** `feat/pixel-quest-jogo-003`. Protótipo acessível em rota não listada `/jogos/pixel-quest/` no ambiente de desenvolvimento, **sem** cadastrar jogo #003 na Home e **sem** API/placar/contadores competitivos, conforme fase C planejada.
+- Código: `src/scripts/pixelQuest/{levels,physics,input,render,index}.ts`, mapa `src/data/pixelQuest/level-1-1.ts`, componente `src/components/PixelQuestGame.astro`, rota Astro e testes `tests/pixel-quest.spec.ts` e `tests-api/pixel-quest-physics.test.mjs`.
+- Fase 1-1 geométrica 96×18 tiles; física a 60Hz, colisões com subpassos, salto curto, coyote time, jump buffer, câmera limitada, teclado/touch, pausa e fullscreen. HUD, `setCountdownOverlay` e `centerGameBoard` reutilizados. Cristais/inimigos/checkpoint/portal são **visuais apenas** até Etapa B.
+- **Verificação executada:** 7 casos de física sobre código TS convertido para JS em execução isolada passaram (chão, andar, salto, pouso, abismo, parede e câmera); 11 verificações de presença/integração estática passaram. Suíte de testes adicionada ao repositório; **build Astro e E2E no navegador não executados** porque branch ainda não está em PR e não há checkout local acessível. Não chamar esta etapa de certificada.
+- **Próxima ação:** obter evidência de build/testes em ambiente acessível sem Cloudflare, corrigir somente falhas relevantes da Etapa A e então construir a Etapa B. Não reabrir Desafio Diário.
+
 ## Jogo #003 — Pixel Quest: planejamento registrado (19/11/2026)
 - Branch exclusiva: `feat/pixel-quest-jogo-003`, derivada de `feat/tetris-jogo-002` (ainda não mesclada à `main`).
 - Plano técnico completo em [PLANO_PIXEL_QUEST_003.md](PLANO_PIXEL_QUEST_003.md). Sem jogo implementado, sem alteração de catálogo, APIs, banco, Cloudflare, Preview ou produção.
