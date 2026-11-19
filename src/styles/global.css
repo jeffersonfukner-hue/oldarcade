@@ -779,3 +779,129 @@ body.oa-auth-open{overflow:hidden}
 .oa-game-layout.tetris-main-layout>.game-stage.game-stage-fallback .tetris-playfield.oa-board-slot{
  width:min(100%,580px)
 }
+
+
+/* Padrão aprovado do Tetris aplicado ao Snake e Pixel Quest:
+   palco centralizado, tabuleiro em destaque e placar contextual próximo.
+   Não altera canvas, IDs, regras nem telemetria. */
+.oa-game-layout.oa-stage-unified>.game-stage{
+ width:min(100%,980px);
+ margin-inline:auto;
+}
+.oa-game-layout.oa-stage-unified .game-stage>.oa-stage-header{
+ width:min(100%,900px);
+ margin:0 auto 14px;
+}
+.oa-game-layout.oa-stage-unified .arcade-game-layout{
+ display:grid;
+ grid-template-columns:minmax(0,640px) minmax(190px,230px);
+ grid-template-areas:"board stats";
+ gap:16px;
+ align-items:start;
+ justify-content:center;
+ width:min(100%,900px);
+ margin-inline:auto;
+ min-width:0;
+}
+.oa-game-layout.oa-stage-unified .arcade-game-layout>.oa-board-slot{
+ grid-area:board;
+ max-width:100%;
+ width:min(100%,var(--oa-board-max,640px));
+ min-width:0;
+}
+.oa-game-layout.oa-stage-unified .arcade-game-layout>.game-hud.oa-hud-compact{
+ grid-area:stats;
+ display:grid;
+ grid-template-columns:minmax(0,1fr);
+ width:100%;
+ align-content:start;
+ justify-self:stretch;
+ min-width:0;
+ margin:0;
+}
+.oa-game-layout.oa-stage-unified .arcade-game-layout>.game-hud.oa-hud-compact>.oa-hud-status,
+.oa-game-layout.oa-stage-unified .arcade-game-layout>.game-hud.oa-hud-compact>.oa-hud-metric{
+ grid-column:1;
+ display:flex;
+}
+.oa-game-layout.oa-stage-unified .arcade-game-layout>.game-hud.oa-hud-compact>.oa-hud-metric{
+ justify-content:space-between;
+ flex-wrap:wrap;
+ gap:4px;
+ padding:8px;
+ border:1px solid #304763;
+ border-radius:8px;
+}
+.oa-game-layout.oa-stage-unified .arcade-game-layout>.game-hud.oa-hud-compact>.oa-hud-metric strong{
+ font-size:clamp(.9rem,1.25vw,1.13rem);
+}
+.oa-game-layout.oa-stage-unified .arcade-game-layout>.adventure-progress{
+ grid-area:progress;
+ width:100%;
+ min-width:0;
+ margin:0;
+}
+/* A missão da Aventura acompanha a área jogável e permanece visível. */
+.oa-game-layout.oa-stage-unified .arcade-game-layout:has(>.adventure-progress){
+ grid-template-areas:"progress stats" "board stats";
+ grid-template-rows:auto auto;
+}
+.oa-game-layout.oa-stage-unified .arcade-game-layout:has(>.adventure-progress)>.game-hud{
+ grid-row:1 / span 2;
+}
+.oa-game-layout.oa-stage-unified .arcade-game-layout .game-hud>.game-progress-bar,
+.oa-game-layout.oa-stage-unified .arcade-game-layout .game-hud>[class*="progress"]{
+ min-width:0;
+ max-width:100%;
+}
+.oa-game-layout.oa-stage-unified .arcade-game-layout>.game-hud.oa-hud-compact>span:not(.oa-hud-status):not(.oa-hud-metric):not(.hud-hint){
+ font-size:.8rem;
+ overflow-wrap:anywhere;
+}
+.oa-game-layout.oa-stage-unified .game-stage:fullscreen,
+.oa-game-layout.oa-stage-unified .game-stage.game-stage-fallback{
+ width:100%;
+ max-width:100%;
+}
+.oa-game-layout.oa-stage-unified .game-stage:fullscreen .arcade-game-layout,
+.oa-game-layout.oa-stage-unified .game-stage.game-stage-fallback .arcade-game-layout{
+ width:min(100%,900px);
+ grid-template-columns:minmax(0,640px) minmax(170px,230px);
+ grid-template-areas:"board stats";
+ align-items:center;
+}
+.oa-game-layout.oa-stage-unified .game-stage:fullscreen .arcade-game-layout:has(>.adventure-progress),
+.oa-game-layout.oa-stage-unified .game-stage.game-stage-fallback .arcade-game-layout:has(>.adventure-progress){
+ grid-template-areas:"progress stats" "board stats";
+}
+@media(max-width:740px){
+ .oa-game-layout.oa-stage-unified .arcade-game-layout,
+ .oa-game-layout.oa-stage-unified .game-stage:fullscreen .arcade-game-layout,
+ .oa-game-layout.oa-stage-unified .game-stage.game-stage-fallback .arcade-game-layout{
+  grid-template-columns:minmax(0,1fr);
+  grid-template-areas:"stats" "board";
+  gap:9px;
+  width:100%;
+ }
+ .oa-game-layout.oa-stage-unified .arcade-game-layout:has(>.adventure-progress),
+ .oa-game-layout.oa-stage-unified .game-stage:fullscreen .arcade-game-layout:has(>.adventure-progress),
+ .oa-game-layout.oa-stage-unified .game-stage.game-stage-fallback .arcade-game-layout:has(>.adventure-progress){
+  grid-template-areas:"stats" "progress" "board";
+  grid-template-rows:auto auto auto;
+ }
+ .oa-game-layout.oa-stage-unified .arcade-game-layout:has(>.adventure-progress)>.game-hud{grid-row:auto}
+ .oa-game-layout.oa-stage-unified .arcade-game-layout>.game-hud.oa-hud-compact{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:5px;
+ }
+ .oa-game-layout.oa-stage-unified .arcade-game-layout>.game-hud.oa-hud-compact>.oa-hud-status{
+  grid-column:1 / -1;
+ }
+ .oa-game-layout.oa-stage-unified .arcade-game-layout>.game-hud.oa-hud-compact>.oa-hud-metric{
+  grid-column:auto;
+  padding:5px;
+ }
+ .oa-game-layout.oa-stage-unified .arcade-game-layout>.game-hud.oa-hud-compact>span:not(.oa-hud-status):not(.oa-hud-metric):not(.hud-hint){
+  font-size:.7rem;
+ }
+}
