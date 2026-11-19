@@ -21,15 +21,16 @@ import GameGuide from './GameGuide.astro';
    <div class="panel game-stage" id="pq-stage" data-arcade-viewport data-board-shape="landscape">
     <GameStageHeader title="◈ PIXEL QUEST" subtitle="Trilha Esmeralda" pauseId="pq-pause" fullscreenId="pq-fullscreen" fullscreenLabel="Alternar tela cheia do Pixel Quest"></GameStageHeader>
     <div class="arcade-game-layout">
-     <GameHud compact statusId="pq-status" scoreId="pq-score" bestId="pq-best" globalId="pq-global" bestLabel="Melhor fase (local)" globalLabel="Melhor geral (local · 1 fase)" scoreLabel="Pontos" statId="pq-defeated" statLabel="Total de inimigos derrotados" secondStatId="pq-level-defeated" secondStatLabel="Derrotados neste nível" hint="A/D ou ←/→ mover · Espaço/↑ saltar · P pausar">
-      <GameProgressBar id="pq-crystals-remaining" label="Cristais" total={crystalsInLevel} color="crystal"/>
-      <GameProgressBar id="pq-enemies-remaining" label="Inimigos" total={enemiesInLevel} color="enemy"/>
+     <GameHud compact statusId="pq-status" scoreId="pq-score" bestId="pq-best" globalId="pq-global" bestLabel="Melhor fase (local)" globalLabel="Melhor geral (local · 1 fase)" scoreLabel="Pontos" statId="pq-defeated" statLabel="Total de inimigos derrotados" secondStatId="pq-level-defeated" secondStatLabel="Derrotados neste nível" hideSecondStat hint="A/D ou ←/→ mover · Espaço/↑ saltar · P pausar">
+      <GameProgressBar id="pq-crystals-remaining" label="Cristais restantes" total={crystalsInLevel} color="crystal"/>
+      <GameProgressBar id="pq-enemies-remaining" label="Inimigos restantes" total={enemiesInLevel} color="enemy"/>
      </GameHud>
-     <div id="pq-screen" class="screen-wrap oa-board-slot oa-board-surface"><canvas id="pq-canvas" width="640" height="360" aria-label="Mapa interativo da fase 1-1, com cristais, inimigos e portal"></canvas>
+     <div class="pq-board-column oa-board-slot"><div id="pq-screen" class="screen-wrap oa-board-surface"><canvas id="pq-canvas" width="640" height="360" aria-label="Mapa interativo da fase 1-1, com cristais, inimigos e portal"></canvas>
       <div id="pq-overlay" class="game-overlay"><h2 id="pq-title">Preparado para explorar?</h2><p id="pq-description">Use as setas ou A/D para mover; Espaço, W ou ↑ para saltar. Colete todos os cristais para liberar o portal!</p><strong id="pq-countdown" class="countdown-value" hidden></strong><button id="pq-start" type="button" class="btn">▶ Começar fase</button></div>
      </div>
+     <div class="pq-statusline" aria-label="Estado da fase"><span>Vidas: <strong id="pq-hearts" aria-label="Corações">♥♥♥</strong></span><span>Checkpoint: <strong id="pq-checkpoint">Não</strong></span><span id="pq-portal-status" role="status">Portal bloqueado · 0/6 cristais</span><span class="oa-metric-bridge" hidden aria-hidden="true">Inimigos no nível: <strong id="pq-level-enemies">3/3</strong></span><span class="oa-metric-bridge" hidden aria-hidden="true">Cristais no nível: <strong id="pq-crystals">0/6</strong></span></div>
     </div>
-    <div class="pq-statusline" aria-label="Progresso da fase"><span>Vidas: <strong id="pq-hearts" aria-label="Corações">♥♥♥</strong></span><span>Inimigos no nível: <strong id="pq-level-enemies">3/3</strong></span><span>Cristais no nível: <strong id="pq-crystals">0/6</strong></span><span>Checkpoint: <strong id="pq-checkpoint">Não</strong></span><span id="pq-portal-status" role="status">Portal bloqueado · 0/6 cristais</span></div>
+    </div>
     <div class="pq-touch-controls" aria-label="Controles de toque"><button type="button" data-pq-control="left" aria-label="Mover para esquerda">←</button><button type="button" data-pq-control="right" aria-label="Mover para direita">→</button><button type="button" data-pq-control="jump" aria-label="Saltar">↑ Pular</button></div>
    </div>
    <aside class="panel oa-level-summary" aria-label="Informações da fase"><h2>Fase 1-1 · Trilha Esmeralda</h2><p>O portal exige todos os seis cristais. Inimigos rendem pontos extras, mas não bloqueiam a saída.</p><p class="small muted">Regras, controles e pontuação detalhados abaixo.</p></aside>
@@ -43,9 +44,11 @@ import GameGuide from './GameGuide.astro';
  <style>
   .pq-shell{min-width:0;max-width:100%;overflow-x:clip}
   .game-layout>.game-stage{min-width:0;max-width:100%}
+  .pq-board-column{display:grid;align-content:start;gap:11px;min-width:0;width:100%;max-width:640px;margin-inline:auto}
   #pq-screen{width:100%;min-width:0;max-width:var(--oa-board-max);aspect-ratio:16/9;margin-inline:auto}
   #pq-canvas{width:100%;height:100%;max-width:none;aspect-ratio:16/9;image-rendering:pixelated;touch-action:none}
-  .pq-statusline{display:flex;justify-content:space-around;gap:8px;flex-wrap:wrap;margin-top:10px;color:#dbe6ff}
+  .pq-statusline{display:flex;justify-content:flex-start;align-items:center;gap:8px 18px;flex-wrap:wrap;min-width:0;color:#dbe6ff;font-size:.8rem;line-height:1.4}
+  .pq-statusline>span[role=status]{flex:1 1 200px;overflow-wrap:anywhere}
   #pq-hearts{color:#ff929f;letter-spacing:.1em}
   .pq-touch-controls{display:flex;justify-content:center;gap:12px;margin-top:12px;touch-action:manipulation}
   .pq-touch-controls button{min-width:70px;min-height:52px;border-radius:10px;border:1px solid #5471a8;background:#1b3557;color:#fff;font-weight:750;touch-action:none}
