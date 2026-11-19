@@ -250,3 +250,35 @@ test('Snake em tela cheia mantém missão alinhada ao tabuleiro, não na largura
  expect(values.missionVisible).toBe(true);
  expect(values.missionWidth).toBeLessThan(values.stageWidth);
 });
+
+test('Snake: derrota permite repetir a mesma missão, sem abrir o jogo livre',async({page})=>{
+ let started=0,finished=0;
+ const mission={version:3,kind:'rush',metric:'score',target:70,timeLimitMs:800,
+  title:'Corrida contra o relógio',description:'Colete 7 frutas em até 0,8 segundo.'};
+ await page.route('**/api/auth/me',route=>route.fulfill({status:200,contentType:'application/json',body:'{"player":{"nickname":"Jogador"}}'}));
+ await page.route('**/api/daily/snake**',async route=>{
+  if(route.request().method()==='POST'){
+   const {action}=route.request().postDataJSON() as {action:string};
+   if(action==='start'){
+    started++;
+    return route.fulfill({status:201,contentType:'application/json',body:JSON.stringify({date:'2026-11-20',token:'a'.repeat(64),seed:123,mission})});
+   }
+   if(action==='finish'){
+    finished++;
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({saved:false,retryAvailable:true,missionSuccess:false,mission})});
+   }
+  }
+  return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+   game:'snake',today:'2026-11-20',month:'2026-11',days:[],mission,
+   account:{nickname:'Jogador'},historyAvailable:true
+  })});
+ });
+ await page.goto('/jogos/snake/');
+ await page.locator('[data-daily-calendar="snake"] [data-daily-start]').click();
+ await expect(page.locator('#start-btn')).toHaveText('↻ Tentar desafio novamente',{timeout:15000});
+ expect(started).toBe(1);
+ expect(finished).toBe(1);
+ await page.locator('#start-btn').click();
+ await expect(page.locator('[data-daily-mission-sidebar] .daily-live-tracker')).toContainText('Corrida contra o relógio');
+ expect(started).toBe(2);
+});
