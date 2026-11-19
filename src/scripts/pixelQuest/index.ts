@@ -1,7 +1,7 @@
 import {firstLevel} from '../../data/pixelQuest/level-1-1';
 import {validateLevel} from './levels';
 import {cameraX,STEP} from './physics';
-import {createRun,stepRun,type Run} from './gameplay';
+import {createRun,stepRun,levelDefeated,totalDefeated,type Run} from './gameplay';
 import {drawPlatformScene,VIEW_WIDTH} from './render';
 import {setupPlatformInput} from './input';
 import {setCountdownOverlay} from '../gameCountdownOverlay';
@@ -27,6 +27,7 @@ if(stage){
  const checkpoint=stage.querySelector<HTMLElement>('#pq-checkpoint')!;
  const defeated=stage.querySelector<HTMLElement>('#pq-defeated')!;
  const levelEnemies=stage.querySelector<HTMLElement>('#pq-level-enemies')!;
+ const levelKills=stage.querySelector<HTMLElement>('#pq-level-defeated')!;
  const portalStatus=stage.querySelector<HTMLElement>('#pq-portal-status')!;
  const input=setupPlatformInput(stage);
  let run:Run=createRun(firstLevel),camera=0;
@@ -39,8 +40,9 @@ if(stage){
   hearts.textContent='♥'.repeat(run.hearts)+'♡'.repeat(3-run.hearts);
   crystals.textContent=run.crystals.size+'/'+totalCrystals;
   checkpoint.textContent=run.checkpointActive?'Ativado':'Não';
-  const defeatedCount=run.enemies.filter(enemy=>!enemy.alive).length;
-  defeated.textContent=String(defeatedCount);
+  const defeatedCount=levelDefeated(run);
+  defeated.textContent=String(totalDefeated(run));
+  levelKills.textContent=String(defeatedCount);
   levelEnemies.textContent=(run.enemies.length-defeatedCount)+'/'+run.enemies.length;
   portalStatus.textContent=run.crystals.size===totalCrystals?'Portal liberado · todos os cristais coletados':`Portal bloqueado · ${run.crystals.size}/${totalCrystals} cristais`;
  }

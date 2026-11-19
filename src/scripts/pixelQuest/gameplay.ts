@@ -4,21 +4,26 @@ import type {Level} from './levels';
 export type Enemy={id:number;x:number;y:number;origin:number;direction:1|-1;alive:boolean};
 export type Run={
  player:Player;hearts:number;score:number;crystals:Set<number>;enemies:Enemy[];
+ cumulativeBeforeLevel:number;
  checkpoint:{x:number;y:number};checkpointActive:boolean;invulnerable:number;
  phase:'playing'|'won'|'lost';elapsedMs:number;
 };
 const overlaps=(ax:number,ay:number,aw:number,ah:number,bx:number,by:number,bw:number,bh:number)=>
  ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by;
 
-export function createRun(level:Level):Run {
+/** Ao avançar de nível, passar totalDefeated(faseAnterior) para preservar o acumulado. */
+export function createRun(level:Level,cumulativeBeforeLevel=0):Run {
+ if(!Number.isSafeInteger(cumulativeBeforeLevel)||cumulativeBeforeLevel<0)throw Error('Acumulado inválido');
  const spawn=level.entities.find(entity=>entity.kind==='player');
  if(!spawn)throw Error('Spawn ausente');
  return {
-  player:createPlayer(spawn.x,spawn.y),hearts:3,score:0,crystals:new Set<number>(),
+  player:createPlayer(spawn.x,spawn.y),hearts:3,score:0,crystals:new Set<number>(),cumulativeBeforeLevel,
   enemies:level.entities.flatMap((entity,id)=>entity.kind==='patroller'?[{id,x:entity.x,y:entity.y,origin:entity.x,direction:1 as const,alive:true}]:[]),
   checkpoint:{x:spawn.x,y:spawn.y},checkpointActive:false,invulnerable:0,phase:'playing',elapsedMs:0
  };
 }
+export function levelDefeated(run:Run):number {return run.enemies.filter(enemy=>!enemy.alive).length}
+export function totalDefeated(run:Run):number {return run.cumulativeBeforeLevel+levelDefeated(run)}
 /** Encostar em inimigo: perde um coração, recua e permanece na mesma área. */
 export function receiveDamage(run:Run,enemyX?:number):void {
  if(run.phase!=='playing'||run.invulnerable>0)return;

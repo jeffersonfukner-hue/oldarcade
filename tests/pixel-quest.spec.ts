@@ -4,6 +4,8 @@ test('Protótipo Pixel Quest tem fase, controles e contagem regressiva',async({p
  await expect(page.locator('#pq-canvas')).toBeVisible();
  await expect(page.locator('#pq-status')).toContainText('Pronto');
  await expect(page.locator('#pq-defeated')).toHaveText('0');
+ await expect(page.locator('#pq-level-defeated')).toHaveText('0');
+ await expect(page.locator('#pq-crystals')).toHaveText('0/6');
  await expect(page.locator('#pq-level-enemies')).toHaveText('3/3');
  await expect(page.locator('#pq-portal-status')).toContainText('Portal bloqueado');
  await page.locator('#pq-start').click();

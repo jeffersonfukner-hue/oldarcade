@@ -109,3 +109,18 @@ test('Pisão só derrota inimigo ao aterrissar de cima; pulo ascendente não mat
  assert.equal(stomp.enemies.filter(enemy=>!enemy.alive).length,1,'inimigo vencido não duplica contagem');
  assert.equal(stomp.enemies.filter(enemy=>enemy.alive).length,2,'inimigos restantes diminuem após o pisão');
 });
+
+test('Contadores por nível reiniciam na próxima fase enquanto total permanece acumulado',()=>{
+ const first=run();
+ first.enemies[0].alive=false;
+ first.enemies[1].alive=false;
+ assert.equal(gameplay.levelDefeated(first),2);
+ assert.equal(gameplay.totalDefeated(first),2);
+ const next=gameplay.createRun(firstLevel,gameplay.totalDefeated(first));
+ assert.equal(gameplay.levelDefeated(next),0);
+ assert.equal(gameplay.totalDefeated(next),2);
+ next.enemies[0].alive=false;
+ assert.equal(gameplay.levelDefeated(next),1);
+ assert.equal(gameplay.totalDefeated(next),3);
+ assert.equal(gameplay.createRun(firstLevel).cumulativeBeforeLevel,0,'nova campanha começa em zero');
+});

@@ -4,6 +4,11 @@
 
 # OldArcade — continuidade obrigatória
 
+## Pixel Quest — correção da semântica dos indicadores (19/11/2026)
+- Esclarecimento do proprietário: separar **Total de inimigos derrotados** (acumulado da campanha entre fases) e **Derrotados neste nível** (zera ao entrar no próximo). Manter **Inimigos no nível** (restantes/total) e **Cristais no nível** (coletados/total).
+- `gameplay.ts`: `createRun(level,cumulativeBeforeLevel=0)`, `levelDefeated(run)`, `totalDefeated(run)`. A próxima fase, quando implementada, deve receber o acumulado da fase anterior; nova campanha começa do zero. **Atualmente só existe a fase 1-1; a transição ainda não foi implementada**, portanto acumulado e derrotados no nível coincidem nesta fase. Não foi criada persistência entre sessões ou novos níveis fictícios.
+- A regra de portal liberado **somente após todos os cristais** permanece. HUD global reutilizado sem mudanças para Snake/Tetris. Testes regressivos para transferência entre fases e HUD atualizados.
+
 ## Pixel Quest — dois contadores de inimigos e portal condicionado (19/11/2026)
 - **Total derrotados**: número de inimigos vencidos na partida atual (0 ao reiniciar); **Inimigos no nível**: restantes/total da fase (inicialmente 3/3), decresce com pisões e não exige derrotar todos para concluir.
 - Portal somente fica ativo após coletar **todos os cristais** da fase. Antes disso, tocar o portal não vence nem concede bônus; há texto de status e diferenciação visual de portal bloqueado/liberado.
