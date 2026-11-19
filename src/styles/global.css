@@ -659,3 +659,10 @@ body.oa-auth-open{overflow:hidden}
 }
 @media(max-width:840px){.oa-game-layout{gap:12px}.oa-game-page{width:min(100% - 24px,1480px)}}
 @media(max-width:650px){.oa-game-layout .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:9px}.oa-game-layout .arcade-game-layout>.game-hud{min-width:0;max-width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}.oa-game-layout>.panel{min-width:0}.oa-game-page>.hero{padding:20px 0 12px}}
+
+/* O teclado substitui os controles desenhados no desktop em qualquer jogo. */
+@media(hover:hover) and (pointer:fine){
+ .oa-game-layout [data-arcade-viewport]>.touch-controls,
+ .oa-game-layout [data-arcade-viewport]>.tetris-touch-controls,
+ .oa-game-layout [data-arcade-viewport]>.pq-touch-controls{display:none!important}
+}

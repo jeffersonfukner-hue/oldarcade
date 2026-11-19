@@ -41,10 +41,15 @@ test('Layouts mobile 390 e 320 com HUD acima e sem rolagem horizontal',async({pa
    const stage=document.querySelector('.oa-game-layout>.game-stage')!;
    const board=stage.querySelector('.oa-board-surface')!.getBoundingClientRect();
    const hud=stage.querySelector('.game-hud')!.getBoundingClientRect();
-   return {above:hud.bottom<=board.top+1,overflow:document.documentElement.scrollWidth>innerWidth+1};
+   const offenders=[...document.querySelectorAll<HTMLElement>('body *')].filter(el=>{
+    const r=el.getBoundingClientRect();
+    return r.width>0&&r.height>0&&(r.right>innerWidth+1||r.left< -1)
+     &&getComputedStyle(el).position!=='fixed'&&getComputedStyle(el).visibility!=='hidden';
+   }).slice(0,12).map(el=>({tag:el.tagName,id:el.id,classes:el.className?.toString().slice(0,60),left:Math.round(el.getBoundingClientRect().left),right:Math.round(el.getBoundingClientRect().right)}));
+   return {above:hud.bottom<=board.top+1,overflow:document.documentElement.scrollWidth>innerWidth+1,offenders};
   });
-  expect(geometry.above,route).toBe(true);
-  expect(geometry.overflow,route).toBe(false);
+  expect(geometry.above,route+' '+width).toBe(true);
+  expect(geometry.overflow,route+' '+width+' '+JSON.stringify(geometry.offenders)).toBe(false);
  }
 });
 test('Formato portrait se adapta a 900px sem apertar o tabuleiro',async({page})=>{
