@@ -14,7 +14,7 @@ for(const [route,shape,canvasId] of routes){
   await page.goto(route);
   const layout=page.locator('.oa-game-layout');
   await expect(layout).toHaveCount(1);
-  const stage=layout.locator('> .game-stage');
+  const stage=layout.locator(':scope > .game-stage');
   await expect(stage).toHaveAttribute('data-board-shape',shape);
   await expect(stage.locator('#'+canvasId)).toBeVisible();
   await expect(stage.locator('.game-hud')).toBeVisible();
