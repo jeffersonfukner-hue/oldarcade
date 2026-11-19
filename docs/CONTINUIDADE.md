@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## Jogo #003 — Pixel Quest: planejamento registrado (19/11/2026)
+- Branch exclusiva: `feat/pixel-quest-jogo-003`, derivada de `feat/tetris-jogo-002` (ainda não mesclada à `main`).
+- Plano técnico completo em [PLANO_PIXEL_QUEST_003.md](PLANO_PIXEL_QUEST_003.md). Sem jogo implementado, sem alteração de catálogo, APIs, banco, Cloudflare, Preview ou produção.
+- Proposta: plataforma lateral original Canvas 2D + TypeScript, física fixed timestep, colisões, câmera, dados de tilemap, controles teclado/touch; reutilização obrigatória de HUD, countdown, fullscreen, viewport, ranking, contadores, celebrações e SEO compartilhados.
+- Piloto 1-1 Trilha Esmeralda: 96×18 tiles, terreno de aprendizado, cristais, patrulheiro, dois saltos, checkpoint, portal; valores de física ainda sujeitos a testes. Escopo futuro de lançamento: 3 mundos × 2 fases.
+- **Próxima ação:** implementar apenas motor básico + primeira fase geométrica (Etapa A do plano) e testes direcionados; manter Desafio Diário congelado. Publicação e ativação de Preview permanecem exclusivamente com proprietário.
+
 ## ESTADO ATUAL PARA NOVO CHAT — lançamento com 3 jogos (19/11/2026)
 - **Decisão mais recente do proprietário:** Desafio Diário foi **adiado**, sem nova implementação ou depuração por enquanto; priorizar 3 jogos funcionais, SEO e aprovação no Google Search Console/AdSense. O jogo #003 será um jogo de **plataforma inspirado na mecânica de Mario**, com personagens, arte, áudio, nomes e fases **originais** para evitar uso indevido de propriedade intelectual.
 - **Ocultação do Desafio Diário:** flag única `src/data/featureFlags.ts`, `DAILY_CHALLENGES_ENABLED=false`; remove da interface pública calendários de Snake/Tetris, convite na Home, histórico no perfil, chamadas da API de calendário disparadas pela interface e opções de e-mail diário na conta/login. Código, APIs, migrações e testes do recurso ficam preservados para uso futuro; testes E2E diários legados foram marcados como `test.skip`. Novo teste ativo `tests/daily-feature-hidden.spec.ts` cobre ausência nas páginas e ausência de requisições diárias.
