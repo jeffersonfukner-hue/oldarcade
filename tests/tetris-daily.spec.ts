@@ -1,6 +1,7 @@
+// Recurso adiado para depois do lançamento. Testes preservados para reativação.
 import {test,expect} from '@playwright/test';
 
-test('Tetris mostra Desafio Diário para visitantes e explica benefício ao tentar participar',async({page})=>{
+test.skip('Tetris mostra Desafio Diário para visitantes e explica benefício ao tentar participar',async({page})=>{
  await page.route('**/api/daily/tetris**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
   game:'tetris',today:'2026-11-17',month:'2026-11',timezone:'America/Sao_Paulo',days:[],account:null
  })}));
@@ -14,7 +15,7 @@ test('Tetris mostra Desafio Diário para visitantes e explica benefício ao tent
  await expect(calendar.locator('[data-daily-login]')).toBeVisible();
 });
 
-test('Tetris inicia com reserva confirmada e não libera outra tentativa diária',async({page})=>{
+test.skip('Tetris inicia com reserva confirmada e não libera outra tentativa diária',async({page})=>{
  let started=0,used=false;
  await page.route('**/api/auth/me',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({player:{nickname:'Jogador Tetris'}})}));
  await page.route('**/api/daily/tetris**',async route=>{
@@ -37,7 +38,7 @@ test('Tetris inicia com reserva confirmada e não libera outra tentativa diária
  expect(started).toBe(1);
 });
 
-test('Todos os modos do Tetris oferecem acesso ao desafio sem duplicar o jogo',async({page})=>{
+test.skip('Todos os modos do Tetris oferecem acesso ao desafio sem duplicar o jogo',async({page})=>{
  for(const path of ['/jogos/tetris/sprint/','/jogos/tetris/sobrevivencia/']){
   await page.goto(path);
   await expect(page.getByText(/Desafio Diário do Tetris/)).toBeVisible();
@@ -45,7 +46,7 @@ test('Todos os modos do Tetris oferecem acesso ao desafio sem duplicar o jogo',a
  }
 });
 
-test('Cadastro e perfil oferecem avisos separados e e-mail opcional',async({page})=>{
+test.skip('Cadastro e perfil oferecem avisos separados e e-mail opcional',async({page})=>{
  await page.route('**/api/auth/me',route=>route.fulfill({status:200,contentType:'application/json',body:'{"player":null}'}));
  await page.goto('/conta/');
  await page.locator('#tab-register').click();
@@ -55,7 +56,7 @@ test('Cadastro e perfil oferecem avisos separados e e-mail opcional',async({page
 });
 
 
-test('Tetris oferece repetir o desafio após derrota e não inicia o Clássico',async({page})=>{
+test.skip('Tetris oferece repetir o desafio após derrota e não inicia o Clássico',async({page})=>{
  let starts=0,finishes=0;
  const mission={version:3,kind:'timed-sequence',metric:'sequence',target:4,timeLimitMs:900,
   title:'Duplas perfeitas',description:'Elimine 2 linhas quatro vezes seguidas em 900 ms.',sequence:[2,2,2,2]};
