@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## Padrão global de repetição do Desafio Diário (18/11/2026)
+- **Correção passou de pontual a global:** módulo único `src/scripts/dailyMissionReplay.ts`, integrado em Snake e Tetris na branch `feat/tetris-jogo-002`.
+- Após **derrota** registrada, botão pergunta se deseja repetir e solicita nova reserva da **mesma data/missão** via evento global; no laboratório de treino, repete mesma missão/seed sem D1. Após vitória, não há replay. Resultado pendente exige reenvio antes de nova partida.
+- Ao começar jogo **livre**, ambos os motores emitem seleção de missão nula e fase `idle`, evitando tracker diário enganoso durante modo clássico.
+- Testes cruzados Playwright em `tests/daily-challenge.spec.ts` (Snake) e `tests/tetris-daily.spec.ts` (Tetris). Verificação GitHub Actions ainda pendente; Preview visual/funcional pertence ao proprietário. Sem merge, deploy ou alteração de D1.
+
+
 ## Tetris Diário — reinício após derrota (18/11/2026)
 - Relato do proprietário: após errar uma missão de sequência, botão do overlay iniciava Tetris Clássico, mas a missão permanecia visível, dando falsa impressão de continuação do Desafio Diário.
 - Corrigido em `src/scripts/tetris.ts`: ao salvar derrota na API, overlay pergunta se deseja tentar a missão novamente; o botão reaproveita `oldarcade:daily-start-request` com a mesma data, solicitando novo token/seed ao servidor. Não inicia Clássico por engano. No laboratório de treino, o reinício reaproveita missão e seed sem acessar D1; iniciar Clássico limpa seleção da missão/tracker.
