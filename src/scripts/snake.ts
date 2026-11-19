@@ -779,7 +779,7 @@ document.addEventListener('oldarcade:personal-record',event=>{
 // Ao entrar no site já autenticado ou conectar pelo modal global, buscar
 // explicitamente o recorde daquela conta. O ranking iniciado antes do login
 // pode ter retornado mine=null e não pode permanecer como fonte da sessão.
-void checkAccount().then(()=>{refresh();void leaderboard.refresh('initial')});
+void checkAccount().then(()=>{refresh()});
 document.addEventListener('oldarcade:account-changed',()=>{
  account=null;
  personalCloudBest=null;
