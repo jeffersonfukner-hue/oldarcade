@@ -172,8 +172,10 @@ test('Tetris fullscreen preserva tabuleiro vertical e controles em monitor ultra
  expect(layout.canvas.width).toBeLessThanOrEqual(400);
  expect(layout.screen.x).toBeGreaterThan(300);
  expect(layout.screen.right).toBeLessThan(2200);
- expect(layout.hud.left).toBeGreaterThanOrEqual(layout.canvas.right);
- expect(layout.preview.right).toBeLessThan(layout.hud.left);
+ // HUD aprovado fica DENTRO da coluna de prévias/reserva, não em uma terceira coluna.
+ expect(layout.preview.left).toBeGreaterThanOrEqual(layout.canvas.right-1);
+ expect(layout.hud.left).toBeGreaterThanOrEqual(layout.preview.left-1);
+ expect(layout.hud.right).toBeLessThanOrEqual(layout.preview.right+1);
  expect(layout.controls.bottom).toBeLessThanOrEqual(layout.stage.bottom+1);
  expect(layout.controls.left).toBeGreaterThanOrEqual(layout.stage.left);
  expect(layout.controls.right).toBeLessThanOrEqual(layout.stage.right);
