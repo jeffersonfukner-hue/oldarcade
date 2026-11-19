@@ -1,8 +1,14 @@
 name: Verificações
+# Em branches de trabalho, testar somente o PR para evitar execução dupla.
+# Sem PR aberto, use workflow_dispatch para testar manualmente.
 on:
   push:
-    branches: [main, 'feat/**']
+    branches: [main]
   pull_request:
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
