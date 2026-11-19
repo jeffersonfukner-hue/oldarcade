@@ -666,3 +666,12 @@ body.oa-auth-open{overflow:hidden}
  .oa-game-layout [data-arcade-viewport]>.tetris-touch-controls,
  .oa-game-layout [data-arcade-viewport]>.pq-touch-controls{display:none!important}
 }
+
+/* Em 320px, títulos e chips das seções não podem forçar largura maior
+   do que a viewport; tabelas mantêm rolagem dentro de ranking-overflow. */
+@media(max-width:420px){
+ .oa-game-page .section-head{flex-wrap:wrap;align-items:flex-start;gap:10px}
+ .oa-game-page .section-head>div{min-width:0;max-width:100%}
+ .oa-game-page .section-head>.pill{max-width:100%;overflow-wrap:anywhere}
+ .oa-game-page .ranking-overflow{max-width:100%;min-width:0}
+}

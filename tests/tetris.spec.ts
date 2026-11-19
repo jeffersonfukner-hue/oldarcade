@@ -62,11 +62,15 @@ test('Tetris inicia apenas uma partida, aceita movimento, queda e pausa com cont
  await expect(page.locator('#tetris-overlay')).toBeHidden({timeout:5500});
 });
 
-test('Tetris salva contador local e oferece comandos de toque e tela cheia',async({page})=>{
+test('Tetris salva contador local e respeita controles desktop/touch e tela cheia',async({page})=>{
  await page.goto('/jogos/tetris/');
- await expect(page.getByRole('button',{name:'Girar peça'})).toBeVisible();
- await expect(page.getByRole('button',{name:'Queda instantânea'})).toBeVisible();
- await expect(page.getByRole('button',{name:'Reservar peça'})).toBeVisible();
+ const pointerFine=await page.evaluate(()=>matchMedia('(hover:hover) and (pointer:fine)').matches);
+ for(const name of ['Girar peça','Queda instantânea','Reservar peça']){
+  const button=page.getByRole('button',{name,includeHidden:true});
+  await expect(button).toHaveCount(1);
+  if(pointerFine)await expect(button).toBeHidden();
+  else await expect(button).toBeVisible();
+ }
  await test.step('entrar em tela cheia',async()=>{
   await page.locator('#tetris-fullscreen').click({timeout:7000});
   await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id??''),{timeout:7000}).toBe('tetris-stage');
