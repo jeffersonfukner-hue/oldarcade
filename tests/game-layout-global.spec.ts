@@ -117,7 +117,7 @@ test('Conjunto Tetris fica centralizado no slot compartilhado, com proporção p
    const layout=document.querySelector('#tetris-stage .arcade-game-layout')!;
    const group=document.querySelector('#tetris-stage .tetris-playfield')!;
    const board=document.querySelector('#tetris-screen')!;
-   const preview=document.querySelector('#tetris-stage .tetris-preview-column')!;
+   const preview=document.querySelector('#tetris-stage .tetris-preview-column .tetris-mini')!;
    const parent=layout.getBoundingClientRect(),g=group.getBoundingClientRect(),b=board.getBoundingClientRect(),p=preview.getBoundingClientRect();
    const style=getComputedStyle(layout);
    const stacked=style.gridTemplateAreas.includes('"stats" "board"');
