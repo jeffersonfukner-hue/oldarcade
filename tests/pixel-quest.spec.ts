@@ -3,6 +3,7 @@ test('Protótipo Pixel Quest tem fase, controles e contagem regressiva',async({p
  await page.goto('/jogos/pixel-quest/');
  await expect(page.locator('#pq-canvas')).toBeVisible();
  await expect(page.locator('#pq-status')).toContainText('Pronto');
+ await expect(page.locator('#pq-defeated')).toHaveText('0/3');
  await page.locator('#pq-start').click();
  await expect(page.locator('#pq-countdown')).toHaveText('3');
  await expect(page.locator('#pq-status')).toContainText('Jogando',{timeout:6000});

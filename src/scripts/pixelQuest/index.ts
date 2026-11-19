@@ -25,6 +25,7 @@ if(stage){
  const hearts=stage.querySelector<HTMLElement>('#pq-hearts')!;
  const crystals=stage.querySelector<HTMLElement>('#pq-crystals')!;
  const checkpoint=stage.querySelector<HTMLElement>('#pq-checkpoint')!;
+ const defeated=stage.querySelector<HTMLElement>('#pq-defeated')!;
  const input=setupPlatformInput(stage);
  let run:Run=createRun(firstLevel),camera=0;
  let phase:'ready'|'countdown'|'playing'|'paused'|'won'|'lost'='ready';
@@ -36,6 +37,7 @@ if(stage){
   hearts.textContent='♥'.repeat(run.hearts)+'♡'.repeat(3-run.hearts);
   crystals.textContent=run.crystals.size+'/'+totalCrystals;
   checkpoint.textContent=run.checkpointActive?'Ativado':'Não';
+  defeated.textContent=run.enemies.filter(enemy=>!enemy.alive).length+'/'+run.enemies.length;
  }
  function setPhase(next:typeof phase){
   phase=next;

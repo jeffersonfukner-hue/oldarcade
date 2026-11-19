@@ -4,6 +4,12 @@
 
 # OldArcade — continuidade obrigatória
 
+## Pixel Quest — contador de inimigos derrotados (19/11/2026)
+- Pedido do proprietário: usar espaço livre ao lado do canvas para mostrar inimigos derrotados.
+- `GameHud.astro` aceita estatística opcional reutilizável (`statId`/`statLabel`); apenas Pixel Quest a utiliza por enquanto, sem alterar a apresentação de Snake/Tetris.
+- `PixelQuestGame.astro` exibe **Inimigos derrotados** na coluna de HUD, em formato `derrotados/total`; `pixelQuest/index.ts` atualiza a partir de `run.enemies[].alive` em tempo real e reinicia em nova partida. Sem novo contador persistente nem alteração de API.
+- Teste E2E do HUD inicial e teste unitário da contagem após pisão adicionados. Validar no GitHub CI e no Preview.
+
 ## Pixel Quest — reação aos inimigos corrigida (19/11/2026)
 - Relato do proprietário após jogar Preview: encostar lateralmente em inimigo teletransportava instantaneamente para o começo; expectativa de plataforma clássica: **pular sobre a cabeça derrota o inimigo**.
 - `src/scripts/pixelQuest/gameplay.ts`: contato lateral desconta um coração, aplica recuo + invulnerabilidade e **mantém localização**; pisão descendente atravessando o topo derrota inimigo (+50) com impulso para o próximo salto; **somente cair em abismo** volta ao checkpoint com perda de vida.

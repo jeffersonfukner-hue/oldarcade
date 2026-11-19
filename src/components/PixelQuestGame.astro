@@ -9,7 +9,7 @@ import GameHud from './GameHud.astro';
    <div class="panel game-stage" id="pq-stage" data-arcade-viewport data-board-shape="landscape">
     <div class="game-topline"><strong>◈ PIXEL QUEST · Trilha Esmeralda</strong><div class="actions"><button type="button" id="pq-pause">Pausar</button><button type="button" id="pq-fullscreen">⛶ Tela cheia (F)</button></div></div>
     <div class="arcade-game-layout">
-     <GameHud statusId="pq-status" scoreId="pq-score" bestId="pq-best" globalId="pq-global" bestLabel="Recorde (futuro)" globalLabel="Ranking (futuro)" scoreLabel="Pontos" hint="A/D ou ←/→ mover · Espaço/↑ saltar · P pausar"/>
+     <GameHud statusId="pq-status" scoreId="pq-score" bestId="pq-best" globalId="pq-global" bestLabel="Recorde (futuro)" globalLabel="Ranking (futuro)" scoreLabel="Pontos" statId="pq-defeated" statLabel="Inimigos derrotados" hint="A/D ou ←/→ mover · Espaço/↑ saltar · P pausar"/>
      <div id="pq-screen" class="screen-wrap oa-board-slot oa-board-surface"><canvas id="pq-canvas" width="640" height="360" aria-label="Mapa interativo da fase 1-1, com cristais, inimigos e portal"></canvas>
       <div id="pq-overlay" class="game-overlay"><h2 id="pq-title">Preparado para explorar?</h2><p id="pq-description">Use as setas ou A/D para mover; Espaço, W ou ↑ para saltar. Colete cristais e alcance o portal!</p><strong id="pq-countdown" class="countdown-value" hidden></strong><button id="pq-start" type="button" class="btn">▶ Começar fase</button></div>
      </div>

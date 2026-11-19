@@ -69,6 +69,7 @@ test('Colisão lateral causa dano; salto sobre inimigo concede pontos uma vez',(
  gameplay.stepRun(stomp,firstLevel,idle);
  assert.equal(stomp.enemies[0].alive,false);
  assert.equal(stomp.score,50);
+ assert.equal(stomp.enemies.filter(enemy=>!enemy.alive).length,1);
  gameplay.stepRun(stomp,firstLevel,idle);
  assert.equal(stomp.score,50);
 });
@@ -96,4 +97,5 @@ test('Pisão só derrota inimigo ao aterrissar de cima; pulo ascendente não mat
  assert.equal(stomp.score,50);
  gameplay.stepRun(stomp,firstLevel,idle);
  assert.equal(stomp.score,50,'inimigo vencido não pontua novamente');
+ assert.equal(stomp.enemies.filter(enemy=>!enemy.alive).length,1,'inimigo vencido não duplica contagem');
 });
