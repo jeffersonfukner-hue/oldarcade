@@ -11,7 +11,7 @@ const crystalsInLevel=firstLevel.entities.filter(entity=>entity.kind==='crystal'
 const enemiesInLevel=firstLevel.entities.filter(entity=>entity.kind==='patroller').length;
 ---
 <GamePage modeId="pixel-quest" title="Jogar Pixel Quest — Plataforma 2D original | OldArcade" description="Jogue Pixel Quest, jogo original de plataforma 2D em desenvolvimento: cristais, inimigos, checkpoints e recordes locais.">
- <div class="shell">
+ <div class="shell pq-shell">
   <section class="hero" style="padding-bottom:16px"><span class="eyebrow">Jogo #003 · Etapa B · Protótipo não lançado</span><h1>Pixel <span class="accent">Quest</span></h1><p class="lede">Uma aventura de plataforma original em desenvolvimento. Explore a Trilha Esmeralda, colete cristais e alcance o portal de saída.</p></section>
   <section class="game-layout section" aria-label="Protótipo do jogo de plataforma">
    <div class="panel game-stage" id="pq-stage" data-arcade-viewport data-board-shape="landscape">
@@ -43,6 +43,7 @@ const enemiesInLevel=firstLevel.entities.filter(entity=>entity.kind==='patroller
  </div>
  <script>import '../scripts/pixelQuest/index.ts';</script>
  <style>
+  .pq-shell{min-width:0;max-width:100%;overflow-x:clip}
   [data-board-shape="landscape"]{--oa-board-aspect:1.7777778;--oa-board-max:640px;--oa-slot-max:660px}
   .game-layout{grid-template-columns:minmax(0,1fr) 280px}
   .game-layout>.game-stage{min-width:0;max-width:100%}
