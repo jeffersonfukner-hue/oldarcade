@@ -14,9 +14,12 @@ test('Protótipo Pixel Quest tem fase, controles e contagem regressiva',async({p
  await page.locator('#pq-start').click();
  await expect(page.locator('#pq-countdown')).toHaveText('3');
 });
-test('Controles móveis não fazem a página ultrapassar largura',async({page})=>{
+test('Controles touch aparecem em dispositivos touch sem overflow',async({page,isMobile})=>{
  await page.setViewportSize({width:320,height:700});
  await page.goto('/jogos/pixel-quest/');
- await expect(page.getByRole('button',{name:'Saltar'})).toBeVisible();
+ const jump=page.getByRole('button',{name:'Saltar',includeHidden:true});
+ await expect(jump).toHaveCount(1);
+ if(isMobile)await expect(jump).toBeVisible();
+ else await expect(jump).toBeHidden();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1)).toBe(true);
 });
