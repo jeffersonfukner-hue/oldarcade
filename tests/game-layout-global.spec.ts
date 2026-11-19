@@ -33,9 +33,9 @@ for(const [route,shape,canvasId] of routes){
   expect(status.overflow).toBe(false);
  });
 }
-test('Layouts mobile com HUD acima e sem rolagem horizontal',async({page})=>{
- for(const route of ['/jogos/snake/','/jogos/tetris/','/jogos/pixel-quest/']){
-  await page.setViewportSize({width:390,height:844});
+test('Layouts mobile 390 e 320 com HUD acima e sem rolagem horizontal',async({page})=>{
+ for(const width of [390,320])for(const route of ['/jogos/snake/','/jogos/tetris/','/jogos/pixel-quest/']){
+  await page.setViewportSize({width,height:844});
   await page.goto(route);
   const geometry=await page.evaluate(()=>{
    const stage=document.querySelector('.oa-game-layout>.game-stage')!;
@@ -47,6 +47,19 @@ test('Layouts mobile com HUD acima e sem rolagem horizontal',async({page})=>{
   expect(geometry.overflow,route).toBe(false);
  }
 });
+test('Formato portrait se adapta a 900px sem apertar o tabuleiro',async({page})=>{
+ await page.setViewportSize({width:820,height:900});
+ await page.goto('/jogos/tetris/');
+ const dims=await page.evaluate(()=>{
+  const stage=document.querySelector('#tetris-stage')!;
+  const hud=stage.querySelector('.game-hud')!.getBoundingClientRect();
+  const board=stage.querySelector('#tetris-screen')!.getBoundingClientRect();
+  return {stacked:hud.bottom<=board.top+1,overflow:document.documentElement.scrollWidth>innerWidth+1};
+ });
+ expect(dims.stacked).toBe(true);
+ expect(dims.overflow).toBe(false);
+});
+
 test('Teste de comemorações não invade o Preview comum',async({page})=>{
  await page.goto('/jogos/pixel-quest/');
  await expect(page.locator('#celebration-test-panel')).toBeHidden();

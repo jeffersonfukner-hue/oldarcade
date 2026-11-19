@@ -502,7 +502,7 @@ test('modo Aventura tem níveis e recordes locais separados do Clássico',async(
  await expect(page.locator('#adventure-countdown')).toHaveText('3');
  await expect(page.locator('#adventure-start')).toBeHidden();
  await expect(page.locator('#adventure-overlay')).toBeHidden({timeout:5000});
- await expect(page.locator('#adventure-score')).toHaveText('10',{timeout:5000});
+ await expect.poll(async()=>Number(await page.locator('#adventure-score').innerText()),{timeout:5000}).toBeGreaterThanOrEqual(10);
  await expect(page.locator('#adventure-best')).toHaveText('10');
  await page.getByRole('button',{name:'Pausar'}).click();
  await expect(page.locator('#adventure-overlay-title')).toHaveText('Jogo pausado');
@@ -550,14 +550,14 @@ test('Aventura conserva recorde provisório e não consulta ranking durante trav
  await expect(page.locator('#adventure-overlay')).toBeHidden({timeout:5000});
  await expect(page.locator('#adventure-score')).toHaveText('10',{timeout:5000});
  await expect(page.locator('[data-rank-provisional]')).toBeVisible();
- await expect(page.locator('[data-rank-global]')).toHaveText('10');
+ await expect.poll(async()=>Number(await page.locator('[data-rank-global]').innerText())).toBeGreaterThanOrEqual(10);
  expect(gets).toBe(1);
  await page.keyboard.press('ArrowUp');
  await page.waitForTimeout(3600);
  await expect(page.locator('#adventure-overlay')).toBeHidden();
  await expect(page.locator('#adventure-status')).toContainText('Jogando');
  expect(gets).toBe(1);
- await expect(page.locator('[data-rank-global]')).toHaveText('10');
+ await expect.poll(async()=>Number(await page.locator('[data-rank-global]').innerText())).toBeGreaterThanOrEqual(10);
 });
 
 test('Aventura centraliza tabuleiro ao iniciar e ao sair da tela cheia',async({page})=>{
@@ -751,7 +751,7 @@ test('Snake Clássico e Evolution preservam proporção quadrada no ultrawide',a
    return {width:canvas.width,height:canvas.height,right:canvas.right,hudLeft:hud.left,stageBottom:stage.bottom};
   });
   expect(layout.width/layout.height).toBeCloseTo(1,1);
-  expect(layout.width).toBeLessThanOrEqual(660);
+  expect(layout.width).toBeLessThanOrEqual(760);
   expect(layout.hudLeft).toBeGreaterThanOrEqual(layout.right);
   await page.evaluate(()=>document.exitFullscreen());
  }

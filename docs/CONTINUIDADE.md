@@ -8,7 +8,7 @@
 - Auditoria: `game-layout` de Snake/Pixel Quest ainda dividia a página com coluna editorial; `TetrisGame.astro` continha grid próprio e HUD divergente. Capturas anteriores indicavam tabuleiro pequeno, HUD/controles excessivos e recorde secundário. Não alterar a mecânica dos jogos para tratar apresentação.
 - Implementado em `GameLayout.astro` e `global.css`: palco em largura plena, HUD ao lado do canvas, cartões com informação contextual abaixo; contratos de proporção quadrada, retrato e paisagem. Todos os 3 modos Snake, 3 modos Tetris e Pixel Quest migrados na mesma branch. `gameRegistry.ts` e histórico não mudaram.
 - Comemorações laboratoriais deixam de aparecer no Preview comum; somente com `?celebration-lab=1`. Ferramenta não registra placares, apenas efeitos.
-- Testes cruzados acrescentados, CI e Preview ainda devem ser verificados. Sem publicar, deploy ou merge; proprietário mantém controle integral do deploy manual.
+- Testes cruzados acrescentados para sete modos, 320/390, 820 e ultrawide. Primeira rodada: 191 aprovações e um teste legado ainda fixado em 660 px, ajustado para 760 px; testagem de placar Aventura alterada para não exigir número congelado durante movimento. CI final precisa ser conferido, e Preview ainda deve ser validado. Sem publicar, deploy ou merge; proprietário mantém controle integral do deploy manual.
 
 
 

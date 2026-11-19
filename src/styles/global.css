@@ -653,5 +653,9 @@ body.oa-auth-open{overflow:hidden}
 .oa-game-layout>aside.panel:not(.tetris-sidebar)>h2{font-size:1.25rem;margin:0 0 12px}
 .oa-game-layout .arcade-game-layout>.oa-board-slot{grid-area:board;min-width:0;max-width:100%}
 .oa-game-layout .arcade-game-layout>.screen-wrap.oa-board-slot{justify-self:center;width:min(100%,var(--oa-board-max,760px))}
+@media(max-width:900px){
+ .oa-game-layout [data-board-shape="portrait"] .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:10px}
+ .oa-game-layout [data-board-shape="portrait"] .arcade-game-layout>.game-hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+}
 @media(max-width:840px){.oa-game-layout{gap:12px}.oa-game-page{width:min(100% - 24px,1480px)}}
 @media(max-width:650px){.oa-game-layout .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:9px}.oa-game-layout .arcade-game-layout>.game-hud{min-width:0;max-width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}.oa-game-layout>.panel{min-width:0}.oa-game-page>.hero{padding:20px 0 12px}}
