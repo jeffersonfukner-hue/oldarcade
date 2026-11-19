@@ -45,13 +45,16 @@ test('nickname é opcional, ranking não se anuncia como global', async ({page})
   await expect(page.getByText(/O nickname e o ranking ficam salvos neste navegador/)).toBeVisible();
 });
 
-test('área jogável e controles são exibidos em desktop e celular', async ({page}) => {
+test('área jogável e controles respeitam ponteiro de desktop ou toque', async ({page}) => {
   await page.goto('/jogos/snake/');
   await expect(page.locator('#snake-canvas')).toBeVisible();
-  await expect(page.getByRole('button', {name:'Cima'})).toBeVisible();
-  await expect(page.getByRole('button', {name:'Baixo'})).toBeVisible();
+  const pointerFine=await page.evaluate(()=>matchMedia('(hover:hover) and (pointer:fine)').matches);
+  for(const direction of ['Cima','Baixo']){
+   if(pointerFine)await expect(page.getByRole('button',{name:direction})).toBeHidden();
+   else await expect(page.getByRole('button',{name:direction})).toBeVisible();
+  }
   await expect(page.locator('#fullscreen-btn')).toBeVisible();
-  const dimensions=await page.evaluate(()=>({width:document.documentElement.scrollWidth, viewport:innerWidth}));
+  const dimensions=await page.evaluate(()=>({width:document.documentElement.scrollWidth,viewport:innerWidth}));
   expect(dimensions.width).toBeLessThanOrEqual(dimensions.viewport+1);
 });
 
