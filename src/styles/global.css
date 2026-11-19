@@ -905,3 +905,57 @@ body.oa-auth-open{overflow:hidden}
   font-size:.7rem;
  }
 }
+
+/* Refinamento do HUD global: rótulos legíveis também sem hover ou tooltip.
+   Os IDs e valores continuam sendo atualizados pelos motores existentes. */
+.oa-hud-compact .oa-hud-label{
+ color:#b6c8e1;
+ font-size:.7rem;
+ line-height:1.25;
+ overflow-wrap:anywhere;
+}
+.oa-game-layout.oa-stage-unified .arcade-game-layout>.game-hud.oa-hud-compact>.oa-hud-metric{
+ justify-content:flex-start;
+}
+.oa-game-layout.oa-stage-unified .game-hud.oa-hud-compact>.oa-hud-metric>.oa-hud-label{
+ flex:1 1 auto;
+}
+.oa-game-layout.oa-stage-unified .game-hud.oa-hud-compact>.oa-hud-metric>strong{
+ margin-left:auto;
+}
+.oa-game-layout.tetris-main-layout .oa-hud-compact>.oa-hud-metric{
+ display:grid;
+ grid-template-columns:minmax(0,1fr);
+ align-content:start;
+ justify-items:start;
+ gap:3px;
+ border-radius:7px;
+ padding:5px;
+ background:#142b37;
+}
+.oa-game-layout.tetris-main-layout .oa-hud-compact>.oa-hud-metric>.oa-hud-symbol{display:none}
+.oa-game-layout.tetris-main-layout .oa-hud-compact>.oa-hud-metric>.oa-hud-label{
+ display:block;
+ font-size:.64rem;
+ line-height:1.2;
+}
+.oa-game-layout.tetris-main-layout .oa-hud-compact>.oa-hud-metric>strong{font-size:clamp(.85rem,1.4vw,1.1rem)}
+/* No Quest, o status complementar fica sob o mapa, não abaixo da coluna alta de recordes. */
+.oa-game-layout.oa-stage-unified .arcade-game-layout>.pq-board-column{
+ grid-area:board;
+ align-self:start;
+ width:min(100%,640px);
+ max-width:100%;
+ display:grid;
+ align-content:start;
+}
+.oa-game-layout.oa-stage-unified .pq-board-column>#pq-screen{
+ width:100%;
+ max-width:100%;
+ min-width:0;
+}
+@media(max-width:620px){
+ .oa-game-layout.tetris-main-layout .oa-hud-compact>.oa-hud-metric{padding:3px;gap:2px}
+ .oa-game-layout.tetris-main-layout .oa-hud-compact>.oa-hud-metric>.oa-hud-label{font-size:.58rem}
+ .oa-game-layout.oa-stage-unified .arcade-game-layout>.pq-board-column{width:100%}
+}
