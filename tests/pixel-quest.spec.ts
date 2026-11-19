@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 test('Protótipo Pixel Quest tem fase, controles e contagem regressiva',async({page})=>{
  await page.goto('/jogos/pixel-quest/');
  await expect(page.locator('#pq-canvas')).toBeVisible();
- await expect(page.locator('#pq-development-history')).toContainText('v0.1.0-dev');
+ await expect(page.locator('section[aria-labelledby="pq-development-history"]')).toContainText('v0.1.0-dev');
  await expect(page.getByRole('heading',{name:/história dos jogos de plataforma/i})).toBeVisible();
  await expect(page.locator('#pq-status')).toContainText('Pronto');
  await expect(page.locator('#pq-defeated')).toHaveText('0');
@@ -44,5 +44,5 @@ test('Home abre Pixel Quest pelo card, preservando 3 jogos',async({page})=>{
  await card.locator('.home-game-art').click();
  await expect(page).toHaveURL(/\/jogos\/pixel-quest\/$/);
  await expect(page.locator('#pq-canvas')).toBeVisible();
- await expect(page.locator('#pq-development-history')).toContainText('v0.1.0-dev');
+ await expect(page.locator('section[aria-labelledby="pq-development-history"]')).toContainText('v0.1.0-dev');
 });

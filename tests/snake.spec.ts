@@ -4,7 +4,7 @@ test('home oferece navegação e HTML pesquisável', async ({page}) => {
   await page.goto('/');
   await expect(page).toHaveTitle(/OldArcade/);
   await expect(page.getByRole('heading', {name:/Os clássicos nunca/i})).toBeVisible();
-  await expect(page.locator('#featured-game-link')).toHaveAttribute('href','/jogos/tetris/');
+  await expect(page.locator('#featured-game-link')).toHaveAttribute('href','/jogos/pixel-quest/');
   await expect(page.locator('meta[name=description]')).toHaveAttribute('content', /jogue Snake/i);
   await expect(page.locator('meta[name=robots]')).toHaveAttribute('content', /noindex/);
 });
@@ -391,7 +391,7 @@ test('hero apresenta jogos disponíveis, visitas e partidas sem indicador redund
   return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,siteVisits:1523,gamesPlayed:1,totalPlays:4599})});
  });
  await page.goto('/');
- await expect(page.locator('#hero-published-games')).toHaveText('2');
+ await expect(page.locator('#hero-published-games')).toHaveText('3');
  await expect(page.locator('#hero-site-visits')).toHaveText('1.523');
  await expect(page.locator('#hero-games-played')).toHaveCount(0);
  await expect(page.locator('#hero-total-plays')).toHaveText('4.599');
@@ -583,7 +583,7 @@ test('home estilo foco no jogador mantém jogos visíveis e três contadores com
  await page.goto('/');
  await expect(page.locator('.arcade-sidebar')).toBeVisible();
  await expect(page.getByRole('heading',{name:'Escolha seu desafio'})).toBeVisible();
- await expect(page.locator('[data-home-game="snake"] a[href="/jogos/snake/"]')).toHaveAttribute('href','/jogos/snake/');
+ await expect(page.locator('[data-home-game="snake"] .home-game-modes a[href="/jogos/snake/"]')).toHaveAttribute('href','/jogos/snake/');
  await expect(page.locator('[data-home-game="snake"] a[href="/jogos/snake/aventura/"]')).toHaveAttribute('href','/jogos/snake/aventura/');
  await expect(page.locator('.arcade-activity-item')).toHaveCount(3);
  await expect(page.locator('#hero-games-played')).toHaveCount(0);
