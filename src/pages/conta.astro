@@ -4,13 +4,14 @@ import {gameModes} from '../data/gameModes.js';
 import {isTimeRanking} from '../data/rankingRules.js';
 import {gameRegistry} from '../data/gameRegistry';
 import DailyHistory from '../components/DailyHistory.astro';
+import {DAILY_CHALLENGES_ENABLED} from '../data/featureFlags';
 const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title, modes:Object.entries(gameModes).filter(([,mode])=>mode.title===titleId&&mode.competitive)})).filter(group=>group.modes.length>0);
 ---
 <Base title="Minha conta — OldArcade" description="Crie sua conta de jogador com nickname único, e-mail opcional e senha, ou entre na sua conta OldArcade." path="/conta/">
  <div class="shell account-shell">
   <section class="hero text-content account-hero"><span class="eyebrow">Comunidade OldArcade</span>
    <h1>Seu arcade. <span class="accent">Seu progresso.</span></h1>
-   <p class="lede">Jogar é sempre grátis e não exige conta. O cadastro gratuito reserva seu nickname e libera ranking, histórico e Desafios Diários exclusivos. Você continua podendo jogar normalmente sem conta.</p>
+   <p class="lede">Jogar é sempre grátis e não exige conta. O cadastro gratuito reserva seu nickname e permite acompanhar rankings e recordes pessoais. Você continua podendo jogar normalmente sem conta.</p>
   </section>
   <section class="section panel account-panel" aria-labelledby="account-heading">
    <h2 id="account-heading">Acesse ou crie sua conta</h2>
@@ -31,7 +32,7 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
      <label for="register-email">E-mail <span class="muted">(opcional)</span></label><input id="register-email" type="email" autocomplete="email" maxlength="254"/>
      <p class="small muted">O e-mail é opcional e pode ser adicionado depois no perfil. Avisos por e-mail só serão enviados quando a confirmação do endereço e o serviço de notificações estiverem disponíveis.</p>
      <label for="register-password">Senha (mínimo de 8 caracteres)</label><input id="register-password" autocomplete="new-password" type="password" minlength="8" maxlength="128" required/>
-     <fieldset class="notification-choices"><legend>Quais avisos você gostaria de receber?</legend><label class="email-opt-in"><input id="register-alerts" type="checkbox"/> Quando alguém superar meu recorde</label><label class="email-opt-in"><input id="register-daily-alerts" type="checkbox"/> Quando houver um novo Desafio Diário</label><p class="small muted">Preferências para ativação futura; nenhum e-mail automático é enviado nesta fase.</p></fieldset>
+     <fieldset class="notification-choices"><legend>Quais avisos você gostaria de receber?</legend><label class="email-opt-in"><input id="register-alerts" type="checkbox"/> Quando alguém superar meu recorde</label><label class="email-opt-in" style={DAILY_CHALLENGES_ENABLED?undefined:"display:none"}><input id="register-daily-alerts" type="checkbox"/> Quando houver um novo Desafio Diário</label><p class="small muted">Preferências para ativação futura; nenhum e-mail automático é enviado nesta fase.</p></fieldset>
      <button class="btn" type="submit">Criar minha conta</button>
     </form>
    </div>
@@ -58,7 +59,7 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
      </div>
     </section>)}
     <p class="small muted" id="account-records-status" role="status"></p>
-    <DailyHistory />
+    {DAILY_CHALLENGES_ENABLED && <DailyHistory />}
    </section>
    <section id="account-preferences" class="section panel account-settings" aria-labelledby="account-preferences-heading" hidden>
     <div class="account-section-title"><div><span class="eyebrow">Seu perfil</span><h3 id="account-preferences-heading">E-mail e notificações</h3></div><span class="account-section-icon" aria-hidden="true">⚙️</span></div>
@@ -69,7 +70,7 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
      <p id="account-email-verification" class="small muted"></p>
      <fieldset class="notification-choices"><legend>Quero receber avisos sobre</legend>
       <label class="email-opt-in"><input id="account-record-alerts" type="checkbox"/> Alguém superar meu recorde</label>
-      <label class="email-opt-in"><input id="account-daily-alerts" type="checkbox"/> Novo Desafio Diário disponível</label>
+      <label class="email-opt-in" style={DAILY_CHALLENGES_ENABLED?undefined:"display:none"}><input id="account-daily-alerts" type="checkbox"/> Novo Desafio Diário disponível</label>
      </fieldset>
      <button class="btn secondary" type="submit">Salvar minhas preferências</button>
      <p class="small muted" id="account-preferences-message" role="status" aria-live="polite"></p>
