@@ -8,6 +8,7 @@ import { setupGlobalGameCounters } from './globalGameCounters';
 import {recordGameStart,recordGameFinish} from './gameEvents';
 import {seededRandom,dailyMissionWon} from '../data/dailyChallenges.js';
 import {initialMissionState,advanceDailyMission} from '../data/dailyMissionEngine.js';
+import {setupDailyMissionReplay} from './dailyMissionReplay';
 type Direction = 'up'|'down'|'left'|'right';
 type Point = {x:number;y:number};
 type Score = {name:string;score:number;at:number};
@@ -31,6 +32,7 @@ const evolutionPreview=location.pathname.replace(/\/+$/,'')==='/jogos/snake/evol
 type DailyMission={version:number;kind:string;metric:string;target:number|null;timeLimitMs:number|null;title:string;description:string;hazards?:{obstacles:number;enemies:number}};
 type DailyAttempt={date:string;token:string;seed:number;mission?:DailyMission;practice?:boolean};
 let dailyAttempt:DailyAttempt|null=null;
+const dailyReplay=setupDailyMissionReplay('snake');
 let dailyRandom:()=>number=Math.random;
 let pendingDailyFinish:{date:string;token:string;score:number;durationMs:number;linesCleared?:number}|null=null;
 const modeId=evolutionPreview?'snake-evolution':'snake';
@@ -411,9 +413,9 @@ function cancelCountdown(){window.clearTimeout(countdownTimer);setCountdownOverl
 function show(headline:string,description:string,button:string){cancelCountdown();title.textContent=headline;overlayText.textContent=description;startBtn.textContent=button;overlay.hidden=false}
 let missionState=initialMissionState();
 const gameClock=setupGameClock(gameScreen,()=>state==='playing');
-function start(daily:DailyAttempt|null=null){dailyAttempt=daily;missionState=initialMissionState();
- if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-mission-selected',{detail:{game:'snake',mission:dailyAttempt.mission??null}}));
- if(dailyAttempt)document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}}));dailyRandom=daily?seededRandom(daily.seed):Math.random;gameClock.reset();endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];enemies=[];scareUntil=0;evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=account?(personalCloudBest??0):saved.best;
+function start(daily:DailyAttempt|null=null){dailyAttempt=daily;dailyReplay.clear();missionState=initialMissionState();
+ document.dispatchEvent(new CustomEvent('oldarcade:daily-mission-selected',{detail:{game:'snake',mission:dailyAttempt?.mission??null}}));
+ document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:dailyAttempt?'playing':'idle'}}));dailyRandom=daily?seededRandom(daily.seed):Math.random;gameClock.reset();endSequence++;items=[];obstacles=[];borderWalls=[];obstacleHits.clear();projectiles=[];enemies=[];scareUntil=0;evolutionClock=0;slowUntil=0;blasterUntil=0;nextShotAt=0;lastRescue=-100;peakScore=0;cancelCountdown();window.clearTimeout(timer);snake=[{x:7,y:10},{x:6,y:10},{x:5,y:10}];direction='right';next='right';score=0;food={x:14,y:10};roundPersonalTarget=account?(personalCloudBest??0):saved.best;
  setupDailyHazards();
  didCelebratePersonal=false;lastFunMilestone=0;lastFunAt=-100;dangerAnnounced=false;provisionalGlobal=false;roundBeatGlobal=false;
  resetAnnouncements();resetCelebrations();text('record-end-summary','');leaderboard.markRoundStart();floatLayer.replaceChildren();if(evolutionPreview){addItem('normal');addItem('normal')}if(!dailyAttempt){saved.plays++;store()}if(!daily?.practice)globalCounters.recordPlay(recordGameStart(modeId));draw();refresh();centerGameAfterExit();beginCountdown('A partida começa em:')}
@@ -437,8 +439,9 @@ function end(won:boolean){
   // Mesmo avaliador de missão da API. Colisão nunca pode marcar vitória.
   const success=won&&missionState.status==='won'&&dailyMissionWon(mission,{score,durationMs:duration,linesCleared:0,clearSequence:[]})===true;
   dailyAttempt=null;dailyRandom=Math.random;
+  const replay=dailyReplay.offer(attempt,success);
   show(success?'🏆 MISSÃO CUMPRIDA!':'META NÃO ALCANÇADA',
-    (mission?.description||'')+' · '+score+' pontos · '+Math.floor(duration/1000)+' s. Teste quantas vezes quiser.','▶ Jogar Snake livre');
+    (mission?.description||'')+' · '+score+' pontos · '+Math.floor(duration/1000)+' s. '+(replay?.question??''),replay?.label??'▶ Jogar Snake livre');
   document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:success?'finished':'idle'}}));
   document.dispatchEvent(new CustomEvent('oldarcade:daily-practice-result',{detail:{game:'snake',success,mission:mission?.title||'',score,durationMs:duration}}));
   return;
@@ -468,13 +471,14 @@ async function saveDailyResult(sequence:number){
   if(!response.ok||(!result.saved&&!result.retryAvailable))throw Error(result.error||'Erro ao registrar a missão diária.');
   pendingDailyFinish=null;
   const won=result.missionSuccess===true||result.mission?.version===1;
+  const replay=dailyReplay.offer({date:attempt.date,token:'',seed:0},won);
   document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:won?'finished':'idle'}}));
   try{sessionStorage.removeItem('oldarcade:daily:snake:pending')}catch{}
   document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'snake'}}));
   if(sequence===endSequence&&state==='over'){
    show(won?'🏆 Missão cumprida!':'Meta não alcançada — tente novamente',
     'Você marcou '+attempt.score+' pontos em '+Math.round(attempt.durationMs/1000)+' segundos. '+
-    (won?'Missão concluída!':'Sua missão continua disponível até você alcançar a meta.'),'▶ Jogar Snake livre');
+    (won?'Missão concluída!':replay?.question),replay?.label??'▶ Jogar Snake livre');
    startBtn.disabled=false;
   }
  }catch(error){
@@ -792,11 +796,12 @@ startBtn.addEventListener('click',()=>{
   return;
  }
  if(pendingDailyFinish)return;
+ if(dailyReplay.retry())return;
  if(state==='paused')pause();else if(!dailyAttempt)start();
 });
 pauseBtn.addEventListener('click',pause);
 document.querySelectorAll<HTMLButtonElement>('[data-direction]').forEach(btn=>btn.addEventListener('click',()=>turn(btn.dataset.direction as Direction)));
-window.addEventListener('keydown',e=>{if(modalOpen)return;if(e.target instanceof HTMLInputElement)return;const map:Record<string,Direction>={ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down',ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right'};if(e.key.toLowerCase()==='f'&&!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey){e.preventDefault();void toggleFullscreen()}else if(map[e.key]&&state==='playing'){e.preventDefault();turn(map[e.key])}else if(e.code==='Space'&&!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey){if((state==='over'||state==='ready')&&!pendingDailyFinish&&!dailyAttempt){e.preventDefault();start()}else if(state==='playing'||state==='paused'){e.preventDefault();pause()}}});
+window.addEventListener('keydown',e=>{if(modalOpen)return;if(e.target instanceof HTMLInputElement)return;const map:Record<string,Direction>={ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down',ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right'};if(e.key.toLowerCase()==='f'&&!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey){e.preventDefault();void toggleFullscreen()}else if(map[e.key]&&state==='playing'){e.preventDefault();turn(map[e.key])}else if(e.code==='Space'&&!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey){if((state==='over'||state==='ready')&&!pendingDailyFinish&&!dailyAttempt){e.preventDefault();if(!dailyReplay.retry())start()}else if(state==='playing'||state==='paused'){e.preventDefault();pause()}}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')pause()});
 fullscreenBtn.addEventListener('click',()=>{void toggleFullscreen()});
 document.addEventListener('fullscreenchange',()=>{
