@@ -18,7 +18,7 @@ export const firstLevel:Level={
   {kind:'crystal',x:1480,y:15*32-48},
   {kind:'checkpoint',x:1800,y:15*32-48},
   {kind:'patroller',x:2020,y:15*32-24},
-  {kind:'patroller',x:2500,y:15*32-24},
+  {kind:'patroller',x:2680,y:15*32-24},
   {kind:'crystal',x:2600,y:15*32-48},
   {kind:'exit',x:2944,y:15*32-64}
  ]
