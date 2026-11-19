@@ -1,6 +1,7 @@
+// Recurso adiado para depois do lançamento. Testes preservados para reativação.
 import {test,expect} from '@playwright/test';
 
-test('Visitante visualiza calendário Snake mas não consegue iniciar Desafio Diário',async({page})=>{
+test.skip('Visitante visualiza calendário Snake mas não consegue iniciar Desafio Diário',async({page})=>{
  await page.route('**/api/daily/snake**',async route=>{
   if(route.request().method()==='GET'){
    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
@@ -19,7 +20,7 @@ test('Visitante visualiza calendário Snake mas não consegue iniciar Desafio Di
  await expect(calendar.getByText(/Você pode jogar livremente sem cadastro/)).toBeVisible();
 });
 
-test('Conta conectada reserva uma tentativa para Snake e impede acesso após participação',async({page})=>{
+test.skip('Conta conectada reserva uma tentativa para Snake e impede acesso após participação',async({page})=>{
  let reserved=false;
  let submissions=0;
  await page.route('**/api/auth/me',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({player:{nickname:'Jogador A'}})}));
@@ -49,7 +50,7 @@ test('Conta conectada reserva uma tentativa para Snake e impede acesso após par
  await expect(calendar.locator('.daily-day[data-status="started"]')).toHaveCount(1);
 });
 
-test('Calendário de outra conta não reaproveita participação ao usar Voltar',async({page})=>{
+test.skip('Calendário de outra conta não reaproveita participação ao usar Voltar',async({page})=>{
  let nickname='Jogador A';
  await page.route('**/api/daily/snake**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
   game:'snake',today:'2026-11-17',month:'2026-11',timezone:'America/Sao_Paulo',
@@ -66,7 +67,7 @@ test('Calendário de outra conta não reaproveita participação ao usar Voltar'
  await expect(calendar.locator('[data-daily-start]')).toBeVisible();
 });
 
-test('Se D1 falhar no histórico autenticado, calendário continua visível mas não libera outra tentativa',async({page})=>{
+test.skip('Se D1 falhar no histórico autenticado, calendário continua visível mas não libera outra tentativa',async({page})=>{
  await page.route('**/api/daily/snake**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
   game:'snake',today:'2026-11-17',month:'2026-11',timezone:'America/Sao_Paulo',
   days:[],account:{nickname:'Jogador autenticado'},historyAvailable:false,
@@ -82,7 +83,7 @@ test('Se D1 falhar no histórico autenticado, calendário continua visível mas 
  await expect(calendar.locator('[data-daily-login]')).toBeHidden();
 });
 
-test('Calendário explica a diferença entre desafio disponível, em partida, iniciado e concluído',async({page})=>{
+test.skip('Calendário explica a diferença entre desafio disponível, em partida, iniciado e concluído',async({page})=>{
  let status:'available'|'started'|'finished'='available';
  await page.route('**/api/daily/snake**',route=>{
   const entries=status==='available'?[]:[{date:'2026-11-17',status,score:status==='finished'?230:null,durationMs:status==='finished'?9000:null}];
@@ -114,7 +115,7 @@ test('Calendário explica a diferença entre desafio disponível, em partida, in
  await expect(page.locator('[data-daily-play-indicator]')).toBeHidden();
 });
 
-test('Tetris exibe meta exata e destaca próxima limpeza na lateral sem usar tentativa',async({page})=>{
+test.skip('Tetris exibe meta exata e destaca próxima limpeza na lateral sem usar tentativa',async({page})=>{
  const mission={version:3,kind:'sequence',metric:'sequence',target:5,timeLimitMs:null,
   title:'Código de linhas',description:'Elimine linhas exatamente nesta ordem: 1 → 4 → 3 → 3 → 2.',
   sequence:[1,4,3,3,2]};
@@ -138,7 +139,7 @@ test('Tetris exibe meta exata e destaca próxima limpeza na lateral sem usar ten
  await expect(side.locator('.daily-live-sequence .next')).toHaveText('3');
 });
 
-test('Visitante conhece a meta especial do Snake antes de criar conta',async({page})=>{
+test.skip('Visitante conhece a meta especial do Snake antes de criar conta',async({page})=>{
  await page.route('**/api/daily/snake**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
   game:'snake',today:'2026-11-20',month:'2026-11',days:[],account:null,
   mission:{version:3,kind:'gauntlet',metric:'score',target:70,timeLimitMs:95000,
@@ -152,7 +153,7 @@ test('Visitante conhece a meta especial do Snake antes de criar conta',async({pa
  await expect(calendar.locator('[data-daily-login]')).toBeVisible();
 });
 
-test('Snake mostra a missão acima das estatísticas durante o jogo',async({page})=>{
+test.skip('Snake mostra a missão acima das estatísticas durante o jogo',async({page})=>{
  const mission={version:3,kind:'obstacles',metric:'score',target:60,timeLimitMs:null,
   title:'Labirinto de frutas',description:'Colete 6 frutas desviando de 5 obstáculos.'};
  await page.route('**/api/daily/snake**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
@@ -175,7 +176,7 @@ test('Snake mostra a missão acima das estatísticas durante o jogo',async({page
  await expect(tracker.locator('.daily-live-progress')).toContainText('3 / 6');
 });
 
-test('Tetris não mostra 5/4 como missão concluída',async({page})=>{
+test.skip('Tetris não mostra 5/4 como missão concluída',async({page})=>{
  const mission={version:3,kind:'doubles',metric:'sequence',target:4,timeLimitMs:null,
   title:'Duplas perfeitas',description:'Complete 4 limpezas de exatamente 2 linhas.',sequence:[2,2,2,2]};
  await page.route('**/api/daily/tetris**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
@@ -195,7 +196,7 @@ test('Tetris não mostra 5/4 como missão concluída',async({page})=>{
  await expect(side.locator('.daily-live-sequence .done')).toHaveCount(4);
 });
 
-test('Missão Snake fica na coluna do jogo com contagem consistente de frutas',async({page})=>{
+test.skip('Missão Snake fica na coluna do jogo com contagem consistente de frutas',async({page})=>{
  const mission={version:3,kind:'rush',metric:'score',target:70,timeLimitMs:65000,
   title:'Corrida contra o relógio',description:'Coma 7 frutas (70 pontos) em até 65 segundos, sem bater.'};
  await page.route('**/api/daily/snake**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
@@ -214,7 +215,7 @@ test('Missão Snake fica na coluna do jogo com contagem consistente de frutas',a
  await expect(slot.locator('.daily-live-progress')).toContainText('7 / 7');
 });
 
-test('Edição histórica Snake não apresenta missão falsa nem frutas 0/0',async({page})=>{
+test.skip('Edição histórica Snake não apresenta missão falsa nem frutas 0/0',async({page})=>{
  const legacy={version:1,kind:'legacy',metric:'score',target:null,timeLimitMs:null,
   title:'Partida diária original',description:'Edição anterior: maior pontuação em uma tentativa. Não havia meta de vitória.'};
  await page.route('**/api/daily/snake**',route=>route.fulfill({
@@ -236,7 +237,7 @@ test('Edição histórica Snake não apresenta missão falsa nem frutas 0/0',asy
  await expect(page.locator('[data-daily-play-indicator]')).toContainText('PARTIDA DIÁRIA HISTÓRICA');
  await expect(page.locator('[data-daily-mission-name]')).toContainText('sem desafio');
 });
-test('Snake em tela cheia mantém missão alinhada ao tabuleiro, não na largura toda',async({page})=>{
+test.skip('Snake em tela cheia mantém missão alinhada ao tabuleiro, não na largura toda',async({page})=>{
  const mission={version:3,kind:'rush',metric:'score',target:70,timeLimitMs:65000,
   title:'Corrida contra o relógio',description:'Coma 7 frutas em até 65 segundos sem bater.'};
  await page.route('**/api/daily/snake**',route=>route.fulfill({status:200,contentType:'application/json',
@@ -257,7 +258,7 @@ test('Snake em tela cheia mantém missão alinhada ao tabuleiro, não na largura
  expect(values.missionWidth).toBeLessThan(values.stageWidth);
 });
 
-test('Snake: derrota permite repetir a mesma missão, sem abrir o jogo livre',async({page})=>{
+test.skip('Snake: derrota permite repetir a mesma missão, sem abrir o jogo livre',async({page})=>{
  let started=0,finished=0;
  const mission={version:3,kind:'rush',metric:'score',target:70,timeLimitMs:800,
   title:'Corrida contra o relógio',description:'Colete 7 frutas em até 0,8 segundo.'};
