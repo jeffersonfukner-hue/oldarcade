@@ -33,7 +33,8 @@ test('Controles touch aparecem em dispositivos touch sem overflow',async({page,i
  await expect(jump).toHaveCount(1);
  if(isMobile)await expect(jump).toBeVisible();
  else await expect(jump).toBeHidden();
- expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1)).toBe(true);
+ const widths=await page.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:window.innerWidth}));
+ expect(widths.document).toBeLessThanOrEqual(widths.viewport+1);
 });
 
 test('Home abre Pixel Quest pelo card, preservando 3 jogos',async({page})=>{

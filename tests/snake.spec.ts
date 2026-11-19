@@ -218,6 +218,7 @@ test('recorde pessoal fica sincronizado entre HUD e lateral ao carregar dados lo
  await expect(page.locator('#best')).toHaveText('300');
 });
 test('recorde de conta vindo do servidor aparece nos dois placares',async({page})=>{
+ await page.route('**/api/auth/me',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({player:{nickname:'Teste'}})}));
  await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Líder',score:300,rank:1,place:1,achievedAt:'2026-11-16T16:00:00.000Z'}],mine:{nickname:'Teste',score:280,rank:98,achievedAt:'2026-11-16T15:00:00.000Z'}})}));
  await page.goto('/jogos/snake/');
  await expect(page.locator('#hud-best')).toHaveText('280');

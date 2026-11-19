@@ -54,6 +54,14 @@ const enemiesInLevel=firstLevel.entities.filter(entity=>entity.kind==='patroller
   .pq-touch-controls button{min-width:70px;min-height:52px;border-radius:10px;border:1px solid #5471a8;background:#1b3557;color:#fff;font-weight:750;touch-action:none}
   @media(hover:hover) and (pointer:fine){.pq-touch-controls{display:none}}
   @media(max-width:840px){.game-layout{grid-template-columns:minmax(0,1fr)}}
-  @media(max-width:650px){.pq-touch-controls button{min-width:64px}.game-layout{gap:14px}}
+  @media(max-width:650px){
+   .pq-touch-controls button{min-width:64px}.game-layout{gap:14px}
+   #pq-stage{min-width:0;overflow-x:clip}
+   #pq-stage .arcade-game-layout{width:100%;min-width:0;grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board"}
+   #pq-stage .arcade-game-layout>.game-hud{min-width:0;max-width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}
+   #pq-stage .arcade-game-layout>.game-hud>span{min-width:0;overflow-wrap:anywhere}
+   #pq-stage .arcade-game-layout>#pq-screen{min-width:0;max-width:100%}
+   #pq-stage .pq-statusline{overflow-wrap:anywhere}
+  }
  </style>
 </GamePage>
