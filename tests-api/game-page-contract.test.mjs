@@ -55,8 +55,8 @@ test('histórico de modalidades não cria jogos nem incrementa versões',()=>{
  assert.ok(registry.includes('milestones: ['));
  assert.ok(registry.includes("mode: 'snake-adventure'"));
  assert.ok(registry.includes("version: '0.2.0-dev'"));
- assert.ok(file('src/pages/jogos/snake.astro').includes('release.milestones.map'));
- assert.ok(file('src/pages/jogos/snake/aventura.astro').includes('gameRegistry.snake.milestones.filter'));
+ assert.ok(file('src/pages/jogos/snake.astro').includes('GameDevelopmentHistory'));
+ assert.ok(file('src/pages/jogos/snake/aventura.astro').includes('mode="snake-adventure"'));
 });
 
 test('Pixel Quest tem versão própria, card navegável e histórico renderizado',()=>{
