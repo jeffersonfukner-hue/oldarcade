@@ -4,6 +4,12 @@
 
 # OldArcade — continuidade obrigatória
 
+## Pixel Quest — reação aos inimigos corrigida (19/11/2026)
+- Relato do proprietário após jogar Preview: encostar lateralmente em inimigo teletransportava instantaneamente para o começo; expectativa de plataforma clássica: **pular sobre a cabeça derrota o inimigo**.
+- `src/scripts/pixelQuest/gameplay.ts`: contato lateral desconta um coração, aplica recuo + invulnerabilidade e **mantém localização**; pisão descendente atravessando o topo derrota inimigo (+50) com impulso para o próximo salto; **somente cair em abismo** volta ao checkpoint com perda de vida.
+- Testes regressivos alterados em `tests-api/pixel-quest-gameplay.test.mjs` para colisão lateral, pisão, queda e preservação de pontuação; validar CI/Preview antes de declarar correção visual homologada.
+- A reorganização do HUD/tabuleiro segue **pendente no componente global**, para os três jogos, sem remendos exclusivos do Pixel Quest.
+
 ## Pixel Quest #003 — Etapa A implementada (19/11/2026)
 - **Branch:** `feat/pixel-quest-jogo-003`. Protótipo acessível em rota não listada `/jogos/pixel-quest/` no ambiente de desenvolvimento, **sem** cadastrar jogo #003 na Home e **sem** API/placar/contadores competitivos, conforme fase C planejada.
 - Código: `src/scripts/pixelQuest/{levels,physics,input,render,index}.ts`, mapa `src/data/pixelQuest/level-1-1.ts`, componente `src/components/PixelQuestGame.astro`, rota Astro e testes `tests/pixel-quest.spec.ts` e `tests-api/pixel-quest-physics.test.mjs`.
