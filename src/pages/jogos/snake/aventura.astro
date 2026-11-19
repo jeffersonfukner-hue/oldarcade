@@ -7,6 +7,7 @@ import GameRanking from '../../../components/GameRanking.astro';
 const title='Snake Aventura — Níveis e desafios contínuos | OldArcade';
 const description='Snake Aventura gratuito: uma única partida, níveis progressivos, missões, fruta dourada e cristal de gelo. Avance sem reiniciar o tabuleiro.';
 import GameLayout from '../../../components/GameLayout.astro';
+import GameDevelopmentHistory from '../../../components/GameDevelopmentHistory.astro';
 ---
 <GamePage modeId="snake-adventure" title={title} description={description}>
  <div class="shell oa-game-page">
@@ -47,11 +48,11 @@ import GameLayout from '../../../components/GameLayout.astro';
      <button class="right" data-adventure-direction="right" aria-label="Direita">→</button>
     </div>
    </div>
-   <aside class="panel adventure-sidebar" aria-label="Progresso da Aventura">
+   <aside class="panel adventure-sidebar oa-performance-panel" aria-label="Progresso da Aventura">
     <span class="eyebrow">Sua jornada</span>
     <h2>Progresso</h2>
     <div class="stats-list">
-     <div class="stat-row"><span>Melhor pontuação</span><strong id="adventure-sidebar-best">0</strong></div>
+     <div class="oa-metric-bridge" hidden aria-hidden="true"><strong id="adventure-sidebar-best">0</strong></div>
      <div class="stat-row"><span>Maior nível alcançado</span><strong id="adventure-highest">1</strong></div>
      <div class="stat-row"><span>Partidas neste navegador</span><strong id="adventure-plays">0</strong></div>
      <div class="stat-row"><span>Item ativo</span><strong id="adventure-effect">Nenhum</strong></div>
@@ -69,7 +70,7 @@ import GameLayout from '../../../components/GameLayout.astro';
   </GameLayout>
   <GameRanking game="snake-adventure" name="Snake Aventura" />
   <GameShare gameSlug="snake-adventure" gameName="Snake Aventura" gamePath="/jogos/snake/aventura/" />
-  <section class="section panel" aria-labelledby="adventure-history-title"><div class="section-head"><div><span class="eyebrow">Bastidores do OldArcade</span><h2 id="adventure-history-title">Desenvolvimento do Aventura</h2></div><span class="pill">Jogo #001 · modo Aventura</span></div><p class="small">Versão do Snake: <strong>v{gameRegistry.snake.version}</strong> · Modalidade em desenvolvimento, ainda não publicada.</p><details><summary>Ver histórico do modo</summary><ol class="timeline">{gameRegistry.snake.milestones.filter(item=>item.mode==='snake-adventure').map(item=><li><strong>{item.title}</strong> · <time datetime={item.date}>{new Date(item.date+'T12:00:00').toLocaleDateString('pt-BR')}</time> — {item.notes}</li>)}</ol></details></section>
+  <GameDevelopmentHistory gameSlug="snake" id="adventure-history-title" title="Desenvolvimento do Aventura" mode="snake-adventure" />
   <section class="section panel text-content">
    <h2>Como funciona</h2>
    <p>Uma única partida para todos os níveis. Você só avança quando completa a missão e alcança a pontuação mínima. A cobrinha não reinicia ao mudar de nível.</p>

@@ -10,6 +10,7 @@ import {firstLevel} from '../data/pixelQuest/level-1-1';
 const crystalsInLevel=firstLevel.entities.filter(entity=>entity.kind==='crystal').length;
 const enemiesInLevel=firstLevel.entities.filter(entity=>entity.kind==='patroller').length;
 import GameLayout from './GameLayout.astro';
+import GameDevelopmentHistory from './GameDevelopmentHistory.astro';
 ---
 <GamePage modeId="pixel-quest" title="Jogar Pixel Quest — Plataforma 2D original | OldArcade" description="Jogue Pixel Quest, jogo original de plataforma 2D em desenvolvimento: cristais, inimigos, checkpoints e recordes locais.">
  <div class="shell oa-game-page pq-shell">
@@ -29,18 +30,12 @@ import GameLayout from './GameLayout.astro';
     <div class="pq-statusline" aria-label="Progresso da fase"><span>Vidas: <strong id="pq-hearts" aria-label="Corações">♥♥♥</strong></span><span>Inimigos no nível: <strong id="pq-level-enemies">3/3</strong></span><span>Cristais no nível: <strong id="pq-crystals">0/6</strong></span><span>Checkpoint: <strong id="pq-checkpoint">Não</strong></span><span id="pq-portal-status" role="status">Portal bloqueado · 0/6 cristais</span></div>
     <div class="pq-touch-controls" aria-label="Controles de toque"><button type="button" data-pq-control="left" aria-label="Mover para esquerda">←</button><button type="button" data-pq-control="right" aria-label="Mover para direita">→</button><button type="button" data-pq-control="jump" aria-label="Saltar">↑ Pular</button></div>
    </div>
-   <aside class="panel" aria-label="Informações da fase"><h2>Primeira fase</h2><p>Três corações, cristais para pontuar, inimigos de patrulha e um checkpoint. Saltar sobre um inimigo o derrota; encostar de lado causa dano. Colete os seis cristais para ativar o portal e concluir.</p><p>O portal permanece bloqueado enquanto houver cristais pendentes. Os inimigos derrotados neste nível reiniciam a cada fase; o total derrotado acumula ao avançar entre níveis.</p><p><strong>Pontuação experimental:</strong> cristal +10, inimigo +50, portal +100 e bônus de tempo (até 500, cai 2 pontos por segundo). O melhor resultado por fase e o total das fases concluídas são guardados somente neste navegador; não são recordes oficiais da conta nem ranking online.</p></aside>
+   <aside class="panel oa-level-summary" aria-label="Informações da fase"><h2>Fase 1-1 · Trilha Esmeralda</h2><p>O portal exige todos os seis cristais. Inimigos rendem pontos extras, mas não bloqueiam a saída.</p><p class="small muted">Regras, controles e pontuação detalhados abaixo.</p></aside>
   </GameLayout>
-  <section class="section panel text-content"><h2>Como jogar</h2><p>Explore o caminho horizontal. Segure o salto para alcançar plataformas mais altas e solte cedo para saltos baixos. Depois de alcançar o checkpoint, você retorna a ele ao cair em abismos; contato lateral com inimigo tira um coração e provoca recuo. Pausas não consomem tempo de jogo.</p><h3>Objetivo e pontuação</h3><p>Colete todos os cristais para liberar o portal. Saltar sobre inimigos concede pontos extras, mas não é obrigatório para completar a fase. O bônus de tempo recompensa terminar mais rápido; os recordes nesta versão são locais e provisórios.</p></section>
+  <section class="section panel text-content"><h2>Como jogar</h2><p>Explore o caminho horizontal. Segure o salto para alcançar plataformas mais altas e solte cedo para saltos baixos. Depois de alcançar o checkpoint, você retorna a ele ao cair em abismos; contato lateral com inimigo tira um coração e provoca recuo. Pausas não consomem tempo de jogo.</p><h3>Pontuação</h3><p>Cristal: <strong>10 pontos</strong>; inimigo derrotado: <strong>50</strong>; portal: <strong>100</strong>; bônus de tempo: até <strong>500</strong>, reduzindo 2 pontos por segundo efetivo. O resultado só é registrado após concluir a fase.</p><p>Inimigos derrotados no nível reiniciam na próxima fase; o total acumula durante a campanha. Os recordes de fase e campanha são provisórios e locais ao navegador, sem ranking oficial.</p></section>
   <PixelQuestHistory />
   <GameShare gameSlug="pixel-quest" gameName="Pixel Quest" />
-  <section class="section panel" aria-labelledby="pq-development-history">
-   <div class="section-head"><div><span class="eyebrow">Bastidores do OldArcade</span><h2 id="pq-development-history">Desenvolvimento do jogo #003</h2></div><span class="pill">v{game.version}</span></div>
-   <p class="small">Implementação: <strong>{game.name}</strong> · Iniciada em <time datetime={game.createdAt}>{new Date(game.createdAt+'T12:00:00').toLocaleDateString('pt-BR')}</time>. Este histórico documenta nossa implementação, não os jogos clássicos citados no artigo.</p>
-   <details><summary>Marcos de desenvolvimento</summary><ol class="timeline">{game.milestones.map(item=><li><time datetime={item.date}>{new Date(item.date+'T12:00:00').toLocaleDateString('pt-BR')}</time> · <strong>{item.title}</strong> — {item.notes}</li>)}</ol></details>
-   <details><summary>Histórico de versões</summary><ol class="timeline">{game.history.map(item=><li><strong>v{item.version}</strong> · <time datetime={item.date}>{new Date(item.date+'T12:00:00').toLocaleDateString('pt-BR')}</time> — {item.notes}</li>)}</ol></details>
-   <p class="small muted">Versão de desenvolvimento, sem lançamento público. A versão do jogo é independente da versão geral do OldArcade.</p>
-  </section>
+  <GameDevelopmentHistory gameSlug="pixel-quest" id="pq-development-history" />
  </div>
  <script>import '../scripts/pixelQuest/index.ts';</script>
  <style>

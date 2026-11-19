@@ -21,7 +21,7 @@ test('todas as modalidades possuem página estática e dados SEO distintos',()=>
    const shared=file('src/components/PixelQuestGame.astro');
    assert.ok(source.includes('PixelQuestGame'),id+' deve usar o componente do jogo');
    assert.ok(shared.includes('GamePage')&&shared.includes('modeId="pixel-quest"')&&shared.includes('description'),id+' deve reutilizar SEO');
-   assert.ok(shared.includes('gameRegistry')&&shared.includes('game.history.map')&&shared.includes('game.milestones.map'),id+' deve preservar o histórico versionado');
+   assert.ok(shared.includes('GameDevelopmentHistory'),id+' deve usar histórico compartilhado');
   }else{
    assert.ok(source.includes('GamePage'),id+' deve reutilizar SEO');
    assert.ok(source.includes('modeId="'+id+'"'),id+' deve declarar seu ID');
@@ -65,6 +65,7 @@ test('Pixel Quest tem versão própria, card navegável e histórico renderizado
  const game=file('src/components/PixelQuestGame.astro');
  assert.ok(registry.includes("'pixel-quest': {")&&registry.includes("version: '0.1.0-dev'"));
  assert.ok(home.includes('home-game-art')&&home.includes('modesByTitle[id][0]'));
- assert.ok(game.includes('game.milestones.map')&&game.includes('game.history.map'));
+ assert.ok(game.includes('GameDevelopmentHistory'));
+ assert.ok(file('src/components/GameDevelopmentHistory.astro').includes('game.history.map'));
  assert.ok(file('src/components/PixelQuestHistory.astro').includes('Arquivo histórico'));
 });
