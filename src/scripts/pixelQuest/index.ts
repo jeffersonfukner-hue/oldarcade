@@ -6,7 +6,7 @@ import {setupPlatformInput} from './input';
 import {setCountdownOverlay} from '../gameCountdownOverlay';
 import {centerGameBoard} from '../gameViewport';
 
-const stage=document.querySelector<HTMLElement>('#pq-stage');
+const stage=document.querySelector<HTMLElement>('#pq-stage')!;
 if(stage){
  validateLevel(firstLevel);
  const screen=stage.querySelector<HTMLElement>('#pq-screen')!;
