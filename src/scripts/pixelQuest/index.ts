@@ -1,10 +1,12 @@
 import {firstLevel} from '../../data/pixelQuest/level-1-1';
 import {validateLevel} from './levels';
-import {createPlayer,stepPlayer,cameraX,STEP} from './physics';
+import {cameraX,STEP} from './physics';
+import {createRun,stepRun,type Run} from './gameplay';
 import {drawPlatformScene,VIEW_WIDTH} from './render';
 import {setupPlatformInput} from './input';
 import {setCountdownOverlay} from '../gameCountdownOverlay';
 import {centerGameBoard} from '../gameViewport';
+import {setupGameClock} from '../gameClock';
 
 const stage=document.querySelector<HTMLElement>('#pq-stage')!;
 if(stage){
@@ -19,14 +21,32 @@ if(stage){
  const pause=stage.querySelector<HTMLButtonElement>('#pq-pause')!;
  const fullscreen=stage.querySelector<HTMLButtonElement>('#pq-fullscreen')!;
  const status=stage.querySelector<HTMLElement>('#pq-status')!;
+ const score=stage.querySelector<HTMLElement>('#pq-score')!;
+ const hearts=stage.querySelector<HTMLElement>('#pq-hearts')!;
+ const crystals=stage.querySelector<HTMLElement>('#pq-crystals')!;
+ const checkpoint=stage.querySelector<HTMLElement>('#pq-checkpoint')!;
  const input=setupPlatformInput(stage);
- const spawn=firstLevel.entities.find(entity=>entity.kind==='player')!;
- let player=createPlayer(spawn.x,spawn.y),camera=0;
+ let run:Run=createRun(firstLevel),camera=0;
  let phase:'ready'|'countdown'|'playing'|'paused'|'won'|'lost'='ready';
  let countdownTimer:number|undefined,seconds=3,previous=0,accumulator=0;
- function setPhase(next:typeof phase){phase=next;status.textContent=next==='playing'?'● Jogando':next==='countdown'?'● Preparando':next==='paused'?'● Pausado':next==='lost'?'● Fim de jogo':next==='won'?'● Concluído':'● Pronto';pause.textContent=next==='paused'?'Retomar':'Pausar'}
+ const clock=setupGameClock(screen,()=>phase==='playing');
+ const totalCrystals=firstLevel.entities.filter(entity=>entity.kind==='crystal').length;
+ function updateHud(){
+  score.textContent=String(run.score);
+  hearts.textContent='♥'.repeat(run.hearts)+'♡'.repeat(3-run.hearts);
+  crystals.textContent=run.crystals.size+'/'+totalCrystals;
+  checkpoint.textContent=run.checkpointActive?'Ativado':'Não';
+ }
+ function setPhase(next:typeof phase){
+  phase=next;
+  status.textContent=next==='playing'?'● Jogando':next==='countdown'?'● Preparando':next==='paused'?'● Pausado':next==='lost'?'● Fim de jogo':next==='won'?'● Fase concluída':'● Pronto';
+  pause.textContent=next==='paused'?'Retomar':'Pausar';
+  pause.disabled=next==='ready'||next==='won'||next==='lost'||next==='countdown';
+ }
  function clearCountdown(){if(countdownTimer!==undefined)window.clearInterval(countdownTimer);countdownTimer=undefined;setCountdownOverlay(overlay,countdown,start,false)}
- function reset(){player=createPlayer(spawn.x,spawn.y);camera=0;accumulator=0;input.reset();drawPlatformScene(canvas,firstLevel,player,camera)}
+ function reset(){
+  run=createRun(firstLevel);camera=0;accumulator=0;clock.reset();input.reset();updateHud();drawPlatformScene(canvas,firstLevel,run,camera);
+ }
  function beginCountdown(){
   clearCountdown();input.reset();setPhase('countdown');overlay.hidden=false;seconds=3;
   title.hidden=true;description.hidden=true;countdown.textContent='3';
@@ -39,36 +59,63 @@ if(stage){
   },1000);
  }
  function pauseGame(){
-  if(phase==='playing'){setPhase('paused');input.reset();overlay.hidden=false;title.textContent='Jogo pausado';description.textContent='Retome quando quiser.';title.hidden=false;description.hidden=false;start.textContent='▶ Retomar';start.hidden=false;centerGameBoard(screen,stage)}
-  else if(phase==='paused')beginCountdown();
+  if(phase==='playing'){
+   setPhase('paused');input.reset();overlay.hidden=false;title.textContent='Jogo pausado';
+   description.textContent='Seu progresso foi preservado.';title.hidden=false;description.hidden=false;
+   start.textContent='▶ Retomar';start.hidden=false;centerGameBoard(screen,stage);
+  }else if(phase==='paused')beginCountdown();
  }
- function lose(){
-  setPhase('lost');overlay.hidden=false;title.hidden=false;description.hidden=false;title.textContent='Fim de jogo';description.textContent='Você caiu. Tente novamente a trilha.';start.textContent='↻ Reiniciar fase';start.hidden=false;input.reset();
+ function finish(won:boolean){
+  clearCountdown();setPhase(won?'won':'lost');overlay.hidden=false;title.hidden=false;description.hidden=false;
+  title.textContent=won?'Portal alcançado!':'Fim de jogo';
+  description.textContent=won?'Fase 1-1 concluída com '+run.score+' pontos. Esta é uma versão experimental.':'Seus três corações acabaram. Tente novamente a trilha.';
+  start.textContent='↻ Jogar novamente';start.hidden=false;input.reset();updateHud();
  }
- function startGame(){if(phase==='ready'||phase==='lost'){reset()}beginCountdown()}
+ function startGame(){
+  if(phase==='ready'||phase==='won'||phase==='lost')reset();
+  if(phase==='ready'||phase==='won'||phase==='lost'||phase==='paused')beginCountdown();
+ }
  start.addEventListener('click',startGame);
  pause.addEventListener('click',pauseGame);
- const keyboard=(event:KeyboardEvent)=>{const target=event.target as HTMLElement|null;if(target?.matches('input,textarea,select,[contenteditable]'))return;if(event.key.toLowerCase()==='p'&&!event.repeat){event.preventDefault();pauseGame()}if(event.key.toLowerCase()==='f'&&!event.repeat){event.preventDefault();void toggleFullscreen()}};
+ const keyboard=(event:KeyboardEvent)=>{
+  const target=event.target as HTMLElement|null;
+  if(target?.matches('input,textarea,select,[contenteditable]'))return;
+  if(event.key.toLowerCase()==='p'&&!event.repeat){event.preventDefault();pauseGame()}
+  if(event.key.toLowerCase()==='f'&&!event.repeat){event.preventDefault();void toggleFullscreen()}
+ };
  document.addEventListener('keydown',keyboard);
  async function toggleFullscreen(){
   if(document.fullscreenElement===stage){await document.exitFullscreen();return}
   if(stage.requestFullscreen)try{await stage.requestFullscreen();return}catch{}
-  stage.classList.toggle('game-stage-fallback');document.body.classList.toggle('game-fallback-active',stage.classList.contains('game-stage-fallback'));
+  stage.classList.toggle('game-stage-fallback');
+  document.body.classList.toggle('game-fallback-active',stage.classList.contains('game-stage-fallback'));
   if(phase==='playing')pauseGame();
   if(!stage.classList.contains('game-stage-fallback'))centerGameBoard(screen,stage);
  }
  fullscreen.addEventListener('click',()=>void toggleFullscreen());
- document.addEventListener('fullscreenchange',()=>{if(phase==='playing')pauseGame();else if(phase==='countdown'){clearCountdown();setPhase('paused');overlay.hidden=false;title.hidden=false;description.hidden=false;title.textContent='Jogo pausado';description.textContent='Retome quando quiser.';start.textContent='▶ Retomar';start.hidden=false}if(!document.fullscreenElement)centerGameBoard(screen,stage)});
+ document.addEventListener('fullscreenchange',()=>{
+  if(phase==='playing')pauseGame();
+  else if(phase==='countdown'){
+   clearCountdown();setPhase('paused');overlay.hidden=false;title.hidden=false;description.hidden=false;
+   title.textContent='Jogo pausado';description.textContent='Retome quando quiser.';start.textContent='▶ Retomar';start.hidden=false;
+  }
+  if(!document.fullscreenElement)centerGameBoard(screen,stage);
+ });
  document.addEventListener('visibilitychange',()=>{if(document.hidden&&phase==='playing')pauseGame()});
  function frame(now:number){
   const dt=Math.min(.05,Math.max(0,(now-previous)/1000));previous=now;
   if(phase==='playing'){
    accumulator=Math.min(accumulator+dt,STEP*4);
-   while(accumulator>=STEP){stepPlayer(player,input.read(),firstLevel,STEP);camera=cameraX(player,camera,firstLevel,VIEW_WIDTH);accumulator-=STEP}
-   if(player.y>firstLevel.height*32+40)lose();
+   while(accumulator>=STEP){
+    stepRun(run,firstLevel,input.read(),STEP);
+    camera=cameraX(run.player,camera,firstLevel,VIEW_WIDTH);
+    accumulator-=STEP;
+    if(run.phase!=='playing'){finish(run.phase==='won');break}
+   }
+   updateHud();
   }
-  drawPlatformScene(canvas,firstLevel,player,camera);
+  drawPlatformScene(canvas,firstLevel,run,camera);
   requestAnimationFrame(frame);
  }
- setPhase('ready');drawPlatformScene(canvas,firstLevel,player,camera);requestAnimationFrame(frame);
+ setPhase('ready');updateHud();drawPlatformScene(canvas,firstLevel,run,camera);requestAnimationFrame(frame);
 }
