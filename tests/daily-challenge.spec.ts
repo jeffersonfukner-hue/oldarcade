@@ -44,7 +44,7 @@ test('Conta conectada reserva uma tentativa para Snake e impede acesso após par
  await start.click();
  await expect(page.locator('#countdown-value')).toHaveText('3');
  await expect(calendar.locator('[data-daily-start]')).toBeHidden();
- await expect(calendar.locator('[data-daily-result]')).toBeVisible();
+ await expect(calendar.locator('[data-daily-status]')).toHaveAttribute('data-status','playing');
  expect(submissions).toBe(1);
  await expect(calendar.locator('.daily-day[data-status="started"]')).toHaveCount(1);
 });
@@ -95,13 +95,13 @@ test('Calendário explica a diferença entre desafio disponível, em partida, in
  const calendar=page.locator('[data-daily-calendar="snake"]');
  const state=calendar.locator('[data-daily-status]');
  await expect(state).toHaveAttribute('data-status','available');
- await expect(state).toContainText('Desafio de hoje disponível');
+ await expect(state).toContainText('Missão de hoje disponível');
  await expect(calendar.locator('[data-daily-start]')).toBeVisible();
  status='started';
  await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:daily-status-changed',{detail:{game:'snake'}})));
- await expect(state).toHaveAttribute('data-status','started');
- await expect(state).toContainText('Tentativa iniciada, sem conclusão confirmada');
- await expect(calendar.locator('[data-daily-start]')).toBeHidden();
+ await expect(state).toHaveAttribute('data-status','available');
+ await expect(state).toContainText('Missão recebida');
+ await expect(calendar.locator('[data-daily-start]')).toBeVisible();
  await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}})));
  await expect(state).toHaveAttribute('data-status','playing');
  await expect(state).toContainText('Desafio em andamento');
