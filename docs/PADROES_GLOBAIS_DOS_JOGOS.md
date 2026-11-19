@@ -91,6 +91,13 @@ Antes de modificar qualquer tela ou jogo, preencher e verificar mentalmente este
 - GET de ranking na entrada; GET final anônimo ou POST final autenticado, sem polling durante partida. Não afirmar pontuação verificada quando é autodeclarada; prever antifraude antes de competição pública.
 - `/rankings/` apresenta cada modalidade competitiva com líder, Top 3, Top 10 expansível, horário e desafio. Conta mostra melhores resultados próprios, sem expor dados alheios.
 
+### Layout compartilhado dos jogos (revisão de 19/11/2026 — aguardando aceite visual)
+- Todos os modos Snake (Clássico, Aventura, Evolution), os três Tetris e Pixel Quest usam `GameLayout.astro`. O contrato estrutural `.oa-game-layout` em `src/styles/global.css` coloca **jogo primeiro em largura plena** e **painel secundário abaixo**, não concorrendo com a largura do canvas.
+- Dentro do stage, `.arcade-game-layout` controla o **HUD à direita** no desktop e **compacto acima** do tabuleiro no mobile; textos editoriais, estatísticas secundárias e histórico permanecem abaixo. Não reconstruir a estrutura por jogo, não duplicar mudanças de grid em CSS local.
+- Os formatos são parâmetros `data-board-shape="square|portrait|landscape"`; dimensões específicas pertencem ao contrato global (`--oa-board-aspect`, `--oa-board-max`, `--oa-slot-max`). Tetris conserva controles/peças/reserva/área de missão como elementos próprios, sem alterar suas regras.
+- Ferramenta de comemorações no Preview disponível apenas com parâmetro de URL `?celebration-lab=1`, para não ocupar a tela normal do jogador. Desafio Diário segue suspenso; não alterar mecânica, ranking, registro de partidas nem versões ao migrar layout.
+- Validar teclado, touch, desktop 1440/1024 e mobile 390/320, tela cheia e saída, carregamento, recordes e não regressão. O CI não representa aceite visual; deploy de Preview exclusivamente manual pelo proprietário.
+
 ## 4. UX, HUD e partida
 - Jogabilidade em primeiro lugar; HUD legível em janela e tela cheia com estado, pontos e recordes. Botão e tecla `F` para fullscreen, `Esc` para sair; pausa por Espaço quando aplicável.
 - Countdown visível 3–2–1 em **toda** nova partida, retomada e transição de fullscreen; preservar posição, pontuação e efeitos ao pausar.

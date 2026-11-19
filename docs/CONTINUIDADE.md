@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## Layout global Snake · Tetris · Pixel Quest — 19/11/2026
+- Auditoria: `game-layout` de Snake/Pixel Quest ainda dividia a página com coluna editorial; `TetrisGame.astro` continha grid próprio e HUD divergente. Capturas anteriores indicavam tabuleiro pequeno, HUD/controles excessivos e recorde secundário. Não alterar a mecânica dos jogos para tratar apresentação.
+- Implementado em `GameLayout.astro` e `global.css`: palco em largura plena, HUD ao lado do canvas, cartões com informação contextual abaixo; contratos de proporção quadrada, retrato e paisagem. Todos os 3 modos Snake, 3 modos Tetris e Pixel Quest migrados na mesma branch. `gameRegistry.ts` e histórico não mudaram.
+- Comemorações laboratoriais deixam de aparecer no Preview comum; somente com `?celebration-lab=1`. Ferramenta não registra placares, apenas efeitos.
+- Testes cruzados acrescentados, CI e Preview ainda devem ser verificados. Sem publicar, deploy ou merge; proprietário mantém controle integral do deploy manual.
+
+
+
 ## Pixel Quest — card na Home e histórico de versões preservado (19/11/2026)
 - Integrado como **jogo #003**, com card clicável na Home e rota de jogo, arte SVG própria. A Home passa a contabilizar os três jogos reais.
 - Fonte de verdade de versão em `gameRegistry.ts`: **v0.1.0-dev**, data inicial 19/11/2026, marcos históricos datados de implementações já realizadas. Histórico mostrado na página, sem criar nova versão para cada commit nem perder versões futuras.

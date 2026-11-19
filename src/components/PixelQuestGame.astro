@@ -45,7 +45,6 @@ import GameLayout from './GameLayout.astro';
  <script>import '../scripts/pixelQuest/index.ts';</script>
  <style>
   .pq-shell{min-width:0;max-width:100%;overflow-x:clip}
-  [data-board-shape="landscape"]{--oa-board-aspect:1.7777778;--oa-board-max:640px;--oa-slot-max:660px}
   .game-layout>.game-stage{min-width:0;max-width:100%}
   #pq-screen{width:100%;min-width:0;max-width:var(--oa-board-max);aspect-ratio:16/9;margin-inline:auto}
   #pq-canvas{width:100%;height:100%;max-width:none;aspect-ratio:16/9;image-rendering:pixelated;touch-action:none}
@@ -54,14 +53,6 @@ import GameLayout from './GameLayout.astro';
   .pq-touch-controls{display:flex;justify-content:center;gap:12px;margin-top:12px;touch-action:manipulation}
   .pq-touch-controls button{min-width:70px;min-height:52px;border-radius:10px;border:1px solid #5471a8;background:#1b3557;color:#fff;font-weight:750;touch-action:none}
   @media(hover:hover) and (pointer:fine){.pq-touch-controls{display:none}}
-  @media(max-width:650px){
-   .pq-touch-controls button{min-width:64px}.oa-game-layout{gap:14px}
-   #pq-stage{min-width:0;overflow-x:clip}
-   #pq-stage .arcade-game-layout{width:100%;min-width:0;grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board"}
-   #pq-stage .arcade-game-layout>.game-hud{min-width:0;max-width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}
-   #pq-stage .arcade-game-layout>.game-hud>span{min-width:0;overflow-wrap:anywhere}
-   #pq-stage .arcade-game-layout>#pq-screen{min-width:0;max-width:100%}
-   #pq-stage .pq-statusline{overflow-wrap:anywhere}
-  }
+  @media(max-width:650px){.pq-touch-controls button{min-width:64px}.pq-statusline{overflow-wrap:anywhere}}
  </style>
 </GamePage>

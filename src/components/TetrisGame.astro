@@ -97,7 +97,7 @@ import GameLayout from './GameLayout.astro';
   </section>
  </main>
  <script>import '../scripts/tetris.ts';</script>
- <style>
+ <style is:global>
   .tetris-hero{padding-bottom:24px}
   /* Indicação contextual da onda de risco; somente o estado é específico do modo. */
   .tetris-board-shell[data-survival-danger=true]{border-color:#fa9671;box-shadow:0 0 0 2px #f9731633,0 0 24px #f9731633}
