@@ -4,6 +4,15 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL PARA NOVO CHAT — lançamento com 3 jogos (19/11/2026)
+- **Decisão mais recente do proprietário:** Desafio Diário foi **adiado**, sem nova implementação ou depuração por enquanto; priorizar 3 jogos funcionais, SEO e aprovação no Google Search Console/AdSense. O jogo #003 será um jogo de **plataforma inspirado na mecânica de Mario**, com personagens, arte, áudio, nomes e fases **originais** para evitar uso indevido de propriedade intelectual.
+- **Ocultação do Desafio Diário:** flag única `src/data/featureFlags.ts`, `DAILY_CHALLENGES_ENABLED=false`; remove da interface pública calendários de Snake/Tetris, convite na Home, histórico no perfil, chamadas da API de calendário disparadas pela interface e opções de e-mail diário na conta/login. Código, APIs, migrações e testes do recurso ficam preservados para uso futuro; testes E2E diários legados foram marcados como `test.skip`. Novo teste ativo `tests/daily-feature-hidden.spec.ts` cobre ausência nas páginas e ausência de requisições diárias.
+- **Fluxo Cloudflare decidido pelo proprietário:** ele próprio liga/desliga builds de Preview conforme a fase; durante desenvolvimento intenso ficam desligados; quando ele estiver em casa será preparado Preview local. Nunca alterar Cloudflare, publicar, fazer merge ou executar SQL por conta própria.
+- **Branch:** `feat/tetris-jogo-002`; alterações da ocultação ainda precisam de CI e validação do proprietário antes de merge/publicação. Problemas remanescentes no CI não devem puxar o trabalho de volta a um ciclo de correções infinitas; tratar separadamente somente falhas que bloqueiem o lançamento.
+- **Próxima ação:** conferir CI da ocultação; iniciar planejamento e implementação do terceiro e último jogo pré-lançamento em frente/branch próprias, obedecendo padrões globais, sem copiar propriedade intelectual de Mario/Nintendo.
+
+
+
 ## Padrão global de repetição do Desafio Diário (18/11/2026)
 - **Correção passou de pontual a global:** módulo único `src/scripts/dailyMissionReplay.ts`, integrado em Snake e Tetris na branch `feat/tetris-jogo-002`.
 - Após **derrota** registrada, botão pergunta se deseja repetir e solicita nova reserva da **mesma data/missão** via evento global; no laboratório de treino, repete mesma missão/seed sem D1. Após vitória, não há replay. Resultado pendente exige reenvio antes de nova partida.
