@@ -2,13 +2,13 @@ import {test,expect} from '@playwright/test';
 
 test('Tetris #002 usa catálogo, página SEO e componentes globais',async({page})=>{
  await page.goto('/');
- await expect(page.locator('#hero-published-games')).toHaveText('2');
- await expect(page.locator('#featured-game-link')).toHaveAttribute('href','/jogos/tetris/');
- await expect(page.locator('#featured-game-link')).toHaveAttribute('data-featured-game','tetris');
+ await expect(page.locator('#hero-published-games')).toHaveText('3');
+ await expect(page.locator('#featured-game-link')).toHaveAttribute('href','/jogos/pixel-quest/');
+ await expect(page.locator('#featured-game-link')).toHaveAttribute('data-featured-game','pixel-quest');
  await expect(page.getByRole('heading',{name:/Os clássicos nunca/})).toBeVisible();
- await expect(page.locator('.home-game-card').first()).toContainText('Tetris');
- await expect(page.locator('.arcade-mode-grid a[href="/jogos/snake/"]')).toHaveCount(1);
- await expect(page.locator('.arcade-mode-grid a[href="/jogos/tetris/"]')).toHaveCount(1);
+ await expect(page.locator('.home-game-card').first()).toContainText('Pixel Quest');
+ await expect(page.locator('.arcade-mode-grid .home-game-modes a[href="/jogos/snake/"]')).toHaveCount(1);
+ await expect(page.locator('.arcade-mode-grid .home-game-modes a[href="/jogos/tetris/"]')).toHaveCount(1);
  await page.goto('/jogos/tetris/');
  await expect(page).toHaveTitle(/Tetris/);
  await expect(page.locator('#tetris-canvas')).toBeVisible();
@@ -62,11 +62,15 @@ test('Tetris inicia apenas uma partida, aceita movimento, queda e pausa com cont
  await expect(page.locator('#tetris-overlay')).toBeHidden({timeout:5500});
 });
 
-test('Tetris salva contador local e oferece comandos de toque e tela cheia',async({page})=>{
+test('Tetris salva contador local e respeita controles desktop/touch e tela cheia',async({page})=>{
  await page.goto('/jogos/tetris/');
- await expect(page.getByRole('button',{name:'Girar peça'})).toBeVisible();
- await expect(page.getByRole('button',{name:'Queda instantânea'})).toBeVisible();
- await expect(page.getByRole('button',{name:'Reservar peça'})).toBeVisible();
+ const pointerFine=await page.evaluate(()=>matchMedia('(hover:hover) and (pointer:fine)').matches);
+ for(const name of ['Girar peça','Queda instantânea','Reservar peça']){
+  const button=page.getByRole('button',{name,includeHidden:true});
+  await expect(button).toHaveCount(1);
+  if(pointerFine)await expect(button).toBeHidden();
+  else await expect(button).toBeVisible();
+ }
  await test.step('entrar em tela cheia',async()=>{
   await page.locator('#tetris-fullscreen').click({timeout:7000});
   await expect.poll(()=>page.evaluate(()=>document.fullscreenElement?.id??''),{timeout:7000}).toBe('tetris-stage');

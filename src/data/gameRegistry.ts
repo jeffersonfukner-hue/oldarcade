@@ -37,5 +37,20 @@ export const gameRegistry = {
     history: [
       {version:'0.1.0-dev',date:'2026-11-17',notes:'Protótipo jogável do jogo #002, sem lançamento em produção; controles de teclado e toque, pontuação e ranking isolados.'}
     ]
+  },
+  'pixel-quest': {
+    number: 3,
+    name: 'Pixel Quest',
+    createdAt: '2026-11-19',
+    version: '0.1.0-dev',
+    milestones: [
+      {date:'2026-11-19',mode:'pixel-quest',title:'O primeiro salto',notes:'Motor original de plataforma 2D com física em passos fixos, câmera lateral, teclado, toque, pausa, tela cheia e cenário provisório da fase 1-1; sem lançamento público.',commit:'633e6f03'},
+      {date:'2026-11-19',mode:'pixel-quest',title:'Cristais, inimigos e checkpoint',notes:'Primeira fase ganhou coleta, inimigos de patrulha, três corações, respawn, pisão sobre inimigos e portal; colisão lateral ganhou recuo sem teletransporte.',commit:'ef63fc4e'},
+      {date:'2026-11-19',mode:'pixel-quest',title:'Uma saída que precisa ser conquistada',notes:'Portal passou a exigir todos os cristais; contadores distinguem inimigos do nível, derrotados por fase e total acumulado previsto para campanhas com várias fases.',commit:'c2767b49'},
+      {date:'2026-11-19',mode:'pixel-quest',title:'O placar começa a contar uma história',notes:'Barras de progresso mostram cristais e inimigos restantes. Pontuação experimental combina coletas, combate, conclusão e tempo; melhores marcas locais por fase e campanha, sem ranking online.',commit:'b9cd8891'}
+    ],
+    history: [
+      {version:'0.1.0-dev',date:'2026-11-19',notes:'Primeira versão jogável em Preview: fase 1-1 original com controles, cristais, inimigos, portal, checkpoint, progresso e pontuação experimental. Não publicada oficialmente.'}
+    ]
   }
 } as const;

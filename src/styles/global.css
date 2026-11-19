@@ -298,11 +298,11 @@ html,body{touch-action:manipulation}
  .header-inner [data-player-account-link]{max-width:125px}
 }
 
-/* OldArcade: jogo ocupa 80% da largura interna, HUD secundário à direita. */
-.arcade-game-layout{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,1fr);grid-template-areas:"board stats";gap:12px;align-items:stretch;min-width:0}
-.arcade-game-layout>.screen-wrap{grid-area:board;min-width:0;align-self:start;overflow:visible;border:0;border-radius:0;background:transparent}
+/* OldArcade: tabuleiro proporcional e HUD no mesmo painel. A largura agora é comum aos três formatos. */
+.arcade-game-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,244px);grid-template-areas:"board stats";gap:14px;align-items:start;min-width:0;width:100%;max-width:100%}
+.arcade-game-layout>.screen-wrap{grid-area:board;min-width:0;align-self:start;overflow:visible;border:0;border-radius:0;background:transparent;justify-self:center;width:min(100%,var(--oa-board-max,760px))}
 .arcade-game-layout>.screen-wrap canvas{width:100%;max-width:none;height:auto}
-.arcade-game-layout>.game-hud{grid-area:stats;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:12px;margin:0;padding:12px 9px;min-width:0;border:1px solid #31405f;border-radius:10px;background:#10242b}
+.arcade-game-layout>.game-hud{grid-area:stats;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:10px;margin:0;padding:13px 12px;min-width:0;max-width:100%;border:1px solid #31405f;border-radius:12px;background:#10242b}
 .arcade-game-layout>.game-hud>span{display:flex;flex-direction:column;gap:3px;min-width:0;overflow-wrap:anywhere;font-size:.72rem;color:#9cb4c0}
 .arcade-game-layout>.game-hud>span strong{display:block;font-size:clamp(.88rem,1.65vw,1.35rem);line-height:1.2;color:#e7f9ff;font-variant-numeric:tabular-nums}
 .arcade-game-layout>.game-hud>span:has(#hud-score),.arcade-game-layout>.game-hud>span:has(#adventure-score){order:-2}
@@ -313,12 +313,12 @@ html,body{touch-action:manipulation}
 .arcade-game-layout>.adventure-progress{grid-column:1/-1;grid-row:1}
 .arcade-game-layout:has(.adventure-progress){grid-template-areas:"progress progress" "board stats";grid-template-rows:auto 1fr}
 .arcade-game-layout:has(.adventure-progress)>.adventure-progress{grid-area:progress}
-.game-stage:fullscreen .arcade-game-layout,.game-stage.game-stage-fallback .arcade-game-layout{flex:1;min-height:0;grid-template-columns:minmax(0,4fr) minmax(120px,1fr);align-content:center}
+.game-stage:fullscreen .arcade-game-layout,.game-stage.game-stage-fallback .arcade-game-layout{flex:1;min-height:0;grid-template-columns:minmax(0,1fr) minmax(120px,190px);align-content:center}
 .game-stage:fullscreen .arcade-game-layout>.screen-wrap,.game-stage.game-stage-fallback .arcade-game-layout>.screen-wrap{flex:none;min-height:0}
 @media(max-width:650px){
  .arcade-game-layout,.game-stage:fullscreen .arcade-game-layout,.game-stage.game-stage-fallback .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:8px}
  .arcade-game-layout:has(.adventure-progress){grid-template-areas:"stats" "progress" "board";grid-template-rows:auto auto auto}
- .arcade-game-layout>.game-hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;padding:8px}
+ .arcade-game-layout>.game-hud{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:8px}
  .arcade-game-layout>.game-hud>span{font-size:.63rem}
  .arcade-game-layout>.game-hud>span strong{font-size:clamp(.76rem,3vw,1rem)}
  .arcade-game-layout>.game-hud>[data-game-clock]{font-size:.76rem}
@@ -330,8 +330,13 @@ html,body{touch-action:manipulation}
    A estrutura responsiva é idêntica em Snake, Aventura, Evolution e Tetris. */
 [data-arcade-viewport]{
  --oa-board-aspect:1;
- --oa-board-max:660px;
- --oa-slot-max:660px;
+ --oa-board-max:760px;
+ --oa-slot-max:780px;
+}
+[data-arcade-viewport][data-board-shape="landscape"]{
+ --oa-board-aspect:1.7777778;
+ --oa-board-max:1024px;
+ --oa-slot-max:1040px;
 }
 [data-arcade-viewport][data-board-shape="portrait"]{
  --oa-board-aspect:.5;
@@ -633,3 +638,144 @@ body.oa-auth-open{overflow:hidden}
 .daily-live-sequence span.next{background:#f4bf6d;border:2px solid #ffe3a4;color:#251b31;box-shadow:0 0 15px #f0c17977;transform:scale(1.08)}
 .daily-live-next{border:1px solid #f5d18a;border-radius:10px;background:#523e2f;padding:11px;font-weight:900;text-align:center;font-size:.82rem;color:#ffefbd;letter-spacing:.035em}
 @media(max-width:740px){.daily-live-tracker{padding:13px;margin-bottom:12px}.daily-live-sequence span{width:30px;height:35px}}
+
+/* Contrato de página do jogo: uma faixa principal e conteúdo secundário abaixo,
+   em vez de reduzir o tabuleiro com uma coluna editorial. Fonte única para
+   Snake (todos os modos), Tetris (todos os modos) e Pixel Quest. */
+.oa-game-page{width:min(1480px,calc(100% - 32px));min-width:0}
+.oa-game-page>.hero{padding:27px 0 15px}
+.oa-game-page>.hero h1{font-size:clamp(2rem,4vw,3.2rem);margin:9px 0 12px}
+.oa-game-page>.hero p.lede{margin-bottom:12px}
+.oa-game-layout{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:16px;min-width:0;width:100%;margin:20px 0 38px}
+.oa-game-layout>.game-stage{grid-column:1;min-width:0;width:100%;max-width:100%}
+.oa-game-layout>aside.panel{grid-column:1;width:100%;min-width:0}
+.oa-game-layout>aside.panel:not(.tetris-sidebar){padding:18px 24px}
+.oa-game-layout>aside.panel:not(.tetris-sidebar)>h2{font-size:1.25rem;margin:0 0 12px}
+.oa-game-layout .arcade-game-layout>.oa-board-slot{grid-area:board;min-width:0;max-width:100%;justify-self:center;margin-inline:auto}
+.oa-game-layout .arcade-game-layout>.screen-wrap.oa-board-slot{justify-self:center;width:min(100%,var(--oa-board-max,760px))}
+@media(max-width:900px){
+ .oa-game-layout [data-board-shape="portrait"] .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:10px}
+ .oa-game-layout [data-board-shape="portrait"] .arcade-game-layout>.game-hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+}
+@media(max-width:840px){.oa-game-layout{gap:12px}.oa-game-page{width:min(100% - 24px,1480px)}}
+@media(max-width:650px){.oa-game-layout .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:9px}.oa-game-layout .arcade-game-layout>.game-hud{min-width:0;max-width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}.oa-game-layout>.panel{min-width:0}.oa-game-page>.hero{padding:20px 0 12px}}
+
+/* O teclado substitui os controles desenhados no desktop em qualquer jogo. */
+@media(hover:hover) and (pointer:fine){
+ .oa-game-layout [data-arcade-viewport]>.touch-controls,
+ .oa-game-layout [data-arcade-viewport]>.tetris-touch-controls,
+ .oa-game-layout [data-arcade-viewport]>.pq-touch-controls{display:none!important}
+}
+
+/* Em 320px, títulos e chips das seções não podem forçar largura maior
+   do que a viewport; tabelas mantêm rolagem dentro de ranking-overflow. */
+@media(max-width:420px){
+ .oa-game-page .section-head{flex-wrap:wrap;align-items:flex-start;gap:10px}
+ .oa-game-page .section-head>div{min-width:0;max-width:100%}
+ .oa-game-page .section-head>.pill{max-width:100%;overflow-wrap:anywhere}
+ .oa-game-page .ranking-overflow{max-width:100%;min-width:0}
+}
+
+/* Revisão global de conteúdo: cartões largos com texto de leitura controlado. */
+.oa-game-page>.section.panel,.oa-game-page>.game-share{width:100%;max-width:none;min-width:0}
+.oa-game-page>.text-content{max-width:none}
+.oa-game-page>.text-content>p,.oa-game-page>.text-content>ol,.oa-game-page>.text-content>ul{max-width:85ch}
+.oa-game-page>.section{margin:24px 0 32px}
+.oa-game-page .section-head{margin-bottom:15px}
+.oa-game-page .section-head h2{font-size:clamp(1.25rem,2vw,1.65rem)}
+.oa-development-history details{border-top:1px solid #30405d;padding:11px 0}
+.oa-development-history details summary{cursor:pointer;font-weight:700;color:#d6c7ff}
+.oa-development-history details[open] summary{margin-bottom:12px}
+.oa-development-history>p:last-child{margin:10px 0 0}
+.oa-metric-bridge[hidden]{display:none!important}
+.oa-game-page .oa-performance-panel{padding:18px 24px}
+.oa-game-page .oa-performance-panel .stats-list{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:11px 22px}
+.oa-game-page .oa-level-summary{padding:15px 20px}
+.oa-game-page .oa-level-summary p{margin-bottom:6px;max-width:85ch}
+.oa-game-page .oa-level-summary h2{font-size:1.12rem}
+.oa-game-page .game-share{padding:16px 20px}
+.oa-game-page .game-share h2{font-size:1.2rem}
+.oa-game-page .game-share-actions{margin:12px 0}
+.oa-share-primary{display:flex;flex-wrap:wrap;gap:8px}
+.oa-share-primary button{padding:9px 13px}
+.oa-share-networks{margin-top:10px}
+.oa-share-networks summary{cursor:pointer;font-size:.82rem;color:#bdadff;font-weight:700}
+.oa-game-page .game-share .share-feedback{margin-top:8px}
+.oa-game-page .ranking-overflow{overflow-x:auto;max-width:100%}
+/* Tetris: ampliar o tabuleiro sem perder sua proporção de 10x20 nem as prévias. */
+/* O mesmo slot compartilhado centraliza o grupo funcional de cada jogo.
+   No Tetris o grupo inclui tabuleiro (10x20), próximo, reserva e linhas. */
+[data-board-shape="portrait"]{--oa-board-max:320px}
+.oa-game-layout .tetris-playfield.oa-board-slot{
+ display:grid;
+ width:min(100%,540px);
+ grid-template-columns:minmax(0,320px) minmax(0,200px);
+ gap:18px;
+ justify-content:center;
+ align-items:start;
+ padding:12px 0;
+}
+.oa-game-layout .tetris-playfield .tetris-board-shell{
+ width:100%;
+ max-width:320px;
+ min-width:0;
+}
+.oa-game-layout .tetris-playfield .tetris-preview-column{
+ min-width:0;
+ width:100%;
+}
+@media(max-width:620px){
+ .oa-game-layout .tetris-playfield.oa-board-slot{
+  width:100%;
+  grid-template-columns:minmax(0,1fr) 96px;
+  gap:8px;
+ }
+ .oa-game-layout .tetris-playfield .tetris-board-shell{max-width:320px}
+}
+
+@media(max-width:420px){.oa-game-page .game-share{padding:14px}.oa-game-page .oa-performance-panel{padding:14px}.oa-game-page .section.panel{padding:16px}}
+
+/* Piloto de HUD contextual dentro da coluna de peças, preservando layout global. */
+.oa-stage-header{max-width:100%;min-width:0}
+.oa-hud-compact{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:9px;border:1px solid #31405f;border-radius:12px;background:#10242b;min-width:0;width:100%;color:#d5e8fa}
+.oa-hud-compact>.oa-hud-status{grid-column:1/-1;color:#83d6a9;font-size:.7rem}
+.oa-hud-compact>.oa-hud-metric{display:flex;align-items:center;gap:5px;min-width:0;overflow-wrap:anywhere;padding:5px 3px;font-variant-numeric:tabular-nums}
+.oa-hud-compact>.oa-hud-metric strong{font-size:clamp(.82rem,1.3vw,1.08rem);line-height:1.2;color:#f3f8ff}
+.oa-hud-compact .oa-hud-symbol{font-size:.72rem;font-weight:800;color:#b9c7eb}
+.oa-hud-compact>.hud-hint{display:none}
+.oa-hud-compact>[data-game-clock]{grid-column:1/-1;order:-1;display:block!important;padding:1px 4px!important;border:0!important;background:none!important;font-size:.93rem}
+.oa-game-layout.tetris-main-layout>.game-stage{width:min(100%,680px);margin-inline:auto}
+.oa-game-layout.tetris-main-layout .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"board";justify-items:center;gap:0}
+.oa-game-layout.tetris-main-layout .tetris-playfield.oa-board-slot{width:min(100%,580px);grid-template-columns:minmax(0,320px) minmax(0,235px);gap:16px}
+.oa-game-layout.tetris-main-layout .tetris-playfield>.tetris-preview-column{width:100%;min-width:0}
+.oa-game-layout.tetris-main-layout .tetris-preview-column>.oa-hud-compact{grid-column:1/-1;min-width:0}
+@media(max-width:620px){
+ .oa-game-layout.tetris-main-layout .tetris-playfield.oa-board-slot{width:100%;grid-template-columns:minmax(0,1fr) 112px;gap:8px}
+ .oa-game-layout.tetris-main-layout .tetris-preview-column>.oa-hud-compact{grid-column:2;grid-row:5;grid-template-columns:minmax(0,1fr);padding:6px;gap:3px}
+ .oa-game-layout.tetris-main-layout .tetris-preview-column>.oa-hud-compact>.oa-hud-status,
+ .oa-game-layout.tetris-main-layout .tetris-preview-column>.oa-hud-compact>[data-game-clock]{grid-column:1}
+ .oa-hud-compact>.oa-hud-metric{padding:3px 0;gap:3px}
+}
+
+/* O cabeçalho acompanha o grupo jogável em vez de ocupar cantos distantes. */
+.oa-game-layout.tetris-main-layout .game-stage>.oa-stage-header{
+ width:min(100%,580px);margin:0 auto 14px
+}
+.oa-game-layout.tetris-main-layout .game-stage>.arcade-game-layout{
+ width:min(100%,580px);margin-inline:auto
+}
+/* Em tela cheia o painel é full screen, mas o conjunto Tetris permanece unido. */
+.oa-game-layout.tetris-main-layout>.game-stage:fullscreen,
+.oa-game-layout.tetris-main-layout>.game-stage.game-stage-fallback{
+ width:100%;max-width:100%
+}
+.oa-game-layout.tetris-main-layout>.game-stage:fullscreen .arcade-game-layout,
+.oa-game-layout.tetris-main-layout>.game-stage.game-stage-fallback .arcade-game-layout{
+ display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"board";
+ justify-items:center;align-items:center;align-content:center;
+ width:min(100%,580px);margin:auto
+}
+.oa-game-layout.tetris-main-layout>.game-stage:fullscreen .tetris-playfield.oa-board-slot,
+.oa-game-layout.tetris-main-layout>.game-stage.game-stage-fallback .tetris-playfield.oa-board-slot{
+ width:min(100%,580px)
+}

@@ -1,0 +1,10 @@
+---
+/** Padrão comum para espaço jogável e informações de apoio.
+ * Somente o conteúdo da partida muda; stage, HUD e painéis usam o mesmo fluxo.
+ */
+interface Props {label:string;className?:string}
+const {label,className=''}=Astro.props;
+---
+<section class={['game-layout','oa-game-layout',className].filter(Boolean).join(' ')} aria-label={label}>
+ <slot />
+</section>

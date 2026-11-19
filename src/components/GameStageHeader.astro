@@ -1,0 +1,10 @@
+---
+/** Cabeçalho reutilizável; botões continuam conectados pelo script de cada jogo. */
+interface Props {title:string;subtitle?:string;pauseId:string;fullscreenId:string;fullscreenLabel?:string}
+const {title,subtitle,pauseId,fullscreenId,fullscreenLabel='Alternar tela cheia'}=Astro.props;
+---
+<header class="game-topline oa-stage-header">
+ <strong>{title}{subtitle&&<span class="muted"> · {subtitle}</span>}</strong>
+ <slot />
+ <div class="actions"><button type="button" id={pauseId}>Pausar</button><button type="button" id={fullscreenId} aria-label={fullscreenLabel}>⛶ Tela cheia (F)</button></div>
+</header>

@@ -47,6 +47,20 @@ Referências: guia oficial do Tetris Effect: Connected, que traz desafios de pre
 - **Migrações:** proprietário confirmou execução manual da `0008` (tabela das tentativas) e `0010` (colunas de linhas/sucesso) no **D1 Preview**; `0009` também foi confirmada anteriormente. Não solicitar repetição sem evidência nova. Produção não autorizada, sem merge/publicação automática.
 - **Futuro opcional:** desbloqueio de replay **recreativo** de desafios anteriores com moeda do site é backlog, não reabre a tentativa oficial nem modifica ranking; ver `docs/BACKLOG_MOEDA_ARCADE.md`.
 
+## Piloto do HUD contextual compacto — Tetris (19/11/2026)
+- A página do jogo tem duas camadas: `GameStageHeader.astro` (título + botões de pausa e fullscreen, com indicadores opcionais) e corpo com tabuleiro e barra contextual à direita. O cabeçalho mantém o mesmo limite horizontal do conjunto jogável, inclusive em tela cheia.
+- `GameHud.astro` tem prop **`compact` opcional**. Ícones + valores substituem rótulos extensos; `title`/rótulos acessíveis preservam significado; IDs são mantidos para não afetar scripts. Padrão antigo continua disponível para Snake/Pixel Quest sem regressão.
+- No Tetris Clássico, Sprint e Sobrevivência: Próxima, Reserva, Linhas, missão (se ativa) e placar compacto aparecem no **mesmo grupo lateral**, em vez de um HUD independente no canto oposto do card. O cronômetro é inserido pelo módulo comum, não duplicado.
+- Testes de layout devem confirmar o cabeçalho e o HUD em todas as modalidades, sem perder canvas 10×20, pausa, fullscreen, contagem e ranking. Expandir este visual para Snake/Pixel Quest só após aceite visual do piloto no Preview manual.
+
+## Contrato global de informação secundária — revisão 19/11/2026
+- `GameGuide.astro` é a estrutura visual única para instruções; conteúdo permanece específico à mecânica.
+- `GameDevelopmentHistory.astro` lê `gameRegistry.ts` (única fonte de versões, datas e marcos), sem histórico por cópia de HTML.
+- `GameShare.astro` mostra ações essenciais diretamente e redes adicionais apenas após expandir, sem remover destinos.
+- Placar de partida e recorde ficam no HUD. Estatísticas secundárias aparecem em painéis `.oa-performance-panel`; identificadores antigos necessários a scripts podem permanecer ocultos em `.oa-metric-bridge` sem criar contadores duplicados.
+- Ranking distingue global (conta, não verificado contra partida) de local (navegador); manter tabelas e botões de registro acessíveis.
+- Seções editoriais ocupam os mesmos limites do palco, mas parágrafos mantêm extensão confortável por linha. O formato do tabuleiro de cada jogo nunca deve ser distorcido para preencher espaço.
+
 ## Checklist obrigatório — mudanças globais e prevenção de regressão
 
 **Regra de manutenção:** qualquer comportamento, aparência, animação, texto recorrente ou interação declarada como **padrão** pertence a um único componente, módulo, token ou contrato compartilhado. Alterações nesse padrão propagam-se automaticamente a **todos os jogos/modos existentes e futuros**, sem copiar código ou CSS entre páginas. A única configuração por jogo são seus dados e diferenças reais de mecânica, explicitamente documentadas.
@@ -90,6 +104,13 @@ Antes de modificar qualquer tela ou jogo, preencher e verificar mentalmente este
 - Cadastro/login opcional no pós-jogo; visitantes jogam livremente. Ranking de cada modo isolado por ID; componentes `GameRanking.astro`/`GameShare.astro` e API compartilhada de leaderboard, sem tabela duplicada.
 - GET de ranking na entrada; GET final anônimo ou POST final autenticado, sem polling durante partida. Não afirmar pontuação verificada quando é autodeclarada; prever antifraude antes de competição pública.
 - `/rankings/` apresenta cada modalidade competitiva com líder, Top 3, Top 10 expansível, horário e desafio. Conta mostra melhores resultados próprios, sem expor dados alheios.
+
+### Layout compartilhado dos jogos (revisão de 19/11/2026 — aguardando aceite visual)
+- Todos os modos Snake (Clássico, Aventura, Evolution), os três Tetris e Pixel Quest usam `GameLayout.astro`. O contrato estrutural `.oa-game-layout` em `src/styles/global.css` coloca **jogo primeiro em largura plena** e **painel secundário abaixo**, não concorrendo com a largura do canvas.
+- Dentro do stage, `.arcade-game-layout` controla o **HUD à direita** no desktop e **compacto acima** do tabuleiro no mobile; textos editoriais, estatísticas secundárias e histórico permanecem abaixo. Não reconstruir a estrutura por jogo, não duplicar mudanças de grid em CSS local.
+- Os formatos são parâmetros `data-board-shape="square|portrait|landscape"`; dimensões específicas pertencem ao contrato global (`--oa-board-aspect`, `--oa-board-max`, `--oa-slot-max`). Tetris conserva controles/peças/reserva/área de missão como elementos próprios, sem alterar suas regras.
+- Ferramenta de comemorações no Preview disponível apenas com parâmetro de URL `?celebration-lab=1`, para não ocupar a tela normal do jogador. Desafio Diário segue suspenso; não alterar mecânica, ranking, registro de partidas nem versões ao migrar layout.
+- Validar teclado, touch, desktop 1440/1024 e mobile 390/320, tela cheia e saída, carregamento, recordes e não regressão. O CI não representa aceite visual; deploy de Preview exclusivamente manual pelo proprietário.
 
 ## 4. UX, HUD e partida
 - Jogabilidade em primeiro lugar; HUD legível em janela e tela cheia com estado, pontos e recordes. Botão e tecla `F` para fullscreen, `Esc` para sair; pausa por Espaço quando aplicável.

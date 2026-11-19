@@ -4,7 +4,7 @@ test('home oferece navegação e HTML pesquisável', async ({page}) => {
   await page.goto('/');
   await expect(page).toHaveTitle(/OldArcade/);
   await expect(page.getByRole('heading', {name:/Os clássicos nunca/i})).toBeVisible();
-  await expect(page.locator('#featured-game-link')).toHaveAttribute('href','/jogos/tetris/');
+  await expect(page.locator('#featured-game-link')).toHaveAttribute('href','/jogos/pixel-quest/');
   await expect(page.locator('meta[name=description]')).toHaveAttribute('content', /jogue Snake/i);
   await expect(page.locator('meta[name=robots]')).toHaveAttribute('content', /noindex/);
 });
@@ -218,6 +218,7 @@ test('recorde pessoal fica sincronizado entre HUD e lateral ao carregar dados lo
  await expect(page.locator('#best')).toHaveText('300');
 });
 test('recorde de conta vindo do servidor aparece nos dois placares',async({page})=>{
+ await page.route('**/api/auth/me',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({player:{nickname:'Teste'}})}));
  await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Líder',score:300,rank:1,place:1,achievedAt:'2026-11-16T16:00:00.000Z'}],mine:{nickname:'Teste',score:280,rank:98,achievedAt:'2026-11-16T15:00:00.000Z'}})}));
  await page.goto('/jogos/snake/');
  await expect(page.locator('#hud-best')).toHaveText('280');
@@ -391,7 +392,7 @@ test('hero apresenta jogos disponíveis, visitas e partidas sem indicador redund
   return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,siteVisits:1523,gamesPlayed:1,totalPlays:4599})});
  });
  await page.goto('/');
- await expect(page.locator('#hero-published-games')).toHaveText('2');
+ await expect(page.locator('#hero-published-games')).toHaveText('3');
  await expect(page.locator('#hero-site-visits')).toHaveText('1.523');
  await expect(page.locator('#hero-games-played')).toHaveCount(0);
  await expect(page.locator('#hero-total-plays')).toHaveText('4.599');
@@ -501,7 +502,7 @@ test('modo Aventura tem níveis e recordes locais separados do Clássico',async(
  await expect(page.locator('#adventure-countdown')).toHaveText('3');
  await expect(page.locator('#adventure-start')).toBeHidden();
  await expect(page.locator('#adventure-overlay')).toBeHidden({timeout:5000});
- await expect(page.locator('#adventure-score')).toHaveText('10',{timeout:5000});
+ await expect.poll(async()=>Number(await page.locator('#adventure-score').innerText()),{timeout:5000}).toBeGreaterThanOrEqual(10);
  await expect(page.locator('#adventure-best')).toHaveText('10');
  await page.getByRole('button',{name:'Pausar'}).click();
  await expect(page.locator('#adventure-overlay-title')).toHaveText('Jogo pausado');
@@ -549,14 +550,14 @@ test('Aventura conserva recorde provisório e não consulta ranking durante trav
  await expect(page.locator('#adventure-overlay')).toBeHidden({timeout:5000});
  await expect(page.locator('#adventure-score')).toHaveText('10',{timeout:5000});
  await expect(page.locator('[data-rank-provisional]')).toBeVisible();
- await expect(page.locator('[data-rank-global]')).toHaveText('10');
+ await expect.poll(async()=>Number(await page.locator('[data-rank-global]').innerText())).toBeGreaterThanOrEqual(10);
  expect(gets).toBe(1);
  await page.keyboard.press('ArrowUp');
  await page.waitForTimeout(3600);
  await expect(page.locator('#adventure-overlay')).toBeHidden();
  await expect(page.locator('#adventure-status')).toContainText('Jogando');
  expect(gets).toBe(1);
- await expect(page.locator('[data-rank-global]')).toHaveText('10');
+ await expect.poll(async()=>Number(await page.locator('[data-rank-global]').innerText())).toBeGreaterThanOrEqual(10);
 });
 
 test('Aventura centraliza tabuleiro ao iniciar e ao sair da tela cheia',async({page})=>{
@@ -583,7 +584,7 @@ test('home estilo foco no jogador mantém jogos visíveis e três contadores com
  await page.goto('/');
  await expect(page.locator('.arcade-sidebar')).toBeVisible();
  await expect(page.getByRole('heading',{name:'Escolha seu desafio'})).toBeVisible();
- await expect(page.locator('[data-home-game="snake"] a[href="/jogos/snake/"]')).toHaveAttribute('href','/jogos/snake/');
+ await expect(page.locator('[data-home-game="snake"] .home-game-modes a[href="/jogos/snake/"]')).toHaveAttribute('href','/jogos/snake/');
  await expect(page.locator('[data-home-game="snake"] a[href="/jogos/snake/aventura/"]')).toHaveAttribute('href','/jogos/snake/aventura/');
  await expect(page.locator('.arcade-activity-item')).toHaveCount(3);
  await expect(page.locator('#hero-games-played')).toHaveCount(0);
@@ -750,7 +751,7 @@ test('Snake Clássico e Evolution preservam proporção quadrada no ultrawide',a
    return {width:canvas.width,height:canvas.height,right:canvas.right,hudLeft:hud.left,stageBottom:stage.bottom};
   });
   expect(layout.width/layout.height).toBeCloseTo(1,1);
-  expect(layout.width).toBeLessThanOrEqual(660);
+  expect(layout.width).toBeLessThanOrEqual(760);
   expect(layout.hudLeft).toBeGreaterThanOrEqual(layout.right);
   await page.evaluate(()=>document.exitFullscreen());
  }

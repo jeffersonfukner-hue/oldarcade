@@ -6,16 +6,19 @@ import GameShare from '../../../components/GameShare.astro';
 import GameRanking from '../../../components/GameRanking.astro';
 const title='Snake Aventura — Níveis e desafios contínuos | OldArcade';
 const description='Snake Aventura gratuito: uma única partida, níveis progressivos, missões, fruta dourada e cristal de gelo. Avance sem reiniciar o tabuleiro.';
+import GameLayout from '../../../components/GameLayout.astro';
+import GameDevelopmentHistory from '../../../components/GameDevelopmentHistory.astro';
+import GameGuide from '../../../components/GameGuide.astro';
 ---
 <GamePage modeId="snake-adventure" title={title} description={description}>
- <div class="shell">
+ <div class="shell oa-game-page">
   <section class="hero adventure-hero">
    <span class="eyebrow">Snake · Modo Aventura · Protótipo</span>
    <h1>Uma partida. <span class="accent">Novos desafios.</span></h1>
    <p class="lede">Cumpra missões, encontre itens especiais e evolua em níveis progressivos sem reiniciar a cobrinha ou a pontuação. Recordes deste modo são separados do Clássico.</p>
    <a class="btn secondary" href="/jogos/snake/">← Voltar ao Clássico</a>
   </section>
-  <section class="game-layout" aria-label="Jogar Snake Aventura">
+  <GameLayout label="Jogar Snake Aventura">
    <div class="panel game-stage" id="adventure-stage" data-arcade-viewport data-board-shape="square">
     <div class="game-topline">
      <strong>◼ SNAKE <span class="muted">· Aventura</span></strong>
@@ -46,11 +49,11 @@ const description='Snake Aventura gratuito: uma única partida, níveis progress
      <button class="right" data-adventure-direction="right" aria-label="Direita">→</button>
     </div>
    </div>
-   <aside class="panel adventure-sidebar" aria-label="Progresso da Aventura">
+   <aside class="panel adventure-sidebar oa-performance-panel" aria-label="Progresso da Aventura">
     <span class="eyebrow">Sua jornada</span>
     <h2>Progresso</h2>
     <div class="stats-list">
-     <div class="stat-row"><span>Melhor pontuação</span><strong id="adventure-sidebar-best">0</strong></div>
+     <div class="oa-metric-bridge" hidden aria-hidden="true"><strong id="adventure-sidebar-best">0</strong></div>
      <div class="stat-row"><span>Maior nível alcançado</span><strong id="adventure-highest">1</strong></div>
      <div class="stat-row"><span>Partidas neste navegador</span><strong id="adventure-plays">0</strong></div>
      <div class="stat-row"><span>Item ativo</span><strong id="adventure-effect">Nenhum</strong></div>
@@ -65,16 +68,16 @@ const description='Snake Aventura gratuito: uma única partida, níveis progress
     </ol>
     <p class="small muted">Protótipo de níveis progressivos. Depois do terceiro, a partida continua em modo sobrevivência. Barreiras aumentam progressivamente; a fruta de velocidade aparece a partir do nível 4. Seus resultados locais ficam separados do Clássico. Com uma conta conectada, também entram no ranking exclusivo do Aventura.</p>
    </aside>
-  </section>
+  </GameLayout>
   <GameRanking game="snake-adventure" name="Snake Aventura" />
   <GameShare gameSlug="snake-adventure" gameName="Snake Aventura" gamePath="/jogos/snake/aventura/" />
-  <section class="section panel" aria-labelledby="adventure-history-title"><div class="section-head"><div><span class="eyebrow">Bastidores do OldArcade</span><h2 id="adventure-history-title">Desenvolvimento do Aventura</h2></div><span class="pill">Jogo #001 · modo Aventura</span></div><p class="small">Versão do Snake: <strong>v{gameRegistry.snake.version}</strong> · Modalidade em desenvolvimento, ainda não publicada.</p><details><summary>Ver histórico do modo</summary><ol class="timeline">{gameRegistry.snake.milestones.filter(item=>item.mode==='snake-adventure').map(item=><li><strong>{item.title}</strong> · <time datetime={item.date}>{new Date(item.date+'T12:00:00').toLocaleDateString('pt-BR')}</time> — {item.notes}</li>)}</ol></details></section>
-  <section class="section panel text-content">
+  <GameDevelopmentHistory gameSlug="snake" id="adventure-history-title" title="Desenvolvimento do Aventura" mode="snake-adventure" />
+  <GameGuide>
    <h2>Como funciona</h2>
    <p>Uma única partida para todos os níveis. Você só avança quando completa a missão e alcança a pontuação mínima. A cobrinha não reinicia ao mudar de nível.</p>
    <p><strong>Maçã vermelha:</strong> 10 pontos. <strong>Fruta dourada:</strong> 50 pontos, disponível por um período curto. <strong>Cristal de gelo:</strong> 15 pontos e deixa a cobrinha mais lenta temporariamente. <strong>Fruta de velocidade:</strong> 20 pontos e acelera a cobrinha por um período curto, a partir do nível 4. Cada item coletado faz crescer uma célula.</p>
    <p>O nível 2 apresenta a dourada; o nível 3 apresenta o gelo; o nível 4 apresenta a fruta de velocidade. A velocidade aumenta progressivamente, mas tem limite. Se perder, você reinicia no primeiro nível e mantém os melhores resultados salvos neste navegador. Somente contas conectadas enviam pontuações ao ranking global do Aventura.</p>
-  </section>
+  </GameGuide>
  </div>
  <script>import '../../../scripts/snakeAdventure.ts';</script>
 </GamePage>

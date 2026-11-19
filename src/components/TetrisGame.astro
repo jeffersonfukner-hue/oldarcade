@@ -1,6 +1,7 @@
 ---
 import GamePage from './GamePage.astro';
 import GameHud from './GameHud.astro';
+import GameStageHeader from './GameStageHeader.astro';
 import GameRanking from './GameRanking.astro';
 import GameShare from './GameShare.astro';
 import TetrisHistory from './TetrisHistory.astro';
@@ -17,9 +18,12 @@ const timed=sprint||survival;
 const goal=gameModes['tetris-sprint'].targetLines;
 const game=gameRegistry.tetris;
 const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais rápidas a cada 30 segundos. Resista até o fim e dispute o maior tempo no ranking.':sprint?'Tetris Sprint grátis no OldArcade: elimine 40 linhas no menor tempo, desafie seus amigos e dispute o ranking de velocidade.':'Jogue nosso Tetris online grátis: gire peças, complete linhas, avance de nível e dispute recordes. Teclado e controles para celular.';
+import GameLayout from './GameLayout.astro';
+import GameDevelopmentHistory from './GameDevelopmentHistory.astro';
+import GameGuide from './GameGuide.astro';
 ---
 <GamePage modeId={modeId} title={survival?"Tetris Sobrevivência — Resista à velocidade | OldArcade":sprint?"Tetris Sprint — 40 linhas contra o relógio | OldArcade":"Jogar Tetris grátis — Blocos, linhas e recordes | OldArcade"} description={description}>
- <main class="shell">
+ <main class="shell oa-game-page">
   <section class="hero tetris-hero">
    <div class="eyebrow">OldArcade · Jogo #002 · Quebra-cabeça</div>
    <h1>{survival?'Quanto tempo':sprint?'40 linhas.':'Peça por peça.'} <span class="accent">{survival?'você aguenta?':sprint?'O menor tempo vence.':'Linha por linha.'}</span></h1>
@@ -31,11 +35,10 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
    </nav>
   </section>
   {DAILY_CHALLENGES_ENABLED && (modeId==='tetris'?<DailyCalendar game="tetris" />:<p class="panel small">📅 <strong>Desafio Diário do Tetris:</strong> uma única tentativa por dia para jogadores com conta. <a href="/jogos/tetris/#daily-title-tetris">Conhecer o desafio →</a></p>)}
-  <section class="game-layout tetris-main-layout" aria-label="Jogar Tetris">
+  <GameLayout label="Jogar Tetris" className="tetris-main-layout">
    <div class="panel game-stage" id="tetris-stage" data-game-mode={modeId} data-arcade-viewport data-board-shape="portrait">
-    <div class="game-topline"><strong>▣ TETRIS <span class="muted">· {survival?"Sobrevivência":sprint?"Sprint":"Clássico"}</span></strong><span class="oa-daily-playing-indicator" data-daily-play-indicator hidden>★ DESAFIO DIÁRIO EM ANDAMENTO</span><div class="actions"><button type="button" id="tetris-pause">Pausar</button><button type="button" id="tetris-fullscreen" aria-label="Alternar tela cheia do Tetris">⛶ Tela cheia (F)</button></div></div>
+    <GameStageHeader title="▣ TETRIS" subtitle={survival?"Sobrevivência":sprint?"Sprint":"Clássico"} pauseId="tetris-pause" fullscreenId="tetris-fullscreen" fullscreenLabel="Alternar tela cheia do Tetris"><span class="oa-daily-playing-indicator" data-daily-play-indicator hidden>★ DESAFIO DIÁRIO EM ANDAMENTO</span></GameStageHeader>
     <div class="arcade-game-layout">
-     <GameHud statusId="tetris-status" scoreId="tetris-score" bestId="tetris-best" globalId="tetris-global" levelId={timed?undefined:"tetris-level"} scoreLabel={survival?"Tempo sobrevivido":sprint?"Linhas":"Pontos"} bestLabel={timed?"Melhor tempo da conta":"Recorde da conta"} globalLabel={timed?"Tempo líder":"Recorde global"} provisionalId="tetris-provisional" hint="F: tela cheia · Espaço: queda · P: pausa" />
      <div class="tetris-playfield oa-board-slot">
       <div class="tetris-board-shell screen-wrap oa-board-surface" id="tetris-screen">
        <canvas id="tetris-canvas" width="300" height="600" aria-label="Tabuleiro do Tetris com 10 colunas e 20 linhas"></canvas>
@@ -51,6 +54,7 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
        <div class="tetris-mini"><span class="eyebrow">Reserva · C</span><canvas id="tetris-hold" width="120" height="120" aria-label="Peça reservada"></canvas></div>
        <div class="tetris-mini tetris-line-stat"><span class="eyebrow">Linhas</span><strong id="tetris-lines">{sprint?`0/${goal}`:"0"}</strong></div>
        <div class="tetris-mission-slot" data-daily-mission-sidebar data-daily-mission-inline hidden aria-label="Missão diária ao lado das linhas"></div>
+        <GameHud compact statusId="tetris-status" scoreId="tetris-score" bestId="tetris-best" globalId="tetris-global" levelId={timed?undefined:"tetris-level"} scoreLabel={survival?"Tempo sobrevivido":sprint?"Linhas":"Pontos"} bestLabel={timed?"Melhor tempo da conta":"Recorde da conta"} globalLabel={timed?"Tempo líder":"Recorde global"} provisionalId="tetris-provisional" hint="F: tela cheia · Espaço: queda · P: pausa" />
       </aside>
      </div>
     </div>
@@ -63,22 +67,20 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
      <button type="button" data-tetris-control="hold" aria-label="Reservar peça">Reserva</button>
     </div>
    </div>
-   <aside class="panel tetris-sidebar" aria-label="Progresso do jogador">
-    <span class="eyebrow">Seu desempenho</span><h2>O próximo encaixe conta.</h2>
+   <aside class="panel tetris-sidebar oa-performance-panel" aria-label="Progresso do jogador">
+    <span class="eyebrow">Seu desempenho</span><h2>Resumo de partidas locais</h2>
     <div class="stats-list">
      <div class="stat-row"><span>{timed?"Melhor tempo local":"Melhor pontuação local"}</span><strong id="tetris-local-best">{timed?"—":"0"}</strong></div>
      <div class="stat-row"><span>Partidas neste navegador</span><strong id="tetris-plays">0</strong></div>
-     <div class="stat-row"><span>{survival?"Velocidade atual":sprint?"Linhas da tentativa":"Nível atual"}</span><strong id="tetris-sidebar-level">{survival?'Onda 1':sprint?`0/${goal}`:"1"}</strong></div>
+     <div class="oa-metric-bridge" hidden aria-hidden="true"><strong id="tetris-sidebar-level">{survival?'Onda 1':sprint?`0/${goal}`:"1"}</strong></div>
     </div>
     <div class="global-stats"><h3>Comunidade · {survival?"Sobrevivência":sprint?"Sprint":"Tetris"}</h3><div class="stats-list"><div class="stat-row"><span>Visitas globais</span><strong id="tetris-global-visits">—</strong></div><div class="stat-row"><span>Partidas globais</span><strong id="tetris-global-plays">—</strong></div></div><p id="tetris-global-stats-status" class="small muted" role="status">Consultando Cloudflare…</p></div>
-    <h3>{survival?"Como sobreviver":sprint?"Como vencer":"Como pontuar"}</h3>
-    <p class="small muted">{survival?'O ranking premia quem permanece mais tempo vivo. A velocidade aumenta a cada 30 segundos de jogo efetivo. Ao chegar ao topo, seu tempo é registrado; empates favorecem o registro anterior.':sprint?'Elimine 40 linhas em uma única partida. O ranking usa o menor tempo efetivo, em minutos, segundos e milésimos. Se as peças alcançarem o topo antes da meta, a tentativa não entra no ranking.':'Uma linha: 100 pontos. Duas: 300. Três: 500. Quatro de uma vez: 800 — multiplicados pelo nível atual. Mover, girar e descer peças não gera pontos: somente linhas completas pontuam.'}</p>
-    <p class="small muted">{survival?'A pausa, a contagem e a troca de aba não contam no relógio. Elimine linhas para abrir espaço e segurar a pressão das ondas seguintes.':sprint?'O cronômetro para durante a pausa e a contagem 3–2–1. A velocidade das peças é constante para permitir comparação justa.':'A cada 10 linhas eliminadas, você sobe de nível e as peças aceleram. Sem limite de tempo e sem peças extras pagas.'}</p>
+
    </aside>
-  </section>
+  </GameLayout>
   <GameRanking game={modeId} name={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris Clássico"} />
   <GameShare gameSlug={modeId} gameName={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris"} gamePath={survival?"/jogos/tetris/sobrevivencia/":sprint?"/jogos/tetris/sprint/":"/jogos/tetris/"} />
-  <section class="section panel text-content">
+  <GameGuide>
    <h2>{survival?"Como jogar Sobrevivência":sprint?"Como jogar o Sprint":"Como jogar"}</h2>
    <p>{survival?'Mantenha o tabuleiro livre e resista à queda cada vez mais rápida. Não existe objetivo de linhas: sobreviva até o tabuleiro encher. O tempo efetivo é a sua marca.':sprint?'Limpe 40 linhas no menor tempo possível. Você pode limpar uma, duas, três ou quatro de cada vez; a corrida termina quando a meta é alcançada. O relógio é pausado quando você pausa ou troca de aba. Se o tabuleiro encher, a tentativa é encerrada sem entrar na classificação.':'Encaixe as peças que caem para preencher linhas horizontais. Uma linha completa desaparece, libera espaço e rende pontos, exibidos no tabuleiro no momento da limpeza. Movimentar peças não aumenta o placar. A partida termina quando uma nova peça já não consegue entrar no tabuleiro. A peça fantasma mostra onde a atual vai cair.'}</p>
    <h3>Controles</h3>
@@ -86,17 +88,13 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
    <p>No celular, use os botões abaixo do tabuleiro. Você também pode deslizar horizontalmente para mover, deslizar para baixo para soltar uma peça ou tocar no tabuleiro para girá-la.</p>
    <h3>Estratégia rápida</h3>
    <p>{survival?'Evite empilhar alto, limpe linhas sempre que possível e guarde peças úteis para corrigir buracos. Depois de algumas ondas, os encaixes precisarão ser mais rápidos.':sprint?'Priorize encaixes limpos e use a reserva para evitar buracos. Finalizar quatro linhas simultaneamente economiza tempo e movimentos.':'Deixe espaço para peças compridas, evite buracos inacessíveis e use a reserva para esperar uma combinação melhor. Completar quatro linhas de uma vez rende mais pontos que apagar quatro linhas separadamente.'}</p>
-  </section>
+  </GameGuide>
   <TetrisHistory />
   <HistoricalScreenings game="tetris" />
-  <section class="section panel" aria-labelledby="tetris-history">
-   <div class="section-head"><div><span class="eyebrow">Bastidores do OldArcade</span><h2 id="tetris-history">Desenvolvimento do jogo #002</h2></div><span class="pill">v{game.version}</span></div>
-   <p class="small muted">Protótipo de desenvolvimento: a validação visual é feita pelo proprietário antes de qualquer publicação.</p>
-   <details><summary>Histórico de desenvolvimento</summary><ol class="timeline">{game.milestones.map(item=><li><time datetime={item.date}>{new Date(item.date+'T12:00:00').toLocaleDateString('pt-BR')}</time> · <strong>{item.title}</strong> — {item.notes}</li>)}</ol></details>
-  </section>
+  <GameDevelopmentHistory gameSlug="tetris" id="tetris-history" />
  </main>
  <script>import '../scripts/tetris.ts';</script>
- <style>
+ <style is:global>
   .tetris-hero{padding-bottom:24px}
   /* Indicação contextual da onda de risco; somente o estado é específico do modo. */
   .tetris-board-shell[data-survival-danger=true]{border-color:#fa9671;box-shadow:0 0 0 2px #f9731633,0 0 24px #f9731633}
@@ -133,7 +131,6 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
   @media(max-width:370px){.tetris-preview-column{width:102px;min-width:102px}.tetris-board-shell{width:min(300px,calc(100% - 110px))}}
 
   /* Tabuleiro em primeiro plano; missão tem largura própria, nunca espremida. */
-  .tetris-main-layout{grid-template-columns:minmax(0,1fr);gap:15px}
   .tetris-main-layout>.game-stage{padding:19px 23px}
   .tetris-main-layout>.tetris-sidebar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 22px;padding:17px 22px}
   .tetris-main-layout>.tetris-sidebar>.eyebrow,.tetris-main-layout>.tetris-sidebar>h2{grid-column:1/-1}
@@ -142,7 +139,6 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
   .tetris-main-layout>.tetris-sidebar>.global-stats{grid-column:2}
   .tetris-main-layout>.tetris-sidebar>h3{grid-column:3;grid-row:3;margin:0}
   .tetris-main-layout>.tetris-sidebar>p{grid-column:3;margin:0}
-  .tetris-main-layout .arcade-game-layout{grid-template-columns:minmax(0,1fr) 174px;grid-template-areas:"board stats";align-items:start;gap:22px}
   .tetris-main-layout .tetris-playfield{display:grid;grid-template-columns:minmax(0,300px) minmax(210px,258px);justify-content:center;gap:19px;align-items:start;margin-inline:auto}
   .tetris-main-layout .tetris-board-shell{width:100%;max-width:300px;min-width:0}
   .tetris-main-layout .tetris-preview-column{width:auto;min-width:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -160,9 +156,6 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
   .tetris-main-layout .tetris-mini canvas{max-height:104px;object-fit:contain}
   .tetris-main-layout .tetris-touch-controls{max-width:810px;margin:16px auto 0}
   @media(max-width:1000px){
-    .tetris-main-layout .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:12px}
-    .tetris-main-layout .arcade-game-layout>.game-hud{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
-    .tetris-main-layout .arcade-game-layout>.game-hud>span{font-size:.7rem}
     .tetris-main-layout .tetris-playfield{grid-template-columns:minmax(0,300px) minmax(200px,258px)}
   }
   @media(max-width:740px){
@@ -170,7 +163,6 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
     .tetris-main-layout>.tetris-sidebar>.stats-list{grid-column:1}
     .tetris-main-layout>.tetris-sidebar>.global-stats{grid-column:2}
     .tetris-main-layout>.tetris-sidebar>h3,.tetris-main-layout>.tetris-sidebar>p{grid-column:1/-1;grid-row:auto}
-    .tetris-main-layout .arcade-game-layout>.game-hud{grid-template-columns:repeat(4,minmax(0,1fr))}
   }
   @media(max-width:620px){
     .tetris-main-layout>.game-stage{padding:12px}
@@ -185,7 +177,6 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
     .tetris-main-layout .tetris-mini canvas{max-height:76px}
     .tetris-main-layout>.tetris-sidebar{grid-template-columns:1fr}
     .tetris-main-layout>.tetris-sidebar>.stats-list,.tetris-main-layout>.tetris-sidebar>.global-stats{grid-column:1}
-    .tetris-main-layout .arcade-game-layout>.game-hud{grid-template-columns:repeat(3,minmax(0,1fr))}
   }
 
   @media(prefers-reduced-motion:reduce){.tetris-touch-controls button{transition:none}}

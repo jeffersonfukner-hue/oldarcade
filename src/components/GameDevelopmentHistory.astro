@@ -1,0 +1,18 @@
+---
+/** Registro editorial único, sempre alimentado por gameRegistry (sem duplicar versões). */
+import {gameRegistry} from '../data/gameRegistry';
+type GameSlug=keyof typeof gameRegistry;
+interface Props {gameSlug:GameSlug;id?:string;title?:string;mode?:string}
+const {gameSlug,id='game-development-history',title,mode}=Astro.props;
+const game=gameRegistry[gameSlug];
+const milestones=mode?game.milestones.filter(entry=>entry.mode===mode):game.milestones;
+const heading=title??`Desenvolvimento do jogo #${String(game.number).padStart(3,'0')}`;
+const date=(value:string)=>new Date(value+'T12:00:00').toLocaleDateString('pt-BR');
+---
+<section class="section panel oa-development-history" aria-labelledby={id} data-development-game={gameSlug}>
+ <div class="section-head"><div><span class="eyebrow">Bastidores do OldArcade</span><h2 id={id}>{heading}</h2></div><span class="pill">v{game.version}</span></div>
+ <p class="small muted">Jogo #{String(game.number).padStart(3,'0')} · {game.name} · Iniciado em <time datetime={game.createdAt}>{date(game.createdAt)}</time> · Versão de desenvolvimento.</p>
+ <details><summary>Marcos de desenvolvimento{mode?' deste modo':''} ({milestones.length})</summary><ol class="timeline">{milestones.map(entry=><li><time datetime={entry.date}>{date(entry.date)}</time> · <strong>{entry.title}</strong> — {entry.notes}</li>)}</ol></details>
+ <details><summary>Histórico de versões ({game.history.length})</summary><ol class="timeline">{game.history.map(entry=><li><strong>v{entry.version}</strong> · <time datetime={entry.date}>{date(entry.date)}</time> — {entry.notes}</li>)}</ol></details>
+ <p class="small muted">Histórico desta implementação, separado da história do jogo original. A versão do jogo é independente da versão do portal.</p>
+</section>

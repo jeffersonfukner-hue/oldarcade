@@ -56,7 +56,7 @@ if(overlay){
 // O domínio base *.pages.dev de produção e qualquer domínio personalizado ficam excluídos.
 const previewHost=/^[a-z0-9-]+\.oldarcade-17c\.pages\.dev$/i;
 const testPanel=document.querySelector<HTMLElement>('#celebration-test-panel');
-if(testPanel&&previewHost.test(window.location.hostname)){
+if(testPanel&&previewHost.test(window.location.hostname)&&new URLSearchParams(window.location.search).get('celebration-lab')==='1'){
  testPanel.hidden=false;
  testPanel.querySelectorAll<HTMLButtonElement>('[data-test-celebration]').forEach(button=>{
   button.addEventListener('click',()=>{

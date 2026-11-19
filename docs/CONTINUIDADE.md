@@ -4,6 +4,115 @@
 
 # OldArcade — continuidade obrigatória
 
+## PENDENTE — painéis de ranking, desempenho e identidade visual (19/11/2026)
+- **Escopo: layout, não regras de pontuação.** Observações adiantadas pelo proprietário durante o ajuste global de cabeçalho + HUD do Tetris. Não interromper o trabalho em andamento e não iniciar jogo #004 sem terminar a revisão dos três jogos.
+- **Problema observado:** cartão "Seu desempenho" / "Resumo de partidas locais" ocupa uma faixa extensa, com grandes espaços entre estatísticas, duplicando informações importantes que já estão no HUD. Não expor métricas secundárias extensas na página do jogo se puderem estar somente em "Minha Conta" / perfil. **Não apagar os dados nem remover IDs que os scripts atualizam**; primeiro verificar quem depende dos valores.
+- **Composição a avaliar após terminar o layout do palco:** (preferência inicial) deixar ranking global e um resumo *realmente curto* lado a lado, em duas colunas desktop e uma coluna mobile; outra opção é retirar o resumo do jogo, mantendo apenas o ranking e os dados completos na conta. Evitar duplicar recorde da conta, pontos da partida e recorde global entre HUD e cartões. Proporção do tabuleiro e comportamento de ranking devem ser preservados.
+- **Marca correta para texto editorial:** **Old Arcade** (duas palavras), e não "OldArcade" corrido em títulos como "Desafio OldArcade", "Comunidade OldArcade" e textos informativos. **Exceção visual explícita:** logotipo e wordmark podem ser `OLDARCADE`/OldArcade unidos, com **Old** em branco e **Arcade** na cor de destaque/tema, como no cabeçalho atual (`src/layouts/Base.astro`). Preferir componente de identidade reutilizável quando aplicável, sem modificar nomes técnicos, URLs, IDs ou referências jurídicas de forma automática.
+- **Fontes confirmadas em 19/11/2026:** `src/components/GameRanking.astro` e `SnakeGlobalRanking.astro` apresentam "Desafio OldArcade"; `SnakePerformance.astro` exibe partidas/visitas locais, global e nickname; `TetrisGame.astro` exibe resumo separado e `GameHud` compacto no palco; `Base.astro` já usa palavra unida com duas cores. Não classificar essa revisão como implementada: apenas documentada.
+- **Critérios de aceite do futuro ajuste:** um layout compartilhado para Snake, Tetris e Pixel Quest; rankings legíveis e acessíveis; nenhum dado duplicado fora do HUD; nenhuma lacuna excessiva em widescreen; responsividade 320/390/desktop; perfil e ranking permanecem funcionais; tipagem/build/API/E2E e homologação visual. Não fazer deploy/merge; Preview somente por deploy manual do proprietário.
+- **Ordem:** terminar o layout principal do Tetris e homologar a estrutura global → compactar ou mover desempenho conforme solução escolhida e padronizar marca → corrigir bloqueador de ranking do Sobrevivência registrado abaixo → revisar três jogos existentes → só então jogo #004.
+
+
+
+## BLOQUEADOR — Tetris Sobrevivência: classificação por duração + linhas (registrado em 19/11/2026)
+- **Prioridade: P0 antes de iniciar qualquer jogo #004.** Proprietário pediu **registrar agora, corrigir depois que o layout global estiver resolvido**, sem interromper a implementação do cabeçalho/HUD compacto compartilhado. Não declarar problema resolvido sem correção e testes.
+- **Regra definida:** modo Sobrevivência ordena por **maior tempo efetivo sobrevivido** (milissegundos) e, **somente para duração empatada**, por **maior quantidade de linhas eliminadas**. Exemplo: 3:56.xxx e 30 linhas fica à frente de exatamente 3:56.xxx e 29 linhas; empate em tempo e linhas exige desempate determinístico documentado (priorizar registro mais antigo conforme regra global se mantida). Não confundir este modo com Tetris Sprint, que vence pelo menor tempo.
+- **Bug real informado pelo jogador:** após encerrar uma partida, o bloco do ranking mostra "Ranking global — Melhor tempo 3:04" apesar de existir recorde superior, aproximadamente **3:56 com 30 linhas**. Revisar a fonte do valor exibido no final, classificação do endpoint, refresh/cache e estados do HUD/recorde de conta/global. O jogador mencionou apresentação tanto em "3:56.704" quanto em "3:56 e 34 centésimos"; usar o valor exato persistido no banco para asserções, não presumir qual fração está correta.
+- **Diagnóstico inicial do código, somente leitura:** `src/data/rankingRules.js` já define Sobrevivência como *maior tempo vence* (`isLowerBetter=false`), e `src/scripts/tetris.ts` envia o tempo em milissegundos como `score`; porém a gravação `recordGameFinish(modeId,elapsed,elapsed)` **não passa linhas** no registro de ranking, e o modelo `Entry` de `src/scripts/modeRanking.ts` não expõe `linesCleared`. Assim, o desempate por linhas ainda não está implementado ponta a ponta. A causa concreta da exibição de 3:04 requer rastreio do endpoint/banco, não afirmar diagnóstico definitivo com base apenas no front-end.
+- **Critérios de aceite para a futura correção:** (1) Top 10, topo global no HUD, resumo pós-partida, Minha Conta e perfil usam a mesma classificação correta; (2) 3:56.xxx supera 3:04.xxx independentemente das linhas; (3) tempos exatamente iguais classificam 30 linhas acima de 29; (4) formato de tempo mantém milissegundos reais, sem truncamento que falseie empates; (5) atualizar payload, persistência/consulta e testes unitários/API/E2E, incluindo usuários distintos, empates e atualização do placar; (6) migração D1, se necessária, só entregar SQL para aplicação **manual pelo usuário no Preview**, nunca executar nem alterar produção; (7) preservar modos Clássico e Sprint e não reiniciar recordes existentes.
+- **Sequência de trabalho:** concluir layout/HUD compacto iniciado no Tetris → corrigir bug funcional Sobrevivência → revisar e testar cada modalidade dos 3 jogos existentes → só então iniciar o próximo jogo. Deploy de Preview exclusivamente manual; sem merge nem deploy por agente.
+
+
+
+## Tetris: cabeçalho e HUD compacto junto ao tabuleiro — 19/11/2026
+- Piloto aprovada conceitualmente pelo proprietário: cabeçalho global `GameStageHeader.astro` (título, pausa, fullscreen) e painel contextual adaptável. `GameHud.astro` ganha prop opcional `compact` com ícones, títulos/nomes acessíveis e IDs intactos.
+- Clássico, Sprint e Sobrevivência têm Próxima/Reserva/Linhas e HUD na mesma coluna ao lado do tabuleiro; regras, próxima peça, reserva, rankings, cronômetro e controles preservados. Layout do stage centralizado com largura adequada, evitando dispersão no widescreen.
+- Snake/Pixel Quest ainda conservam visual anterior (mesmo componente aceita HUD padrão). Após teste e aceite do piloto, expandir para todos os jogos.
+- Sem deploy, merge, créditos ou banco. CI e aprovação visual do Preview ainda necessários.
+
+
+
+## Ajuste de centralização do conjunto jogável — 19/11/2026
+- Após comparar prints dos três jogos, Snake e Pixel Quest já utilizam o espaço adequado. O Tetris mantinha desbalanceamento entre tabuleiro + prévia/reserva e HUD.
+- Contrato global do `oa-board-slot` agora centraliza qualquer conjunto jogável. O grupo Tetris usa grid explícito (tabuleiro 10×20 limitado a 320px; coluna de próxima peça, reserva e linhas de até 200px), ocupando até 540px sem expandir ou distorcer o canvas. Layout móvel mantém coluna estreita para peças.
+- Removidos overrides finais conflitantes para Tetris. Nenhuma regra da partida, ranking ou API alterada. Teste geométrico cross-viewport (1440, 1024, 820, 390 e 320px) adicionado; CI e Preview ainda precisam confirmar.
+
+
+
+## Revisão editorial global — 19/11/2026 (segunda revisão)
+- Após análise dos 15 prints, padronizados guias via `GameGuide.astro`, seções de histórico via `GameDevelopmentHistory.astro`, cards de compartilhamento e os painéis informativos; cada jogo mantém regras/formatos próprios.
+- Histórico de versões/marcos permanece exclusivamente em `gameRegistry.ts`: nenhum marco histórico foi reescrito, nenhuma versão foi incrementada artificialmente. Snake Aventura filtra marcos desse modo e usa o mesmo histórico de versões do jogo #001.
+- Snake Clássico e Evolution agora usam `SnakePerformance.astro` e `SnakeGlobalRanking.astro`; IDs antigos permanecem para scripts sem reintroduzir campos visuais duplicados. Dados locais não são apresentados como recordes oficiais.
+- Tetris mantém próxima peça, reserva, pontuação, contador e espaço de missão no palco; painel inferior prioriza partidas e comunidade, evitando repetir o nível e as regras. O tabuleiro mantém proporção retrato.
+- Pixel Quest separa resumo curto da fase e instruções/pontuação completa, sem repetir três vezes a regra dos cristais.
+- Compartilhamento unificado: botão nativo e copiar convite evidentes; redes ficam em painel expansível, preservando todos os links de participação.
+- A revisão é apenas de layout e apresentação; não houve mudança no banco de dados, pontuação, físico dos motores ou publicação. Validação CI e aceite de Preview são etapas separadas; deploy manual somente pelo usuário.
+
+
+
+## Layout global Snake · Tetris · Pixel Quest — 19/11/2026
+- A segunda rodada passou em 194 testes; uma falha de 320px do Tetris foi identificada na seção de ranking (título + pill sem quebra) e no teste legado dos botões inferiores que devem ficar ocultos em desktop. CSS global de quebra em 320px e teste sensível ao tipo de ponteiro ajustados; CI final pendente.
+
+- Auditoria: `game-layout` de Snake/Pixel Quest ainda dividia a página com coluna editorial; `TetrisGame.astro` continha grid próprio e HUD divergente. Capturas anteriores indicavam tabuleiro pequeno, HUD/controles excessivos e recorde secundário. Não alterar a mecânica dos jogos para tratar apresentação.
+- Implementado em `GameLayout.astro` e `global.css`: palco em largura plena, HUD ao lado do canvas, cartões com informação contextual abaixo; contratos de proporção quadrada, retrato e paisagem. Todos os 3 modos Snake, 3 modos Tetris e Pixel Quest migrados na mesma branch. `gameRegistry.ts` e histórico não mudaram.
+- Comemorações laboratoriais deixam de aparecer no Preview comum; somente com `?celebration-lab=1`. Ferramenta não registra placares, apenas efeitos.
+- Testes cruzados acrescentados para sete modos, 320/390, 820 e ultrawide. Primeira rodada: 191 aprovações e um teste legado ainda fixado em 660 px, ajustado para 760 px; testagem de placar Aventura alterada para não exigir número congelado durante movimento. CI final precisa ser conferido, e Preview ainda deve ser validado. Sem publicar, deploy ou merge; proprietário mantém controle integral do deploy manual.
+
+
+
+## Pixel Quest — card na Home e histórico de versões preservado (19/11/2026)
+- Integrado como **jogo #003**, com card clicável na Home e rota de jogo, arte SVG própria. A Home passa a contabilizar os três jogos reais.
+- Fonte de verdade de versão em `gameRegistry.ts`: **v0.1.0-dev**, data inicial 19/11/2026, marcos históricos datados de implementações já realizadas. Histórico mostrado na página, sem criar nova versão para cada commit nem perder versões futuras.
+- Página agora usa `GamePage.astro`, `GameShare.astro`, instruções, artigo histórico sobre o gênero separado dos bastidores da implementação e links de fontes verificáveis. Modo permanece **não competitivo** na API enquanto ranking global não for entregue; pontuação local não deve fingir ranking oficial.
+- Card e renderização editorial cobertos por E2E. Validar CI e Preview antes de homologar. Sem merge/deploy de produção e sem reativar Desafio Diário.
+
+
+
+## Pixel Quest — barras e regras provisórias de pontuação (19/11/2026)
+- Barras de cristais e inimigos na coluna lateral do HUD: preenchimento aumenta com coleta/pisão; número restante decresce (6→0, 3→0). Componente reutilizável `GameProgressBar.astro` inserido por slot opcional no `GameHud.astro`, sem alterar Snake/Tetris.
+- **Proposta de pontuação v1, em teste:** cristal +10, inimigo derrotado +50, conclusão do portal +100, bônus de tempo efetivo `max(0, 500 - 2 × segundos completos)`. Tempo pausado/countdown não conta. Recorde somente após portal liberado e fase concluída; desistência/derrota não qualificam.
+- `scoring.ts` calcula pontuação de fase e soma de níveis sem duplicar ID; `records.ts` guarda *somente marcas locais experimentais* por fase e por conjunto de níveis concluídos (atualmente campanha de 1 fase), com chave versionada. Não existe ranking geral online ou autenticação de pontuação desta fase; integração oficial é etapa posterior e exigirá validação do servidor/versão das regras. Não confundir recorde local com posição global.
+- Testes de pontuação e de barra inicial incluídos. Validar GitHub CI e Preview. Sem deploy/merge; Desafio Diário permanece oculto.
+
+
+
+## Pixel Quest — correção da semântica dos indicadores (19/11/2026)
+- Esclarecimento do proprietário: separar **Total de inimigos derrotados** (acumulado da campanha entre fases) e **Derrotados neste nível** (zera ao entrar no próximo). Manter **Inimigos no nível** (restantes/total) e **Cristais no nível** (coletados/total).
+- `gameplay.ts`: `createRun(level,cumulativeBeforeLevel=0)`, `levelDefeated(run)`, `totalDefeated(run)`. A próxima fase, quando implementada, deve receber o acumulado da fase anterior; nova campanha começa do zero. **Atualmente só existe a fase 1-1; a transição ainda não foi implementada**, portanto acumulado e derrotados no nível coincidem nesta fase. Não foi criada persistência entre sessões ou novos níveis fictícios.
+- A regra de portal liberado **somente após todos os cristais** permanece. HUD global reutilizado sem mudanças para Snake/Tetris. Testes regressivos para transferência entre fases e HUD atualizados.
+
+## Pixel Quest — dois contadores de inimigos e portal condicionado (19/11/2026)
+- **Total derrotados**: número de inimigos vencidos na partida atual (0 ao reiniciar); **Inimigos no nível**: restantes/total da fase (inicialmente 3/3), decresce com pisões e não exige derrotar todos para concluir.
+- Portal somente fica ativo após coletar **todos os cristais** da fase. Antes disso, tocar o portal não vence nem concede bônus; há texto de status e diferenciação visual de portal bloqueado/liberado.
+- HUD compartilhado ganhou segundo indicador *opcional*, sem modificar os consumidores Snake/Tetris. Testes unitários/E2E atualizados; CI deve ser conferido antes de declarar validado.
+
+## Pixel Quest — contador de inimigos derrotados (19/11/2026)
+- Pedido do proprietário: usar espaço livre ao lado do canvas para mostrar inimigos derrotados.
+- `GameHud.astro` aceita estatística opcional reutilizável (`statId`/`statLabel`); apenas Pixel Quest a utiliza por enquanto, sem alterar a apresentação de Snake/Tetris.
+- `PixelQuestGame.astro` exibe **Inimigos derrotados** na coluna de HUD, em formato `derrotados/total`; `pixelQuest/index.ts` atualiza a partir de `run.enemies[].alive` em tempo real e reinicia em nova partida. Sem novo contador persistente nem alteração de API.
+- Teste E2E do HUD inicial e teste unitário da contagem após pisão adicionados. Validar no GitHub CI e no Preview.
+
+## Pixel Quest — reação aos inimigos corrigida (19/11/2026)
+- Relato do proprietário após jogar Preview: encostar lateralmente em inimigo teletransportava instantaneamente para o começo; expectativa de plataforma clássica: **pular sobre a cabeça derrota o inimigo**.
+- `src/scripts/pixelQuest/gameplay.ts`: contato lateral desconta um coração, aplica recuo + invulnerabilidade e **mantém localização**; pisão descendente atravessando o topo derrota inimigo (+50) com impulso para o próximo salto; **somente cair em abismo** volta ao checkpoint com perda de vida.
+- Testes regressivos alterados em `tests-api/pixel-quest-gameplay.test.mjs` para colisão lateral, pisão, queda e preservação de pontuação; validar CI/Preview antes de declarar correção visual homologada.
+- A reorganização do HUD/tabuleiro segue **pendente no componente global**, para os três jogos, sem remendos exclusivos do Pixel Quest.
+
+## Pixel Quest #003 — Etapa A implementada (19/11/2026)
+- **Branch:** `feat/pixel-quest-jogo-003`. Protótipo acessível em rota não listada `/jogos/pixel-quest/` no ambiente de desenvolvimento, **sem** cadastrar jogo #003 na Home e **sem** API/placar/contadores competitivos, conforme fase C planejada.
+- Código: `src/scripts/pixelQuest/{levels,physics,input,render,index}.ts`, mapa `src/data/pixelQuest/level-1-1.ts`, componente `src/components/PixelQuestGame.astro`, rota Astro e testes `tests/pixel-quest.spec.ts` e `tests-api/pixel-quest-physics.test.mjs`.
+- Fase 1-1 geométrica 96×18 tiles; física a 60Hz, colisões com subpassos, salto curto, coyote time, jump buffer, câmera limitada, teclado/touch, pausa e fullscreen. HUD, `setCountdownOverlay` e `centerGameBoard` reutilizados. Cristais/inimigos/checkpoint/portal são **visuais apenas** até Etapa B.
+- **Verificação executada:** 7 casos de física sobre código TS convertido para JS em execução isolada passaram (chão, andar, salto, pouso, abismo, parede e câmera); 11 verificações de presença/integração estática passaram. Suíte de testes adicionada ao repositório; **build Astro e E2E no navegador não executados** porque branch ainda não está em PR e não há checkout local acessível. Não chamar esta etapa de certificada.
+- **Próxima ação:** obter evidência de build/testes em ambiente acessível sem Cloudflare, corrigir somente falhas relevantes da Etapa A e então construir a Etapa B. Não reabrir Desafio Diário.
+
+## Jogo #003 — Pixel Quest: planejamento registrado (19/11/2026)
+- Branch exclusiva: `feat/pixel-quest-jogo-003`, derivada de `feat/tetris-jogo-002` (ainda não mesclada à `main`).
+- Plano técnico completo em [PLANO_PIXEL_QUEST_003.md](PLANO_PIXEL_QUEST_003.md). Sem jogo implementado, sem alteração de catálogo, APIs, banco, Cloudflare, Preview ou produção.
+- Proposta: plataforma lateral original Canvas 2D + TypeScript, física fixed timestep, colisões, câmera, dados de tilemap, controles teclado/touch; reutilização obrigatória de HUD, countdown, fullscreen, viewport, ranking, contadores, celebrações e SEO compartilhados.
+- Piloto 1-1 Trilha Esmeralda: 96×18 tiles, terreno de aprendizado, cristais, patrulheiro, dois saltos, checkpoint, portal; valores de física ainda sujeitos a testes. Escopo futuro de lançamento: 3 mundos × 2 fases.
+- **Próxima ação:** implementar apenas motor básico + primeira fase geométrica (Etapa A do plano) e testes direcionados; manter Desafio Diário congelado. Publicação e ativação de Preview permanecem exclusivamente com proprietário.
+
 ## ESTADO ATUAL PARA NOVO CHAT — lançamento com 3 jogos (19/11/2026)
 - **Decisão mais recente do proprietário:** Desafio Diário foi **adiado**, sem nova implementação ou depuração por enquanto; priorizar 3 jogos funcionais, SEO e aprovação no Google Search Console/AdSense. O jogo #003 será um jogo de **plataforma inspirado na mecânica de Mario**, com personagens, arte, áudio, nomes e fases **originais** para evitar uso indevido de propriedade intelectual.
 - **Ocultação do Desafio Diário:** flag única `src/data/featureFlags.ts`, `DAILY_CHALLENGES_ENABLED=false`; remove da interface pública calendários de Snake/Tetris, convite na Home, histórico no perfil, chamadas da API de calendário disparadas pela interface e opções de e-mail diário na conta/login. Código, APIs, migrações e testes do recurso ficam preservados para uso futuro; testes E2E diários legados foram marcados como `test.skip`. Novo teste ativo `tests/daily-feature-hidden.spec.ts` cobre ausência nas páginas e ausência de requisições diárias.
