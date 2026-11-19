@@ -126,10 +126,11 @@ test('Tetris exibe meta exata e destaca próxima limpeza na lateral sem usar ten
  const calendar=page.locator('[data-daily-calendar=tetris]');
  await expect(calendar.locator('[data-daily-mission-name]')).toHaveText('Código de linhas');
  await expect(calendar.locator('[data-daily-mission-rules]')).toContainText('1 → 4 → 3 → 3 → 2');
- await page.evaluate(()=>{
+ await page.evaluate(mission=>{
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-mission-selected',{detail:{game:'tetris',mission}}));
   document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'playing'}}));
   document.dispatchEvent(new CustomEvent('oldarcade:daily-progress',{detail:{game:'tetris',score:1000,linesCleared:5,clearSequence:[1,4],durationMs:30000}}));
- });
+ },mission);
  const side=page.locator('[data-daily-mission-sidebar] .daily-live-tracker');
  await expect(side).toBeVisible();
  await expect(side.locator('.daily-live-next')).toHaveText('PRÓXIMA LIMPEZA: 3 LINHAS');
@@ -158,7 +159,10 @@ test('Snake mostra a missão acima das estatísticas durante o jogo',async({page
   game:'snake',today:'2026-11-20',month:'2026-11',days:[],mission,account:{nickname:'Jogador'},historyAvailable:true
  })}));
  await page.goto('/jogos/snake/');
- await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}})));
+ await page.evaluate(mission=>{
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-mission-selected',{detail:{game:'snake',mission}}));
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}}));
+ },mission);
  const side=page.locator('[data-daily-mission-sidebar]');
  const tracker=side.locator('.daily-live-tracker');
  await expect(tracker).toBeVisible();
@@ -178,12 +182,13 @@ test('Tetris não mostra 5/4 como missão concluída',async({page})=>{
   game:'tetris',today:'2026-11-20',month:'2026-11',days:[],mission,account:{nickname:'Jogador'},historyAvailable:true
  })}));
  await page.goto('/jogos/tetris/');
- await page.evaluate(()=>{
+ await page.evaluate(mission=>{
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-mission-selected',{detail:{game:'tetris',mission}}));
   document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'tetris',phase:'playing'}}));
   document.dispatchEvent(new CustomEvent('oldarcade:daily-progress',{detail:{
    game:'tetris',score:1500,durationMs:120000,linesCleared:10,clearSequence:[2,2,2,2,2]
   }}));
- });
+ },mission);
  const side=page.locator('[data-daily-mission-sidebar] .daily-live-tracker');
  await expect(side.locator('.daily-live-progress')).toContainText('4 / 4');
  await expect(side).toContainText('Etapas excedidas');
@@ -200,10 +205,11 @@ test('Missão Snake fica na coluna do jogo com contagem consistente de frutas',a
  const slot=page.locator('#game-stage > [data-daily-mission-sidebar]');
  await expect(slot).toHaveCount(1);
  await expect(page.locator('.game-layout > aside [data-daily-mission-sidebar]')).toHaveCount(0);
- await page.evaluate(()=>{
+ await page.evaluate(mission=>{
+  document.dispatchEvent(new CustomEvent('oldarcade:daily-mission-selected',{detail:{game:'snake',mission}}));
   document.dispatchEvent(new CustomEvent('oldarcade:daily-phase',{detail:{game:'snake',phase:'playing'}}));
   document.dispatchEvent(new CustomEvent('oldarcade:daily-progress',{detail:{game:'snake',score:70,linesCleared:0,clearSequence:[],durationMs:17000}}));
- });
+ },mission);
  await expect(slot).toBeVisible();
  await expect(slot.locator('.daily-live-progress')).toContainText('7 / 7');
 });
