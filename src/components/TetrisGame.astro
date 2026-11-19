@@ -19,6 +19,7 @@ const game=gameRegistry.tetris;
 const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais rápidas a cada 30 segundos. Resista até o fim e dispute o maior tempo no ranking.':sprint?'Tetris Sprint grátis no OldArcade: elimine 40 linhas no menor tempo, desafie seus amigos e dispute o ranking de velocidade.':'Jogue nosso Tetris online grátis: gire peças, complete linhas, avance de nível e dispute recordes. Teclado e controles para celular.';
 import GameLayout from './GameLayout.astro';
 import GameDevelopmentHistory from './GameDevelopmentHistory.astro';
+import GameGuide from './GameGuide.astro';
 ---
 <GamePage modeId={modeId} title={survival?"Tetris Sobrevivência — Resista à velocidade | OldArcade":sprint?"Tetris Sprint — 40 linhas contra o relógio | OldArcade":"Jogar Tetris grátis — Blocos, linhas e recordes | OldArcade"} description={description}>
  <main class="shell oa-game-page">
@@ -78,7 +79,7 @@ import GameDevelopmentHistory from './GameDevelopmentHistory.astro';
   </GameLayout>
   <GameRanking game={modeId} name={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris Clássico"} />
   <GameShare gameSlug={modeId} gameName={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris"} gamePath={survival?"/jogos/tetris/sobrevivencia/":sprint?"/jogos/tetris/sprint/":"/jogos/tetris/"} />
-  <section class="section panel text-content">
+  <GameGuide>
    <h2>{survival?"Como jogar Sobrevivência":sprint?"Como jogar o Sprint":"Como jogar"}</h2>
    <p>{survival?'Mantenha o tabuleiro livre e resista à queda cada vez mais rápida. Não existe objetivo de linhas: sobreviva até o tabuleiro encher. O tempo efetivo é a sua marca.':sprint?'Limpe 40 linhas no menor tempo possível. Você pode limpar uma, duas, três ou quatro de cada vez; a corrida termina quando a meta é alcançada. O relógio é pausado quando você pausa ou troca de aba. Se o tabuleiro encher, a tentativa é encerrada sem entrar na classificação.':'Encaixe as peças que caem para preencher linhas horizontais. Uma linha completa desaparece, libera espaço e rende pontos, exibidos no tabuleiro no momento da limpeza. Movimentar peças não aumenta o placar. A partida termina quando uma nova peça já não consegue entrar no tabuleiro. A peça fantasma mostra onde a atual vai cair.'}</p>
    <h3>Controles</h3>
@@ -86,7 +87,7 @@ import GameDevelopmentHistory from './GameDevelopmentHistory.astro';
    <p>No celular, use os botões abaixo do tabuleiro. Você também pode deslizar horizontalmente para mover, deslizar para baixo para soltar uma peça ou tocar no tabuleiro para girá-la.</p>
    <h3>Estratégia rápida</h3>
    <p>{survival?'Evite empilhar alto, limpe linhas sempre que possível e guarde peças úteis para corrigir buracos. Depois de algumas ondas, os encaixes precisarão ser mais rápidos.':sprint?'Priorize encaixes limpos e use a reserva para evitar buracos. Finalizar quatro linhas simultaneamente economiza tempo e movimentos.':'Deixe espaço para peças compridas, evite buracos inacessíveis e use a reserva para esperar uma combinação melhor. Completar quatro linhas de uma vez rende mais pontos que apagar quatro linhas separadamente.'}</p>
-  </section>
+  </GameGuide>
   <TetrisHistory />
   <HistoricalScreenings game="tetris" />
   <GameDevelopmentHistory gameSlug="tetris" id="tetris-history" />

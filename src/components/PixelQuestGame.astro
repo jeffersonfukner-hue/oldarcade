@@ -11,6 +11,7 @@ const crystalsInLevel=firstLevel.entities.filter(entity=>entity.kind==='crystal'
 const enemiesInLevel=firstLevel.entities.filter(entity=>entity.kind==='patroller').length;
 import GameLayout from './GameLayout.astro';
 import GameDevelopmentHistory from './GameDevelopmentHistory.astro';
+import GameGuide from './GameGuide.astro';
 ---
 <GamePage modeId="pixel-quest" title="Jogar Pixel Quest — Plataforma 2D original | OldArcade" description="Jogue Pixel Quest, jogo original de plataforma 2D em desenvolvimento: cristais, inimigos, checkpoints e recordes locais.">
  <div class="shell oa-game-page pq-shell">
@@ -32,7 +33,7 @@ import GameDevelopmentHistory from './GameDevelopmentHistory.astro';
    </div>
    <aside class="panel oa-level-summary" aria-label="Informações da fase"><h2>Fase 1-1 · Trilha Esmeralda</h2><p>O portal exige todos os seis cristais. Inimigos rendem pontos extras, mas não bloqueiam a saída.</p><p class="small muted">Regras, controles e pontuação detalhados abaixo.</p></aside>
   </GameLayout>
-  <section class="section panel text-content"><h2>Como jogar</h2><p>Explore o caminho horizontal. Segure o salto para alcançar plataformas mais altas e solte cedo para saltos baixos. Depois de alcançar o checkpoint, você retorna a ele ao cair em abismos; contato lateral com inimigo tira um coração e provoca recuo. Pausas não consomem tempo de jogo.</p><h3>Pontuação</h3><p>Cristal: <strong>10 pontos</strong>; inimigo derrotado: <strong>50</strong>; portal: <strong>100</strong>; bônus de tempo: até <strong>500</strong>, reduzindo 2 pontos por segundo efetivo. O resultado só é registrado após concluir a fase.</p><p>Inimigos derrotados no nível reiniciam na próxima fase; o total acumula durante a campanha. Os recordes de fase e campanha são provisórios e locais ao navegador, sem ranking oficial.</p></section>
+  <GameGuide><h2>Como jogar</h2><p>Explore o caminho horizontal. Segure o salto para alcançar plataformas mais altas e solte cedo para saltos baixos. Depois de alcançar o checkpoint, você retorna a ele ao cair em abismos; contato lateral com inimigo tira um coração e provoca recuo. Pausas não consomem tempo de jogo.</p><h3>Pontuação</h3><p>Cristal: <strong>10 pontos</strong>; inimigo derrotado: <strong>50</strong>; portal: <strong>100</strong>; bônus de tempo: até <strong>500</strong>, reduzindo 2 pontos por segundo efetivo. O resultado só é registrado após concluir a fase.</p><p>Inimigos derrotados no nível reiniciam na próxima fase; o total acumula durante a campanha. Os recordes de fase e campanha são provisórios e locais ao navegador, sem ranking oficial.</p></GameGuide>
   <PixelQuestHistory />
   <GameShare gameSlug="pixel-quest" gameName="Pixel Quest" />
   <GameDevelopmentHistory gameSlug="pixel-quest" id="pq-development-history" />

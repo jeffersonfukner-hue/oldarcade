@@ -4,6 +4,17 @@
 
 # OldArcade — continuidade obrigatória
 
+## Revisão editorial global — 19/11/2026 (segunda revisão)
+- Após análise dos 15 prints, padronizados guias via `GameGuide.astro`, seções de histórico via `GameDevelopmentHistory.astro`, cards de compartilhamento e os painéis informativos; cada jogo mantém regras/formatos próprios.
+- Histórico de versões/marcos permanece exclusivamente em `gameRegistry.ts`: nenhum marco histórico foi reescrito, nenhuma versão foi incrementada artificialmente. Snake Aventura filtra marcos desse modo e usa o mesmo histórico de versões do jogo #001.
+- Snake Clássico e Evolution agora usam `SnakePerformance.astro` e `SnakeGlobalRanking.astro`; IDs antigos permanecem para scripts sem reintroduzir campos visuais duplicados. Dados locais não são apresentados como recordes oficiais.
+- Tetris mantém próxima peça, reserva, pontuação, contador e espaço de missão no palco; painel inferior prioriza partidas e comunidade, evitando repetir o nível e as regras. O tabuleiro mantém proporção retrato.
+- Pixel Quest separa resumo curto da fase e instruções/pontuação completa, sem repetir três vezes a regra dos cristais.
+- Compartilhamento unificado: botão nativo e copiar convite evidentes; redes ficam em painel expansível, preservando todos os links de participação.
+- A revisão é apenas de layout e apresentação; não houve mudança no banco de dados, pontuação, físico dos motores ou publicação. Validação CI e aceite de Preview são etapas separadas; deploy manual somente pelo usuário.
+
+
+
 ## Layout global Snake · Tetris · Pixel Quest — 19/11/2026
 - A segunda rodada passou em 194 testes; uma falha de 320px do Tetris foi identificada na seção de ranking (título + pill sem quebra) e no teste legado dos botões inferiores que devem ficar ocultos em desktop. CSS global de quebra em 320px e teste sensível ao tipo de ponteiro ajustados; CI final pendente.
 

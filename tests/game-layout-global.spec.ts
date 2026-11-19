@@ -69,3 +69,42 @@ test('Teste de comemorações não invade o Preview comum',async({page})=>{
  await page.goto('/jogos/pixel-quest/');
  await expect(page.locator('#celebration-test-panel')).toBeHidden();
 });
+
+test('Segunda revisão conserva contrato informativo em todos os jogos',async({page})=>{
+ const routes=['/jogos/snake/','/jogos/snake/aventura/','/jogos/snake/evolution/','/jogos/tetris/','/jogos/tetris/sprint/','/jogos/tetris/sobrevivencia/','/jogos/pixel-quest/'];
+ for(const route of routes){
+  await page.goto(route);
+  await expect(page.locator('.oa-game-guide')).toHaveCount(1);
+  await expect(page.locator('[data-development-game]')).toHaveCount(1);
+  await expect(page.locator('[data-game-share]')).toHaveCount(1);
+  await expect(page.locator('[data-game-share] [data-share-copy]')).toBeVisible();
+  await expect(page.locator('[data-game-share] .oa-share-networks')).not.toHaveAttribute('open','');
+  await expect(page.locator('[data-development-game] details')).toHaveCount(2);
+ }
+});
+test('Snake mantém IDs de integração sem repetir placar fora do HUD',async({page})=>{
+ for(const route of ['/jogos/snake/','/jogos/snake/evolution/']){
+  await page.goto(route);
+  for(const id of ['score','best','global-best','plays','visits','nickname','global-rank-body']){
+   await expect(page.locator('#'+id)).toHaveCount(1);
+  }
+  await expect(page.locator('.oa-metric-bridge')).toHaveCount(2);
+  await expect(page.locator('.oa-performance-panel')).toBeVisible();
+  await expect(page.locator('.oa-ranking-panel')).toBeVisible();
+ }
+});
+test('Tetris conserva reserva, prévia e formato enquanto reduz duplicação',async({page})=>{
+ await page.goto('/jogos/tetris/');
+ await expect(page.locator('#tetris-next')).toBeVisible();
+ await expect(page.locator('#tetris-hold')).toBeVisible();
+ await expect(page.locator('#tetris-sidebar-level')).toHaveCount(1);
+ await expect(page.locator('#tetris-stage')).toHaveAttribute('data-board-shape','portrait');
+});
+test('Compartilhamento expande somente quando solicitado',async({page})=>{
+ await page.goto('/jogos/pixel-quest/');
+ const details=page.locator('.oa-share-networks');
+ await expect(details).not.toHaveAttribute('open','');
+ await details.locator('summary').click();
+ await expect(details).toHaveAttribute('open','');
+ await expect(page.locator('[data-share-network="whatsapp"]')).toBeVisible();
+});

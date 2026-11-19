@@ -47,6 +47,14 @@ Referências: guia oficial do Tetris Effect: Connected, que traz desafios de pre
 - **Migrações:** proprietário confirmou execução manual da `0008` (tabela das tentativas) e `0010` (colunas de linhas/sucesso) no **D1 Preview**; `0009` também foi confirmada anteriormente. Não solicitar repetição sem evidência nova. Produção não autorizada, sem merge/publicação automática.
 - **Futuro opcional:** desbloqueio de replay **recreativo** de desafios anteriores com moeda do site é backlog, não reabre a tentativa oficial nem modifica ranking; ver `docs/BACKLOG_MOEDA_ARCADE.md`.
 
+## Contrato global de informação secundária — revisão 19/11/2026
+- `GameGuide.astro` é a estrutura visual única para instruções; conteúdo permanece específico à mecânica.
+- `GameDevelopmentHistory.astro` lê `gameRegistry.ts` (única fonte de versões, datas e marcos), sem histórico por cópia de HTML.
+- `GameShare.astro` mostra ações essenciais diretamente e redes adicionais apenas após expandir, sem remover destinos.
+- Placar de partida e recorde ficam no HUD. Estatísticas secundárias aparecem em painéis `.oa-performance-panel`; identificadores antigos necessários a scripts podem permanecer ocultos em `.oa-metric-bridge` sem criar contadores duplicados.
+- Ranking distingue global (conta, não verificado contra partida) de local (navegador); manter tabelas e botões de registro acessíveis.
+- Seções editoriais ocupam os mesmos limites do palco, mas parágrafos mantêm extensão confortável por linha. O formato do tabuleiro de cada jogo nunca deve ser distorcido para preencher espaço.
+
 ## Checklist obrigatório — mudanças globais e prevenção de regressão
 
 **Regra de manutenção:** qualquer comportamento, aparência, animação, texto recorrente ou interação declarada como **padrão** pertence a um único componente, módulo, token ou contrato compartilhado. Alterações nesse padrão propagam-se automaticamente a **todos os jogos/modos existentes e futuros**, sem copiar código ou CSS entre páginas. A única configuração por jogo são seus dados e diferenças reais de mecânica, explicitamente documentadas.
