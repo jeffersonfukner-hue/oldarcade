@@ -4,6 +4,7 @@ import GameShare from './GameShare.astro';
 import PixelQuestHistory from './PixelQuestHistory.astro';
 import {gameRegistry} from '../data/gameRegistry';
 const game=gameRegistry['pixel-quest'];
+import GameStageHeader from './GameStageHeader.astro';
 import GameHud from './GameHud.astro';
 import GameProgressBar from './GameProgressBar.astro';
 import {firstLevel} from '../data/pixelQuest/level-1-1';
@@ -16,11 +17,11 @@ import GameGuide from './GameGuide.astro';
 <GamePage modeId="pixel-quest" title="Jogar Pixel Quest — Plataforma 2D original | OldArcade" description="Jogue Pixel Quest, jogo original de plataforma 2D em desenvolvimento: cristais, inimigos, checkpoints e recordes locais.">
  <div class="shell oa-game-page pq-shell">
   <section class="hero" style="padding-bottom:16px"><span class="eyebrow">Jogo #003 · Etapa B · Protótipo não lançado</span><h1>Pixel <span class="accent">Quest</span></h1><p class="lede">Uma aventura de plataforma original em desenvolvimento. Explore a Trilha Esmeralda, colete cristais e alcance o portal de saída.</p></section>
-  <GameLayout label="Jogar Pixel Quest" className="section">
+  <GameLayout label="Jogar Pixel Quest" className="section oa-stage-unified">
    <div class="panel game-stage" id="pq-stage" data-arcade-viewport data-board-shape="landscape">
-    <div class="game-topline"><strong>◈ PIXEL QUEST · Trilha Esmeralda</strong><div class="actions"><button type="button" id="pq-pause">Pausar</button><button type="button" id="pq-fullscreen">⛶ Tela cheia (F)</button></div></div>
+    <GameStageHeader title="◈ PIXEL QUEST" subtitle="Trilha Esmeralda" pauseId="pq-pause" fullscreenId="pq-fullscreen" fullscreenLabel="Alternar tela cheia do Pixel Quest"></GameStageHeader>
     <div class="arcade-game-layout">
-     <GameHud statusId="pq-status" scoreId="pq-score" bestId="pq-best" globalId="pq-global" bestLabel="Melhor fase (local)" globalLabel="Melhor geral (local · 1 fase)" scoreLabel="Pontos" statId="pq-defeated" statLabel="Total de inimigos derrotados" secondStatId="pq-level-defeated" secondStatLabel="Derrotados neste nível" hint="A/D ou ←/→ mover · Espaço/↑ saltar · P pausar">
+     <GameHud compact statusId="pq-status" scoreId="pq-score" bestId="pq-best" globalId="pq-global" bestLabel="Melhor fase (local)" globalLabel="Melhor geral (local · 1 fase)" scoreLabel="Pontos" statId="pq-defeated" statLabel="Total de inimigos derrotados" secondStatId="pq-level-defeated" secondStatLabel="Derrotados neste nível" hint="A/D ou ←/→ mover · Espaço/↑ saltar · P pausar">
       <GameProgressBar id="pq-crystals-remaining" label="Cristais" total={crystalsInLevel} color="crystal"/>
       <GameProgressBar id="pq-enemies-remaining" label="Inimigos" total={enemiesInLevel} color="enemy"/>
      </GameHud>
