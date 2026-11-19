@@ -41,6 +41,10 @@ export function fallIntoPit(run:Run):void {
  run.player=createPlayer(run.checkpoint.x,run.checkpoint.y);
  run.invulnerable=1.2;
 }
+export function portalUnlocked(run:Run,level:Level):boolean {
+ const total=level.entities.filter(entity=>entity.kind==='crystal').length;
+ return run.crystals.size===total;
+}
 export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
  if(run.phase!=='playing')return;
  run.elapsedMs+=dt*1000;
@@ -78,7 +82,7 @@ export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
   } else if(run.invulnerable<=0){receiveDamage(run,enemy.x);return}
  }
  const portal=level.entities.find(entity=>entity.kind==='exit');
- if(portal&&overlaps(p.x,p.y,p.w,p.h,portal.x,portal.y,32,64)){
+ if(portal&&portalUnlocked(run,level)&&overlaps(p.x,p.y,p.w,p.h,portal.x,portal.y,32,64)){
   run.phase='won';run.score+=100;
  }
 }

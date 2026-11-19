@@ -26,6 +26,8 @@ if(stage){
  const crystals=stage.querySelector<HTMLElement>('#pq-crystals')!;
  const checkpoint=stage.querySelector<HTMLElement>('#pq-checkpoint')!;
  const defeated=stage.querySelector<HTMLElement>('#pq-defeated')!;
+ const levelEnemies=stage.querySelector<HTMLElement>('#pq-level-enemies')!;
+ const portalStatus=stage.querySelector<HTMLElement>('#pq-portal-status')!;
  const input=setupPlatformInput(stage);
  let run:Run=createRun(firstLevel),camera=0;
  let phase:'ready'|'countdown'|'playing'|'paused'|'won'|'lost'='ready';
@@ -37,7 +39,10 @@ if(stage){
   hearts.textContent='♥'.repeat(run.hearts)+'♡'.repeat(3-run.hearts);
   crystals.textContent=run.crystals.size+'/'+totalCrystals;
   checkpoint.textContent=run.checkpointActive?'Ativado':'Não';
-  defeated.textContent=run.enemies.filter(enemy=>!enemy.alive).length+'/'+run.enemies.length;
+  const defeatedCount=run.enemies.filter(enemy=>!enemy.alive).length;
+  defeated.textContent=String(defeatedCount);
+  levelEnemies.textContent=(run.enemies.length-defeatedCount)+'/'+run.enemies.length;
+  portalStatus.textContent=run.crystals.size===totalCrystals?'Portal liberado · todos os cristais coletados':`Portal bloqueado · ${run.crystals.size}/${totalCrystals} cristais`;
  }
  function setPhase(next:typeof phase){
   phase=next;

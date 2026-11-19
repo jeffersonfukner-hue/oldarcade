@@ -4,6 +4,11 @@
 
 # OldArcade — continuidade obrigatória
 
+## Pixel Quest — dois contadores de inimigos e portal condicionado (19/11/2026)
+- **Total derrotados**: número de inimigos vencidos na partida atual (0 ao reiniciar); **Inimigos no nível**: restantes/total da fase (inicialmente 3/3), decresce com pisões e não exige derrotar todos para concluir.
+- Portal somente fica ativo após coletar **todos os cristais** da fase. Antes disso, tocar o portal não vence nem concede bônus; há texto de status e diferenciação visual de portal bloqueado/liberado.
+- HUD compartilhado ganhou segundo indicador *opcional*, sem modificar os consumidores Snake/Tetris. Testes unitários/E2E atualizados; CI deve ser conferido antes de declarar validado.
+
 ## Pixel Quest — contador de inimigos derrotados (19/11/2026)
 - Pedido do proprietário: usar espaço livre ao lado do canvas para mostrar inimigos derrotados.
 - `GameHud.astro` aceita estatística opcional reutilizável (`statId`/`statLabel`); apenas Pixel Quest a utiliza por enquanto, sem alterar a apresentação de Snake/Tetris.

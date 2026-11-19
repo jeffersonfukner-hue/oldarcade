@@ -73,8 +73,17 @@ test('Colisão lateral causa dano; salto sobre inimigo concede pontos uma vez',(
  gameplay.stepRun(stomp,firstLevel,idle);
  assert.equal(stomp.score,50);
 });
-test('Portal encerra uma única vez e não duplica bônus',()=>{
+test('Portal permanece bloqueado antes de coletar todos os cristais',()=>{
  const game=run();
+ game.player.x=2944;game.player.y=451;game.player.grounded=true;
+ gameplay.stepRun(game,firstLevel,idle);
+ assert.equal(game.phase,'playing');assert.equal(game.score,0);
+ assert.equal(gameplay.portalUnlocked(game,firstLevel),false);
+});
+test('Portal encerra uma única vez e não duplica bônus após todos os cristais',()=>{
+ const game=run();
+ firstLevel.entities.forEach((entity,id)=>{if(entity.kind==='crystal')game.crystals.add(id)});
+ assert.equal(gameplay.portalUnlocked(game,firstLevel),true);
  game.player.x=2944;game.player.y=451;game.player.grounded=true;
  gameplay.stepRun(game,firstLevel,idle);
  assert.equal(game.phase,'won');assert.equal(game.score,100);
@@ -98,4 +107,5 @@ test('Pisão só derrota inimigo ao aterrissar de cima; pulo ascendente não mat
  gameplay.stepRun(stomp,firstLevel,idle);
  assert.equal(stomp.score,50,'inimigo vencido não pontua novamente');
  assert.equal(stomp.enemies.filter(enemy=>!enemy.alive).length,1,'inimigo vencido não duplica contagem');
+ assert.equal(stomp.enemies.filter(enemy=>enemy.alive).length,2,'inimigos restantes diminuem após o pisão');
 });

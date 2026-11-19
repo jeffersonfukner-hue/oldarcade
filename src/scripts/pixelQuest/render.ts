@@ -1,5 +1,5 @@
 import type {Level} from './levels';
-import type {Run} from './gameplay';
+import {portalUnlocked,type Run} from './gameplay';
 export const VIEW_WIDTH=640,VIEW_HEIGHT=360;
 export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,camera:number){
  const context=canvas.getContext('2d');if(!context)return;
@@ -27,9 +27,11 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
    context.fillStyle=run.checkpointActive?'#8dffc0':'#ffdc83';context.fillRect(x,y,6,48);
    context.fillRect(x+6,y,17,15);
   }else if(entity.kind==='exit'){
-   context.fillStyle='#b88cfc';context.fillRect(x,y,32,64);
-   context.fillStyle='#20254d';context.fillRect(x+6,y+7,20,50);
-   context.fillStyle='#f0d7ff';context.fillRect(x+12,y+20,8,24);
+   const unlocked=portalUnlocked(run,level);
+   context.fillStyle=unlocked?'#b88cfc':'#586076';context.fillRect(x,y,32,64);
+   context.fillStyle=unlocked?'#20254d':'#252d3a';context.fillRect(x+6,y+7,20,50);
+   context.fillStyle=unlocked?'#f0d7ff':'#89929e';context.fillRect(x+12,y+20,8,24);
+   if(!unlocked){context.fillStyle='#ffdc83';context.fillRect(x+12,y+30,8,8)}
   }
  }
  for(const enemy of run.enemies){
