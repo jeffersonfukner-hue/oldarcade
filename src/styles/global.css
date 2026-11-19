@@ -298,11 +298,11 @@ html,body{touch-action:manipulation}
  .header-inner [data-player-account-link]{max-width:125px}
 }
 
-/* OldArcade: jogo ocupa 80% da largura interna, HUD secundário à direita. */
-.arcade-game-layout{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,1fr);grid-template-areas:"board stats";gap:12px;align-items:stretch;min-width:0}
-.arcade-game-layout>.screen-wrap{grid-area:board;min-width:0;align-self:start;overflow:visible;border:0;border-radius:0;background:transparent}
+/* OldArcade: tabuleiro proporcional e HUD no mesmo painel. A largura agora é comum aos três formatos. */
+.arcade-game-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,244px);grid-template-areas:"board stats";gap:14px;align-items:start;min-width:0;width:100%;max-width:100%}
+.arcade-game-layout>.screen-wrap{grid-area:board;min-width:0;align-self:start;overflow:visible;border:0;border-radius:0;background:transparent;justify-self:center;width:min(100%,var(--oa-board-max,760px))}
 .arcade-game-layout>.screen-wrap canvas{width:100%;max-width:none;height:auto}
-.arcade-game-layout>.game-hud{grid-area:stats;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:12px;margin:0;padding:12px 9px;min-width:0;border:1px solid #31405f;border-radius:10px;background:#10242b}
+.arcade-game-layout>.game-hud{grid-area:stats;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:10px;margin:0;padding:13px 12px;min-width:0;max-width:100%;border:1px solid #31405f;border-radius:12px;background:#10242b}
 .arcade-game-layout>.game-hud>span{display:flex;flex-direction:column;gap:3px;min-width:0;overflow-wrap:anywhere;font-size:.72rem;color:#9cb4c0}
 .arcade-game-layout>.game-hud>span strong{display:block;font-size:clamp(.88rem,1.65vw,1.35rem);line-height:1.2;color:#e7f9ff;font-variant-numeric:tabular-nums}
 .arcade-game-layout>.game-hud>span:has(#hud-score),.arcade-game-layout>.game-hud>span:has(#adventure-score){order:-2}
@@ -313,12 +313,12 @@ html,body{touch-action:manipulation}
 .arcade-game-layout>.adventure-progress{grid-column:1/-1;grid-row:1}
 .arcade-game-layout:has(.adventure-progress){grid-template-areas:"progress progress" "board stats";grid-template-rows:auto 1fr}
 .arcade-game-layout:has(.adventure-progress)>.adventure-progress{grid-area:progress}
-.game-stage:fullscreen .arcade-game-layout,.game-stage.game-stage-fallback .arcade-game-layout{flex:1;min-height:0;grid-template-columns:minmax(0,4fr) minmax(120px,1fr);align-content:center}
+.game-stage:fullscreen .arcade-game-layout,.game-stage.game-stage-fallback .arcade-game-layout{flex:1;min-height:0;grid-template-columns:minmax(0,1fr) minmax(120px,190px);align-content:center}
 .game-stage:fullscreen .arcade-game-layout>.screen-wrap,.game-stage.game-stage-fallback .arcade-game-layout>.screen-wrap{flex:none;min-height:0}
 @media(max-width:650px){
  .arcade-game-layout,.game-stage:fullscreen .arcade-game-layout,.game-stage.game-stage-fallback .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:8px}
  .arcade-game-layout:has(.adventure-progress){grid-template-areas:"stats" "progress" "board";grid-template-rows:auto auto auto}
- .arcade-game-layout>.game-hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;padding:8px}
+ .arcade-game-layout>.game-hud{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:8px}
  .arcade-game-layout>.game-hud>span{font-size:.63rem}
  .arcade-game-layout>.game-hud>span strong{font-size:clamp(.76rem,3vw,1rem)}
  .arcade-game-layout>.game-hud>[data-game-clock]{font-size:.76rem}
@@ -330,8 +330,13 @@ html,body{touch-action:manipulation}
    A estrutura responsiva é idêntica em Snake, Aventura, Evolution e Tetris. */
 [data-arcade-viewport]{
  --oa-board-aspect:1;
- --oa-board-max:660px;
- --oa-slot-max:660px;
+ --oa-board-max:760px;
+ --oa-slot-max:780px;
+}
+[data-arcade-viewport][data-board-shape="landscape"]{
+ --oa-board-aspect:1.7777778;
+ --oa-board-max:1024px;
+ --oa-slot-max:1040px;
 }
 [data-arcade-viewport][data-board-shape="portrait"]{
  --oa-board-aspect:.5;
@@ -633,3 +638,20 @@ body.oa-auth-open{overflow:hidden}
 .daily-live-sequence span.next{background:#f4bf6d;border:2px solid #ffe3a4;color:#251b31;box-shadow:0 0 15px #f0c17977;transform:scale(1.08)}
 .daily-live-next{border:1px solid #f5d18a;border-radius:10px;background:#523e2f;padding:11px;font-weight:900;text-align:center;font-size:.82rem;color:#ffefbd;letter-spacing:.035em}
 @media(max-width:740px){.daily-live-tracker{padding:13px;margin-bottom:12px}.daily-live-sequence span{width:30px;height:35px}}
+
+/* Contrato de página do jogo: uma faixa principal e conteúdo secundário abaixo,
+   em vez de reduzir o tabuleiro com uma coluna editorial. Fonte única para
+   Snake (todos os modos), Tetris (todos os modos) e Pixel Quest. */
+.oa-game-page{width:min(1480px,calc(100% - 32px));min-width:0}
+.oa-game-page>.hero{padding:27px 0 15px}
+.oa-game-page>.hero h1{font-size:clamp(2rem,4vw,3.2rem);margin:9px 0 12px}
+.oa-game-page>.hero p.lede{margin-bottom:12px}
+.oa-game-layout{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:16px;min-width:0;width:100%;margin:20px 0 38px}
+.oa-game-layout>.game-stage{grid-column:1;min-width:0;width:100%;max-width:100%}
+.oa-game-layout>aside.panel{grid-column:1;width:100%;min-width:0}
+.oa-game-layout>aside.panel:not(.tetris-sidebar){padding:18px 24px}
+.oa-game-layout>aside.panel:not(.tetris-sidebar)>h2{font-size:1.25rem;margin:0 0 12px}
+.oa-game-layout .arcade-game-layout>.oa-board-slot{grid-area:board;min-width:0;max-width:100%}
+.oa-game-layout .arcade-game-layout>.screen-wrap.oa-board-slot{justify-self:center;width:min(100%,var(--oa-board-max,760px))}
+@media(max-width:840px){.oa-game-layout{gap:12px}.oa-game-page{width:min(100% - 24px,1480px)}}
+@media(max-width:650px){.oa-game-layout .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:9px}.oa-game-layout .arcade-game-layout>.game-hud{min-width:0;max-width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}.oa-game-layout>.panel{min-width:0}.oa-game-page>.hero{padding:20px 0 12px}}

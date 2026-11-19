@@ -6,16 +6,17 @@ import GameShare from '../../../components/GameShare.astro';
 import GameRanking from '../../../components/GameRanking.astro';
 const title='Snake Aventura — Níveis e desafios contínuos | OldArcade';
 const description='Snake Aventura gratuito: uma única partida, níveis progressivos, missões, fruta dourada e cristal de gelo. Avance sem reiniciar o tabuleiro.';
+import GameLayout from '../../../components/GameLayout.astro';
 ---
 <GamePage modeId="snake-adventure" title={title} description={description}>
- <div class="shell">
+ <div class="shell oa-game-page">
   <section class="hero adventure-hero">
    <span class="eyebrow">Snake · Modo Aventura · Protótipo</span>
    <h1>Uma partida. <span class="accent">Novos desafios.</span></h1>
    <p class="lede">Cumpra missões, encontre itens especiais e evolua em níveis progressivos sem reiniciar a cobrinha ou a pontuação. Recordes deste modo são separados do Clássico.</p>
    <a class="btn secondary" href="/jogos/snake/">← Voltar ao Clássico</a>
   </section>
-  <section class="game-layout" aria-label="Jogar Snake Aventura">
+  <GameLayout label="Jogar Snake Aventura">
    <div class="panel game-stage" id="adventure-stage" data-arcade-viewport data-board-shape="square">
     <div class="game-topline">
      <strong>◼ SNAKE <span class="muted">· Aventura</span></strong>
@@ -65,7 +66,7 @@ const description='Snake Aventura gratuito: uma única partida, níveis progress
     </ol>
     <p class="small muted">Protótipo de níveis progressivos. Depois do terceiro, a partida continua em modo sobrevivência. Barreiras aumentam progressivamente; a fruta de velocidade aparece a partir do nível 4. Seus resultados locais ficam separados do Clássico. Com uma conta conectada, também entram no ranking exclusivo do Aventura.</p>
    </aside>
-  </section>
+  </GameLayout>
   <GameRanking game="snake-adventure" name="Snake Aventura" />
   <GameShare gameSlug="snake-adventure" gameName="Snake Aventura" gamePath="/jogos/snake/aventura/" />
   <section class="section panel" aria-labelledby="adventure-history-title"><div class="section-head"><div><span class="eyebrow">Bastidores do OldArcade</span><h2 id="adventure-history-title">Desenvolvimento do Aventura</h2></div><span class="pill">Jogo #001 · modo Aventura</span></div><p class="small">Versão do Snake: <strong>v{gameRegistry.snake.version}</strong> · Modalidade em desenvolvimento, ainda não publicada.</p><details><summary>Ver histórico do modo</summary><ol class="timeline">{gameRegistry.snake.milestones.filter(item=>item.mode==='snake-adventure').map(item=><li><strong>{item.title}</strong> · <time datetime={item.date}>{new Date(item.date+'T12:00:00').toLocaleDateString('pt-BR')}</time> — {item.notes}</li>)}</ol></details></section>

@@ -17,9 +17,10 @@ const timed=sprint||survival;
 const goal=gameModes['tetris-sprint'].targetLines;
 const game=gameRegistry.tetris;
 const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais rápidas a cada 30 segundos. Resista até o fim e dispute o maior tempo no ranking.':sprint?'Tetris Sprint grátis no OldArcade: elimine 40 linhas no menor tempo, desafie seus amigos e dispute o ranking de velocidade.':'Jogue nosso Tetris online grátis: gire peças, complete linhas, avance de nível e dispute recordes. Teclado e controles para celular.';
+import GameLayout from './GameLayout.astro';
 ---
 <GamePage modeId={modeId} title={survival?"Tetris Sobrevivência — Resista à velocidade | OldArcade":sprint?"Tetris Sprint — 40 linhas contra o relógio | OldArcade":"Jogar Tetris grátis — Blocos, linhas e recordes | OldArcade"} description={description}>
- <main class="shell">
+ <main class="shell oa-game-page">
   <section class="hero tetris-hero">
    <div class="eyebrow">OldArcade · Jogo #002 · Quebra-cabeça</div>
    <h1>{survival?'Quanto tempo':sprint?'40 linhas.':'Peça por peça.'} <span class="accent">{survival?'você aguenta?':sprint?'O menor tempo vence.':'Linha por linha.'}</span></h1>
@@ -31,7 +32,7 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
    </nav>
   </section>
   {DAILY_CHALLENGES_ENABLED && (modeId==='tetris'?<DailyCalendar game="tetris" />:<p class="panel small">📅 <strong>Desafio Diário do Tetris:</strong> uma única tentativa por dia para jogadores com conta. <a href="/jogos/tetris/#daily-title-tetris">Conhecer o desafio →</a></p>)}
-  <section class="game-layout tetris-main-layout" aria-label="Jogar Tetris">
+  <GameLayout label="Jogar Tetris" className="tetris-main-layout">
    <div class="panel game-stage" id="tetris-stage" data-game-mode={modeId} data-arcade-viewport data-board-shape="portrait">
     <div class="game-topline"><strong>▣ TETRIS <span class="muted">· {survival?"Sobrevivência":sprint?"Sprint":"Clássico"}</span></strong><span class="oa-daily-playing-indicator" data-daily-play-indicator hidden>★ DESAFIO DIÁRIO EM ANDAMENTO</span><div class="actions"><button type="button" id="tetris-pause">Pausar</button><button type="button" id="tetris-fullscreen" aria-label="Alternar tela cheia do Tetris">⛶ Tela cheia (F)</button></div></div>
     <div class="arcade-game-layout">
@@ -75,7 +76,7 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
     <p class="small muted">{survival?'O ranking premia quem permanece mais tempo vivo. A velocidade aumenta a cada 30 segundos de jogo efetivo. Ao chegar ao topo, seu tempo é registrado; empates favorecem o registro anterior.':sprint?'Elimine 40 linhas em uma única partida. O ranking usa o menor tempo efetivo, em minutos, segundos e milésimos. Se as peças alcançarem o topo antes da meta, a tentativa não entra no ranking.':'Uma linha: 100 pontos. Duas: 300. Três: 500. Quatro de uma vez: 800 — multiplicados pelo nível atual. Mover, girar e descer peças não gera pontos: somente linhas completas pontuam.'}</p>
     <p class="small muted">{survival?'A pausa, a contagem e a troca de aba não contam no relógio. Elimine linhas para abrir espaço e segurar a pressão das ondas seguintes.':sprint?'O cronômetro para durante a pausa e a contagem 3–2–1. A velocidade das peças é constante para permitir comparação justa.':'A cada 10 linhas eliminadas, você sobe de nível e as peças aceleram. Sem limite de tempo e sem peças extras pagas.'}</p>
    </aside>
-  </section>
+  </GameLayout>
   <GameRanking game={modeId} name={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris Clássico"} />
   <GameShare gameSlug={modeId} gameName={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris"} gamePath={survival?"/jogos/tetris/sobrevivencia/":sprint?"/jogos/tetris/sprint/":"/jogos/tetris/"} />
   <section class="section panel text-content">
@@ -133,7 +134,6 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
   @media(max-width:370px){.tetris-preview-column{width:102px;min-width:102px}.tetris-board-shell{width:min(300px,calc(100% - 110px))}}
 
   /* Tabuleiro em primeiro plano; missão tem largura própria, nunca espremida. */
-  .tetris-main-layout{grid-template-columns:minmax(0,1fr);gap:15px}
   .tetris-main-layout>.game-stage{padding:19px 23px}
   .tetris-main-layout>.tetris-sidebar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 22px;padding:17px 22px}
   .tetris-main-layout>.tetris-sidebar>.eyebrow,.tetris-main-layout>.tetris-sidebar>h2{grid-column:1/-1}
@@ -142,7 +142,6 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
   .tetris-main-layout>.tetris-sidebar>.global-stats{grid-column:2}
   .tetris-main-layout>.tetris-sidebar>h3{grid-column:3;grid-row:3;margin:0}
   .tetris-main-layout>.tetris-sidebar>p{grid-column:3;margin:0}
-  .tetris-main-layout .arcade-game-layout{grid-template-columns:minmax(0,1fr) 174px;grid-template-areas:"board stats";align-items:start;gap:22px}
   .tetris-main-layout .tetris-playfield{display:grid;grid-template-columns:minmax(0,300px) minmax(210px,258px);justify-content:center;gap:19px;align-items:start;margin-inline:auto}
   .tetris-main-layout .tetris-board-shell{width:100%;max-width:300px;min-width:0}
   .tetris-main-layout .tetris-preview-column{width:auto;min-width:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -160,9 +159,6 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
   .tetris-main-layout .tetris-mini canvas{max-height:104px;object-fit:contain}
   .tetris-main-layout .tetris-touch-controls{max-width:810px;margin:16px auto 0}
   @media(max-width:1000px){
-    .tetris-main-layout .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:12px}
-    .tetris-main-layout .arcade-game-layout>.game-hud{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
-    .tetris-main-layout .arcade-game-layout>.game-hud>span{font-size:.7rem}
     .tetris-main-layout .tetris-playfield{grid-template-columns:minmax(0,300px) minmax(200px,258px)}
   }
   @media(max-width:740px){
@@ -170,7 +166,6 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
     .tetris-main-layout>.tetris-sidebar>.stats-list{grid-column:1}
     .tetris-main-layout>.tetris-sidebar>.global-stats{grid-column:2}
     .tetris-main-layout>.tetris-sidebar>h3,.tetris-main-layout>.tetris-sidebar>p{grid-column:1/-1;grid-row:auto}
-    .tetris-main-layout .arcade-game-layout>.game-hud{grid-template-columns:repeat(4,minmax(0,1fr))}
   }
   @media(max-width:620px){
     .tetris-main-layout>.game-stage{padding:12px}
@@ -185,7 +180,6 @@ const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais 
     .tetris-main-layout .tetris-mini canvas{max-height:76px}
     .tetris-main-layout>.tetris-sidebar{grid-template-columns:1fr}
     .tetris-main-layout>.tetris-sidebar>.stats-list,.tetris-main-layout>.tetris-sidebar>.global-stats{grid-column:1}
-    .tetris-main-layout .arcade-game-layout>.game-hud{grid-template-columns:repeat(3,minmax(0,1fr))}
   }
 
   @media(prefers-reduced-motion:reduce){.tetris-touch-controls button{transition:none}}
