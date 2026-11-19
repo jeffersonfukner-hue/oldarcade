@@ -5,6 +5,7 @@ import { gameRegistry } from '../../data/gameRegistry';
 import GameShare from '../../components/GameShare.astro';
 import HistoricalScreenings from '../../components/HistoricalScreenings.astro';
 import DailyCalendar from '../../components/DailyCalendar.astro';
+import {DAILY_CHALLENGES_ENABLED} from '../../data/featureFlags';
 const release = gameRegistry.snake;
 const title='Jogar Snake online grátis — Regras, recordes e história | OldArcade';
 const description='Jogue Snake, a cobrinha clássica, grátis e em tela cheia. Aprenda os controles, acompanhe seu recorde local e descubra as origens do gênero em 1976.';
@@ -13,7 +14,7 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
 <GamePage modeId="snake" title={title} description={description} structured={structured}>
   <div class="shell">
     <section class="hero" style="padding-bottom:18px"><div class="eyebrow">Arcade · Estratégia · Jogo gratuito</div><h1>Snake: o jogo da <span class="accent">cobrinha</span></h1><p class="lede">Controle a cobrinha, colete frutas e tente bater seu próprio recorde. Sem cadastro, sem instalação — comece quando quiser.</p><a class="btn secondary" href="/jogos/snake/aventura/">✨ Experimentar o modo Aventura</a> <a class="btn" href="/jogos/snake/evolution/">⚡ Jogar Evolution (Preview)</a></section>
-    <DailyCalendar game="snake" />
+    {DAILY_CHALLENGES_ENABLED && <DailyCalendar game="snake" />}
     <section class="game-layout" aria-label="Jogo Snake e estatísticas">
       <div class="panel game-stage" id="game-stage" data-arcade-viewport data-board-shape="square">
         <div class="game-topline"><strong>◼ SNAKE <span class="muted">· Original OldArcade</span></strong><span class="oa-daily-playing-indicator" data-daily-play-indicator hidden>★ DESAFIO DIÁRIO EM ANDAMENTO</span><div class="actions"><button id="pause-btn" type="button">Pausar</button><button id="fullscreen-btn" type="button" aria-label="Ativar tela cheia do jogo">⛶ Tela cheia (F)</button></div></div>
@@ -36,7 +37,7 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
               <input id="record-register-email" type="email" maxlength="254" autocomplete="email" placeholder="seu@email.com"/>
               <label for="record-register-pass">Senha (mínimo de 8 caracteres)</label>
               <input id="record-register-pass" type="password" minlength="8" maxlength="128" required autocomplete="new-password"/>
-              <fieldset class="notification-choices"><legend>Avisos por e-mail (opcionais, ainda não enviados)</legend><label class="email-opt-in"><input id="record-register-alert" type="checkbox"/> Se alguém superar meu recorde</label><label class="email-opt-in"><input id="record-register-daily-alert" type="checkbox"/> Quando houver Desafio Diário</label></fieldset>
+              <fieldset class="notification-choices"><legend>Avisos por e-mail (opcionais, ainda não enviados)</legend><label class="email-opt-in"><input id="record-register-alert" type="checkbox"/> Se alguém superar meu recorde</label><label class="email-opt-in" style={DAILY_CHALLENGES_ENABLED?undefined:"display:none"}><input id="record-register-daily-alert" type="checkbox"/> Quando houver Desafio Diário</label></fieldset>
               <button type="submit" class="btn">Criar conta e registrar recorde</button>
             </form>
             <form id="record-login" hidden>
