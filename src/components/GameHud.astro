@@ -16,5 +16,6 @@ const {statusId,scoreId,bestId,globalId,globalLabelId,provisionalId,levelId,best
  {secondStatId&&<span>{secondStatLabel}: <strong id={secondStatId}>0</strong></span>}
  <span>{bestLabel}: <strong id={bestId}>0</strong></span>
  <span>{globalLabelId?<span id={globalLabelId}>{globalLabel}:</span>:globalLabel+':'} <strong id={globalId}>—</strong>{provisionalId&&<small id={provisionalId} hidden> (provisório)</small>}</span>
+ <slot />
  {hint&&<span class="hud-hint">{hint}</span>}
 </div>

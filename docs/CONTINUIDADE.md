@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## Pixel Quest — barras e regras provisórias de pontuação (19/11/2026)
+- Barras de cristais e inimigos na coluna lateral do HUD: preenchimento aumenta com coleta/pisão; número restante decresce (6→0, 3→0). Componente reutilizável `GameProgressBar.astro` inserido por slot opcional no `GameHud.astro`, sem alterar Snake/Tetris.
+- **Proposta de pontuação v1, em teste:** cristal +10, inimigo derrotado +50, conclusão do portal +100, bônus de tempo efetivo `max(0, 500 - 2 × segundos completos)`. Tempo pausado/countdown não conta. Recorde somente após portal liberado e fase concluída; desistência/derrota não qualificam.
+- `scoring.ts` calcula pontuação de fase e soma de níveis sem duplicar ID; `records.ts` guarda *somente marcas locais experimentais* por fase e por conjunto de níveis concluídos (atualmente campanha de 1 fase), com chave versionada. Não existe ranking geral online ou autenticação de pontuação desta fase; integração oficial é etapa posterior e exigirá validação do servidor/versão das regras. Não confundir recorde local com posição global.
+- Testes de pontuação e de barra inicial incluídos. Validar GitHub CI e Preview. Sem deploy/merge; Desafio Diário permanece oculto.
+
+
+
 ## Pixel Quest — correção da semântica dos indicadores (19/11/2026)
 - Esclarecimento do proprietário: separar **Total de inimigos derrotados** (acumulado da campanha entre fases) e **Derrotados neste nível** (zera ao entrar no próximo). Manter **Inimigos no nível** (restantes/total) e **Cristais no nível** (coletados/total).
 - `gameplay.ts`: `createRun(level,cumulativeBeforeLevel=0)`, `levelDefeated(run)`, `totalDefeated(run)`. A próxima fase, quando implementada, deve receber o acumulado da fase anterior; nova campanha começa do zero. **Atualmente só existe a fase 1-1; a transição ainda não foi implementada**, portanto acumulado e derrotados no nível coincidem nesta fase. Não foi criada persistência entre sessões ou novos níveis fictícios.

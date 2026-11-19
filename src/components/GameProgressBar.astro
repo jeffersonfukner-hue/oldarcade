@@ -1,0 +1,24 @@
+---
+/** Progresso visual compartilhado; fonte do número e da barra é o mesmo contador. */
+interface Props {
+ id:string;label:string;total:number;color?:'crystal'|'enemy';
+}
+const {id,label,total,color='crystal'}=Astro.props;
+---
+<div class="oa-progress" data-kind={color}>
+ <div class="oa-progress-label"><label for={id+'-bar'}>{label}</label><span class="oa-progress-count"><strong id={id}>{total}</strong> restantes</span></div>
+ <progress id={id+'-bar'} max={Math.max(1,total)} value="0" aria-label={label+' coletados ou derrotados'}></progress>
+</div>
+<style>
+ .oa-progress{display:grid;gap:6px;min-width:0;width:100%;color:#d9e7f5}
+ .oa-progress-label{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:3px;font-size:.72rem}
+ .oa-progress-count{color:#c6d7ea;white-space:nowrap;font-variant-numeric:tabular-nums}
+ .oa-progress-count strong{color:#fff;font-size:.95rem}
+ progress{appearance:none;-webkit-appearance:none;display:block;width:100%;height:12px;border:1px solid #51617d;border-radius:999px;background:#14283d;overflow:hidden}
+ progress::-webkit-progress-bar{background:#14283d;border-radius:999px}
+ progress::-webkit-progress-value{background:#64e7ec;border-radius:999px;transition:width .18s linear}
+ progress::-moz-progress-bar{background:#64e7ec;border-radius:999px}
+ [data-kind="enemy"] progress::-webkit-progress-value{background:#f2a56f}
+ [data-kind="enemy"] progress::-moz-progress-bar{background:#f2a56f}
+ @media(prefers-reduced-motion:reduce){progress::-webkit-progress-value{transition:none}}
+</style>

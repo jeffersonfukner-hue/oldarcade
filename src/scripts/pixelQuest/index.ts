@@ -7,6 +7,8 @@ import {setupPlatformInput} from './input';
 import {setCountdownOverlay} from '../gameCountdownOverlay';
 import {centerGameBoard} from '../gameViewport';
 import {setupGameClock} from '../gameClock';
+import {calculateCompletedLevel,timeBonus,type LevelResult} from './scoring';
+import {readLocalRecord,recordCompletedLevel} from './records';
 
 const stage=document.querySelector<HTMLElement>('#pq-stage')!;
 if(stage){
@@ -29,12 +31,22 @@ if(stage){
  const levelEnemies=stage.querySelector<HTMLElement>('#pq-level-enemies')!;
  const levelKills=stage.querySelector<HTMLElement>('#pq-level-defeated')!;
  const portalStatus=stage.querySelector<HTMLElement>('#pq-portal-status')!;
+ const crystalsRemaining=stage.querySelector<HTMLElement>('#pq-crystals-remaining')!;
+ const enemiesRemaining=stage.querySelector<HTMLElement>('#pq-enemies-remaining')!;
+ const crystalsProgress=stage.querySelector<HTMLProgressElement>('#pq-crystals-remaining-bar')!;
+ const enemiesProgress=stage.querySelector<HTMLProgressElement>('#pq-enemies-remaining-bar')!;
+ const bestLevel=stage.querySelector<HTMLElement>('#pq-best')!;
+ const bestGeneral=stage.querySelector<HTMLElement>('#pq-global')!;
  const input=setupPlatformInput(stage);
  let run:Run=createRun(firstLevel),camera=0;
  let phase:'ready'|'countdown'|'playing'|'paused'|'won'|'lost'='ready';
  let countdownTimer:number|undefined,seconds=3,previous=0,accumulator=0;
  const clock=setupGameClock(screen,()=>phase==='playing');
  const totalCrystals=firstLevel.entities.filter(entity=>entity.kind==='crystal').length;
+ function updateLocalRecords(){
+  bestLevel.textContent=readLocalRecord('level-'+firstLevel.id)?.score.toString()??'—';
+  bestGeneral.textContent=readLocalRecord('campaign-1')?.score.toString()??'—';
+ }
  function updateHud(){
   score.textContent=String(run.score);
   hearts.textContent='♥'.repeat(run.hearts)+'♡'.repeat(3-run.hearts);
@@ -44,6 +56,10 @@ if(stage){
   defeated.textContent=String(totalDefeated(run));
   levelKills.textContent=String(defeatedCount);
   levelEnemies.textContent=(run.enemies.length-defeatedCount)+'/'+run.enemies.length;
+  crystalsProgress.value=run.crystals.size;
+  enemiesProgress.value=defeatedCount;
+  crystalsRemaining.textContent=String(totalCrystals-run.crystals.size);
+  enemiesRemaining.textContent=String(run.enemies.length-defeatedCount);
   portalStatus.textContent=run.crystals.size===totalCrystals?'Portal liberado · todos os cristais coletados':`Portal bloqueado · ${run.crystals.size}/${totalCrystals} cristais`;
  }
  function setPhase(next:typeof phase){
@@ -77,7 +93,14 @@ if(stage){
  function finish(won:boolean){
   clearCountdown();setPhase(won?'won':'lost');overlay.hidden=false;title.hidden=false;description.hidden=false;
   title.textContent=won?'Portal alcançado!':'Fim de jogo';
-  description.textContent=won?'Fase 1-1 concluída com '+run.score+' pontos. Esta é uma versão experimental.':'Seus três corações acabaram. Tente novamente a trilha.';
+  if(won){
+   const result:LevelResult=calculateCompletedLevel(firstLevel.id,run.crystals.size,levelDefeated(run),run.elapsedMs);
+   // Pontuação de eventos + bônus de conclusão e tempo é reconciliada na vitória.
+   run.score=result.score;
+   recordCompletedLevel(result,[result],1);
+   updateLocalRecords();
+   description.textContent='Fase 1-1: '+result.score+' pontos · Cristais '+(result.crystals*10)+' · Inimigos '+(result.enemies*50)+' · Portal 100 · Tempo +'+timeBonus(result.elapsedMs)+'. Recordes locais provisórios.';
+  }else description.textContent='Seus três corações acabaram. Tente novamente a trilha.';
   start.textContent='↻ Jogar novamente';start.hidden=false;input.reset();updateHud();
  }
  function startGame(){
@@ -126,5 +149,5 @@ if(stage){
   drawPlatformScene(canvas,firstLevel,run,camera);
   requestAnimationFrame(frame);
  }
- setPhase('ready');updateHud();drawPlatformScene(canvas,firstLevel,run,camera);requestAnimationFrame(frame);
+ setPhase('ready');updateHud();updateLocalRecords();drawPlatformScene(canvas,firstLevel,run,camera);requestAnimationFrame(frame);
 }
