@@ -22,6 +22,8 @@ test('Login solicitado dentro da página mantém rolagem e tabuleiro',async({pag
  await page.route('**/api/auth/login',route=>route.fulfill({status:200,contentType:'application/json',body:'{"player":{"nickname":"ArcadeFan"}}'}));
  await page.goto('/jogos/snake/');
  const original=page.url();
+ // Garantir página rolável independentemente do tamanho do viewport de teste.
+ await page.evaluate(()=>{document.body.style.minHeight='200vh'});
  const scroll=await page.evaluate(()=>{window.scrollTo(0,500);return window.scrollY});
  expect(scroll).toBeGreaterThan(0);
  await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:open-auth')));
