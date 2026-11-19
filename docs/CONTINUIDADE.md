@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## Pixel Quest — card na Home e histórico de versões preservado (19/11/2026)
+- Integrado como **jogo #003**, com card clicável na Home e rota de jogo, arte SVG própria. A Home passa a contabilizar os três jogos reais.
+- Fonte de verdade de versão em `gameRegistry.ts`: **v0.1.0-dev**, data inicial 19/11/2026, marcos históricos datados de implementações já realizadas. Histórico mostrado na página, sem criar nova versão para cada commit nem perder versões futuras.
+- Página agora usa `GamePage.astro`, `GameShare.astro`, instruções, artigo histórico sobre o gênero separado dos bastidores da implementação e links de fontes verificáveis. Modo permanece **não competitivo** na API enquanto ranking global não for entregue; pontuação local não deve fingir ranking oficial.
+- Card e renderização editorial cobertos por E2E. Validar CI e Preview antes de homologar. Sem merge/deploy de produção e sem reativar Desafio Diário.
+
+
+
 ## Pixel Quest — barras e regras provisórias de pontuação (19/11/2026)
 - Barras de cristais e inimigos na coluna lateral do HUD: preenchimento aumenta com coleta/pisão; número restante decresce (6→0, 3→0). Componente reutilizável `GameProgressBar.astro` inserido por slot opcional no `GameHud.astro`, sem alterar Snake/Tetris.
 - **Proposta de pontuação v1, em teste:** cristal +10, inimigo derrotado +50, conclusão do portal +100, bônus de tempo efetivo `max(0, 500 - 2 × segundos completos)`. Tempo pausado/countdown não conta. Recorde somente após portal liberado e fase concluída; desistência/derrota não qualificam.

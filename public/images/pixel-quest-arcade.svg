@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 300" role="img" aria-labelledby="title">
+<title id="title">Explorador, cristais e portal do Pixel Quest</title>
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#15274c"/><stop offset="1" stop-color="#316381"/></linearGradient></defs>
+<rect width="680" height="300" fill="url(#sky)"/><path d="M0 218 110 88 226 218 304 132 405 235 512 98 680 235V300H0Z" fill="#284b66"/>
+<path d="M0 250 80 166 175 250 290 176 400 250 545 156 680 247V300H0Z" fill="#226b64"/>
+<path d="M0 252H680V300H0Z" fill="#183e39"/><g fill="#62bb89"><path d="M0 250H680V260H0Z"/><path d="M0 280H680V284H0Z"/></g>
+<g fill="#82ecf2" stroke="#d5ffff" stroke-width="4"><path d="m185 176 19-30 19 30-19 30z"/><path d="m271 149 16-26 16 26-16 26z"/><path d="m378 170 19-30 19 30-19 30z"/></g>
+<rect x="524" y="156" width="66" height="96" fill="#c3a2f6"/><rect x="538" y="169" width="38" height="83" fill="#25315a"/><rect x="549" y="188" width="16" height="38" fill="#80e5e8"/>
+<g shape-rendering="crispEdges"><rect x="99" y="198" width="28" height="50" fill="#ffd36b"/><rect x="95" y="184" width="37" height="20" fill="#e4a658"/><rect x="117" y="210" width="7" height="7" fill="#1a3150"/><rect x="97" y="247" width="12" height="8" fill="#283956"/><rect x="118" y="247" width="12" height="8" fill="#283956"/><rect x="429" y="228" width="35" height="24" fill="#fa8b93"/><rect x="438" y="236" width="6" height="6" fill="#1c2742"/><rect x="452" y="236" width="6" height="6" fill="#1c2742"/></g></svg>
