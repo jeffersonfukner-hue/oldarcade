@@ -1,6 +1,7 @@
 ---
 import GamePage from '../../../components/GamePage.astro';
 import {gameRegistry} from '../../../data/gameRegistry';
+import GameStageHeader from '../../../components/GameStageHeader.astro';
 import GameHud from '../../../components/GameHud.astro';
 import GameShare from '../../../components/GameShare.astro';
 import GameRanking from '../../../components/GameRanking.astro';
@@ -18,13 +19,10 @@ import GameGuide from '../../../components/GameGuide.astro';
    <p class="lede">Cumpra missões, encontre itens especiais e evolua em níveis progressivos sem reiniciar a cobrinha ou a pontuação. Recordes deste modo são separados do Clássico.</p>
    <a class="btn secondary" href="/jogos/snake/">← Voltar ao Clássico</a>
   </section>
-  <GameLayout label="Jogar Snake Aventura">
+  <GameLayout label="Jogar Snake Aventura" className="oa-stage-unified">
    <div class="panel game-stage" id="adventure-stage" data-arcade-viewport data-board-shape="square">
-    <div class="game-topline">
-     <strong>◼ SNAKE <span class="muted">· Aventura</span></strong>
-     <div class="actions"><button id="adventure-pause" type="button">Pausar</button><button id="adventure-fullscreen" type="button" aria-label="Alternar tela cheia do modo Aventura">⛶ Tela cheia (F)</button></div>
-    </div>
-    <div class="arcade-game-layout"><GameHud statusId="adventure-status" scoreId="adventure-score" bestId="adventure-best" globalId="adventure-hud-global" provisionalId="adventure-hud-provisional" levelId="adventure-level" bestLabel="Recorde" globalLabel="Global" />
+    <GameStageHeader title="◼ SNAKE" subtitle="Aventura" pauseId="adventure-pause" fullscreenId="adventure-fullscreen" fullscreenLabel="Alternar tela cheia do modo Aventura"></GameStageHeader>
+    <div class="arcade-game-layout"><GameHud compact statusId="adventure-status" scoreId="adventure-score" bestId="adventure-best" globalId="adventure-hud-global" provisionalId="adventure-hud-provisional" levelId="adventure-level" bestLabel="Recorde" globalLabel="Global" />
 
     <div class="adventure-progress">
      <div class="adventure-mission-line"><strong id="adventure-mission">Colete 5 maçãs</strong><span id="adventure-mission-progress">0/5</span></div>
