@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import {DAILY_CHALLENGES_ENABLED} from '../data/featureFlags';
 import {gameRegistry} from '../data/gameRegistry';
 import {gameModes} from '../data/gameModes.js';
 const orderedGames=Object.entries(gameRegistry).sort((a,b)=>b[1].number-a[1].number);
@@ -47,7 +48,7 @@ const description='Jogue Snake e Tetris gratuitamente, acompanhe rankings por mo
           <div class="arcade-activity-item"><span aria-hidden="true">👥</span><strong id="hero-site-visits">—</strong><span>Visitas ao site</span></div>
           <div class="arcade-activity-item"><span aria-hidden="true">🏁</span><strong id="hero-total-plays">—</strong><span>Total de partidas</span></div>
         </div>
-        <section id="home-daily" class="home-daily-spotlight" data-home-daily hidden aria-labelledby="home-daily-title">
+        {DAILY_CHALLENGES_ENABLED && <section id="home-daily" class="home-daily-spotlight" data-home-daily hidden aria-labelledby="home-daily-title">
           <div class="home-daily-emblem" aria-hidden="true"><span>★</span><small>24H</small></div>
           <div class="home-daily-copy">
             <span class="eyebrow">DESAFIO DIÁRIO <span class="oa-daily-dot" aria-hidden="true">●</span> NOVA CHANCE AMANHÃ</span>
@@ -55,7 +56,7 @@ const description='Jogue Snake e Tetris gratuitamente, acompanhe rankings por mo
             <p data-home-daily-copy>Um desafio especial está à sua espera.</p>
           </div>
           <a class="btn home-daily-action" data-home-daily-link href="/conta/">Descobrir desafio →</a>
-        </section>
+        </section>}
         <section class="arcade-games" id="destaques" aria-labelledby="games-heading">
           <div class="arcade-games-heading"><div><span class="eyebrow">Biblioteca de jogos</span><h2 id="games-heading">Escolha seu desafio</h2></div><span class="pill oa-library-count">{availableGames} jogos <span aria-hidden="true">•</span> {featuredModes.length} modalidades</span></div>
           <div class="arcade-mode-grid home-game-grid">
