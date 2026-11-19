@@ -1,0 +1,6 @@
+---
+/** Ranking compartilhado entre Clássico e Evolution; IDs/API intocados. */
+interface Props {title:string}
+const {title}=Astro.props;
+---
+<section class="section panel oa-ranking-panel" aria-labelledby="global-rank-title"><div class="section-head"><div><span class="eyebrow">Desafio OldArcade</span><h2 id="global-rank-title">{title}</h2></div><span class="pill">Top 10 · Contas cadastradas</span></div><p class="small muted">Em caso de empate, fica acima quem alcançou a pontuação primeiro. Cada jogador tem uma posição individual.</p><div class="ranking-overflow"><table class="ranking"><thead><tr><th>Posição</th><th>Nickname</th><th>Pontos</th><th>Data e hora</th></tr></thead><tbody id="global-rank-body"><tr><td colspan="4">Carregando…</td></tr></tbody></table></div><div id="my-global-rank" class="my-global-rank" hidden><strong>Sua posição: <span id="my-global-position">—</span></strong><p id="my-global-detail"></p></div><p class="small muted" id="global-rank-status" role="status">Consultando Cloudflare…</p></section>
