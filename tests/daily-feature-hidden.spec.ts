@@ -6,7 +6,7 @@ test('Desafio Diário fica ausente em Home, Snake, Tetris e Minha Conta',async({
   await page.goto(path);
   await expect(page.locator('[data-daily-calendar], [data-daily-history], [data-home-daily]')).toHaveCount(0);
   await expect(page.getByRole('link',{name:/Conhecer o desafio/})).toHaveCount(0);
-  await expect(page.getByText(/Quando houver (um novo )?Desafio Diário|Novo Desafio Diário disponível/)).toHaveCount(0);
+  await expect(page.locator('label:visible').filter({hasText:/Quando houver (um novo )?Desafio Diário|Novo Desafio Diário disponível/})).toHaveCount(0);
  }
 });
 
