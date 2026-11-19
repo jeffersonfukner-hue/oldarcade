@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import packageData from '../../package.json';
+import GlobalAuthModal from '../components/GlobalAuthModal.astro';
 const { title, description, path = '/', type = 'website' } = Astro.props;
 const configured = Astro.site?.hostname !== 'example.invalid';
 const base = new URL(Astro.site ?? 'https://example.invalid');
@@ -28,11 +29,12 @@ const version = packageData.version+'-dev';
 <body>
   <header class="site-header">
     <div class="shell header-inner">
-      <a class="logo" href="/" aria-label="OldArcade, página inicial"><span class="logo-symbol">▣</span><span>OLD<span class="accent">ARCADE</span></span></a>
-      <nav aria-label="Menu principal"><a href="/#destaques">Jogos</a><a href="/rankings/">Rankings</a><a href="/sobre/">Sobre</a><a href="/conta/" data-player-account-link><span data-player-name>Minha conta</span></a></nav>
+      <a class="logo" href="/" aria-label="OldArcade, página inicial"><img class="oldarcade-brand-mark" src="/images/oldarcade-mark.svg" alt="" width="42" height="42" /><span class="oldarcade-brand-word">OLD<span class="accent">ARCADE</span></span></a>
+      <nav aria-label="Menu principal"><a href="/#destaques">Jogos</a><a href="/rankings/">Rankings</a><a href="/sobre/">Sobre</a><a href="/conta/" data-player-account-link><span data-player-name>Minha conta</span></a><a href="/conta/" data-auth-entry data-auth-trigger="login">Entrar</a></nav>
     </div>
   </header>
   <main><slot /></main>
+  <GlobalAuthModal />
   <footer class="site-footer">
     <div class="shell footer-inner"><span>© {new Date().getFullYear()} OldArcade · Jogos clássicos, histórias reais.</span><div><a href="/sobre/">Sobre</a><a href="/contato/">Contato</a><a href="/privacidade/">Privacidade</a><a class="version" href="/sobre/#historico-versoes" title="Conheça o diário de bordo do OldArcade">v{version} · diário de bordo</a></div></div>
   </footer>

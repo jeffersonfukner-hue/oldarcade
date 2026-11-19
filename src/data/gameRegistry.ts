@@ -23,5 +23,19 @@ export const gameRegistry = {
       { version: '0.1.0', date: '2026-11-15', notes: 'Primeira implementação de Snake com Canvas, teclado, controles móveis, tela cheia e pontuações locais; fase de testes, ainda sem lançamento público.' },
       { version: '0.2.0-dev', date: '2026-11-16', notes: 'Versão de desenvolvimento: contas, ranking global por jogadores, recorde provisório, efeitos de pontuação e comemorações, melhorias mobile.' }
     ]
+  },
+  tetris: {
+    number: 2,
+    name: 'Tetris',
+    createdAt: '2026-11-17',
+    version: '0.1.0-dev',
+    milestones: [
+      {date:'2026-11-17',mode:'tetris',title:'O segundo jogo entra no tabuleiro',notes:'Primeira implementação de blocos em queda com sete peças, próxima peça, reserva, peça fantasma e limpeza de linhas; construída com componentes compartilhados e aguardando validação no Preview.'},
+      {date:'2026-11-17',mode:'tetris-sprint',title:'40 linhas contra o relógio',notes:'Modo Sprint em desenvolvimento: completar 40 linhas no menor tempo efetivo, ranking independente por duração, pausa não conta, tentativas incompletas não entram na classificação. Motor do Clássico e componentes globais reaproveitados; aguardando validação visual no Preview.'},
+      {date:'2026-11-17',mode:'tetris-survival',title:'Sobrevivência: cada segundo pesa',notes:'Terceiro modo do Tetris em Preview: velocidade aumenta a cada 30 segundos efetivos, ranking pelo maior tempo sobrevivido, regras compartilhadas de tabuleiro e interface; aguardando validação do proprietário.'}
+    ],
+    history: [
+      {version:'0.1.0-dev',date:'2026-11-17',notes:'Protótipo jogável do jogo #002, sem lançamento em produção; controles de teclado e toque, pontuação e ranking isolados.'}
+    ]
   }
 } as const;

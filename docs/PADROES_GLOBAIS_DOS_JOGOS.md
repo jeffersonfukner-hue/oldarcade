@@ -2,9 +2,73 @@
 
 > **Contrato permanente.** Ler antes de implementar ou modificar qualquer jogo ou modo. Aplica-se automaticamente; o proprietário não precisa repetir regras já aprovadas. Exceções exigem justificativa documentada e aceite. Complementa, sem substituir, AGENTS.md, docs/ARQUITETURA.md, docs/CONTINUIDADE.md e docs/VERSIONAMENTO_E_PUBLICACAO.md.
 
+## Padrão editorial atual — onde assistir a filmes históricos
+
+- Quando houver obra audiovisual **verificavelmente relacionada** a um jogo, incluir no artigo histórico via componente **único** `src/components/HistoricalScreenings.astro`, alimentado por `src/data/historicalScreenings.ts`. Separar história real, dramatização e obra apenas relacionada (ex.: `Man vs Snake` acompanha Nibbler, não a versão Nokia).
+- Informar título, ano, tipo, relação histórica, país consultado, plataforma e forma de acesso (assinatura, aluguel, compra ou gratuito com anúncios), com endereço funcional de consulta/visualização e fonte de verificação. Não inventar disponibilidade.
+- Fixar a data editorial/consulta em formato legível e `<time datetime>`; a disponibilidade é histórica, **não promessa em tempo real**. Na publicação efetiva do artigo, revalidar o catálogo e registrar a nova data; em futuras revisões, atualizar dados e cronologia, mantendo transparência.
+- Sempre disponibilizar **Sugerir correção** para o contato global `/contato/`, preenchendo assunto e jogo sem enviar automaticamente. Não criar um formulário por jogo.
+- O componente mostra obras verificadas, não espaços vazios; **sem links de afiliado por enquanto**. Afiliados para livros e audiovisual permanecem backlog independente.
+
+## Padrão editorial futuro — livros, filmes e documentários
+
+- As seções de **história do jogo** podem futuramente apresentar um bloco compartilhado de recomendações culturais, configurado por título (dados, nunca HTML/CSS comercial copiado em cada modo). O bloco é diferente do histórico de versões do OldArcade.
+- Conteúdo potencial: livros para compra, filmes/documentários com aluguel, compra ou streaming; somente usar URL de afiliado se um programa oficial/parceiro permitir e houver adesão válida.
+- Exigir verificação de obra, edição, plataforma, disponibilidade regional, direitos de imagens e destinação. Identificar publicidade/comissões sem disfarçar recomendações de conteúdo independente; atributos adequados para links patrocinados.
+- **Ainda não implementado:** não exibir placeholders vazios nem inserir links de compra sem validação e autorização. A história do Tetris usa `src/components/TetrisHistory.astro` nos três modos; o padrão futuro deve ser reaproveitável também para Snake e os demais jogos.
+
+## Critérios de qualidade de missões — pesquisa e decisão em 18/11/2026
+
+Referências: guia oficial do Tetris Effect: Connected, que traz desafios de precisão (limpar linha em cada colocação) em vez de somente pontuar; Tetris 99, com missões que rendem tickets de personalização; pesquisas sobre design de jogos, que destacam objetivo claro, feedback imediato, desafio adequado e variedade procedural.
+- Tetris Effect: https://tetriseffect.game/beginners-community-guide/
+- Nintendo / Tetris 99: https://www.nintendo.com/us/store/products/tetris-99-switch/
+- Revisão científica dos motivadores de games: https://ieeexplore.ieee.org/document/9173738
+- Procedural content e frustração: https://cdn.aaai.org/ojs/12442/12442-52-15970-1-2-20201228.pdf
+
+**Critério de aceite para chamar algo de Desafio Diário:**
+1. Tem **verbo de ação específico** (ex.: fazer limpezas apenas de 4 linhas, obedecer ordem, fugir de inimigos), uma **restrição** e condição de vitória/derrota; "fazer mais pontos" sozinho NÃO é desafio.
+2. A regra, a próxima ação necessária e o progresso aparecem **junto ao tabuleiro**, sem rolar a página; no Tetris, imediatamente abaixo de **LINHAS**.
+3. Uma missão precisa terminar assim que for vencida ou perdida; não continuar indefinidamente com pontuação livre.
+4. Deve ser verificável e reproduzível: seed, data, versão e regras concretas. Testes de unidade validam missões de 1000 datas, mas isso NÃO substitui testes de jogabilidade e equilíbrio.
+5. Progressão perceptível com variedade de família e dificuldade calibrada; **uma missão diferente não significa missão boa**. Antes da publicação oficial, revisar metas impossíveis, frustrantes ou triviais e fazer QA humano no Preview.
+6. Preview permite **laboratório de treino repetível**, sem registrar tentativa no D1, pontuação oficial ou criar ranking. Testar várias missões, ajustar prazer e dificuldade, somente depois aprovar modo diário definitivo.
+7. Recompensa e antecipação são backlog (moeda virtual e cosméticos); não lançar monetização nesta etapa.
+
+## Desafio Diário — contrato global aprovado e gerador permanente de missões
+
+- **Exclusivo para jogadores autenticados:** visitante visualiza calendário e **objetivo da missão antes de entrar**, com convite que abre o modal global sem mudar de página/rolagem. A conta gratuita guarda histórico, vitória/derrota e permite participar; não habilitar tentativas por simples verificação no front-end.
+- **Uma tentativa oficial por conta/jogo/dia** (`America/Sao_Paulo`), conferida e reservada pelo servidor com chave única; fechar/recarregar/abandonar não concede replay. Ao concluir, resultado e métricas ficam na mesma tentativa. Falha de gravação permite **somente reenviar o resultado pendente**, não iniciar outra partida.
+- **Objetivo, vitória e derrota são fundamentais.** Uma partida Clássica com data e seed não basta para ser chamada de desafio. Exibir a meta e as condições antes de consumir a tentativa, status objetivo durante o jogo, progresso e resultado no calendário e em Minha Conta. Cada missão tem critérios explícitos e um fim controlado pelo motor.
+- **Repetição após derrota — componente global:** Snake, Tetris e jogos futuros devem usar `src/scripts/dailyMissionReplay.ts` para oferecer **Tentar desafio novamente**, jamais iniciar jogo livre com painel de missão ativo. A tentativa oficial solicita novo token ao servidor para **a mesma data**; treino repete a mesma missão e seed sem D1. Resultado pendente exige reenvio, não nova partida. Vitória não permite repetição; iniciar jogo livre limpa a missão e seu tracker. Cobertura cruzada E2E obrigatória.\n- **Gerador permanente e determinístico:** `src/data/dailyChallenges.js` é a fonte única de definição das missões, metas, dificuldade, configuração de obstáculos e sequências. Mesma data/jogo/versão produz a mesma missão e seed para todos; famílias de desafios alternam e parâmetros variam automaticamente por 100, 500, 1.000+ dias. Não depende de inclusão manual diária. Não prometer missão matematicamente inédita todos os dias: tipos e metas podem eventualmente voltar a ocorrer.
+- **Preservação histórica:** datas até 18/11/2026 são v1 (formato inicial sem meta de vitória), 19/11/2026 é v2, a partir de 20/11/2026 é v3. Nunca reescrever a implementação publicada de uma versão; toda mudança futura cria nova versão com data de início. Histórico/replay futuro deve usar versão da data, inclusive seeds e critérios originais.
+- **Tetris Diário:** famílias atuais incluem eliminar linhas, metas de pontuação, sprint com tempo, limpezas de **exatamente quatro linhas** (1, 2 ou 3 encerram com derrota) e sequência obrigatória de limpezas (ex.: 1 → 4 → 3 → 3 → 2). Sequência e **próximo número ficam destacados ao lado do tabuleiro**; a API valida o histórico de limpezas enviado e registra a vitória/derrota. Missões devem preservar o controle e física real do jogo.
+- **Snake Diário:** famílias atuais incluem caça de frutas, corrida contra o tempo, sobrevivência, labirinto com obstáculos e desafios com inimigos, obstáculos, frutas e prazo. Obstáculos/inimigos utilizam posições determinísticas e somente são habilitados no desafio apropriado, sem alterar o Snake Clássico livre; não criar jogos separados por missão.
+- **Infraestrutura e segurança:** `DailyCalendar.astro`, `DailyHistory.astro`, `dailyCalendar.ts` e `dailyChallenges.js` são compartilhados entre jogos; cada motor só fornece progresso/mecânica. Histórico privado e sucesso da missão são consultados por conta autenticada; não misturar recordes do Clássico. Não promover classificação competitiva de missões como antifraude verificado enquanto o servidor não reproduzir/atestar a jogada.
+- **Migrações:** proprietário confirmou execução manual da `0008` (tabela das tentativas) e `0010` (colunas de linhas/sucesso) no **D1 Preview**; `0009` também foi confirmada anteriormente. Não solicitar repetição sem evidência nova. Produção não autorizada, sem merge/publicação automática.
+- **Futuro opcional:** desbloqueio de replay **recreativo** de desafios anteriores com moeda do site é backlog, não reabre a tentativa oficial nem modifica ranking; ver `docs/BACKLOG_MOEDA_ARCADE.md`.
+
+## Checklist obrigatório — mudanças globais e prevenção de regressão
+
+**Regra de manutenção:** qualquer comportamento, aparência, animação, texto recorrente ou interação declarada como **padrão** pertence a um único componente, módulo, token ou contrato compartilhado. Alterações nesse padrão propagam-se automaticamente a **todos os jogos/modos existentes e futuros**, sem copiar código ou CSS entre páginas. A única configuração por jogo são seus dados e diferenças reais de mecânica, explicitamente documentadas.
+
+Antes de modificar qualquer tela ou jogo, preencher e verificar mentalmente este checklist; quando houver PR, registrar os itens aplicáveis em sua descrição/continuidade:
+
+- [ ] **Consultar modelo aprovado:** ler `AGENTS.md`, `docs/PADROES_GLOBAIS_DOS_JOGOS.md`, `docs/ARQUITETURA.md`, `docs/CONTINUIDADE.md` e o componente atual. Identificar o comportamento validado pelo proprietário antes de implementar.
+- [ ] **Classificar:** a mudança pertence ao **padrão global** (ex.: cor, tipografia, botões, modal, countdown, recordes, fullscreen, celebrações) ou à **mecânica exclusiva** de um jogo? Não presumir exceção.
+- [ ] **Mapear consumidores:** localizar todos os jogos, modos e páginas que usam o componente (inclusive Clássico, Evolution, Aventura e Tetris). Registrar quem será afetado, sem depender de lista manual fixa para o futuro.
+- [ ] **Alterar uma única fonte de verdade:** modificar componente/estilo/serviço compartilhado. Se uma regra duplicada estiver impedindo a propagação, removê-la e integrar seu consumidor ao padrão; evitar CSS por ID, forks e soluções locais.
+- [ ] **Propagar imediatamente:** todos os consumidores do padrão devem usar a implementação atualizada **na mesma PR**. Se existirem 100 jogos, os 100 recebem automaticamente a mudança pelo componente comum, sem tarefa de migração manual por jogo.
+- [ ] **Preservar diferenças legítimas:** dimensões do tabuleiro, controles próprios, pontuação e regras competitivas são parâmetros/dados declarativos, não motivo para duplicar o componente.
+- [ ] **Cobrir com testes cruzados:** testar o caso alterado em pelo menos um representante de cada variante real e garantir que os demais consumidores continuam ligados ao componente. Incluir desktop/mobile, acessibilidade e fullscreen quando aplicável.
+- [ ] **Comparar Preview com padrão aprovado:** CI verde comprova automação, não substitui validação visual do proprietário. Verificar estados inicial, execução, pausa, retomada, fim e ranking para mudanças de fluxo.
+- [ ] **Documentar evidências e continuidade:** atualizar o contrato quando aprimorado, registrar arquivos/commits/testes/pendências na PR, sem criar versões ou alegar publicação sem evidência. Merge e produção permanecem exclusivos do proprietário.
+
+**Exemplo vinculante:** mudar a cor da fonte da contagem regressiva significa editar seu estilo global uma vez; não criar regras próprias para Snake, Tetris ou novos títulos. A contagem 3–2–1 mostra **somente a animação/número** durante início, retomada e transições, com botões/títulos/explicações ocultos pelo componente compartilhado.
+
 ## 1. Identificação, catálogo e versões
 - Cada **jogo** possui ID estável, número sequencial fixo, data de criação, versão individual e histórico imutável em `src/data/gameRegistry.ts`.
 - **Modos** são variantes do mesmo título; não aumentam a contagem de jogos disponíveis. Podem ter IDs competitivos e recordes próprios.
+- **Destaque principal da Home** = sempre o título com o maior número sequencial (`number`) no `gameRegistry`; o link, nome, símbolo, chamada e primeira posição dos cards vêm automaticamente do catálogo, nunca de jogo fixo no HTML. Todos os títulos anteriores continuam acessíveis. Modos novos de um título antigo não substituem o destaque do jogo mais recente.
 - Versão do portal e versão do jogo são independentes; não aumentar por commit/CI. Exibir histórico discreto e expansível, distinguindo desenvolvimento de publicação.
 - Preservar regras do Clássico ao evoluir Aventura/Desafio; não misturar pontuações nem regras.
 
@@ -21,6 +85,7 @@
 
 ## 3. Ranking e recordes por modo competitivo
 - Top 10 por conta, pódio Top 3, uma melhor marca por conta, desempate cronológico em milissegundos do servidor, posição individual e recordes pessoal/global no HUD.
+- **Critério competitivo declarativo por modo:** o catálogo (`src/data/gameModes.js`) identifica pontuação maior como padrão ou `ranking:'time'` para menor tempo, mantendo o mesmo `GameRanking`, página geral, conta, compartilhamento e endpoint D1. `src/data/rankingRules.js` formata valores e compara marcas; a API ordena e atualiza o melhor registro pelo sentido configurado. Modos podem usar `ranking:'time'` (menor tempo, Sprint) ou `ranking:'survival'` (maior tempo, Sobrevivência); a unidade dos dois é milissegundos inteiros e a apresentação é a mesma, sem alterar o banco. Tempos Sprint são milissegundos inteiros positivos, apresentados como `m:ss.mmm`. Empates de tempo preservam a marca mais antiga. Tentativas que não cumprem objetivo explícito **não podem disparar evento de registro competitivo**. Não inverter valores ou criar outro ranking isolado.
 - Liderança provisória ao ultrapassar meta global conhecida; efeito dourado, efeito verde para recorde pessoal; confirmar oficialmente só pela resposta do servidor ao encerrar. Empates respeitam conquista anterior.
 - Cadastro/login opcional no pós-jogo; visitantes jogam livremente. Ranking de cada modo isolado por ID; componentes `GameRanking.astro`/`GameShare.astro` e API compartilhada de leaderboard, sem tabela duplicada.
 - GET de ranking na entrada; GET final anônimo ou POST final autenticado, sem polling durante partida. Não afirmar pontuação verificada quando é autodeclarada; prever antifraude antes de competição pública.
@@ -30,6 +95,7 @@
 - Jogabilidade em primeiro lugar; HUD legível em janela e tela cheia com estado, pontos e recordes. Botão e tecla `F` para fullscreen, `Esc` para sair; pausa por Espaço quando aplicável.
 - Countdown visível 3–2–1 em **toda** nova partida, retomada e transição de fullscreen; preservar posição, pontuação e efeitos ao pausar.
 - Usar `centerGameBoard` de `src/scripts/gameViewport.ts` ao começar, retomar e sair da tela cheia. Não duplicar scroll/centralização.
+- **Layout de tela cheia é compartilhado:** cada stage declara `data-arcade-viewport` e `data-board-shape="square|portrait"`; a área recebe `oa-board-slot`, a superfície real recebe `oa-board-surface`. `src/styles/global.css` define o único contrato de dimensionamento, sempre pela proporção nativa e altura útil da janela, inclusive ultrawide. Nunca adicionar remendos de fullscreen por ID de jogo; novos jogos somente declaram a forma ou parâmetros. HUD, controles e progressos devem permanecer visíveis sem esticar Canvas.
 - Pausar automaticamente quando a aba fica oculta; reinício limpa efeitos e timers da rodada anterior. Respeitar `prefers-reduced-motion`.
 - Adaptar mecânicas ao jogo; não copiar regras específicas do Snake para outros gêneros.
 

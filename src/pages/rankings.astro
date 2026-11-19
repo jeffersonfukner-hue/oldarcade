@@ -1,9 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
 import {gameModes} from '../data/gameModes.js';
+import {isTimeRanking} from '../data/rankingRules.js';
 const modes=Object.entries(gameModes).filter(([,mode])=>mode.competitive).map(([key,mode])=>({key,...mode}));
 ---
-<Base title="Rankings OldArcade — Líderes, recordes e desafios" description="Confira o Top 3 e o Top 10 do Snake Clássico e Aventura no OldArcade. Veja os recordes e desafie os líderes em cada modo." path="/rankings/">
+<Base title="Rankings OldArcade — Líderes, recordes e desafios" description="Confira Top 3 e Top 10 dos jogos do OldArcade, incluindo Snake e Tetris. Veja recordes e desafie os líderes de cada modalidade." path="/rankings/">
  <div class="shell rankings-page">
   <header class="rankings-hero">
    <div><span class="eyebrow">Competição OldArcade</span><h1>Rankings e <span class="accent">desafios</span></h1><p>Veja quem lidera cada modo e tente superar a marca do primeiro colocado. Os rankings são independentes.</p></div>
@@ -27,14 +28,14 @@ const modes=Object.entries(gameModes).filter(([,mode])=>mode.competitive).map(([
    <details class="rankings-top10">
     <summary>Ver classificação completa (Top 10)</summary>
     <div class="ranking-overflow"><table class="ranking">
-     <thead><tr><th>#</th><th>Jogador</th><th>Pontos</th><th>Registrado em</th></tr></thead>
+     <thead><tr><th>#</th><th>Jogador</th><th>{isTimeRanking(mode.key)?"Tempo":"Pontos"}</th><th>Registrado em</th></tr></thead>
      <tbody data-rank-table><tr><td colspan="4">Consultando ranking…</td></tr></tbody>
     </table></div>
    </details>
    <p class="small muted" data-rank-status role="status">Aguardando classificação real do servidor.</p>
   </section>)}
   </div>
-  <p class="rankings-disclaimer small muted">Classificações baseadas nas melhores pontuações registradas por contas. Em caso de empate, vence quem alcançou a pontuação primeiro. Os resultados ainda não são validados pelo servidor contra a partida. Em caso de indisponibilidade, não exibimos números fictícios.</p>
+  <p class="rankings-disclaimer small muted">Classificações baseadas nos resultados das contas: maior pontuação no Clássico e menor tempo no Sprint. Os desempates seguem o critério de cada modo. Os resultados ainda não são validados pelo servidor contra a partida. Em caso de indisponibilidade, não exibimos números fictícios.</p>
  </div>
  <script>import '../scripts/rankingsPage.ts';</script>
 </Base>

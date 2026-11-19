@@ -3,14 +3,14 @@
 interface Props {
  statusId:string;scoreId:string;bestId:string;globalId:string;
  globalLabelId?:string;provisionalId?:string;levelId?:string;
- bestLabel?:string;globalLabel?:string;hint?:string;
+ bestLabel?:string;globalLabel?:string;scoreLabel?:string;hint?:string;
 }
-const {statusId,scoreId,bestId,globalId,globalLabelId,provisionalId,levelId,bestLabel='Recorde pessoal',globalLabel='Recorde global',hint}=Astro.props;
+const {statusId,scoreId,bestId,globalId,globalLabelId,provisionalId,levelId,bestLabel='Recorde pessoal',globalLabel='Recorde global',scoreLabel='Pontos',hint}=Astro.props;
 ---
 <div class="game-hud">
  <span id={statusId} role="status">● Pronto</span>
  {levelId && <span>Nível: <strong id={levelId}>1</strong></span>}
- <span>Pontos: <strong id={scoreId}>0</strong></span>
+ <span>{scoreLabel}: <strong id={scoreId}>0</strong></span>
  <span>{bestLabel}: <strong id={bestId}>0</strong></span>
  <span>{globalLabelId?<span id={globalLabelId}>{globalLabel}:</span>:globalLabel+':'} <strong id={globalId}>—</strong>{provisionalId&&<small id={provisionalId} hidden> (provisório)</small>}</span>
  {hint&&<span class="hud-hint">{hint}</span>}

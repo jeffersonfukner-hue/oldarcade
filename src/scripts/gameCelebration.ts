@@ -1,7 +1,7 @@
 import {arcadePersonality} from './arcadePersonality';
 /** Celebrações compartilhadas: os jogos emitem eventos, este componente cuida do visual. */
 type Kind='personal'|'mission'|'podium'|'leader'|'rival'|'danger'|'rescue'|'provisional'|'defeat';
-type Detail={game:string;kind:Kind;message?:string;final?:boolean};
+type Detail={game:string;kind:Kind;message?:string;final?:boolean;rank?:number};
 const overlay=document.querySelector<HTMLElement>('#game-celebration')!;
 if(overlay){
  const title=overlay.querySelector<HTMLElement>('[data-celebration-title]')!;
@@ -16,7 +16,7 @@ if(overlay){
   rival:['⚡','TE PASSARAM!'],danger:['🐍','CUIDADO!'],rescue:['🍇','SALVA-COBRA!'],provisional:['🏆','MARCA GLOBAL SUPERADA!'],defeat:['💥','FIM DE JOGO!']
  };
  let timeout=0;let current=0;let lastPersonalityAt=0;
- function hide(){overlay.hidden=true;overlay.classList.remove('is-rival','is-final');current=0}
+ function hide(){overlay.hidden=true;overlay.classList.remove('is-rival','is-final','is-podium');current=0}
  document.addEventListener('oldarcade:game-started',()=>{window.clearTimeout(timeout);hide()});
  document.addEventListener('oldarcade:celebrate',event=>{
   const detail=(event as CustomEvent<Detail>).detail;
@@ -28,17 +28,25 @@ if(overlay){
   const priority=detail.final?10:detail.kind==='rival'?5:detail.kind==='leader'?4:detail.kind==='podium'?3:detail.kind==='mission'?2:1;
   if(!overlay.hidden&&priority<current)return;
   window.clearTimeout(timeout);current=priority;
-  const [emoji,heading]=labels[detail.kind];icon.textContent=emoji;title.textContent=heading;
+  const [emoji,heading]=labels[detail.kind];
+  const rank=detail.kind==='podium'&&typeof detail.rank==='number'&&Number.isInteger(detail.rank)&&detail.rank>=2&&detail.rank<=3?detail.rank:null;
+  icon.textContent=rank===2?'🥈':rank===3?'🥉':emoji;
+  title.textContent=rank?rank+'º LUGAR!':heading;
   message.textContent=detail.message||'Mais uma conquista para sua história!';
   const final=Boolean(detail.final);
-  if(board){board.append(overlay)}else{home.append(overlay)}
+  // Pódio/liderança sempre em primeiro plano na janela, mesmo após login ou scroll.
+  // Celebrações de jogo permanecem ancoradas ao tabuleiro.
+  if(detail.kind==='podium'||detail.kind==='leader')home.append(overlay);
+  else if(board)board.append(overlay);
+  else home.append(overlay);
   overlay.classList.toggle('is-final',final);
+  overlay.classList.toggle('is-podium',detail.kind==='podium'||detail.kind==='leader');
   overlay.classList.remove('is-rival');
   replay.hidden=true;overlay.hidden=false;
   const card=overlay.querySelector<HTMLElement>('.oa-celebration-card');
   if(card){card.style.animation='none';void card.offsetWidth;card.style.animation=''}
   const longMessage=detail.kind==='danger'||detail.kind==='rescue';
-  timeout=window.setTimeout(hide,final?4000:longMessage?2700:1400);
+  timeout=window.setTimeout(hide,final?4000:detail.kind==='podium'||detail.kind==='leader'?2600:longMessage?2700:1400);
  });
  overlay.addEventListener('click',event=>{if(event.target===overlay)hide()});
  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!overlay.hidden)hide()});

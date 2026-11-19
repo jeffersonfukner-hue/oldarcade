@@ -3,6 +3,9 @@ import GamePage from '../../components/GamePage.astro';
 import GameHud from '../../components/GameHud.astro';
 import { gameRegistry } from '../../data/gameRegistry';
 import GameShare from '../../components/GameShare.astro';
+import HistoricalScreenings from '../../components/HistoricalScreenings.astro';
+import DailyCalendar from '../../components/DailyCalendar.astro';
+import {DAILY_CHALLENGES_ENABLED} from '../../data/featureFlags';
 const release = gameRegistry.snake;
 const title='Jogar Snake online grátis — Regras, recordes e história | OldArcade';
 const description='Jogue Snake, a cobrinha clássica, grátis e em tela cheia. Aprenda os controles, acompanhe seu recorde local e descubra as origens do gênero em 1976.';
@@ -11,10 +14,12 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
 <GamePage modeId="snake" title={title} description={description} structured={structured}>
   <div class="shell">
     <section class="hero" style="padding-bottom:18px"><div class="eyebrow">Arcade · Estratégia · Jogo gratuito</div><h1>Snake: o jogo da <span class="accent">cobrinha</span></h1><p class="lede">Controle a cobrinha, colete frutas e tente bater seu próprio recorde. Sem cadastro, sem instalação — comece quando quiser.</p><a class="btn secondary" href="/jogos/snake/aventura/">✨ Experimentar o modo Aventura</a> <a class="btn" href="/jogos/snake/evolution/">⚡ Jogar Evolution (Preview)</a></section>
+    {DAILY_CHALLENGES_ENABLED && <DailyCalendar game="snake" />}
     <section class="game-layout" aria-label="Jogo Snake e estatísticas">
-      <div class="panel game-stage" id="game-stage">
-        <div class="game-topline"><strong>◼ SNAKE <span class="muted">· Original OldArcade</span></strong><div class="actions"><button id="pause-btn" type="button">Pausar</button><button id="fullscreen-btn" type="button" aria-label="Ativar tela cheia do jogo">⛶ Tela cheia (F)</button></div></div>
-        <div class="arcade-game-layout"><GameHud statusId="hud-status" scoreId="hud-score" bestId="hud-best" globalId="hud-global-best" globalLabelId="hud-global-label" hint="F: tela cheia · Espaço: pausa" /><div class="screen-wrap" id="game-screen"><canvas id="snake-canvas" width="600" height="600" aria-label="Tabuleiro do jogo Snake com 20 linhas e 20 colunas"></canvas><div id="score-float-layer" class="score-float-layer" aria-hidden="true"></div><div id="record-celebration-layer" class="record-celebration-layer" aria-hidden="true"></div><div id="record-live-alert" class="record-live-alert" role="status" aria-live="polite" aria-atomic="true" hidden></div><div class="game-overlay" id="game-overlay"><h2 id="overlay-title">Preparado para jogar?</h2><p id="overlay-text">Use as setas ou WASD para virar. No celular, deslize no tabuleiro ou use os botões abaixo.</p><strong id="countdown-value" class="countdown-value" hidden aria-live="assertive"></strong><button class="btn" id="start-btn" type="button">▶ Começar partida</button></div></div></div>
+      <div class="panel game-stage" id="game-stage" data-arcade-viewport data-board-shape="square">
+        <div class="game-topline"><strong>◼ SNAKE <span class="muted">· Original OldArcade</span></strong><span class="oa-daily-playing-indicator" data-daily-play-indicator hidden>★ DESAFIO DIÁRIO EM ANDAMENTO</span><div class="actions"><button id="pause-btn" type="button">Pausar</button><button id="fullscreen-btn" type="button" aria-label="Ativar tela cheia do jogo">⛶ Tela cheia (F)</button></div></div>
+        <div class="snake-mission-area" data-daily-mission-sidebar data-daily-mission-inline hidden aria-label="Objetivo e progresso da missão Snake"></div>
+        <div class="arcade-game-layout"><GameHud statusId="hud-status" scoreId="hud-score" bestId="hud-best" globalId="hud-global-best" globalLabelId="hud-global-label" hint="F: tela cheia · Espaço: pausa" /><div class="screen-wrap oa-board-slot oa-board-surface" id="game-screen"><canvas id="snake-canvas" width="600" height="600" aria-label="Tabuleiro do jogo Snake com 20 linhas e 20 colunas"></canvas><div id="score-float-layer" class="score-float-layer" aria-hidden="true"></div><div id="record-celebration-layer" class="record-celebration-layer" aria-hidden="true"></div><div id="record-live-alert" class="record-live-alert" role="status" aria-live="polite" aria-atomic="true" hidden></div><div class="game-overlay" id="game-overlay"><h2 id="overlay-title">Preparado para jogar?</h2><p id="overlay-text">Use as setas ou WASD para virar. No celular, deslize no tabuleiro ou use os botões abaixo.</p><strong id="countdown-value" class="countdown-value" hidden aria-live="assertive"></strong><button class="btn" id="start-btn" type="button">▶ Começar partida</button></div></div></div>
         <div class="record-modal" id="record-modal" role="dialog" aria-modal="true" aria-labelledby="record-modal-title" hidden>
           <div class="record-modal-inner">
             <span class="eyebrow">Desafio OldArcade</span>
@@ -32,7 +37,7 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
               <input id="record-register-email" type="email" maxlength="254" autocomplete="email" placeholder="seu@email.com"/>
               <label for="record-register-pass">Senha (mínimo de 8 caracteres)</label>
               <input id="record-register-pass" type="password" minlength="8" maxlength="128" required autocomplete="new-password"/>
-              <label class="email-opt-in"><input id="record-register-alert" type="checkbox"/> Receber e-mail quando alguém superar meu recorde <span class="muted">(em construção)</span></label>
+              <fieldset class="notification-choices"><legend>Avisos por e-mail (opcionais, ainda não enviados)</legend><label class="email-opt-in"><input id="record-register-alert" type="checkbox"/> Se alguém superar meu recorde</label><label class="email-opt-in" style={DAILY_CHALLENGES_ENABLED?undefined:"display:none"}><input id="record-register-daily-alert" type="checkbox"/> Quando houver Desafio Diário</label></fieldset>
               <button type="submit" class="btn">Criar conta e registrar recorde</button>
             </form>
             <form id="record-login" hidden>
@@ -56,7 +61,7 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
           </div>
         </div><div class="touch-controls" aria-label="Controles de direção"><button class="up" data-direction="up" aria-label="Cima">↑</button><button class="left" data-direction="left" aria-label="Esquerda">←</button><button class="down" data-direction="down" aria-label="Baixo">↓</button><button class="right" data-direction="right" aria-label="Direita">→</button></div>
       </div>
-      <aside class="panel" aria-label="Dados do jogador"><h2>Seu desempenho</h2><div class="stats-list"><div class="stat-row"><span>Pontos atuais</span><strong id="score">0</strong></div><div class="stat-row"><span>Recorde local</span><strong id="best">0</strong></div><div class="stat-row"><span>Partidas neste dispositivo</span><strong id="plays">0</strong></div><div class="stat-row"><span>Visitas neste dispositivo</span><strong id="visits">0</strong></div></div><p id="challenge-text" class="challenge-text">Bata seu recorde e desafie os melhores jogadores.</p><div class="stat-row"><span id="global-best-label">Recorde global (contas)</span><strong id="global-best">—</strong></div><div class="global-stats"><h3>Comunidade OldArcade</h3><div class="stats-list"><div class="stat-row"><span>Visitas globais</span><strong id="global-visits">—</strong></div><div class="stat-row"><span>Partidas globais</span><strong id="global-plays">—</strong></div></div><p id="global-stats-status" class="small muted" role="status">Consultando Cloudflare…</p></div><form id="nickname-form"><label for="nickname" class="small">Nickname para participar do ranking local</label><div class="nickname-form"><input id="nickname" maxlength="18" autocomplete="nickname" placeholder="Seu nickname" /><button type="submit">Salvar</button></div><p class="small muted" id="nick-status" aria-live="polite"></p></form><p class="small muted">O nickname e o ranking ficam salvos neste navegador. Só pontuações de jogadores com nickname entram no ranking; visitas e partidas globais incluem todos.</p></aside>
+      <aside class="panel" aria-label="Dados do jogador"><h2>Seu desempenho</h2><div class="stats-list"><div class="stat-row"><span>Pontos atuais</span><strong id="score">0</strong></div><div class="stat-row"><span id="snake-best-label">Recorde local</span><strong id="best">0</strong></div><div class="stat-row"><span>Partidas neste dispositivo</span><strong id="plays">0</strong></div><div class="stat-row"><span>Visitas neste dispositivo</span><strong id="visits">0</strong></div></div><p id="challenge-text" class="challenge-text">Bata seu recorde e desafie os melhores jogadores.</p><div class="stat-row"><span id="global-best-label">Recorde global (contas)</span><strong id="global-best">—</strong></div><div class="global-stats"><h3>Comunidade OldArcade</h3><div class="stats-list"><div class="stat-row"><span>Visitas globais</span><strong id="global-visits">—</strong></div><div class="stat-row"><span>Partidas globais</span><strong id="global-plays">—</strong></div></div><p id="global-stats-status" class="small muted" role="status">Consultando Cloudflare…</p></div><form id="nickname-form"><label for="nickname" class="small">Nickname para participar do ranking local</label><div class="nickname-form"><input id="nickname" maxlength="18" autocomplete="nickname" placeholder="Seu nickname" /><button type="submit">Salvar</button></div><p class="small muted" id="nick-status" aria-live="polite"></p></form><p class="small muted">O nickname e o ranking ficam salvos neste navegador. Só pontuações de jogadores com nickname entram no ranking; visitas e partidas globais incluem todos.</p></aside>
     </section>
 
     <GameShare gameSlug="snake" gameName="Snake" />
@@ -70,6 +75,7 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
       </div></section>
     <section class="section panel text-content"><span class="eyebrow">Guia rápido</span><h2>Como jogar Snake</h2><p>Seu objetivo é conduzir a cobrinha até as frutas que aparecem no tabuleiro. Cada fruta aumenta sua pontuação e faz a cobrinha crescer. Quanto maior ela fica, mais difícil é encontrar um caminho livre.</p><h3>Controles</h3><p>No computador, use as <strong>setas do teclado</strong> ou <strong>W, A, S e D</strong>. No celular, deslize o dedo no tabuleiro para cima, baixo, esquerda ou direita, ou utilize os quatro botões direcionais. Pressione <strong>Espaço</strong> para pausar ou continuar e <strong>F</strong> para entrar ou sair da tela cheia sem tirar as mãos do teclado. Também há um botão para tela cheia; Esc sai da tela cheia nativa. Se uma partida estiver acontecendo, a transição pausa o jogo e retoma depois de uma contagem regressiva de 3, 2, 1.</p><h3>Regras desta versão</h3><p>Você perde ao bater nas bordas ou no próprio corpo. Cada fruta vale 10 pontos. Não é possível inverter a direção imediatamente. A velocidade aumenta conforme você marca pontos. Ao trocar de aba, a partida pausa automaticamente. Seu melhor resultado fica salvo neste navegador.</p></section>
     <section class="section panel text-content"><span class="eyebrow">Arquivo histórico</span><h2>De Blockade ao celular: a história de Snake</h2><p>Snake não nasceu como um único jogo de um único autor. É uma família de jogos construída sobre uma ideia simples: controlar uma linha que se alonga e evitar colisões. Sua genealogia começa nas máquinas de arcade dos anos 1970 e ganha uma nova escala quando passa a acompanhar telefones celulares.</p><h3>O começo: Gremlin Industries, 1976</h3><p>O arcade <em>Blockade</em>, lançado pela Gremlin Industries em 1976, estabeleceu uma das bases do gênero. Dois jogadores conduziam linhas que deixavam rastros permanentes e tentavam fazer o adversário colidir. Ao contrário da cobrinha moderna, o desafio não envolvia comer frutas: o tabuleiro se tornava progressivamente mais perigoso com os rastros.</p><h3>Os computadores domésticos e o crescimento do gênero</h3><p>Durante a passagem dos arcades para microcomputadores, surgiram variantes com nomes e regras diferentes. Jogos como <em>Snake Byte</em> e <em>Nibbler</em>, no início dos anos 1980, exploraram alimentos, obstáculos e labirintos. Em vez de uma obra única, Snake tornou-se uma mecânica fácil de compreender e de adaptar a novas plataformas.</p><h3>1997: o Snake da Nokia</h3><p>O engenheiro finlandês <strong>Taneli Armanto</strong> desenvolveu a versão pré-instalada no Nokia 6110, lançado em 1997. Ele é o criador daquela implementação, não o inventor do conceito original. A disponibilidade do jogo em um aparelho de uso cotidiano ajudou a levar a experiência muito além de lojas de arcade e computadores.</p><h3>Uma linha do tempo conectada ao mundo</h3><ol class="timeline"><li><strong>1976:</strong> <em>Blockade</em> chega aos arcades no mesmo período de expansão dos videogames comerciais.</li><li><strong>Início dos anos 1980:</strong> variantes de Snake acompanham a popularização dos computadores domésticos e dos fliperamas.</li><li><strong>1997:</strong> o Nokia 6110 leva a versão de Armanto aos celulares, enquanto a internet pessoal se expande.</li><li><strong>Anos 2000:</strong> versões posteriores de Snake acompanham a evolução de telas, interfaces e telefones móveis.</li><li><strong>2015:</strong> <em>Snake Rewind</em> adapta o formato aos smartphones com controles de toque e novos recursos.</li><li><strong>Hoje:</strong> versões para navegador preservam a ideia central: entrar e jogar imediatamente, sem instalação.</li></ol><h3>Fontes e transparência editorial</h3><p>Este é um jogo independente inspirado na mecânica clássica, não o software original da Nokia. Nossa cronologia diferencia antecedentes do gênero e versões específicas.</p><p class="source-links"><a class="accent" href="https://taneliarmanto.com/news/history-of-snake" rel="noopener noreferrer">História de Snake, por Taneli Armanto</a> · <a class="accent" href="https://taneliarmanto.com/faq" rel="noopener noreferrer">Perguntas frequentes do criador da versão Nokia</a></p></section>
+    <HistoricalScreenings game="snake" />
     <section class="section"><div class="section-head"><h2>Continue jogando</h2></div><div class="panel"><h3>Mais clássicos estão a caminho</h3><p>O catálogo cresce um jogo de cada vez, depois de testes de jogabilidade, acessibilidade e revisão histórica. Enquanto isso, tente superar seu recorde no Snake.</p><a class="btn secondary" href="#game-stage">Voltar ao Snake ↑</a></div></section>
     <section class="section panel" aria-labelledby="dev-history-title">
       <div class="section-head"><div><span class="eyebrow">Bastidores do OldArcade</span><h2 id="dev-history-title">Registro de desenvolvimento</h2></div><span class="pill">Jogo #{String(release.number).padStart(3,'0')}</span></div>
@@ -79,6 +85,47 @@ const structured = { '@context':'https://schema.org', '@type':'VideoGame', name:
       <p class="small muted">Este registro documenta nossa versão jogável, não a cronologia do jogo original. As versões são atualizadas junto com o código no GitHub.</p>
     </section>
   </div>
+  <style>
+    /* Controles de toque apenas em dispositivos de toque: teclado no computador. */
+    @media(hover:hover) and (pointer:fine){
+      #game-stage > .touch-controls{display:none!important}
+    }
+    .snake-mission-area[hidden]{display:none!important}
+    .snake-mission-area{margin-bottom:14px;max-width:100%}
+    /* Tela cheia usa a mesma largura útil do tabuleiro e placar, sem faixa vazia. */
+    #game-stage:fullscreen .snake-mission-area,
+    #game-stage.game-stage-fallback .snake-mission-area{
+      width:min(100%,calc(var(--oa-slot-max,640px) + 210px));
+      margin:0 auto 8px;
+      flex:none;
+    }
+    #game-stage:fullscreen .snake-mission-area :global(.daily-live-tracker),
+    #game-stage.game-stage-fallback .snake-mission-area :global(.daily-live-tracker){
+      padding:10px 14px;
+      grid-template-columns:minmax(0,1fr) minmax(118px,170px);
+      gap:2px 12px;
+    }
+    #game-stage:fullscreen .snake-mission-area :global(.daily-live-progress),
+    #game-stage.game-stage-fallback .snake-mission-area :global(.daily-live-progress){min-height:56px;font-size:1rem}
+    @media(max-width:720px){
+      #game-stage:fullscreen .snake-mission-area,
+      #game-stage.game-stage-fallback .snake-mission-area{width:100%}
+      #game-stage:fullscreen .snake-mission-area :global(.daily-live-tracker),
+      #game-stage.game-stage-fallback .snake-mission-area :global(.daily-live-tracker){grid-template-columns:minmax(0,1fr);padding:10px}
+      #game-stage:fullscreen .snake-mission-area :global(.daily-live-progress),
+      #game-stage.game-stage-fallback .snake-mission-area :global(.daily-live-progress){grid-column:1;grid-row:4;min-height:36px}
+    }
+    .snake-mission-area :global(.daily-live-tracker){margin:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(165px,215px);column-gap:18px;row-gap:5px;align-items:center;padding:14px 18px}
+    .snake-mission-area :global(.daily-live-tracker > .eyebrow){grid-column:1;grid-row:1}
+    .snake-mission-area :global(.daily-live-tracker > strong){grid-column:1;grid-row:2;font-size:1.2rem}
+    .snake-mission-area :global(.daily-live-tracker > p){grid-column:1;grid-row:3;font-size:.85rem}
+    .snake-mission-area :global(.daily-live-progress){grid-column:2;grid-row:1 / span 3;font-size:1.2rem;display:grid;place-items:center;min-height:72px}
+    .snake-mission-area :global(.daily-live-warning){grid-column:1/-1}
+    @media(max-width:620px){
+      .snake-mission-area :global(.daily-live-tracker){grid-template-columns:minmax(0,1fr);padding:12px}
+      .snake-mission-area :global(.daily-live-progress){grid-column:1;grid-row:4;min-height:44px}
+    }
+  </style>
   <script>
     import '../../scripts/snake.ts';
 

@@ -1,3 +1,4 @@
+import {isTimeRanking,isLowerBetter,formatRankingValue} from '../data/rankingRules.js';
 type ShareDetail={game:string;score:number};
 document.querySelectorAll<HTMLElement>('[data-game-share]').forEach(section=>{
  const slug=section.dataset.gameSlug||'';
@@ -12,7 +13,9 @@ document.querySelectorAll<HTMLElement>('[data-game-share]').forEach(section=>{
  const native=section.querySelector<HTMLButtonElement>('[data-share-native]');
  const message=()=>score===null?
   'Vem jogar '+name+' comigo no OldArcade! Você consegue me superar?':
-  'Fiz '+score+' pontos no '+name+' do OldArcade! Consegue superar minha pontuação?';
+  isTimeRanking(slug)?
+   isLowerBetter(slug)?'Completei 40 linhas no '+name+' em '+formatRankingValue(slug,score)+'! Consegue ser mais rápido?':'Sobrevivi '+formatRankingValue(slug,score)+' no '+name+' do OldArcade! Consegue resistir mais?':
+   'Fiz '+score+' pontos no '+name+' do OldArcade! Consegue superar minha pontuação?';
  const invite=()=>message()+' '+url;
  function render(){
   const text=message(),encodedUrl=encodeURIComponent(url),encodedText=encodeURIComponent(text);

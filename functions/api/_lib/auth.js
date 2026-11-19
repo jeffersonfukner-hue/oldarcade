@@ -46,7 +46,7 @@ export function sessionCookie(request){
 export async function currentPlayer(db,request){
  const token=sessionCookie(request);if(!token)return null;
  const hash=await digest(token),now=Math.floor(Date.now()/1000);
- return db.prepare('SELECT a.id,a.nickname,a.email,a.email_verified FROM player_sessions s JOIN player_accounts a ON a.id=s.player_id WHERE s.token_hash=? AND s.expires_at>?')
+ return db.prepare('SELECT a.id,a.nickname,a.email,a.email_verified,a.record_email_opt_in,a.daily_email_opt_in FROM player_sessions s JOIN player_accounts a ON a.id=s.player_id WHERE s.token_hash=? AND s.expires_at>?')
  .bind(hash,now).first();
 }
 export function sameOrigin(request){
@@ -57,4 +57,4 @@ export async function parseBody(request){
  const raw=await request.text();if(raw.length>2048)return null;
  try{return JSON.parse(raw)}catch{return null}
 }
-export function playerResponse(player){return {id:player.id,nickname:player.nickname,email:player.email||null,emailVerified:Boolean(player.email_verified)}}
+export function playerResponse(player){return {id:player.id,nickname:player.nickname,email:player.email||null,emailVerified:Boolean(player.email_verified),recordEmailOptIn:Boolean(player.record_email_opt_in),dailyEmailOptIn:Boolean(player.daily_email_opt_in)}}

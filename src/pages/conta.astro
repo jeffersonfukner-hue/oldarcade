@@ -1,18 +1,25 @@
 ---
 import Base from '../layouts/Base.astro';
 import {gameModes} from '../data/gameModes.js';
+import {isTimeRanking} from '../data/rankingRules.js';
 import {gameRegistry} from '../data/gameRegistry';
+import DailyHistory from '../components/DailyHistory.astro';
+import {DAILY_CHALLENGES_ENABLED} from '../data/featureFlags';
 const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title, modes:Object.entries(gameModes).filter(([,mode])=>mode.title===titleId&&mode.competitive)})).filter(group=>group.modes.length>0);
 ---
 <Base title="Minha conta — OldArcade" description="Crie sua conta de jogador com nickname único, e-mail opcional e senha, ou entre na sua conta OldArcade." path="/conta/">
- <div class="shell">
-  <section class="hero text-content"><span class="eyebrow">Comunidade OldArcade</span>
-   <h1>Seu nickname, seus desafios.</h1>
-   <p class="lede">Jogar é sempre grátis e não exige conta. O cadastro reserva seu nickname e permite participar dos rankings dos jogos disponíveis.</p>
+ <div class="shell account-shell">
+  <section class="hero text-content account-hero"><span class="eyebrow">Comunidade OldArcade</span>
+   <h1>Seu arcade. <span class="accent">Seu progresso.</span></h1>
+   <p class="lede">Jogar é sempre grátis e não exige conta. O cadastro gratuito reserva seu nickname e permite acompanhar rankings e recordes pessoais. Você continua podendo jogar normalmente sem conta.</p>
   </section>
   <section class="section panel account-panel" aria-labelledby="account-heading">
    <h2 id="account-heading">Acesse ou crie sua conta</h2>
-   <div id="account-state" hidden><p>Conectado como <strong id="account-name"></strong>.</p><p class="small muted">Seu nickname está reservado nesta conta. Acompanhe abaixo seus recordes registrados e consulte os <a href="/rankings/">rankings dos jogos</a>.</p><button type="button" class="btn secondary" id="account-logout">Sair da conta</button></div>
+   <div id="account-state" class="account-identity" hidden>
+    <div class="account-avatar" aria-hidden="true">🎮</div>
+    <div class="account-identity-copy"><span class="eyebrow">Jogador conectado</span><strong id="account-name"></strong><span class="small muted">Suas conquistas estão vinculadas a este nickname.</span></div>
+    <div class="account-identity-actions"><a class="btn secondary" href="/rankings/">🏆 Rankings</a><button type="button" class="btn secondary" id="account-logout">Sair</button></div>
+   </div>
    <div id="account-forms">
     <div class="account-tabs" aria-label="Escolha o formulário"><button id="tab-login" type="button" aria-pressed="true">Entrar</button><button id="tab-register" type="button" aria-pressed="false">Criar conta</button></div>
     <form id="account-login">
@@ -23,29 +30,51 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
     <form id="account-register" hidden>
      <label for="register-nick">Escolha um nickname único</label><input id="register-nick" autocomplete="username" minlength="3" maxlength="18" pattern="[A-Za-zÀ-ÿ0-9_. -]+" required/>
      <label for="register-email">E-mail <span class="muted">(opcional)</span></label><input id="register-email" type="email" autocomplete="email" maxlength="254"/>
-     <p class="small muted">No futuro, o e-mail poderá ajudar a recuperar sua conta depois de confirmado. Ainda não enviamos mensagens automáticas.</p>
+     <p class="small muted">O e-mail é opcional e pode ser adicionado depois no perfil. Avisos por e-mail só serão enviados quando a confirmação do endereço e o serviço de notificações estiverem disponíveis.</p>
      <label for="register-password">Senha (mínimo de 8 caracteres)</label><input id="register-password" autocomplete="new-password" type="password" minlength="8" maxlength="128" required/>
-     <label class="email-opt-in"><input id="register-alerts" type="checkbox"/> Receber e-mail quando alguém superar meu recorde <span class="muted">(em construção)</span></label>
+     <fieldset class="notification-choices"><legend>Quais avisos você gostaria de receber?</legend><label class="email-opt-in"><input id="register-alerts" type="checkbox"/> Quando alguém superar meu recorde</label><label class="email-opt-in" style={DAILY_CHALLENGES_ENABLED?undefined:"display:none"}><input id="register-daily-alerts" type="checkbox"/> Quando houver um novo Desafio Diário</label><p class="small muted">Preferências para ativação futura; nenhum e-mail automático é enviado nesta fase.</p></fieldset>
      <button class="btn" type="submit">Criar minha conta</button>
     </form>
    </div>
-   <section id="account-records" class="section" aria-labelledby="account-records-heading" hidden>
-    <h3 id="account-records-heading">Meus recordes</h3>
-    <p class="small muted">Todos os jogos competitivos disponíveis são exibidos automaticamente. Pontuações e posições vêm da sua conta autenticada, separadas por modalidade.</p>
+   <section id="account-records" class="section account-dashboard" aria-labelledby="account-records-heading" hidden>
+    <div class="account-section-title"><div><span class="eyebrow">Painel do jogador</span><h3 id="account-records-heading">Meu desempenho</h3></div><a class="btn secondary" href="/rankings/">Ver rankings →</a></div>
+    <div class="account-kpi-grid" aria-label="Resumo do desempenho">
+     <div class="account-kpi"><span class="account-kpi-icon" aria-hidden="true">🎯</span><strong id="account-stat-modes">—</strong><span>Modos com recorde</span></div>
+     <div class="account-kpi"><span class="account-kpi-icon" aria-hidden="true">🏆</span><strong id="account-stat-leads">—</strong><span>Lideranças</span></div>
+     <div class="account-kpi"><span class="account-kpi-icon" aria-hidden="true">🥉</span><strong id="account-stat-podium">—</strong><span>Posições Top 3</span></div>
+    </div>
     {groups.map(group=><section aria-label={group.title.name}>
-     <h4>Jogo #{String(group.title.number).padStart(3,"0")} · {group.title.name}</h4>
-     <div class="arcade-mode-grid">
-      {group.modes.map(([id,mode])=><article class="panel" data-account-record={id}>
-       <h5>{mode.symbol} {mode.name}</h5>
-       <p>Melhor pontuação: <strong data-account-best>Consultando…</strong></p>
-       <p>Posição no ranking: <strong data-account-rank>—</strong></p>
-       <div class="account-missions" aria-label="Missões pessoais"><strong>Próximas missões</strong><ul data-account-missions><li>Consultando seu progresso…</li></ul></div>
-       <p class="small muted" data-account-challenge>Preparando seu próximo desafio…</p>
-       <a class="btn secondary" data-account-play href={mode.url}>Jogar agora →</a>
+     <div class="account-game-heading"><div><span class="eyebrow">Jogo #{String(group.title.number).padStart(3,"0")}</span><h4>{group.title.name}</h4></div><span class="small muted">{group.modes.length} modalidades</span></div>
+     <div class="account-record-grid">
+      {group.modes.map(([id,mode])=><article class="account-record-card" data-account-record={id}>
+       <div class="account-record-heading"><span class="account-record-symbol" aria-hidden="true">{mode.symbol}</span><h5>{mode.name.replace(group.title.name,'').trim()||'Clássico'}</h5></div>
+       <div class="account-record-metrics">
+        <div><span>{isTimeRanking(id)?'Melhor tempo':'Recorde pessoal'}</span><strong data-account-best>Consultando…</strong></div>
+        <div><span>Posição global</span><strong data-account-rank>—</strong></div>
+       </div>
+       <p class="small account-record-status" data-account-challenge>Consultando progresso…</p>
+       <details class="account-missions" aria-label="Metas pessoais"><summary>🎯 Minhas próximas metas</summary><ul data-account-missions><li>Consultando seu progresso…</li></ul></details>
+       <a class="btn secondary account-record-play" data-account-play href={mode.url}>Jogar agora →</a>
       </article>)}
      </div>
     </section>)}
     <p class="small muted" id="account-records-status" role="status"></p>
+    {DAILY_CHALLENGES_ENABLED && <DailyHistory />}
+   </section>
+   <section id="account-preferences" class="section panel account-settings" aria-labelledby="account-preferences-heading" hidden>
+    <div class="account-section-title"><div><span class="eyebrow">Seu perfil</span><h3 id="account-preferences-heading">E-mail e notificações</h3></div><span class="account-section-icon" aria-hidden="true">⚙️</span></div>
+    <p class="small muted">Defina os avisos que gostaria de receber. O envio por e-mail ainda não está ativo.</p>
+    <form id="account-preferences-form">
+     <label for="account-profile-email">Meu e-mail (opcional)</label>
+     <input id="account-profile-email" type="email" maxlength="254" autocomplete="email" placeholder="seu@email.com"/>
+     <p id="account-email-verification" class="small muted"></p>
+     <fieldset class="notification-choices"><legend>Quero receber avisos sobre</legend>
+      <label class="email-opt-in"><input id="account-record-alerts" type="checkbox"/> Alguém superar meu recorde</label>
+      <label class="email-opt-in" style={DAILY_CHALLENGES_ENABLED?undefined:"display:none"}><input id="account-daily-alerts" type="checkbox"/> Novo Desafio Diário disponível</label>
+     </fieldset>
+     <button class="btn secondary" type="submit">Salvar minhas preferências</button>
+     <p class="small muted" id="account-preferences-message" role="status" aria-live="polite"></p>
+    </form>
    </section>
    <p id="account-message" class="small" role="status" aria-live="polite"></p>
    <div id="recovery-box" class="contact-note" hidden>
@@ -59,6 +88,7 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
   </section>
  </div>
  <script>
+  import {formatRankingValue,isTimeRanking,isLowerBetter} from '../data/rankingRules.js';
   const login=document.querySelector<HTMLFormElement>('#account-login')!;
   const register=document.querySelector<HTMLFormElement>('#account-register')!;
   const loginTab=document.querySelector<HTMLButtonElement>('#tab-login')!;
@@ -69,14 +99,49 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
   const box=document.querySelector<HTMLElement>('#recovery-box')!;
   let code='';
   let recordsRequest=0;
+  let preferencesRequest=0;
+  const preferences=document.querySelector<HTMLElement>('#account-preferences')!;
+  const preferencesForm=document.querySelector<HTMLFormElement>('#account-preferences-form')!;
+  const preferencesMessage=document.querySelector<HTMLElement>('#account-preferences-message')!;
+  const profileEmail=document.querySelector<HTMLInputElement>('#account-profile-email')!;
+  const recordAlerts=document.querySelector<HTMLInputElement>('#account-record-alerts')!;
+  const dailyAlerts=document.querySelector<HTMLInputElement>('#account-daily-alerts')!;
+  const emailVerification=document.querySelector<HTMLElement>('#account-email-verification')!;
+  async function loadPreferences(){
+   const seq=++preferencesRequest;
+   preferencesMessage.textContent='Carregando preferências…';
+   try{
+    const response=await fetch('/api/account/preferences',{cache:'no-store'});
+    const data=await response.json() as {email?:string|null;emailVerified?:boolean;recordEmailOptIn?:boolean;dailyEmailOptIn?:boolean;error?:string};
+    if(seq!==preferencesRequest)return;
+    if(!response.ok)throw Error(data.error||'Preferências indisponíveis');
+    profileEmail.value=data.email||'';recordAlerts.checked=!!data.recordEmailOptIn;dailyAlerts.checked=!!data.dailyEmailOptIn;
+    emailVerification.textContent=data.email?(data.emailVerified?'E-mail confirmado.':'E-mail ainda não confirmado; não haverá envio até a confirmação.'): 'Nenhum e-mail cadastrado.';
+    preferencesMessage.textContent='Preferências carregadas. Os avisos ainda não estão sendo enviados.';
+   }catch(error){if(seq===preferencesRequest)preferencesMessage.textContent=error instanceof Error?error.message:'Não foi possível consultar preferências.'}
+  }
+  preferencesForm.addEventListener('submit',async event=>{
+   event.preventDefault();const button=preferencesForm.querySelector<HTMLButtonElement>('button[type=submit]')!;
+   button.disabled=true;preferencesMessage.textContent='Salvando…';
+   try{
+    const response=await fetch('/api/account/preferences',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:profileEmail.value,recordEmailOptIn:recordAlerts.checked,dailyEmailOptIn:dailyAlerts.checked})});
+    const data=await response.json() as {ok?:boolean;error?:string};
+    if(!response.ok)throw Error(data.error||'Não foi possível salvar.');
+    await loadPreferences();preferencesMessage.textContent='Preferências salvas! Os avisos por e-mail aguardam ativação do serviço.';
+   }catch(error){preferencesMessage.textContent=error instanceof Error?error.message:'Não foi possível salvar.'}finally{button.disabled=false}
+  });
   const records=document.querySelector<HTMLElement>('#account-records')!;
   const recordsStatus=document.querySelector<HTMLElement>('#account-records-status')!;
   const recordCards=Array.from(document.querySelectorAll<HTMLElement>('[data-account-record]'));
   async function loadRecords(){
    const requestId=++recordsRequest;
    recordsStatus.textContent='Consultando seus recordes…';
+   let modesWithRecord=0,leaders=0,podiums=0;
    await Promise.all(recordCards.map(async card=>{
     const game=card.dataset.accountRecord!;
+    const timed=isTimeRanking(game);
+    const lowerBetter=isLowerBetter(game);
+    const display=(value:number)=>formatRankingValue(game,value);
     const best=card.querySelector<HTMLElement>('[data-account-best]')!;
     const rank=card.querySelector<HTMLElement>('[data-account-rank]')!;
     const challenge=card.querySelector<HTMLElement>('[data-account-challenge]')!;
@@ -90,28 +155,36 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
      const data=await response.json() as {available?:boolean;mine?:{score:number;rank:number}|null;top?:Array<{score:number;rank:number}>};
      if(requestId!==recordsRequest)return;
      if(!data.available)throw Error('Indisponível');
-     best.textContent=data.mine?String(data.mine.score):'Sem recorde';
+     best.textContent=data.mine?display(data.mine.score):'Sem recorde';
      rank.textContent=data.mine&&Number.isSafeInteger(data.mine.rank)?data.mine.rank+'º':'—';
      if(data.mine){
-      const points=String(data.mine.score);
+      modesWithRecord++;
+      if(data.mine.rank===1)leaders++;
+      if(data.mine.rank>=1&&data.mine.rank<=3)podiums++;
+      const points=display(data.mine.score);
       const position=data.mine.rank;
-      challenge.textContent=position===1?'Você está no topo! Continue jogando para defender a liderança.':position>1&&Number.isSafeInteger(position)?'Você está em '+position+'º lugar. Que tal subir no ranking?':'Seu recorde é '+points+' pontos. Tente superá-lo!';
-      play.textContent=position===1?'🏆 Defender liderança →':'🎯 Bater meus '+points+' pontos →';
-      const tasks=['Superar sua melhor marca de '+points+' pontos'];
+      challenge.textContent=position===1?'Você está no topo! Continue jogando para defender a liderança.':position>1&&Number.isSafeInteger(position)?'Você está em '+position+'º lugar. Que tal subir no ranking?':'Sua marca é '+points+'. Tente superá-la!';
+      play.textContent=position===1?'🏆 Defender liderança →':'🎯 Melhorar minha marca de '+points+' →';
+      const tasks=['Superar sua melhor marca de '+points];
       if(position===1)tasks.push('Manter o 1º lugar no ranking');
       else if(Number.isSafeInteger(position)&&position>3){
        const podium=data.top?.[2];
-       tasks.push(podium&&Number.isFinite(podium.score)?'Buscar o Top 3 (referência atual: '+podium.score+' pontos)':'Conquistar uma vaga no Top 3');
+       tasks.push(podium&&Number.isFinite(podium.score)?'Buscar o Top 3 (referência atual: '+display(podium.score)+')':'Conquistar uma vaga no Top 3');
       }else if(position===2||position===3)tasks.push('Conquistar o 1º lugar');
       setMissions(tasks);
      }else{
       challenge.textContent='Você ainda não registrou recorde nesta modalidade.';
       play.textContent='🎮 Registrar meu primeiro recorde →';
-      setMissions(['Registrar sua primeira pontuação nesta modalidade','Buscar uma vaga no Top 3']);
+      setMissions([timed?(lowerBetter?'Completar 40 linhas e registrar seu primeiro tempo':'Sobreviver até o fim e registrar seu primeiro tempo'):'Registrar sua primeira pontuação nesta modalidade','Buscar uma vaga no Top 3']);
      }
     }catch{if(requestId===recordsRequest){best.textContent='Indisponível';rank.textContent='—';challenge.textContent='Não foi possível consultar seu progresso agora.';play.textContent='🎮 Jogar agora →';setMissions(['Missões indisponíveis temporariamente'])}}
    }));
-   if(requestId===recordsRequest)recordsStatus.textContent='Resultados exclusivos da sua sessão. Pontuações não verificadas contra a partida.';
+   if(requestId===recordsRequest){
+    document.querySelector<HTMLElement>('#account-stat-modes')!.textContent=String(modesWithRecord);
+    document.querySelector<HTMLElement>('#account-stat-leads')!.textContent=String(leaders);
+    document.querySelector<HTMLElement>('#account-stat-podium')!.textContent=String(podiums);
+    recordsStatus.textContent='Seus recordes são pessoais e separados por modalidade. Os resultados ainda não são verificados contra a partida.';
+   }
   }
   function tab(which:'login'|'register'){
    const isLogin=which==='login';
@@ -122,13 +195,25 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
   }
   loginTab.addEventListener('click',()=>tab('login'));
   registerTab.addEventListener('click',()=>tab('register'));
-  function showPlayer(player:{nickname:string}|null){
-   forms.hidden=!!player;state.hidden=!player;records.hidden=!player;
-   if(player)void loadRecords();else{recordsRequest++;recordsStatus.textContent='';}
-   document.querySelector<HTMLElement>('#account-heading')!.textContent=player?'Sua conta':'Acesse ou crie sua conta';
+  function showPlayer(player:{nickname:string}|null,broadcast=true){
+   forms.hidden=!!player;state.hidden=!player;records.hidden=!player;preferences.hidden=!player;
+   if(player)void loadPreferences();else preferencesRequest++;
+   if(player)void loadRecords();else{recordsRequest++;recordsStatus.textContent='';document.querySelector<HTMLElement>('#account-stat-modes')!.textContent='—';document.querySelector<HTMLElement>('#account-stat-leads')!.textContent='—';document.querySelector<HTMLElement>('#account-stat-podium')!.textContent='—';}
+   document.querySelector<HTMLElement>('#account-heading')!.textContent=player?'Sua conta':'Acesse ou crie uma conta';
    if(player)document.querySelector<HTMLElement>('#account-name')!.textContent=player.nickname;
-   document.dispatchEvent(new CustomEvent('oldarcade:account-changed',{detail:{player}}));
+   if(broadcast)document.dispatchEvent(new CustomEvent('oldarcade:account-changed',{detail:{player}}));
   }
+  // A página Minha conta também pode voltar do cache de navegação.
+  // O componente global confirma a sessão e envia seu estado atualizado.
+  // Um login feito pelo modal global nesta página atualiza o painel sem navegação.
+  document.addEventListener('oldarcade:account-changed',event=>{
+   const player=(event as CustomEvent<{player:{nickname:string}|null}>).detail?.player||null;
+   showPlayer(player,false);
+  });
+  document.addEventListener('oldarcade:session-refreshed',event=>{
+   const player=(event as CustomEvent<{player:{nickname:string}|null}>).detail?.player||null;
+   showPlayer(player,false);
+  });
   async function send(action:'register'|'login'|'logout',body?:Record<string,string|boolean>){
    const response=await fetch('/api/auth/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
    const result=await response.json() as {ok?:boolean;error?:string;player?:{nickname:string};recoveryCode?:string};
@@ -156,7 +241,7 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
   });
   register.addEventListener('submit',event=>{
    event.preventDefault();
-   void submit(register,'register',{nickname:(document.querySelector<HTMLInputElement>('#register-nick')!).value,email:(document.querySelector<HTMLInputElement>('#register-email')!).value,password:(document.querySelector<HTMLInputElement>('#register-password')!).value,recordEmailOptIn:(document.querySelector<HTMLInputElement>('#register-alerts')!).checked});
+   void submit(register,'register',{nickname:(document.querySelector<HTMLInputElement>('#register-nick')!).value,email:(document.querySelector<HTMLInputElement>('#register-email')!).value,password:(document.querySelector<HTMLInputElement>('#register-password')!).value,recordEmailOptIn:(document.querySelector<HTMLInputElement>('#register-alerts')!).checked,dailyEmailOptIn:(document.querySelector<HTMLInputElement>('#register-daily-alerts')!).checked});
   });
   document.querySelector<HTMLButtonElement>('#account-logout')!.addEventListener('click',async()=>{
    try{await send('logout');box.hidden=true;code='';showPlayer(null);message.textContent='Você saiu da conta.'}

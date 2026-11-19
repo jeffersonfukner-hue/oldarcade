@@ -1,0 +1,37 @@
+---
+import {historicalScreenings} from '../data/historicalScreenings';
+interface Props{game:'tetris'|'snake'}
+const {game}=Astro.props;
+const entry=historicalScreenings[game];
+const formatDate=(iso:string)=>new Date(iso+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
+---
+{entry.works.length>0&&
+ <section class="section panel text-content" aria-labelledby={`historical-screenings-${game}`}>
+  <span class="eyebrow">História na tela</span>
+  <h2 id={`historical-screenings-${game}`}>Filmes e documentários relacionados</h2>
+  <p>Para conhecer um pouco mais sobre o universo deste jogo, estas produções ajudam a explorar personagens, acontecimentos e jogos relacionados.</p>
+  {entry.works.map(work=>
+   <article class="historical-film">
+    <h3>{work.title} ({work.year})</h3>
+    <p class="small muted">{work.type} · {work.relation}</p>
+    <p>{work.description}</p>
+    <p><strong>Onde assistir na data da consulta:</strong> {work.availability}.</p>
+    <p><a class="accent" href={work.watchUrl} target="_blank" rel="noopener noreferrer">Consultar onde assistir a {work.title}</a></p>
+   </article>
+  )}
+  <p class="small muted">
+   Informação editorial consultada para o Brasil em <time datetime={entry.checkedAt}>{formatDate(entry.checkedAt)}</time>.
+   O artigo foi preparado em <time datetime={entry.publishedAt}>{formatDate(entry.publishedAt)}</time>.
+   Plataformas, assinaturas, preços e direitos de exibição podem mudar depois dessas datas; verifique as condições no serviço antes de assistir.
+   Os links não são afiliados.
+  </p>
+  <p class="small">
+   Algo mudou ou encontrou uma informação incorreta?
+   <a class="accent" href={`/contato/?assunto=sugestao&jogo=${encodeURIComponent(game)}&tema=filmes-historia`}>Sugerir uma correção sobre filmes ou plataformas</a>.
+  </p>
+ </section>
+}
+<style>
+ .historical-film{margin:1.15rem 0;padding:0 0 .85rem;border-bottom:1px solid #ffffff24}
+ .historical-film h3{margin-bottom:.35rem}
+</style>

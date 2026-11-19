@@ -25,6 +25,8 @@ const schema=structured??{'@context':'https://schema.org','@type':'VideoGame',na
  .oa-celebration-card span{display:block;font-size:1.5rem}
  .oa-celebration-card p{font-size:.78rem;line-height:1.2;margin:.2rem 0;color:#fff}
  .oa-celebration:not(.is-rival) [data-celebration-replay]{display:none!important}
+ .oa-celebration.is-podium{position:fixed;inset:0;z-index:1200;place-items:center;background:#09091bd9;pointer-events:none}
+ .oa-celebration.is-podium .oa-celebration-card{padding:clamp(.8rem,2.6vw,1.6rem);border-radius:1.25rem;background:#1d2745f5;box-shadow:0 0 36px #ffda5877;animation:oa-podium-show 2.6s ease-in-out both}
  .oa-celebration.is-final{position:absolute;inset:0;z-index:100;pointer-events:none;padding:clamp(.5rem,2vw,1rem);background:#09091b66;overflow:hidden;place-items:center}
  .oa-celebration.is-final .oa-celebration-card{width:min(90%,480px);max-width:100%;box-sizing:border-box;padding:clamp(.65rem,2.5vw,1.5rem);border-radius:1.4rem;background:#182040dd;box-shadow:0 0 45px #ffda5866;animation:oa-final-show 4s ease-in-out both}
  .oa-celebration.is-final .oa-celebration-card p{font-size:clamp(.9rem,2.5vw,1.1rem);line-height:1.5}
@@ -34,8 +36,9 @@ const schema=structured??{'@context':'https://schema.org','@type':'VideoGame',na
  .oa-celebration.is-rival .oa-celebration-card strong{color:#ff9aaf}
  .oa-celebration.is-rival [data-celebration-replay]{display:inline-flex}
  @keyframes oa-record-burst{0%{opacity:0;transform:scale(.35)}32%{opacity:.5;transform:scale(1.1)}55%{opacity:.5;transform:scale(1.18)}100%{opacity:0;transform:scale(1.42)}}
+ @keyframes oa-podium-show{0%{opacity:0;transform:scale(.8)}16%{opacity:1;transform:scale(1.06)}26%,83%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.03)}}
  @keyframes oa-rival-pop{from{opacity:0;transform:scale(.55)}to{opacity:1;transform:scale(1)}}
  @keyframes oa-spark{0%{opacity:0;transform:translateY(8px) scale(.5)}40%{opacity:.7}100%{opacity:0;transform:translateY(-22px) rotate(25deg) scale(1.2)}}
- @media(prefers-reduced-motion:reduce){.oa-celebration-card,.oa-celebration-card:before,.oa-celebration-card:after{animation:none}.oa-celebration.is-final .oa-celebration-card{animation:none;opacity:1}.oa-celebration:not(.is-rival) .oa-celebration-card{opacity:.5}}
+ @media(prefers-reduced-motion:reduce){.oa-celebration-card,.oa-celebration-card:before,.oa-celebration-card:after{animation:none}.oa-celebration.is-final .oa-celebration-card{animation:none;opacity:1}.oa-celebration:not(.is-rival) .oa-celebration-card{opacity:.5}.oa-celebration.is-podium .oa-celebration-card{opacity:1}}
  </style>
 </Base>

@@ -1,3 +1,4 @@
+import {setCountdownOverlay} from './gameCountdownOverlay';
 import {setupGameClock} from './gameClock';
 import {nextSnakeMilestone,showSnakeMoment} from './snakeMilestones';
 import {centerGameBoard} from './gameViewport';
@@ -236,19 +237,19 @@ function turn(d:Direction){
  if(d!==reverse[direction])next=d;
 }
 function show(title:string,message:string,button:string){
- window.clearTimeout(countdownTimer);countdown.hidden=true;startBtn.hidden=false;
+ window.clearTimeout(countdownTimer);setCountdownOverlay(overlay,countdown,startBtn,false);
  text('adventure-overlay-title',title);text('adventure-overlay-text',message);
  startBtn.textContent=button;overlay.hidden=false;
 }
 function beginCountdown(first:boolean){
  window.clearTimeout(gameTimer);window.clearTimeout(countdownTimer);
- state='countdown';overlay.hidden=false;countdown.hidden=false;startBtn.hidden=true;
+ state='countdown';overlay.hidden=false;setCountdownOverlay(overlay,countdown,startBtn,true);
  text('adventure-overlay-title','Prepare-se');
  text('adventure-overlay-text',first?'A aventura começa em:':'A partida será retomada em:');
  let remaining=3;
  function step(){
   countdown.textContent=String(remaining);update();
-  if(remaining===1)countdownTimer=window.setTimeout(()=>{countdown.hidden=true;startBtn.hidden=false;overlay.hidden=true;state='playing';update();schedule()},1000);
+  if(remaining===1)countdownTimer=window.setTimeout(()=>{setCountdownOverlay(overlay,countdown,startBtn,false);overlay.hidden=true;state='playing';update();schedule()},1000);
   else{remaining--;countdownTimer=window.setTimeout(step,1000)}
  }
  step();

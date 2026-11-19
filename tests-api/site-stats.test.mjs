@@ -29,8 +29,8 @@ test('site rejeita origens externas e IDs inválidos',async()=>{
 test('total de partidas agrega todos os títulos e modos, sem duplicar eventos',async()=>{
  const db=mock();
  db.add('classic-1','snake','play');db.add('classic-2','snake','play');
- db.add('adventure-1','snake-adventure','play');db.add('pong-1','pong','play');
+ db.add('adventure-1','snake-adventure','play');db.add('tetris-1','tetris','play');db.add('pong-1','pong','play');
  db.add('not-play','snake-adventure','visit');db.add('site-visit','site','visit');
  const response=await onRequestGet({env:{OLDARCADE_STATS_DB:db}});
- assert.deepEqual(await response.json(),{available:true,siteVisits:1,gamesPlayed:3,totalPlays:4});
+ assert.deepEqual(await response.json(),{available:true,siteVisits:1,gamesPlayed:4,totalPlays:5});
 });

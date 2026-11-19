@@ -1,0 +1,43 @@
+---
+/** Entrada global: autenticação sem trocar a rota nem perder o estado do jogo.
+ * As contas e a sessão continuam sendo geridas por /api/auth/*. */
+---
+<div class="oa-auth-overlay" data-global-auth hidden>
+ <div class="oa-auth-dialog" role="dialog" aria-modal="true" aria-labelledby="oa-auth-title" tabindex="-1">
+  <div class="oa-auth-heading">
+   <div class="oa-auth-symbol" aria-hidden="true">🎮</div>
+   <div><span class="eyebrow">OldArcade · Acesso gratuito</span><h2 id="oa-auth-title">Continue de onde parou</h2></div>
+   <button class="oa-auth-close" type="button" data-auth-close aria-label="Fechar acesso">×</button>
+  </div>
+  <p class="oa-auth-lede">Sua conta guarda seus recordes e permite participar dos rankings. Jogar continua grátis, com ou sem cadastro.</p>
+  <div class="account-tabs oa-auth-tabs" role="group" aria-label="Escolher acesso">
+   <button type="button" data-auth-tab="login" aria-pressed="true">Entrar</button>
+   <button type="button" data-auth-tab="register" aria-pressed="false">Criar conta</button>
+  </div>
+  <form data-auth-form="login">
+   <label>Nickname<input name="nickname" autocomplete="username" minlength="3" maxlength="18" required/></label>
+   <label>Senha<input name="password" type="password" autocomplete="current-password" minlength="8" required/></label>
+   <button class="btn" type="submit">Entrar e continuar →</button>
+  </form>
+  <form data-auth-form="register" hidden>
+   <label>Nickname único<input name="nickname" autocomplete="username" minlength="3" maxlength="18" pattern="[A-Za-zÀ-ÿ0-9_. -]+" required/></label>
+   <label>E-mail (opcional)<input name="email" type="email" autocomplete="email" maxlength="254"/></label>
+   <label>Senha (mínimo 8 caracteres)<input name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required/></label>
+   <fieldset class="oa-auth-notifications">
+    <legend>Avisos que gostaria de receber (envio ainda indisponível)</legend>
+    <label><input type="checkbox" name="recordEmailOptIn"/> Quando superarem meu recorde</label>
+    <label style="display:none"><input type="checkbox" name="dailyEmailOptIn"/> Quando houver um novo Desafio Diário</label>
+   </fieldset>
+   <button class="btn" type="submit">Criar conta grátis →</button>
+  </form>
+  <div class="oa-auth-recovery" data-auth-recovery hidden>
+   <strong>Guarde seu código de recuperação</strong>
+   <p>Este código é exibido uma única vez. Não compartilhe com ninguém.</p>
+   <code data-auth-recovery-code></code>
+   <button class="btn secondary" data-auth-recovery-done type="button">Guardei meu código · Continuar</button>
+  </div>
+  <p class="oa-auth-message" data-auth-message role="status" aria-live="polite"></p>
+  <p class="oa-auth-footnote">Se fechar, você continua na mesma página. Seu jogo não será reiniciado.</p>
+ </div>
+</div>
+<script>import '../scripts/globalAuth.ts';</script>

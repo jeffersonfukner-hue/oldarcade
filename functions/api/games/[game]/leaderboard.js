@@ -1,5 +1,6 @@
 import {currentPlayer,reply,sameOrigin,parseBody} from '../../_lib/auth.js';
 import {competitiveGame,validGameScore} from '../../../../src/data/gameModes.js';
+import {isTimeRanking,isLowerBetter} from '../../../../src/data/rankingRules.js';
 export {validGameScore} from '../../../../src/data/gameModes.js';
 async function scoreColumn(db){
  const schema=await db.prepare("PRAGMA table_info('player_game_records')").all();
@@ -7,8 +8,9 @@ async function scoreColumn(db){
 }
 async function standings(db,request,game){
  const column=await scoreColumn(db),factor=column==='best_score_milli'?1000:1;
+ const direction=isLowerBetter(game)?'ASC':'DESC';
  const result=await db.prepare(
-  `SELECT a.nickname,r.${column} AS score_units,r.achieved_at_ms,r.duration_ms FROM player_game_records r JOIN player_accounts a ON a.id=r.player_id WHERE r.game=? ORDER BY r.${column} DESC,r.duration_ms IS NULL ASC,r.duration_ms ASC,r.achieved_at_ms ASC,r.player_id ASC LIMIT 10`
+  `SELECT a.nickname,r.${column} AS score_units,r.achieved_at_ms,r.duration_ms FROM player_game_records r JOIN player_accounts a ON a.id=r.player_id WHERE r.game=? ORDER BY r.${column} ${direction},r.duration_ms IS NULL ASC,r.duration_ms ASC,r.achieved_at_ms ASC,r.player_id ASC LIMIT 10`
  ).bind(game).all();
  const scores=new Map();
  const top=(result.results||[]).map((row,i)=>{
@@ -24,8 +26,9 @@ async function standings(db,request,game){
   myGames=(records.results||[]).map(row=>({game:String(row.game),score:Number(row.score_units)/factor})).filter(row=>Number.isFinite(row.score)&&row.score>=0);
   const own=await db.prepare(`SELECT ${column} AS score_units,achieved_at_ms,duration_ms FROM player_game_records WHERE game=? AND player_id=?`).bind(game,player.id).first();
   if(own){
+   const comparison=isLowerBetter(game)?'<':'>';
    const ahead=await db.prepare(
-    `SELECT COUNT(*) AS count FROM player_game_records WHERE game=? AND (${column}>? OR (${column}=? AND (duration_ms IS NOT NULL AND ? IS NULL OR (duration_ms IS NOT NULL AND ? IS NOT NULL AND duration_ms<?) OR ((duration_ms=? OR (duration_ms IS NULL AND ? IS NULL)) AND (achieved_at_ms<? OR (achieved_at_ms=? AND player_id<?))))))`
+    `SELECT COUNT(*) AS count FROM player_game_records WHERE game=? AND (${column}${comparison}? OR (${column}=? AND (duration_ms IS NOT NULL AND ? IS NULL OR (duration_ms IS NOT NULL AND ? IS NOT NULL AND duration_ms<?) OR ((duration_ms=? OR (duration_ms IS NULL AND ? IS NULL)) AND (achieved_at_ms<? OR (achieved_at_ms=? AND player_id<?))))))`
    ).bind(game,own.score_units,own.score_units,own.duration_ms,own.duration_ms,own.duration_ms,own.duration_ms,own.duration_ms,own.achieved_at_ms,own.achieved_at_ms,player.id).first();
    mine={nickname:player.nickname,score:own.score_units/factor,rank:Number(ahead?.count||0)+1,durationMs:own.duration_ms===null?null:Number(own.duration_ms),achievedAt:new Date(own.achieved_at_ms).toISOString()};
   }
@@ -47,6 +50,7 @@ export async function onRequestPost(ctx){
  // Contrato global: até 3 casas decimais; cada jogo calcula sua própria pontuação.
  if(!validGameScore(game,data?.score))return reply({error:'Pontuação inválida'},400);
  if(!Number.isSafeInteger(data?.durationMs)||data.durationMs<0||data.durationMs>86400000)return reply({error:'Duração inválida'},400);
+ if(isTimeRanking(game)&&(data.score!==data.durationMs||data.score<=0))return reply({error:'Modo por tempo exige duração positiva e consistente'},400);
  let player;
  try{player=await currentPlayer(db,ctx.request)}
  catch(error){console.error('leaderboard.auth',error);return reply({available:false,code:'AUTH_LOOKUP_FAILED',error:'Não foi possível verificar sua sessão. Tente novamente.'},503)}
@@ -55,9 +59,10 @@ export async function onRequestPost(ctx){
  if(column!=='best_score_milli'&&data.score%1!==0)return reply({available:false,saved:false,code:'DECIMAL_MIGRATION_PENDING',error:'Pontuações decimais aguardam migração do banco Preview.'},503);
  const units=column==='best_score_milli'?Math.round(data.score*1000):data.score;
  const now=Date.now();
+ const comparison=isTimeRanking(game)?'<':'>';
  try{
   const result=await db.prepare(
-   `INSERT INTO player_game_records(game,player_id,${column},achieved_at_ms,duration_ms) VALUES (?,?,?,?,?) ON CONFLICT(game,player_id) DO UPDATE SET ${column}=excluded.${column},achieved_at_ms=excluded.achieved_at_ms,duration_ms=excluded.duration_ms WHERE excluded.${column}>player_game_records.${column} OR (excluded.${column}=player_game_records.${column} AND (player_game_records.duration_ms IS NULL OR excluded.duration_ms<player_game_records.duration_ms))`
+   `INSERT INTO player_game_records(game,player_id,${column},achieved_at_ms,duration_ms) VALUES (?,?,?,?,?) ON CONFLICT(game,player_id) DO UPDATE SET ${column}=excluded.${column},achieved_at_ms=excluded.achieved_at_ms,duration_ms=excluded.duration_ms WHERE excluded.${column}${comparison}player_game_records.${column} OR (excluded.${column}=player_game_records.${column} AND (player_game_records.duration_ms IS NULL OR excluded.duration_ms<player_game_records.duration_ms))`
   ).bind(game,player.id,units,now,data.durationMs).run();
   if(result?.success===false)throw Error('D1 returned success=false');
  }catch(error){

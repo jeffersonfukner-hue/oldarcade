@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="OldArcade: controle arcade neon">
+<defs><linearGradient id="arcade" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a977ff"/><stop offset="1" stop-color="#ff8964"/></linearGradient><linearGradient id="panel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#243052"/><stop offset="1" stop-color="#121428"/></linearGradient></defs>
+<rect x="6" y="5" width="68" height="70" rx="16" fill="#0c1026" stroke="url(#arcade)" stroke-width="4"/>
+<path d="M14 18H66V49L57 66H23L14 49Z" fill="url(#panel)" stroke="#5661ad" stroke-width="2"/>
+<rect x="19" y="17" width="42" height="25" rx="4" fill="#091c2a" stroke="#59f6be" stroke-width="2"/>
+<path d="M27 30h8m-4-4v8" stroke="#55ffc4" stroke-width="4" stroke-linecap="round"/>
+<rect x="44" y="26" width="7" height="7" rx="2" fill="#ff7c83"/><rect x="53" y="32" width="5" height="5" rx="2" fill="#ffcc6c"/>
+<path d="M18 49H62L56 62H24Z" fill="#352348"/>
+<circle cx="34" cy="54" r="5" fill="#ffd67a"/><circle cx="47" cy="55" r="4" fill="#fc82a7"/><circle cx="56" cy="52" r="3" fill="#68ebff"/>
+<path d="M16 12h8M56 12h8" stroke="#ffe1ae" stroke-width="2" stroke-linecap="round"/>
+</svg>
