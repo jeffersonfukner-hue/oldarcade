@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {gameModes,gameModeIds,gameMode,validGameScore} from '../src/data/gameModes.js';
 
 test('catálogo central mantém os três modos Snake isolados e com URLs próprias',()=>{
- assert.deepEqual(new Set(gameModeIds),new Set(['snake','snake-adventure','snake-evolution','tetris','tetris-sprint','tetris-survival']));
+ assert.deepEqual(new Set(gameModeIds),new Set(['snake','snake-adventure','snake-evolution','tetris','tetris-sprint','tetris-survival','pixel-quest']));
  assert.equal(gameModes.snake.title,gameModes['snake-adventure'].title);
  assert.equal(gameModes.snake.title,gameModes['snake-evolution'].title);
  assert.equal(new Set(gameModeIds.map(id=>gameModes[id].url)).size,gameModeIds.length);
@@ -17,11 +17,14 @@ test('catálogo central mantém os três modos Snake isolados e com URLs própri
  assert.equal(validGameScore('tetris-sprint',86400000),true);
  assert.equal(validGameScore('tetris-sprint',86400001),false);
  for(const id of gameModeIds){
-  assert.equal(gameMode(id)?.competitive,true);
+  assert.equal(gameMode(id)?.competitive,id!=='pixel-quest');
   assert.ok(gameMode(id).url.startsWith('/jogos/'));
-  assert.equal(validGameScore(id,395),true);
-  assert.equal(validGameScore(id,395.875),id!=='tetris'&&id!=='tetris-sprint'&&id!=='tetris-survival');
+  assert.equal(validGameScore(id,395),id!=='pixel-quest');
+  assert.equal(validGameScore(id,395.875),id.startsWith('snake'));
+
  }
+ assert.equal(gameModes['pixel-quest'].competitive,false,'ranking online aguarda integração oficial');
+ assert.equal(validGameScore('pixel-quest',999),false,'o Preview não aceita recordes autodeclarados');
  assert.equal(gameMode('__proto__'),null);
  assert.equal(gameMode('unknown'),null);
 });

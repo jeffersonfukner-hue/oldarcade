@@ -17,6 +17,11 @@ test('todas as modalidades possuem página estática e dados SEO distintos',()=>
    assert.ok(source.includes('TetrisGame'),id+' deve reutilizar o componente único');
    assert.ok(source.includes('modeId="'+id+'"'),id+' deve declarar seu ID');
    assert.ok(shared.includes('GamePage')&&shared.includes('description'),id+' deve reutilizar SEO');
+  }else if(id==='pixel-quest'){
+   const shared=file('src/components/PixelQuestGame.astro');
+   assert.ok(source.includes('PixelQuestGame'),id+' deve usar o componente do jogo');
+   assert.ok(shared.includes('GamePage')&&shared.includes('modeId="pixel-quest"')&&shared.includes('description'),id+' deve reutilizar SEO');
+   assert.ok(shared.includes('gameRegistry')&&shared.includes('game.history.map')&&shared.includes('game.milestones.map'),id+' deve preservar o histórico versionado');
   }else{
    assert.ok(source.includes('GamePage'),id+' deve reutilizar SEO');
    assert.ok(source.includes('modeId="'+id+'"'),id+' deve declarar seu ID');
@@ -52,4 +57,14 @@ test('histórico de modalidades não cria jogos nem incrementa versões',()=>{
  assert.ok(registry.includes("version: '0.2.0-dev'"));
  assert.ok(file('src/pages/jogos/snake.astro').includes('release.milestones.map'));
  assert.ok(file('src/pages/jogos/snake/aventura.astro').includes('gameRegistry.snake.milestones.filter'));
+});
+
+test('Pixel Quest tem versão própria, card navegável e histórico renderizado',()=>{
+ const registry=file('src/data/gameRegistry.ts');
+ const home=file('src/pages/index.astro');
+ const game=file('src/components/PixelQuestGame.astro');
+ assert.ok(registry.includes("'pixel-quest': {")&&registry.includes("version: '0.1.0-dev'"));
+ assert.ok(home.includes('home-game-art')&&home.includes('modesByTitle[id][0]'));
+ assert.ok(game.includes('game.milestones.map')&&game.includes('game.history.map'));
+ assert.ok(file('src/components/PixelQuestHistory.astro').includes('Arquivo histórico'));
 });
