@@ -4,6 +4,12 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL — Etapa 4 / linha do tempo do Pixel Quest (20/11/2026)
+- **Solicitação expressa executada na branch do PR #4:** `src/components/PixelQuestHistory.astro` agora inclui o mesmo título de linha do tempo resumida e a mesma classe visual `ol.timeline` do Snake. Quatro marcos factuais: Space Panic (1980), Donkey Kong (1981), Super Mario Bros. (1985) e início de desenvolvimento do Pixel Quest (novembro/2026).
+- **Regressão adicionada:** `tests/editorial-history.spec.ts` verifica os quatro marcos e layout desktop/mobile de 320px, e preserva a timeline do Snake. Aguardar CI do HEAD e validação visual; não declarar homologação automaticamente.
+- **Preservação:** histórico e filmes existentes, SITE-01/SITE-03/SITE-08, rankings e modalidades, Etapa 4B e Etapa 5 intactos. Sem merge/deploy.
+
+
 ## ESTADO ATUAL PARA NOVO CHAT — Etapa 4 / auditoria editorial dos jogos (20/11/2026)
 - **Auditoria editorial IMPLEMENTADA E VALIDADA TECNICAMENTE; aguarda aceite visual do proprietário.** CI #44778401183 concluído com **success** no commit `eef05c6709be9914c749501938f113217227f517` (tipagem, build, testes API, Playwright desktop/mobile). CI inicial #44777354708 falhou em quatro expectativas legadas de testes, atualizadas sem reverter o comportamento editorial. CI documental anterior `#44769169922` aprovado no commit `ed75bd4b`. Histórias de Snake, Tetris e Pixel Quest foram confrontadas com fontes externas: site de Taneli Armanto e MoMA, Tetris Company, MoMA, Apple, SEGA e Nintendo. O corpo das narrativas históricas existente foi preservado; fontes foram complementadas sem confundir o jogo original com o projeto independente OldArcade.
 - **Cinema com contexto:** `historicalScreenings.ts` e `HistoricalScreenings.astro` agora atendem **Snake, Tetris e Pixel Quest**. Para o Pixel Quest, **Super Mario Bros. O Filme (2023)** e **Sonic: O Filme (2020)** são explicitamente obras de outras franquias, não adaptações de Pixel Quest. Fontes oficiais Nintendo/SEGA e consultas de exibição identificadas em links distintos. A disponibilidade específica no Brasil para esses dois filmes fica **não confirmada**, evitando promessa de streaming.
