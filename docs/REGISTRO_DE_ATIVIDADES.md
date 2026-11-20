@@ -12,3 +12,12 @@
 - **Pendências:** upload **binário exato** do PNG ao diretório `public/images/games/snake-cover.png` no GitHub (a conexão GitHub atual não aceita caminho binário como fonte do blob); aprovar as imagens individuais de cada texto; confirmar presença de todo asset aprovado no GitHub por hash; executar testes para quaisquer alterações de código futuras.
 - **Evidências:** [PR #4](https://github.com/jeffersonfukner-hue/oldarcade/pull/4), commits documentais citados, arquivo aprovado no acervo com hash SHA-256; nenhum deploy ou merge realizado.
 
+
+## 20/11/2026 — Organização dos 12 PNGs aprovados do Snake (projeto: OldArcade)
+- **Início / término (Brasília):** não aferidos; execução confirmada em 20/11/2026.
+- **Duração efetiva:** não mensurada; nenhuma hora estimada ou faturável atribuída; períodos sem atividade registrados: não mensurados.
+- **Atividades comprovadas:** leitura do código das três páginas Snake, dos artigos históricos e referências culturais; verificação de dimensões, tamanho e SHA-256 dos 12 PNGs; cópia bit a bit em diretórios padronizados e compactação sem recompressão das imagens; verificação de todos os itens do ZIP; inventário final de textos e lacunas; criação de `docs/ASSETS_SNAKE_APROVADOS.md` na branch do PR #4.
+- **Resultados:** ZIP `oldarcade-snake-12-imagens-aprovadas.zip` (23.261.031 bytes; SHA-256 `d0a1c21665f8d5689d24f4f4c9cf69aac69f97fb7fb921b82908b2093b2590fd`); manifest.json + 12 PNGs; commit documental `38d98146558aa2106afe21697ab2b11adf51ca35`.
+- **Pendências/bloqueio:** upload dos arquivos binários para GitHub inacessível com ferramentas atuais; **não houve commit de PNG nem alteração visual do site**. Pendente verificar hash de cada PNG no GitHub após transferência e definir se serão criadas artes adicionais para Aventura, Evolution e Nibbler. Sem merge/deploy.
+- **Evidências:** [Manifesto e inventário](ASSETS_SNAKE_APROVADOS.md); [PR #4](https://github.com/jeffersonfukner-hue/oldarcade/pull/4); arquivo ZIP entregue na conversa.
+
