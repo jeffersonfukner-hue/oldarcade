@@ -19,6 +19,14 @@ for(const [mode,path] of modes){
   await page.evaluate(mode=>document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:mode,score:100,durationMs:32000,recordDelayMs:800}})),mode);
   const invite=page.locator('[data-end-account-invite]');
   await expect(invite).toBeVisible({timeout:5000});
+  await expect(invite.locator('.oa-end-invite-card')).toBeInViewport();
+  await expect(invite.locator('[data-auth-trigger="register"]')).toBeVisible();
+  expect(await invite.evaluate(node=>node.parentElement?.classList.contains('game-stage'))).toBe(true);
+  const centered=await invite.locator('.oa-end-invite-card').evaluate(node=>{
+   const rect=node.getBoundingClientRect();
+   return Math.abs(rect.left+rect.width/2-innerWidth/2)<Math.max(24,innerWidth*.12);
+  });
+  expect(centered).toBe(true);
   await expect(invite.locator('[data-end-invite-ranking]')).toHaveAttribute('href','/rankings/#ranking-'+mode);
   await invite.locator('[data-end-invite-dismiss]').click();
   await expect(invite).toBeHidden();
