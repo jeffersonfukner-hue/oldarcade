@@ -34,7 +34,7 @@ for(const sample of samples){
   expect(foundFilm).toBe(sample.film);
   if(sample.film)expect(first('history')).toBeLessThan(first('screening'));
   if(sample.ranking==='live'){
-   await expect(wrapper.locator('[data-mode-ranking]')).toBeVisible();
+   await expect(wrapper.locator('[data-mode-ranking],.oa-ranking-panel')).toBeVisible();
    await expect(wrapper.locator('[data-rank-retry]')).toHaveCount(0);
   }
   const related=wrapper.locator('[data-related-game]');

@@ -8,6 +8,7 @@ const lowerBetter=isLowerBetter(game);
 <section class="section panel mode-ranking" id={"ranking-"+game} data-mode-ranking data-game={game} data-ranking-metric={timed?"time":"points"} aria-label={`Ranking global do ${name}`}>
  <div class="section-head"><div><span class="eyebrow">Desafio Old Arcade</span><h2>Ranking global — {name}</h2></div><span class="pill">Contas cadastradas</span></div>
  <p class="small muted">{timed?(lowerBetter?'Vence quem completa 40 linhas no menor tempo.':'Vence quem sobrevive pelo maior tempo.'):'Vence a maior pontuação.'} Empates seguem os critérios do modo. Qualquer pessoa pode consultar a classificação; somente contas registram resultados.</p>
+ <p class="mode-ranking-provisional small" data-rank-provisional hidden aria-live="polite">Marca provisória — só será confirmada no final da partida e com conta autenticada.</p>
  <h3 class="oa-ranking-podium-title">Pódio — Top 3</h3>
  <div class="rankings-podium" data-rank-podium><p class="small muted">Consultando classificação…</p></div>
  <details class="rankings-top10"><summary>Ver classificação completa (Top 10)</summary>
@@ -16,6 +17,6 @@ const lowerBetter=isLowerBetter(game);
  <p data-rank-mine class="small" hidden></p>
  <p data-rank-status class="small muted" role="status">Consultando classificação…</p>
  <p data-rank-summary class="record-end-summary" role="status" aria-live="polite"></p>
- <div class="oa-ranking-cache" hidden aria-hidden="true"><span data-rank-global>—</span><span data-rank-personal>—</span><span data-rank-provisional hidden></span></div>
+ <div class="oa-ranking-cache" hidden aria-hidden="true"><span data-rank-global>—</span><span data-rank-personal>—</span></div>
 </section>
 <script>import '../scripts/modeRanking.ts';</script>

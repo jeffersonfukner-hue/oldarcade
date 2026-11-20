@@ -96,7 +96,7 @@ if(root){
  document.addEventListener('oldarcade:game-score',e=>{
   const d=(e as CustomEvent<Result>).detail;
   if(d?.game!==game||!Number.isFinite(d.score))return;
-  if(leader!==null&&!timed&&d.score>leader){global.textContent=String(d.score);provisional.hidden=false}
+  if(leader!==null&&!timed&&d.score>leader){global.textContent=String(d.score);provisional.hidden=false;provisional.textContent='Marca provisória: '+display(d.score)+' (líder oficial: '+display(leader)+'). Confirmação só ao finalizar com conta.'}
   else{global.textContent=leader===null?'—':timed?display(leader):String(leader);provisional.hidden=true}
  });
  document.addEventListener('oldarcade:game-finished',e=>{
