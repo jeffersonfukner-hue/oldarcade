@@ -104,7 +104,7 @@ if(stage){
    run.score=result.score;
    recordCompletedLevel(result,[result],1);
    updateLocalRecords();
-   document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'pixel-quest',score:result.score,durationMs:result.elapsedMs}}));
+   document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'pixel-quest',score:result.score,durationMs:Math.round(result.elapsedMs)}}));
    description.textContent='Fase 1-1: '+result.score+' pontos · Cristais '+(result.crystals*10)+' · Inimigos '+(result.enemies*50)+' · Portal 100 · Tempo +'+timeBonus(result.elapsedMs)+'. Recordes locais provisórios.';
   }else description.textContent='Seus três corações acabaram. Tente novamente a trilha.';
   start.textContent='↻ Jogar novamente';start.hidden=false;input.reset();updateHud();
