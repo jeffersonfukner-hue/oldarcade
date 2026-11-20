@@ -29,3 +29,24 @@ test('Etapa 4 editorial: filmes de outras franquias nunca são atribuídos a Pix
  await expect(section).toContainText('não confirmada nesta revisão');
  await expect(section.getByRole('link',{name:/Consultar opções para assistir/})).toHaveCount(2);
 });
+
+test('Pixel Quest exibe linha do tempo resumida no mesmo padrão do Snake em desktop e mobile',async({page})=>{
+ for(const width of [1280,320]){
+  await page.setViewportSize({width,height:740});
+  await page.goto('/jogos/pixel-quest/');
+  const history=page.locator('#pq-platform-history').locator('..');
+  await expect(history.getByRole('heading',{name:'Uma linha do tempo conectada ao mundo'})).toBeVisible();
+  const timeline=history.locator('ol.timeline');
+  await expect(timeline).toBeVisible();
+  await expect(timeline.locator('li')).toHaveCount(4);
+  for(const year of ['1980:','1981:','1985:','Novembro de 2026:']){
+   await expect(timeline).toContainText(year);
+  }
+  await expect(timeline).toContainText('Pixel Quest');
+  await expect(history.getByRole('heading',{name:'O que Pixel Quest faz de próprio'})).toBeVisible();
+ }
+ await page.goto('/jogos/snake/');
+ const snakeHistory=page.locator('.oa-game-history');
+ await expect(snakeHistory.locator('ol.timeline')).toBeVisible();
+ await expect(snakeHistory).toContainText('Uma linha do tempo conectada ao mundo');
+});
