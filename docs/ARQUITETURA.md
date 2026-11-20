@@ -2,6 +2,12 @@
 
 # OldArcade · Arquitetura e critérios de aceite
 
+## Padrão compartilhado — breadcrumbs e estatísticas por jogo (decisão 19/11/2026)
+- **Etapa 2B:** trilhas de navegação renderizadas uma única vez no `src/layouts/Base.astro` por `GameBreadcrumbs.astro`, derivadas de `src/data/breadcrumbs.ts`/catálogo `gameModes.js`. Exibir `Início › Jogos › Tetris › Sprint` e `Início › Jogos › Snake › Aventura`; “Jogos” usa `/#destaques`, link real da home, pois não existe ainda uma página autônoma `/jogos/`. Os jogos base encerram a trilha em Snake/Tetris/Pixel Quest sem repetir o URL do modo Clássico. Em `/conta/`, `/rankings/`, `/sobre/`, `/contato/` e `/privacidade/`: `Início › página`. Home sem trilha. Atual sempre `aria-current="page"` e não clicável. Apenas configurar `BreadcrumbList` quando `Astro.site` tiver URL real, não em `example.invalid`. Respeitar 980px e a usabilidade de toque.
+- **Etapa 3 futura:** na página de estatística/perfil, **um card por jogo com modalidades internas**. Não multiplicar card externo por modo, mas conservar métricas e classificações específicas, identificadores/atributos dos elementos dinâmicos, leitura no celular e privacidade/autenticação. Ver `docs/PLANO_PADRONIZACAO.md`.
+- Etapa 2 visualmente homologada; Etapa 2B deve receber CI e homologação próprios antes da Etapa 3.
+
+
 ## Etapa 2 aprovada — seções editoriais e amplitude do texto (19/11/2026)
 
 - **Estrutura oficial única:** `src/components/GamePageSections.astro` organiza no HTML (nunca com CSS `order`) os slots `rankings → share → guide → history → screenings → related → development`, sempre **após o palco/área jogável e seu desempenho auxiliar**. Aplicável ao Snake Clássico/Evolution/Aventura, Tetris Clássico/Sprint/Sobrevivência e Pixel Quest. Diferenças justificadas devem ser declaradas como dados, sem fork de estrutura.

@@ -1,5 +1,11 @@
 # OldArcade — padrões globais obrigatórios de jogos e modos
 
+## Padrão compartilhado — breadcrumbs e estatísticas por jogo (decisão 19/11/2026)
+- **Etapa 2B:** trilhas de navegação renderizadas uma única vez no `src/layouts/Base.astro` por `GameBreadcrumbs.astro`, derivadas de `src/data/breadcrumbs.ts`/catálogo `gameModes.js`. Exibir `Início › Jogos › Tetris › Sprint` e `Início › Jogos › Snake › Aventura`; “Jogos” usa `/#destaques`, link real da home, pois não existe ainda uma página autônoma `/jogos/`. Os jogos base encerram a trilha em Snake/Tetris/Pixel Quest sem repetir o URL do modo Clássico. Em `/conta/`, `/rankings/`, `/sobre/`, `/contato/` e `/privacidade/`: `Início › página`. Home sem trilha. Atual sempre `aria-current="page"` e não clicável. Apenas configurar `BreadcrumbList` quando `Astro.site` tiver URL real, não em `example.invalid`. Respeitar 980px e a usabilidade de toque.
+- **Etapa 3 futura:** na página de estatística/perfil, **um card por jogo com modalidades internas**. Não multiplicar card externo por modo, mas conservar métricas e classificações específicas, identificadores/atributos dos elementos dinâmicos, leitura no celular e privacidade/autenticação. Ver `docs/PLANO_PADRONIZACAO.md`.
+- Etapa 2 visualmente homologada; Etapa 2B deve receber CI e homologação próprios antes da Etapa 3.
+
+
 ## Plano original preservado e cinema do gênero plataforma — atualização em 19/11/2026
 
 - O **plano aprovado possui cinco etapas e não deve ser substituído por versões resumidas**: (1) Largura global; (2) Estrutura editorial; (3) Desempenho e rankings; (4) Conteúdo e identidade; (5) Regressão. A subetapa **2B (breadcrumbs)** foi acrescentada entre 2 e 3; refinamentos de jogos seguem como fila adicional. Fonte canônica com escopo, critérios de aceite e estado: [PLANO_PADRONIZACAO.md](PLANO_PADRONIZACAO.md).

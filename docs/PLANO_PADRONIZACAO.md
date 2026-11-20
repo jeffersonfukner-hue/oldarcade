@@ -7,14 +7,21 @@
 | Etapa | Trabalho | Critério de aprovação | Estado conhecido em 19/11/2026 |
 | --- | --- | --- | --- |
 | **1 — Largura global** | Unificar containers, cabeçalho, conteúdo e rodapé | Mesma largura visual em todas as páginas | **Aprovada visualmente**: máximo 980px, com fullscreen independente |
-| **2 — Estrutura editorial** | Padronizar ordem e presença das seções | Nenhuma seção comum esquecida | **Implementada, CI #1044 aprovado (246 passed; 50 skipped), aguardando homologação visual** do commit `2d07fe7` |
+| **2 — Estrutura editorial** | Padronizar ordem e presença das seções | Nenhuma seção comum esquecida | **Homologada visualmente pelo proprietário em 19/11/2026**. Código-base `2d07fe7`, CI #1044 aprovado |
 | **3 — Desempenho e rankings** | Compactar cards, retirar duplicações e melhorar navegação | Dados corretos, sem espaço desperdiçado | **Na fila**, incluindo exclusivamente contas autenticadas nos rankings e retirada segura do ranking local por nickname |
 | **4 — Conteúdo e identidade** | Padronizar textos, fontes, filmes e Continue jogando | Conteúdo contextual, verdadeiro e consistente | **Na fila**, com SEO de história real, títulos/HTML semânticos e palavras relevantes em negrito moderado |
 | **5 — Regressão** | Tipagem, build, API, Playwright, screenshots desktop/mobile | CI aprovado e homologação visual | **Na fila**, após as etapas anteriores |
 
-**Subetapa adicional — 2B: breadcrumbs e navegação contextual.** Executar **após homologar a Etapa 2** e antes da Etapa 3. Criar um componente comum de trilhas acessíveis, usando caminhos reais e, quando apropriado e corretamente configurado, dados estruturados `BreadcrumbList`; não duplicar componentes entre jogos.
+**Subetapa adicional — 2B: breadcrumbs e navegação contextual.** **Etapa 2 homologada; 2B em implementação técnica na mesma PR #4.** Um componente global de trilhas acessíveis usa URLs reais do catálogo para os sete modos e nomes estáticos para conta/rankings/páginas institucionais. Página inicial não tem breadcrumb. `BreadcrumbList` JSON-LD somente quando `SITE_URL` configurar domínio válido (fora disso, sem canonical nem JSON-LD de breadcrumbs). Largura mantém 980px, mobile de 320/390px. Testes Playwright obrigatórios e aprovação visual antes da Etapa 3.
 
 **Fila posterior de refinamento dos jogos (trabalho adicional, não substitui a Etapa 5):** HUD expansível de estatísticas em tempo real e totais por item/jogo; progressão de maçãs, peras e uvas no Snake com pontuações próprias a definir; sprites autorais aprimorados onde aplicável; fundo parallax e arte do Pixel Quest; **BUG-QUEST-05: recorde do Pixel Quest não registra**, reproduzir, diagnosticar e corrigir. Consultar os IDs e detalhes do backlog em `CONTINUIDADE.md`. Cada implementação posterior requer sua própria regressão e homologação; não considerar o bug resolvido apenas por constar da fila.
+
+## Etapa 3 — estatísticas agrupadas por JOGO (nova decisão de 19/11/2026)
+
+- **Regra de UX aprovada:** em “Minha conta → Meu desempenho” e em outras páginas com estatísticas de jogadores, **um card principal por jogo**, não um card independente para cada modalidade. Ex.: card **Snake** contém subseções Clássico, Aventura e Evolution; card **Tetris** contém Clássico, Sprint e Sobrevivência. Novos jogos/modos seguem automaticamente o catálogo, sem HTML duplicado.
+- **Dentro do card:** resumo do jogo e detalhes por modalidade em abas acessíveis, linhas ou acordeões compactos, priorizando mobile. Preservar métricas específicas de cada modalidade, recorde pessoal, posição global, metas e botão jogar. Não combinar artificialmente pontuações, tempos ou rankings incompatíveis de modos diferentes.
+- **Fonte atual verificada:** `src/pages/conta.astro` já usa `groups=Object.entries(gameRegistry)` e monta uma seção por jogo, mas `group.modes.map(...)` gera cada `<article class="account-record-card" data-account-record={id}>` como **card separado**. Reestruturar para **um card por jogo** contendo unidades internas por modo, preservando os atributos `data-account-record`, `data-account-best`, `data-account-rank`, `data-account-challenge`, `data-account-missions` e `data-account-play` usados pelo carregamento assíncrono.
+- **Escopo:** executar junto da Etapa 3, não na 2B. Verificar também outros painéis de estatísticas e resultados para aplicar a mesma regra global. Persistência, ranking de contas, APIs e IDs não devem regredir. Cobrir 320/390/desktop, estado carregando/sem dados e autenticação.
 
 ## História na tela — Pixel Quest e obras do gênero plataforma
 

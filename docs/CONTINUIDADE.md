@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL — Etapa 2 homologada; 2B breadcrumbs e estatísticas por jogo (19/11/2026)
+- **Proprietário homologou visualmente a Etapa 2.** Seguir a Etapa 2B de breadcrumbs sem esperar nova aprovação da Etapa 2. Etapa 1 (980px) também homologada.
+- **2B implementada no código desta PR:** `src/data/breadcrumbs.ts` determina trilhas das páginas pela URL real em `gameModes.js`; `src/components/GameBreadcrumbs.astro` compartilha HTML acessível entre jogos e páginas institucionais; `src/layouts/Base.astro` centraliza a renderização no início do `main` e dados estruturados `BreadcrumbList` apenas com `SITE_URL` válido. CSS global preserva 980px e adapta 320/390px. Nenhuma alteração de lógica, recordes, APIs ou banco. Ver CI do HEAD antes de declarar validação técnica.
+- **Nova exigência para Etapa 3, CONFIRMADA pelo proprietário:** um único **card por jogo** na página de estatísticas/Meu desempenho, contendo os dados de **todas as modalidades dentro**. Hoje `src/pages/conta.astro` agrupa por jogo mas gera um card por modo; reorganizar mantendo `data-account-record` e demais IDs/atributos usados pelo script, rankings independentes por modo e zero somas artificiais entre escalas diferentes. Regra extensível a novos jogos/modos. Ler `docs/PLANO_PADRONIZACAO.md`.
+- **Próximo passo ao concluir CI:** homologação visual 2B (breadcrumbs em Snake/Tetris/Quest/rankings/conta/mobile); depois iniciar Etapa 3, sem merge/deploy. Backlog de troca segura de modo, refinamentos de sprites, estatísticas live, bugs Quest e recentralização permanece intacto.
+
+
 ## FILA DE UX DOS JOGOS — Modalidades e retorno ao tabuleiro (19/11/2026)
 
 - **RF-MODOS-06 — Padrão único de seleção de modo, proposta:** avaliar `GameModeSwitcher.astro` alimentado por `src/data/gameModes.js`; mesma faixa compacta `Modo de jogo` para Snake (Clássico/Aventura/Evolution), Tetris (Clássico/Sprint/Sobrevivência) e futuros jogos com múltiplos modos. Seleção atual destacada, opções clicáveis com URL real e responsividade/acessibilidade; não publicar botões de modos inexistentes.

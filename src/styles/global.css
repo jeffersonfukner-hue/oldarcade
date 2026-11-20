@@ -991,3 +991,13 @@ body.oa-auth-open{overflow:hidden}
  .oa-related-games,.oa-ranking-unavailable{padding:16px}
  .oa-related-grid{grid-template-columns:minmax(0,1fr)}
 }
+
+/* Etapa 2B: breadcrumbs globais centralizados no mesmo container de 980px. */
+.oa-breadcrumbs{display:block;min-width:0;padding:12px 0 0;font-size:.78rem;line-height:1.55;color:#aebbd5}
+.oa-breadcrumbs ol{display:flex;align-items:center;flex-wrap:wrap;gap:2px 0;margin:0;padding:0;list-style:none}
+.oa-breadcrumbs li{display:inline-flex;align-items:center;min-width:0;max-width:100%}
+.oa-breadcrumbs li+li::before{content:'›';margin:0 9px;color:#7f8fac;flex:none}
+.oa-breadcrumbs a{color:#c6d2ec;padding:4px 0;text-decoration:none;overflow-wrap:anywhere}
+.oa-breadcrumbs a:hover{text-decoration:underline;color:#b9a5ff}
+.oa-breadcrumbs [aria-current='page']{color:#eeeaff;font-weight:650;overflow-wrap:anywhere}
+@media(max-width:580px){.oa-breadcrumbs{padding-top:9px;font-size:.72rem}.oa-breadcrumbs li+li::before{margin-inline:6px}}

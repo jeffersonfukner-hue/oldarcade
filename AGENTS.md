@@ -2,6 +2,12 @@
 
 # OldArcade — regras permanentes para agentes
 
+## Padrão compartilhado — breadcrumbs e estatísticas por jogo (decisão 19/11/2026)
+- **Etapa 2B:** trilhas de navegação renderizadas uma única vez no `src/layouts/Base.astro` por `GameBreadcrumbs.astro`, derivadas de `src/data/breadcrumbs.ts`/catálogo `gameModes.js`. Exibir `Início › Jogos › Tetris › Sprint` e `Início › Jogos › Snake › Aventura`; “Jogos” usa `/#destaques`, link real da home, pois não existe ainda uma página autônoma `/jogos/`. Os jogos base encerram a trilha em Snake/Tetris/Pixel Quest sem repetir o URL do modo Clássico. Em `/conta/`, `/rankings/`, `/sobre/`, `/contato/` e `/privacidade/`: `Início › página`. Home sem trilha. Atual sempre `aria-current="page"` e não clicável. Apenas configurar `BreadcrumbList` quando `Astro.site` tiver URL real, não em `example.invalid`. Respeitar 980px e a usabilidade de toque.
+- **Etapa 3 futura:** na página de estatística/perfil, **um card por jogo com modalidades internas**. Não multiplicar card externo por modo, mas conservar métricas e classificações específicas, identificadores/atributos dos elementos dinâmicos, leitura no celular e privacidade/autenticação. Ver `docs/PLANO_PADRONIZACAO.md`.
+- Etapa 2 visualmente homologada; Etapa 2B deve receber CI e homologação próprios antes da Etapa 3.
+
+
 ## Fila de navegação dos jogos — proposta ainda não implementada (19/11/2026)
 - Consolidar no futuro os seletores de modos de Snake/Tetris e novos modos do Pixel Quest em um único componente global alimentado por `gameModes.js`. Modo auto-scroll/corrida lateral do Pixel Quest é **ideia registrada**, não mecânica aprovada para implementação.
 - Troca de modo durante `playing`/`paused`/`countdown` exige confirmação sem perda acidental; desafio diário requer alerta de tentativa única. A retomada após ler/rolar artigo deve centralizar o tabuleiro de novo; verificar possível falha no `pause()` do Snake Clássico/Evolution.
