@@ -59,7 +59,14 @@ test('Padrão global: todos os jogos mostram artes editoriais originais, fontes 
   await expect(timeline).toHaveCount(1);
   const entries=timeline.locator(':scope > li');
   await expect(entries).toHaveCount(game.slug==='pixel-quest'?4:6);
-  await expect(timeline.locator('svg[role="img"]')).toHaveCount(game.slug==='pixel-quest'?4:6);
+  await expect(timeline.locator('svg[role="img"],img.oa-era-art')).toHaveCount(game.slug==='pixel-quest'?4:6);
+  await expect(timeline.locator('img.oa-era-art')).toHaveCount(game.slug==='pixel-quest'?4:0);
+  if(game.slug==='pixel-quest'){
+   for(const img of await timeline.locator('img.oa-era-art').all()){
+    await expect(img).toHaveAttribute('src',/\\.avif$/);
+    await expect.poll(()=>img.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+   }
+  }
   await expect(timeline.locator('figcaption')).toHaveCount(game.slug==='pixel-quest'?4:6);
   await expect(timeline.locator('.oa-era-source a')).toHaveCount(game.slug==='pixel-quest'?4:6);
   await expect(timeline).toContainText('Ilustração editorial original');
