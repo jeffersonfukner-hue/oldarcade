@@ -9,6 +9,7 @@ export interface HistoricalMilestone {
  sourceLabel:string;
  sourceUrl:string;
  scene:HistoricalScene;
+ image?:string; // Arte original gerada e otimizada, nunca screenshot de jogo comercial
 }
 export const historicalTimelines:Record<HistoricalGame,HistoricalMilestone[]>={
  snake:[
@@ -28,9 +29,9 @@ export const historicalTimelines:Record<HistoricalGame,HistoricalMilestone[]>={
   {date:'Hoje',title:'Novas interpretações',description:'Clássico, Sprint e Sobrevivência continuam a desafiar jogadores.',sourceLabel:'OldArcade — versão independente',sourceUrl:'/jogos/tetris/',scene:'blocks'}
  ],
  'pixel-quest':[
-  {date:'1980',title:'Space Panic',description:'Plataformas e escadas em diferentes alturas, antes de o salto dominar o gênero.',sourceLabel:'História dos jogos de plataforma',sourceUrl:'https://code198x.com/vault/genres/platformer/',scene:'ladder'},
-  {date:'1981',title:'Donkey Kong',description:'Saltos e obstáculos tornam-se centrais no arcade.',sourceLabel:'Nintendo — história institucional',sourceUrl:'https://www.nintendo.com/en-gb/Hardware/Nintendo-History/Nintendo-History-625945.html',scene:'barrels'},
-  {date:'1985',title:'Super Mario Bros.',description:'O avanço lateral revela novos cenários e desafios.',sourceLabel:'Nintendo — história de Mario',sourceUrl:'https://www.nintendo.com/pt-br/explore/characters/mario/history/',scene:'scroll'},
-  {date:'Novembro de 2026',title:'Pixel Quest',description:'O OldArcade inicia sua aventura original; a fase 1-1 segue em testes.',sourceLabel:'OldArcade — projeto independente',sourceUrl:'/jogos/pixel-quest/',scene:'forest'}
+  {date:'1980',title:'Space Panic',description:'Plataformas e escadas em diferentes alturas, antes de o salto dominar o gênero.',sourceLabel:'História dos jogos de plataforma',sourceUrl:'https://code198x.com/vault/genres/platformer/',scene:'ladder',image:'/images/history/space-panic-1980.avif'},
+  {date:'1981',title:'Donkey Kong',description:'Saltos e obstáculos tornam-se centrais no arcade.',sourceLabel:'Nintendo — história institucional',sourceUrl:'https://www.nintendo.com/en-gb/Hardware/Nintendo-History/Nintendo-History-625945.html',scene:'barrels',image:'/images/history/donkey-kong-1981.avif'},
+  {date:'1985',title:'Super Mario Bros.',description:'O avanço lateral revela novos cenários e desafios.',sourceLabel:'Nintendo — história de Mario',sourceUrl:'https://www.nintendo.com/pt-br/explore/characters/mario/history/',scene:'scroll',image:'/images/history/super-mario-bros-1985.avif'},
+  {date:'Novembro de 2026',title:'Pixel Quest',description:'O OldArcade inicia sua aventura original; a fase 1-1 segue em testes.',sourceLabel:'OldArcade — projeto independente',sourceUrl:'/jogos/pixel-quest/',scene:'forest',image:'/images/history/pixel-quest-2026.avif'}
  ]
 };
