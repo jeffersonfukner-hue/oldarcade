@@ -1,5 +1,12 @@
 # OldArcade — padrões globais obrigatórios de jogos e modos
 
+## Refinamento aprovado — arte de capa e de TODOS os textos editoriais aplicáveis
+- **Nunca apresentar colagem ou infográfico conceitual como os assets finais.** Uma aprovação vincula exatamente um arquivo individual identificado por dimensões, formato e hash; não redesenhar, substituir, recortar ou recomprimir depois da aprovação sem consulta. O mesmo arquivo deve ser carregado no GitHub, validado por hash, e então exibido no Preview sem corte inesperado.
+- Escopo por jogo: capa/card que representa o jogo **como de fato existe no site**; artes editoriais de introdução, guias, regras, modalidades e diferenciais, história/timeline, referências culturais e desenvolvimento **quando ilustrações agregam valor**. Evitar ornamentação em formulários, rankings, HUD e controles. Uma imagem pode ser reutilizada onde o mesmo conceito aparece, sem inventar mídia ou copiar assets de marcas.
+- Arte histórica/filmes: imagem gerada é **ilustração artística**, nunca prova de cena original, retrato exato de hardware/licença, screenshot real ou capa oficial. Texto histórico, ano, atribuição, fonte e atualizações pertencem ao componente HTML, sujeitos a verificação.
+- Por ordem Snake → Tetris → Pixel Quest: apresentar imagens individuais para homologação, conservar PNG aprovado, salvar as mesmas imagens no repositório e só aplicar no site depois de todos os conjuntos confirmados. Separar **aprovado pelo proprietário**, **salvo no acervo**, **salvo no GitHub** e **exibido no Preview** como estados distintos.
+
+
 ## DIREÇÃO ARTÍSTICA HOMOLOGADA — Variação 2 / pixel art premium (20/11/2026)
 - **Decisão explícita do proprietário:** a variação artística **2 — Pixel art premium** é o padrão global de todo o OldArcade. Visual: pixel art detalhada e nítida, composição premium de arcade, profundidade por camadas, iluminação neon com contraste legível, paleta própria para cada jogo e acabamento coerente entre títulos. **Não criar SVGs novos como arte final**; SVG existente é legado provisório e não representa aprovação do novo padrão.
 - **Contrato para todos os títulos e futuros jogos:** preparar (a) **arte principal que represente fielmente o jogo no estado atual do site** e (b) **uma imagem para cada marco histórico da timeline**, com créditos honestos e fontes históricas separadas da autoria da arte. Para jogos comerciais históricos, recriar ilustração editorial original identificada como interpretação, jamais afirmar ser screenshot/arte oficial.
