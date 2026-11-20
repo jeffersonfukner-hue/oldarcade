@@ -2,6 +2,11 @@
 
 # OldArcade — regras permanentes para agentes
 
+## Fila adicional de site e imagens (20/11/2026)
+- Ler [docs/BACKLOG_SITE_UX_E_IMAGENS.md](docs/BACKLOG_SITE_UX_E_IMAGENS.md) antes de tocar em header, home, páginas legais, versões, categorias, compartilhamento ou arte. Esses itens pertencem à Etapa 4 / **4B** posterior, **não** interrompem a Etapa 3.
+- Etapa 3 requer um card por jogo (perfil e página de rankings), modos individuais dentro, Top 3 visível no modo escolhido e Top 10 expansível; nenhuma pontuação fictícia ou por nickname sem conta. CI #1051 no commit `a3bd91e` passou; novo HEAD ainda exigirá CI e aceite visual.
+
+
 ## Contrato técnico vigente — Etapa 3 (19/11/2026)
 
 - Área `Minha conta → Meu desempenho`: **um card por jogo**, com os modos listados dentro. Cada modalidade mantém suas próprias métricas, escalas, ranking e atributos `data-account-record`, `data-account-best`, `data-account-rank`, `data-account-challenge`, `data-account-missions`, `data-account-play`. Pixel Quest não tem ranking global e não pode fingir recordes de conta.

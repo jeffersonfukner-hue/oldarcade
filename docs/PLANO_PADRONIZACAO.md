@@ -8,13 +8,21 @@
 | --- | --- | --- | --- |
 | **1 — Largura global** | Unificar containers, cabeçalho, conteúdo e rodapé | Mesma largura visual em todas as páginas | **Aprovada visualmente**: máximo 980px, com fullscreen independente |
 | **2 — Estrutura editorial** | Padronizar ordem e presença das seções | Nenhuma seção comum esquecida | **Homologada visualmente pelo proprietário em 19/11/2026**. Código-base `2d07fe7`, CI #1044 aprovado |
-| **3 — Desempenho e rankings** | Compactar cards, retirar duplicações e melhorar navegação | Dados corretos, sem espaço desperdiçado | **Em execução**, auditoria e primeira implantação na branch, aguardando CI e aceite visual |
+| **3 — Desempenho e rankings** | Compactar cards, retirar duplicações e melhorar navegação | Dados corretos, sem espaço desperdiçado | **Revisão final em implementação, CI #1051 aprovado para a primeira implantação; faltam CI atualizado e aceite visual** |
 | **4 — Conteúdo e identidade** | Padronizar textos, fontes, filmes e Continue jogando | Conteúdo contextual, verdadeiro e consistente | **Na fila**, com SEO de história real, títulos/HTML semânticos e palavras relevantes em negrito moderado |
 | **5 — Regressão** | Tipagem, build, API, Playwright, screenshots desktop/mobile | CI aprovado e homologação visual | **Na fila**, após as etapas anteriores |
 
 **Subetapa adicional — 2B: breadcrumbs e navegação contextual.** **Homologada visualmente pelo proprietário e CI #1048 do commit `eb4512a` aprovado.** Um componente global de trilhas acessíveis usa URLs reais do catálogo para os sete modos e nomes estáticos para conta/rankings/páginas institucionais. Página inicial não tem breadcrumb. `BreadcrumbList` JSON-LD somente quando `SITE_URL` configurar domínio válido (fora disso, sem canonical nem JSON-LD de breadcrumbs). Largura mantém 980px, mobile de 320/390px. Testes Playwright obrigatórios e aprovação visual antes da Etapa 3.
 
 **Fila posterior de refinamento dos jogos (trabalho adicional, não substitui a Etapa 5):** HUD expansível de estatísticas em tempo real e totais por item/jogo; progressão de maçãs, peras e uvas no Snake com pontuações próprias a definir; sprites autorais aprimorados onde aplicável; fundo parallax e arte do Pixel Quest; **BUG-QUEST-05: recorde do Pixel Quest não registra**, reproduzir, diagnosticar e corrigir. Consultar os IDs e detalhes do backlog em `CONTINUIDADE.md`. Cada implementação posterior requer sua própria regressão e homologação; não considerar o bug resolvido apenas por constar da fila.
+
+## Etapa 3 — Revisão final dos rankings (20/11/2026)
+
+- A Etapa 3 já passou por auditoria da autenticação do endpoint (POST sem conta retorna 401), reorganização de `/conta/` em um card por jogo, preservação de recordes por modo e retirada do ranking local por nickname do Snake. Correção do comparador da Sobrevivência (maior duração, Sprint menor) incluída no código e em testes. **CI #1051, commit `a3bd91e`, aprovado: 278 testes passaram, 50 ignorados.**
+- **Revisão de rankings públicos adicionada nesta versão:** `/rankings/` passa de seis cartões de modalidades a **um cartão por jogo competitivo**, com as modalidades em expansões internas, preservando a URL `#ranking-<modo>`, a API por modo e os botões Jogar. Top 3 visível no modo expandido; Top 10 em `details`. As páginas de Snake e Tetris passam a mostrar Top 3 direto e Top 10 sob demanda. Um único renderizador `src/scripts/rankingPresentation.ts` evita cópias e mantém dados de conta/tempo corretos. O grande card de líder duplicado foi removido da página central; a mensagem de desafio permanece.
+- **Critério de aceite desta revisão:** CI atualizado com Playwright desktop/mobile e testes de links de modo, Top 3/Top 10, dados de conta e ranking indisponível; depois **homologação visual do usuário**. **Não declarar a Etapa 3 visualmente aprovada antes do aceite.**
+- **Limitação explícita ainda sem migração:** desempate por linhas no Tetris Sobrevivência, caso venha a ser exigido, necessita captura e persistência confiável das linhas no servidor; o schema atual mantém tempo e data. Não inventar critério adicional e não alterar D1 sem etapa/migração revisada. O servidor ainda responde `verified:false`; login não significa verificação anti-cheat.
+- As novas solicitações de UX, header, home, imagens, categorias e páginas legais foram incluídas **somente na fila posterior** em `docs/BACKLOG_SITE_UX_E_IMAGENS.md`. Não implementar até a Etapa 3 terminar; preservar cinco etapas originais.
 
 ## Etapa 3 — auditoria e implementação inicial (19/11/2026)
 
@@ -66,3 +74,7 @@ Na **Etapa 4**, verificar editorialmente a relevância de cada obra, disponibili
 - Manter os princípios de uma fonte compartilhada de componentes e de preservação de IDs, lógica dos jogos, contas, rankings e dados existentes.
 - Os cinco números do plano original não devem ser renumerados nem trocados por uma ordem improvisada. O breadcrumb é **2B**; refinamentos constituem uma frente adicional separada.
 - GitHub repo `jeffersonfukner-hue/oldarcade`, branch `feat/layout-unificado-snake-quest`, PR #4. **Sem merge nem deploy manual/produção sem autorização.** Commits podem disparar CI e Preview automático conforme configuração existente; confirmar revisão acessível no Preview.
+
+## Trabalho posterior — Etapa 4B (Navegação, catálogo e home)
+
+Após a Etapa 4 (conteúdo/identidade), executar uma **subetapa 4B** sem renumerar as cinco etapas originais: cabeçalho sticky acessível, dropdown Jogos alimentado pelo catálogo, compartilhamento social com ícones e URLs reais, páginas/categorias publicadas dinamicamente, auditoria da home (eliminar repetição sidebar/header/rodapé; links duplicados Rankings/Minha conta), identidade visual de hero/cards, atualização do link "História do Old Arcade". Diretrizes completas e critérios: [BACKLOG_SITE_UX_E_IMAGENS.md](BACKLOG_SITE_UX_E_IMAGENS.md). Imagens novas uma a uma, com prompts contexto e QA, sem alterar produção.

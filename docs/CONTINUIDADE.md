@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUALIZADO — revisão final da Etapa 3 (20/11/2026)
+- **CI #1051 aprovado no commit `a3bd91e`** (278 passed, 50 skipped). Etapas 1, 2 e 2B já aprovadas visualmente. PR #4 permanece aberta/draft sem merge e sem deploy manual.
+- **Etapa 3: últimas mudanças no código desta branch:** página de rankings agora organiza modos sob **um card por jogo** (Snake e Tetris), preserva APIs, URLs `#ranking-<modo>` e regras independentes. Mostrar Top 3 por modo expandido e Top 10 sob demanda tanto no índice quanto dentro dos jogos; usar renderizador único. Manter ranking competitivo somente com conta; Quest sem competição fictícia. **Aguardar CI do novo HEAD e homologação visual.**
+- **Nova fila SITE-01/02/03/04/05/06/07/08/09 documentada em [BACKLOG_SITE_UX_E_IMAGENS.md](BACKLOG_SITE_UX_E_IMAGENS.md)**, dividida entre Etapa 4 (institucional, legal, versões) e **Etapa 4B** (header sticky, dropdown Jogos, categorias, home, redes sociais e imagens). Não implementar enquanto a Etapa 3 não estiver validada.
+- Todos os refinamentos e bugs de jogos previamente pedidos continuam abaixo. Não alterar dados do banco, branch principal ou publicação.
+
+
 ## ESTADO VIGENTE — Etapa 3: auditoria e implementação inicial (19/11/2026)
 
 - **Etapas 1, 2 e 2B aprovadas visualmente pelo proprietário.** CI #1048 do commit `eb4512a` concluído com sucesso. Repositório `jeffersonfukner-hue/oldarcade`, PR #4 draft, branch `feat/layout-unificado-snake-quest`, sem merge.

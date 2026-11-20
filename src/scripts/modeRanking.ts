@@ -1,4 +1,5 @@
 import {isTimeRanking,isLowerBetter,formatRankingValue,betterResult} from '../data/rankingRules.js';
+import {renderRankingPodium} from './rankingPresentation';
 type Entry={nickname:string;score:number;rank?:number;achievedAt?:string;durationMs?:number|null};
 type Board={available:boolean;top?:Entry[];mine?:Entry|null;error?:string;saved?:boolean;code?:string};
 type Result={game:string;score:number;durationMs?:number;recordDelayMs?:number};
@@ -7,7 +8,7 @@ if(root){
  const game=root.dataset.game||'',endpoint='/api/games/'+encodeURIComponent(game)+'/leaderboard';
  const timed=isTimeRanking(game),display=(value:number|null|undefined)=>formatRankingValue(game,value);
  const get=<T extends Element>(s:string)=>root.querySelector<T>('[data-rank-'+s+']')!;
- const body=get<HTMLTableSectionElement>('body'),global=get<HTMLElement>('global'),personal=get<HTMLElement>('personal'),provisional=get<HTMLElement>('provisional');
+ const body=get<HTMLTableSectionElement>('body'),podium=get<HTMLElement>('podium'),global=get<HTMLElement>('global'),personal=get<HTMLElement>('personal'),provisional=get<HTMLElement>('provisional');
  const status=get<HTMLElement>('status'),summary=get<HTMLElement>('summary'),mine=get<HTMLElement>('mine');
  const authButton=get<HTMLButtonElement>('auth-button'),modal=get<HTMLElement>('modal'),hint=get<HTMLElement>('hint');
  const login=get<HTMLFormElement>('login-form'),register=get<HTMLFormElement>('register-form'),authStatus=get<HTMLElement>('auth-status');
@@ -22,7 +23,7 @@ if(root){
  const time=(ms?:number|null)=>ms==null?'Tempo indisponível':Math.floor(ms/60000)+'m '+String(Math.floor(ms/1000)%60).padStart(2,'0')+'s';
  const fmt=(iso?:string)=>iso&&Number.isFinite(Date.parse(iso))?new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'medium'}).format(new Date(iso)):'—';
  function render(data:Board){
-  if(!data.available){status.textContent='Ranking indisponível neste ambiente.';return}
+  if(!data.available){status.textContent='Ranking indisponível neste ambiente.';podium.textContent='Classificação indisponível.';return}
   top=data.top?.[0]?.score??null;
   global.textContent=timed?display(top):String(provisionalRecord?score:top??'—');
   if(!provisionalRecord)provisional.hidden=true;
@@ -31,6 +32,7 @@ if(root){
   mine.hidden=!data.mine;
   if(data.mine)mine.textContent='Sua posição: '+data.mine.rank+'º · '+data.mine.nickname+' · '+display(data.mine.score);
   body.replaceChildren();
+  renderRankingPodium(podium,data.top||[],score=>display(score));
   if(!data.top?.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=4;td.textContent='Nenhum recorde de conta registrado. Seja o primeiro!';tr.append(td);body.append(tr)}
   else data.top.slice(0,10).forEach((e,i)=>{
    const tr=document.createElement('tr'),position=e.rank||i+1;

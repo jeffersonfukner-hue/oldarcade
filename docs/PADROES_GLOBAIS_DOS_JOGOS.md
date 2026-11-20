@@ -1,5 +1,11 @@
 # OldArcade — padrões globais obrigatórios de jogos e modos
 
+## Ranking por jogo e navegação editorial (20/11/2026)
+- Na página `/rankings/`, renderizar **um card externo por jogo competitivo** e expandir modos internamente, usando o mesmo catálogo de `/conta/`. Cada modo tem classificação independente; Top 3 visível quando aberto, Top 10 sob demanda. As páginas de jogo seguem o mesmo padrão de Top 3/Top 10. Fonte de apresentação reutilizável: `src/scripts/rankingPresentation.ts`.
+- Dados do ranking vêm da API de contas; visitante joga mas não se classifica. Não repetir o líder em outro grande card se já aparece no pódio. Não reabrir dados legados do navegador.
+- Fila futura SITE-* de header sticky, dropdown Jogos, categorias, home, versão, páginas legais e imagens em `docs/BACKLOG_SITE_UX_E_IMAGENS.md`; **não** implementar durante Etapa 3.
+
+
 ## Contrato técnico vigente — Etapa 3 (19/11/2026)
 
 - Área `Minha conta → Meu desempenho`: **um card por jogo**, com os modos listados dentro. Cada modalidade mantém suas próprias métricas, escalas, ranking e atributos `data-account-record`, `data-account-best`, `data-account-rank`, `data-account-challenge`, `data-account-missions`, `data-account-play`. Pixel Quest não tem ranking global e não pode fingir recordes de conta.

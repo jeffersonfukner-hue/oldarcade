@@ -1031,3 +1031,26 @@ body.oa-auth-open{overflow:hidden}
  .account-mode-main .account-record-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
  .account-mode-main .account-record-play{justify-self:start;width:auto}
 }
+
+/* Etapa 3: uma superfície por jogo no ranking, com modos internos expansíveis. */
+.rankings-game-card{scroll-margin-top:26px;min-width:0;padding:22px;border:1px solid #354462;border-radius:18px;background:linear-gradient(155deg,#151e35,#0e172b)}
+.rankings-game-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;border-bottom:1px solid #354462;padding-bottom:14px}
+.rankings-game-heading h2{font-size:1.6rem;margin:6px 0 0}
+.rankings-modes{display:grid;gap:9px}
+.rankings-mode{scroll-margin-top:30px;min-width:0;border:1px solid #3b4b67;border-radius:12px;background:#121e34}
+.rankings-mode>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;cursor:pointer;list-style:none}
+.rankings-mode>summary::-webkit-details-marker{display:none}
+.rankings-mode>summary::after{content:'▸';font-weight:800;color:#b6a1ff}
+.rankings-mode[open]>summary::after{content:'▾'}
+.rankings-mode>summary:hover,.rankings-mode>summary:focus-visible{background:#202e4b}
+.rankings-mode-label{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0}
+.rankings-mode-label>strong{font-size:.94rem}
+.rankings-mode-label>small{font-size:.76rem;color:#b0bfd9}
+.rankings-mode>.rankings-panel{scroll-margin-top:0;box-shadow:none;background:transparent;border:0;border-top:1px solid #344560;border-radius:0;padding:16px}
+.rankings-mode>.rankings-panel .rankings-panel-heading{align-items:center}
+.rankings-mode>.rankings-panel .rankings-panel-heading p{max-width:none}
+.rankings-challenge-line{margin:12px 0 16px;color:#cbb5ff;font-size:.84rem}
+.oa-ranking-podium-title{font-size:1rem;margin:18px 0 10px}
+.mode-ranking .rankings-podium,.oa-ranking-panel .rankings-podium{margin:4px 0 15px}
+.mode-ranking .rankings-top10,.oa-ranking-panel .rankings-top10{margin-top:14px}
+@media(max-width:580px){.rankings-game-card{padding:14px}.rankings-game-heading{align-items:flex-start}.rankings-mode>summary{padding:12px}.rankings-mode>.rankings-panel{padding:10px}.rankings-mode-label>small{flex-basis:100%;padding-left:28px}}
