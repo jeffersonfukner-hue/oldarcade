@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## DIREÇÃO ARTÍSTICA APROVADA E NOVO FLUXO DE ASSETS — 20/11/2026
+- Variação **2 — pixel art premium** HOMOLOGADA como **padrão artístico global**. Já aprovou **o estilo**, NÃO os arquivos de cada título.
+- **Ordem obrigatória:** 1) Snake (arte representativa da implementação atual + seis marcos históricos), apresentar imagens → aguardar aprovação → somente então salvar em assets do GitHub; 2) Tetris (arte principal + seis marcos), aprovação → salvar; 3) Pixel Quest (arte principal + quatro marcos), aprovação → salvar. Cada lote é um checkpoint independente.
+- **Somente depois de confirmar os três lotes no repositório** iniciar, com autorização do proprietário, nova fase de troca das imagens do site. Não substituir os SVGs/cartões por novos arquivos antes disso. Quatro imagens de timeline Pixel Quest criadas/ligadas antes desta decisão são **legado existente**; não confundir com nova coleção homologada.
+- Arte principal deve representar o **jogo real atualmente implementado** (conferir homepage, canvas e modos no repositório), não personagens ou cenários imaginados. Imagens históricas são **ilustrações editoriais originais**, sem se passar por capturas dos jogos antigos; legenda e link de fonte no site, quando aplicado.
+- PR #4, branch `feat/layout-unificado-snake-quest`, sem merge/deploy. Não alterar decisões homologadas de etapas anteriores.
+
+
 ## ESTADO ATUAL — artes premium da timeline Pixel Quest (20/11/2026)
 - **Quatro imagens premium reais foram integradas à branch do PR #4**, em `public/images/history/`, utilizando as quatro artes ilustrativas previamente geradas na conversa, com recorte da cena e otimização em AVIF. O componente único `HistoricalTimeline.astro` agora exibe essas imagens nas quatro entradas de Pixel Quest e mantém SVG como fallback somente nos marcos ainda sem raster próprio (Snake e Tetris).
 - **Contrato global preservado:** imagem + legenda de ilustração autoral (não screenshot) + link da fonte histórica; dados declarativos em `historicalTimeline.ts`. Teste Playwright atualizado para verificar carregamento real da imagem e manter cobertura dos três jogos. O código atual não altera motores, pontuação, conta ou ranking.
