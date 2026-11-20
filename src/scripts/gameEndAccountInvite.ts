@@ -6,6 +6,9 @@ if(box){
  const copy=box.querySelector<HTMLElement>('[data-end-invite-result]')!;
  const link=box.querySelector<HTMLAnchorElement>('[data-end-invite-ranking]')!;
  const dismiss=box.querySelector<HTMLButtonElement>('[data-end-invite-dismiss]')!;
+ const skip=box.querySelector<HTMLButtonElement>('[data-end-invite-skip]')!;
+ // Mantém o convite dentro do palco, inclusive no fullscreen nativo.
+ document.querySelector<HTMLElement>('.game-stage')?.append(box);
  let activeAccount=false,sequence=0,accountVersion=0;
  const versionAtStart=accountVersion;
  const session=fetch('/api/auth/me',{cache:'no-store'}).then(async response=>{
@@ -17,6 +20,9 @@ if(box){
  }).catch(()=>{});
  const hide=()=>{sequence++;box.hidden=true};
  dismiss.addEventListener('click',hide);
+ skip.addEventListener('click',hide);
+ box.addEventListener('click',event=>{if(event.target===box)hide()});
+ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!box.hidden&&!document.querySelector<HTMLElement>('[data-global-auth]:not([hidden])'))hide()});
  document.addEventListener('oldarcade:game-started',hide);
  document.addEventListener('oldarcade:account-changed',event=>{
   const player=(event as CustomEvent<{player?:{nickname:string}|null}>).detail?.player;
@@ -36,5 +42,6 @@ if(box){
   copy.textContent='Você marcou '+formatRankingValue(detail.game,detail.score)+'. Entre ou crie uma conta para participar; os recordes dos outros jogadores já estão disponíveis.';
   link.href='/rankings/#ranking-'+encodeURIComponent(detail.game);
   box.hidden=false;
+  dismiss.focus({preventScroll:true});
  });
 }
