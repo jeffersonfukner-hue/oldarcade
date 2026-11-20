@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL — pacote Snake / 12 PNGs aprovados (20/11/2026)
+- **Aprovação visual concedida aos 12 arquivos individuais.** Conferidos 12 PNGs originais por SHA-256 e cópias sem alterações, agrupados em ZIP com caminhos futuros e manifesto; registro oficial de nomes/hashes/destinos em [docs/ASSETS_SNAKE_APROVADOS.md](ASSETS_SNAKE_APROVADOS.md).
+- **IMPORTANTE: nenhum dos 12 PNGs foi inserido no repositório GitHub.** O commit `38d9814` contém **apenas documentação**, não as imagens. GitHub plugin disponível não aceita bytes de um arquivo local e a rede do container não alcança github.com. ZIP de transferência está nesta conversa. Capa já estava preservada no acervo pessoal; os demais PNGs fazem parte do ZIP da conversa.
+- **Inventário dos textos:** o pacote cobre capa, seis eventos históricos, três temas de guia e os dois modos adicionais. Lacunas editoriais sugeridas antes de Tetris: guia específico das frutas/missões no Aventura; poderes/inimigos do Evolution; referência cultural Nibbler/filme `Man vs Snake`. Evitar inserir imagens em HUD/ranking/formulários. Nenhum novo asset complementar foi homologado.
+- **Próximo passo:** transferência GitHub de bytes aprovados, SHA-256 pós-upload e commit de assets, ou seguir com aprovação do lote complementar sem alegar upload; somente aplicar imagens às páginas após a conclusão dos três jogos e autorização. Sem merge/deploy.
+
+
+
 ## ESTADO ATUAL — Snake: arte de capa aprovada, demais textos em inventário (20/11/2026)
 - **Aprovação expressa:** imagem única `neon_pixel_snake_chasing_apple.png` (1672×941, PNG, 1.434.767 bytes, SHA-256 `e24e03a8c208a995288cfc955efa35238b74fb9bac66b5d7f995bfd2bf113e6f`). Salva sem alterar os bytes no acervo persistente do ChatGPT, caminho `/OldArcade/assets-aprovados/Snake/snake-capa-aprovada.png`. **Ainda NÃO está no repositório GitHub**, pois as ações GitHub disponíveis permitem criar arquivo UTF-8 ou blob a partir de conteúdo de texto/base64, mas não aceitam diretamente o arquivo binário montado. Não afirmar que o upload GitHub foi concluído.
 - **Destino GitHub quando houver upload de bytes:** `public/images/games/snake-cover.png`; somente salvar, sem alterar `src/pages/index.astro` ou aplicar no site até aprovação global dos assets.
