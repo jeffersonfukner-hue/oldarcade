@@ -2,6 +2,17 @@
 
 # OldArcade — regras permanentes para agentes
 
+## REGRA OFICIAL — ranking para todos os jogos; visitantes veem líderes e convite final (19/11/2026)
+
+- **Correção prioritária exigida na Etapa 3, ainda em homologação:** O Pixel Quest foi incorretamente marcado `competitive:false`, ficando ausente da página `/rankings/`, do perfil competitivo e do endpoint de leaderboard. A regra original do Old Arcade é **todos os jogos com classificação**, embora só fases/partidas elegíveis gerem pontos. Ativar `pixel-quest` no catálogo compartilhado e permitir GET público + POST autenticado pela API existente. Ranking Quest v1 = **maior pontuação da fase 1-1 concluída**, não somar campanhas futuras, não registrar derrotas como vitórias. Histórico local é preservado, e a API de ranking não apaga marca antiga.
+- **Consultas SEM login obrigatórias:** Top 3, Top 10, líder e nomes dos recordistas são públicos para **todas as modalidades**, inclusive Quest, sem divulgar e-mails ou dados privados. O nome do visitante só aparece no ranking se ele criar/entrar em conta e registrar resultado elegível.
+- **Convite final global:** ao terminar uma partida elegível, visitante vê resultado e chamada não bloqueante para **Criar conta / Já tenho conta / Ver líderes**. O convite usa o modal GLOBAL de autenticação e não impede replay, não substitui Game Over, nem deve aparecer para jogador autenticado. Login após resultado elegível pode enviar uma vez automaticamente a marca guardada em memória da aba; não prometer registro sem resposta positiva da API. Testes devem cobrir Snake (3 modos), Tetris (3 modos) e Quest (1).
+- **Remover do ranking dentro do jogo:** formulário duplicado, modal próprio e botão “Tentar registrar novamente” e quaisquer CTAs de reenvio redundantes que não funcionem. Consultar ranking nunca deve depender de login. Manter card simples com pódio Top 3, Top 10 sob demanda, posição pessoal se houver, status real de disponibilidade. Não mexer no reenvio **do Desafio Diário de tentativa única**, que tem fluxo e proteções próprios.
+- **Estado técnico:** mudanças preparadas na PR #4, aguardar o CI do commit novo e sua homologação visual. Não confundir com conclusão oficial da Etapa 3, nem executar Etapa 4/4B antes do aceite. Sem SQL, merge ou deploy manual. Avaliar futuramente autenticação e antifraude de placares (`verified:false`); não alegar que contas impedem pontuações manipuladas.
+- **Backlog preservado:** bugs de recorde local do Quest, recentralização, novos sprites e modalidades, estatísticas expandidas, mídia, páginas institucionais, header, home e imagens continuam na fila. Não encurtar nem sobrepor este backlog.
+
+
+
 ## Fila adicional de site e imagens (20/11/2026)
 - Ler [docs/BACKLOG_SITE_UX_E_IMAGENS.md](docs/BACKLOG_SITE_UX_E_IMAGENS.md) antes de tocar em header, home, páginas legais, versões, categorias, compartilhamento ou arte. Esses itens pertencem à Etapa 4 / **4B** posterior, **não** interrompem a Etapa 3.
 - Etapa 3 requer um card por jogo (perfil e página de rankings), modos individuais dentro, Top 3 visível no modo escolhido e Top 10 expansível; nenhuma pontuação fictícia ou por nickname sem conta. CI #1051 no commit `a3bd91e` passou; novo HEAD ainda exigirá CI e aceite visual.

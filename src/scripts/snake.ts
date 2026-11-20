@@ -77,6 +77,7 @@ let lastFunMilestone=0;
 let lastFunAt=-100;
 let dangerAnnounced=false;
 let endSequence=0;
+let guestPendingSequence:number|null=null;
 let roundDurationMs=0;
 const alertNode=document.querySelector<HTMLElement>('#record-live-alert')!;
 let alertTimeout:number|undefined;
@@ -544,7 +545,8 @@ function confirmedResult(result:ReturnType<typeof leaderboard.snapshot>,submitte
 async function finishRound(sequence:number,won:boolean){
  let summary=`Você marcou ${score} pontos. `;
  let outcome:'leader'|'podium'|'rival'|'defeat'='defeat';
- let showAccount=false;
+
+ // Resultado aguardando eventual cadastro do visitante, sem reenvio manual.
  if(!account)await checkAccount();
  if(account){
   try{
@@ -563,7 +565,7 @@ async function finishRound(sequence:number,won:boolean){
   const result=await leaderboard.refresh('end');
   provisionalGlobal=false;refresh();
   if(result)summary=wasProvisional?'Você superou a meta durante a partida, mas precisa cadastrar uma conta para registrar o resultado. '+leaderboard.summary(result):`Você marcou ${score} pontos. ${leaderboard.summary(result)}`;
-  showAccount=true;
+  guestPendingSequence=sequence;
   if(result)text('record-end-summary',leaderboard.summary(result));
  }
  if(sequence!==endSequence||state!=='over')return;
@@ -572,7 +574,7 @@ async function finishRound(sequence:number,won:boolean){
  window.setTimeout(()=>{
   if(sequence!==endSequence||state!=='over')return;
   show(won?'Tabuleiro completo!':'Fim de jogo',summary,'▶ Jogar novamente');
-  if(showAccount&&!account)openRecordModal();
+  // O convite global aparece após o Game Over. Não abrir o formulário legado sobre o jogo.
  },account?900:1800);
 }
 
@@ -784,7 +786,7 @@ document.addEventListener('oldarcade:account-changed',()=>{
  personalCloudBest=null;
  accountGameRecords=[];
  refresh();
- void checkAccount().then(()=>{refresh();void leaderboard.refresh('initial')});
+ void checkAccount().then(()=>{refresh();void leaderboard.refresh('initial');if(account&&guestPendingSequence===endSequence&&state==='over'){guestPendingSequence=null;void saveRecord(false)}});
 });
 // Consultar somente na entrada da página, mudança de conta e fim da partida.
 

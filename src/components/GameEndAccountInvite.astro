@@ -1,0 +1,14 @@
+---
+/** Convite não bloqueante e reutilizável para visitantes após partidas elegíveis. */
+---
+<aside class="oa-end-account-invite" data-end-account-invite aria-live="polite" aria-label="Convite para disputar o ranking" hidden>
+ <button type="button" class="oa-end-account-dismiss" data-end-invite-dismiss aria-label="Fechar convite">×</button>
+ <strong>Seu nome pode aparecer no ranking!</strong>
+ <p data-end-invite-result>Seu resultado fica no navegador. Com uma conta gratuita você disputa a classificação.</p>
+ <div class="oa-end-invite-actions">
+  <button type="button" class="btn" data-auth-trigger="register">Criar conta gratuita</button>
+  <button type="button" class="btn secondary" data-auth-trigger="login">Já tenho conta</button>
+ </div>
+ <a href="/rankings/" data-end-invite-ranking>Ver os líderes</a>
+</aside>
+<script>import '../scripts/gameEndAccountInvite.ts';</script>

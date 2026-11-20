@@ -1,6 +1,6 @@
 ---
 import GamePageSections from './GamePageSections.astro';
-import GameCompetitionNotice from './GameCompetitionNotice.astro';
+import GameRanking from './GameRanking.astro';
 import GameRelatedGames from './GameRelatedGames.astro';
 import GamePage from './GamePage.astro';
 import GameShare from './GameShare.astro';
@@ -17,14 +17,14 @@ import GameLayout from './GameLayout.astro';
 import GameDevelopmentHistory from './GameDevelopmentHistory.astro';
 import GameGuide from './GameGuide.astro';
 ---
-<GamePage modeId="pixel-quest" title="Jogar Pixel Quest — Plataforma 2D original | OldArcade" description="Jogue Pixel Quest, jogo original de plataforma 2D em desenvolvimento: cristais, inimigos, checkpoints e recordes locais.">
+<GamePage modeId="pixel-quest" title="Jogar Pixel Quest — Plataforma 2D original | OldArcade" description="Jogue Pixel Quest, jogo original de plataforma 2D: colete cristais, vença inimigos e dispute o ranking por fase concluída.">
  <div class="shell oa-game-page pq-shell">
   <section class="hero" style="padding-bottom:16px"><span class="eyebrow">Jogo #003 · Etapa B · Protótipo não lançado</span><h1>Pixel <span class="accent">Quest</span></h1><p class="lede">Uma aventura de plataforma original em desenvolvimento. Explore a Trilha Esmeralda, colete cristais e alcance o portal de saída.</p></section>
   <GameLayout label="Jogar Pixel Quest" className="section oa-stage-unified">
    <div class="panel game-stage" id="pq-stage" data-arcade-viewport data-board-shape="landscape">
     <GameStageHeader title="◈ PIXEL QUEST" subtitle="Trilha Esmeralda" pauseId="pq-pause" fullscreenId="pq-fullscreen" fullscreenLabel="Alternar tela cheia do Pixel Quest"></GameStageHeader>
     <div class="arcade-game-layout">
-     <GameHud compact statusId="pq-status" scoreId="pq-score" bestId="pq-best" globalId="pq-global" bestLabel="Melhor fase (local)" globalLabel="Melhor geral (local · 1 fase)" scoreLabel="Pontos" statId="pq-defeated" statLabel="Total de inimigos derrotados" secondStatId="pq-level-defeated" secondStatLabel="Derrotados neste nível" hideSecondStat hint="A/D ou ←/→ mover · Espaço/↑ saltar · P pausar">
+     <GameHud compact statusId="pq-status" scoreId="pq-score" bestId="pq-best" globalId="pq-global" bestLabel="Melhor fase (local)" globalLabel="Recorde global" scoreLabel="Pontos" statId="pq-defeated" statLabel="Total de inimigos derrotados" secondStatId="pq-level-defeated" secondStatLabel="Derrotados neste nível" hideSecondStat hint="A/D ou ←/→ mover · Espaço/↑ saltar · P pausar">
       <GameProgressBar id="pq-crystals-remaining" label="Cristais restantes" total={crystalsInLevel} color="crystal"/>
       <GameProgressBar id="pq-enemies-remaining" label="Inimigos restantes" total={enemiesInLevel} color="enemy"/>
      </GameHud>
@@ -40,9 +40,9 @@ import GameGuide from './GameGuide.astro';
   </GameLayout>
 
   <GamePageSections>
-   <GameCompetitionNotice slot="rankings" gameName="Pixel Quest" detail="Por enquanto, seus melhores resultados de fase e campanha são salvos somente neste navegador. O ranking global ainda não foi lançado." />
+   <GameRanking slot="rankings" game="pixel-quest" name="Pixel Quest" />
    <GameShare slot="share" gameSlug="pixel-quest" gameName="Pixel Quest" />
-   <GameGuide slot="guide"><h2>Como jogar</h2><p>Explore o caminho horizontal. Segure o salto para alcançar plataformas mais altas e solte cedo para saltos baixos. Depois de alcançar o checkpoint, você retorna a ele ao cair em abismos; contato lateral com inimigo tira um coração e provoca recuo. Pausas não consomem tempo de jogo.</p><h3>Pontuação</h3><p>Cristal: <strong>10 pontos</strong>; inimigo derrotado: <strong>50</strong>; portal: <strong>100</strong>; bônus de tempo: até <strong>500</strong>, reduzindo 2 pontos por segundo efetivo. O resultado só é registrado após concluir a fase.</p><p>Inimigos derrotados no nível reiniciam na próxima fase; o total acumula durante a campanha. Os recordes de fase e campanha são provisórios e locais ao navegador, sem ranking oficial.</p></GameGuide>
+   <GameGuide slot="guide"><h2>Como jogar</h2><p>Explore o caminho horizontal. Segure o salto para alcançar plataformas mais altas e solte cedo para saltos baixos. Depois de alcançar o checkpoint, você retorna a ele ao cair em abismos; contato lateral com inimigo tira um coração e provoca recuo. Pausas não consomem tempo de jogo.</p><h3>Pontuação</h3><p>Cristal: <strong>10 pontos</strong>; inimigo derrotado: <strong>50</strong>; portal: <strong>100</strong>; bônus de tempo: até <strong>500</strong>, reduzindo 2 pontos por segundo efetivo. O resultado só é registrado após concluir a fase.</p><p>Inimigos derrotados no nível reiniciam na próxima fase; o total acumula durante a campanha. A fase 1-1 concluída pode entrar no ranking global de contas. Marcas locais continuam disponíveis sem cadastro; campanhas futuras terão classificação própria e não serão misturadas com esta fase.</p></GameGuide>
    <PixelQuestHistory slot="history" />
    <GameRelatedGames slot="related" currentGame="pixel-quest" />
    <GameDevelopmentHistory slot="development" gameSlug="pixel-quest" id="pq-development-history" />

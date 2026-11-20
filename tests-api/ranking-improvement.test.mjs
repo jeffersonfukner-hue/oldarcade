@@ -23,3 +23,13 @@ test('Snake e Tetris Clássico: maior pontuação substitui',()=>{
   assert.equal(betterResult(id,80,100),false);
  }
 });
+
+import {competitiveGame,validGameScore} from '../src/data/gameModes.js';
+test('Pixel Quest aceita recordes da fase concluída como ranking por pontos',()=>{
+ assert.equal(competitiveGame('pixel-quest'),true);
+ assert.equal(validGameScore('pixel-quest',960),true);
+ assert.equal(validGameScore('pixel-quest',100001),false);
+ assert.equal(validGameScore('pixel-quest',-1),false);
+ assert.equal(validGameScore('pixel-quest',1.5),false);
+ assert.equal(improvementOperator('pixel-quest'),'>');
+});

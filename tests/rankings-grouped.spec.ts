@@ -13,12 +13,13 @@ test('Rankings: um card por jogo, modos internos e Top 3 real com Top 10 recolhi
   ]})});
  });
  await page.goto('/rankings/');
- await expect(page.locator('[data-rank-page-game]')).toHaveCount(2);
+ await expect(page.locator('[data-rank-page-game]')).toHaveCount(3);
  await expect(page.locator('[data-rank-page-game="snake"] [data-rank-page-mode]')).toHaveCount(3);
  await expect(page.locator('[data-rank-page-game="tetris"] [data-rank-page-mode]')).toHaveCount(3);
- await expect(page.locator('.rankings-game-card')).toHaveCount(2);
- await expect(page.locator('.rankings-jump a')).toHaveCount(2);
- await expect(page.locator('[data-rank-page-mode]')).toHaveCount(6);
+ await expect(page.locator('[data-rank-page-game="pixel-quest"] [data-rank-page-mode]')).toHaveCount(1);
+ await expect(page.locator('.rankings-game-card')).toHaveCount(3);
+ await expect(page.locator('.rankings-jump a')).toHaveCount(3);
+ await expect(page.locator('[data-rank-page-mode]')).toHaveCount(7);
  const classic=page.locator('#ranking-snake');
  await expect(classic).toHaveAttribute('open','');
  await expect(classic.locator('.rankings-podium-card')).toHaveCount(3);
@@ -31,7 +32,7 @@ test('Rankings: um card por jogo, modos internos e Top 3 real com Top 10 recolhi
  await sprint.locator(':scope > summary').click();
  await expect(sprint.locator('[data-rank-podium]')).toContainText('0:45.000');
  await expect(page.locator('#ranking-tetris-survival [data-rank-podium]')).toContainText('1:30.000');
- expect([...new Set(requested)].sort()).toEqual(['snake','snake-adventure','snake-evolution','tetris','tetris-sprint','tetris-survival'].sort());
+ expect([...new Set(requested)].sort()).toEqual(['snake','snake-adventure','snake-evolution','tetris','tetris-sprint','tetris-survival','pixel-quest'].sort());
 });
 test('Rankings agrupados são responsivos e link por modo abre seu detalhe',async({page})=>{
  await page.route('**/api/games/*/leaderboard',route=>route.fulfill({status:200,contentType:'application/json',body:'{"available":true,"top":[]}'}));
@@ -41,7 +42,7 @@ test('Rankings agrupados são responsivos e link por modo abre seu detalhe',asyn
   await expect(page.locator('#ranking-snake-evolution')).toHaveAttribute('open','');
   const dimensions=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,viewport:innerWidth}));
   expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.viewport+1);
-  await expect(page.locator('.rankings-game-card')).toHaveCount(2);
+  await expect(page.locator('.rankings-game-card')).toHaveCount(3);
  }
 });
 test('Top 3 é acessível nas páginas Snake e Tetris; Top 10 sob demanda',async({page})=>{
@@ -49,9 +50,9 @@ test('Top 3 é acessível nas páginas Snake e Tetris; Top 10 sob demanda',async
  {nickname:'Primeiro',score:150,rank:1,achievedAt:'2026-11-18T20:00:00.000Z'},
  {nickname:'Segundo',score:100,rank:2,achievedAt:'2026-11-18T20:00:00.000Z'}
  ]})}));
- for(const url of ['/jogos/snake/','/jogos/snake/evolution/','/jogos/tetris/','/jogos/tetris/sprint/']){
+ for(const url of ['/jogos/snake/','/jogos/snake/evolution/','/jogos/tetris/','/jogos/tetris/sprint/','/jogos/pixel-quest/']){
   await page.goto(url);
-  const ranking=page.locator(url.includes('tetris')?'[data-mode-ranking]':'.oa-ranking-panel');
+  const ranking=page.locator(url.includes('tetris')||url.includes('pixel-quest')?'[data-mode-ranking]':'.oa-ranking-panel');
   await expect(ranking.locator('.rankings-podium-card')).toHaveCount(2);
   await expect(ranking.locator('.rankings-top10')).not.toHaveAttribute('open','');
   await expect(ranking.locator('.rankings-top10')).toHaveCount(1);

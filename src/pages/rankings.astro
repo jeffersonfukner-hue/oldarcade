@@ -7,7 +7,7 @@ const groups=Object.entries(gameRegistry)
  .map(([gameId,game])=>({gameId,game,modes:Object.entries(gameModes).filter(([,mode])=>mode.title===gameId&&mode.competitive).map(([key])=>key)}))
  .filter(group=>group.modes.length>0);
 ---
-<Base title="Rankings Old Arcade — Líderes, recordes e desafios" description="Confira o Top 3 e o Top 10 de cada modalidade dos jogos Snake e Tetris. Compare recordes de contas cadastradas e desafie seus líderes." path="/rankings/">
+<Base title="Rankings Old Arcade — Líderes, recordes e desafios" description="Confira o Top 3 e o Top 10 de cada modalidade do Snake, Tetris e Pixel Quest. Compare recordes de contas cadastradas e desafie seus líderes." path="/rankings/">
  <div class="shell rankings-page">
   <header class="rankings-hero">
    <div><span class="eyebrow">Competição Old Arcade</span><h1>Rankings e <span class="accent">desafios</span></h1><p>Escolha um jogo e explore suas modalidades. Os recordes de cada modo são independentes e pertencem a contas cadastradas.</p></div>

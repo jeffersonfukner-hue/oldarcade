@@ -14,7 +14,7 @@ test('Minha Conta apresenta dashboard estatístico uniforme e configurações se
  await expect(page.locator('#account-stat-leads')).toHaveText('1');
  await expect(page.locator('#account-stat-podium')).toHaveText('2');
  await expect(page.locator('.account-game-card')).toHaveCount(3);
- await expect(page.locator('[data-account-record]')).toHaveCount(6);
+ await expect(page.locator('[data-account-record]')).toHaveCount(7);
  await expect(page.locator('#account-preferences')).toBeVisible();
  await expect(page.locator('#account-records')).toBeVisible();
  await expect(page.locator('#account-records .account-game-heading')).toHaveCount(3);

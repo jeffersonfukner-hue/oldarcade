@@ -38,6 +38,11 @@ if(stage){
  const bestLevel=stage.querySelector<HTMLElement>('#pq-best')!;
  const bestGeneral=stage.querySelector<HTMLElement>('#pq-global')!;
  const input=setupPlatformInput(stage);
+ document.addEventListener('oldarcade:mode-ranking-updated',event=>{
+  const d=(event as CustomEvent<{game:string;global:number|null;personal:number|null}>).detail;
+  if(d?.game!=='pixel-quest')return;
+  bestGeneral.textContent=d.global===null?'—':String(d.global);
+ });
  let run:Run=createRun(firstLevel),camera=0;
  let phase:'ready'|'countdown'|'playing'|'paused'|'won'|'lost'='ready';
  let countdownTimer:number|undefined,seconds=3,previous=0,accumulator=0;
@@ -45,7 +50,7 @@ if(stage){
  const totalCrystals=firstLevel.entities.filter(entity=>entity.kind==='crystal').length;
  function updateLocalRecords(){
   bestLevel.textContent=readLocalRecord('level-'+firstLevel.id)?.score.toString()??'—';
-  bestGeneral.textContent=readLocalRecord('campaign-1')?.score.toString()??'—';
+  // HUD global pertence ao leaderboard, enquanto a campanha local mantém sua chave própria.
  }
  function updateHud(){
   score.textContent=String(run.score);
@@ -149,5 +154,7 @@ if(stage){
   drawPlatformScene(canvas,firstLevel,run,camera);
   requestAnimationFrame(frame);
  }
- setPhase('ready');updateHud();updateLocalRecords();drawPlatformScene(canvas,firstLevel,run,camera);requestAnimationFrame(frame);
+ setPhase('ready');updateHud();updateLocalRecords();drawPlatformScene(canvas,firstLevel,run,camera);
+ document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-request',{detail:{game:'pixel-quest'}}));
+ requestAnimationFrame(frame);
 }

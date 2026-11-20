@@ -1054,3 +1054,15 @@ body.oa-auth-open{overflow:hidden}
 .mode-ranking .rankings-podium,.oa-ranking-panel .rankings-podium{margin:4px 0 15px}
 .mode-ranking .rankings-top10,.oa-ranking-panel .rankings-top10{margin-top:14px}
 @media(max-width:580px){.rankings-game-card{padding:14px}.rankings-game-heading{align-items:flex-start}.rankings-mode>summary{padding:12px}.rankings-mode>.rankings-panel{padding:10px}.rankings-mode-label>small{flex-basis:100%;padding-left:28px}}
+
+/* Convite unificado após Game Over: não bloqueia tabuleiro, controles ou replay. */
+.oa-end-account-invite[hidden]{display:none!important}
+.oa-end-account-invite{position:fixed;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));z-index:105;width:min(370px,calc(100vw - 28px));padding:18px;border:1px solid #7f73b7;border-radius:14px;background:linear-gradient(140deg,#232144,#101c33);box-shadow:0 15px 50px #000b;color:#f2f1ff}
+.oa-end-account-invite strong{display:block;font-size:1.06rem;margin-right:22px}
+.oa-end-account-invite p{font-size:.82rem;line-height:1.5;margin:9px 0}
+.oa-end-account-dismiss{position:absolute;top:7px;right:9px;width:32px;height:32px;border:1px solid #606184;border-radius:8px;background:#2e3055;color:white;font-size:1.25rem;cursor:pointer}
+.oa-end-invite-actions{display:flex;flex-wrap:wrap;gap:7px;margin:11px 0}
+.oa-end-invite-actions .btn{font-size:.8rem;padding:9px 11px}
+.oa-end-account-invite>a{display:inline-block;color:#c0b0ff;font-size:.8rem}
+.oa-end-account-invite :focus-visible{outline:2px solid #ffeb9a;outline-offset:3px}
+@media(max-width:520px){.oa-end-account-invite{left:12px;right:12px;bottom:12px;width:auto;padding:15px}}

@@ -7,7 +7,7 @@ const samples=[
  {name:'Tetris Clássico',url:'/jogos/tetris/',history:true,film:true,ranking:'live',game:'tetris'},
  {name:'Tetris Sprint',url:'/jogos/tetris/sprint/',history:true,film:true,ranking:'live',game:'tetris'},
  {name:'Tetris Sobrevivência',url:'/jogos/tetris/sobrevivencia/',history:true,film:true,ranking:'live',game:'tetris'},
- {name:'Pixel Quest',url:'/jogos/pixel-quest/',history:true,film:false,ranking:'unavailable',game:'pixel-quest'}
+ {name:'Pixel Quest',url:'/jogos/pixel-quest/',history:true,film:false,ranking:'live',game:'pixel-quest'}
 ];
 for(const sample of samples){
  test(`Página de ${sample.name} segue ordem editorial e links reais`,async({page})=>{
@@ -33,9 +33,9 @@ for(const sample of samples){
   const foundFilm=sections.some(section=>section.screening===true);
   expect(foundFilm).toBe(sample.film);
   if(sample.film)expect(first('history')).toBeLessThan(first('screening'));
-  if(sample.ranking==='unavailable'){
-   await expect(wrapper.locator('[data-ranking-state=unavailable]')).toBeVisible();
-   await expect(wrapper.getByText('ranking global ainda não foi lançado')).toBeVisible();
+  if(sample.ranking==='live'){
+   await expect(wrapper.locator('[data-mode-ranking]')).toBeVisible();
+   await expect(wrapper.locator('[data-rank-retry]')).toHaveCount(0);
   }
   const related=wrapper.locator('[data-related-game]');
   await expect(related).toHaveCount(2);
