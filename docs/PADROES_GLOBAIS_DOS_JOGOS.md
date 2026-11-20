@@ -1,4 +1,8 @@
 # OldArcade — padrões globais obrigatórios de jogos e modos
+## Atualização visual de 20/11/2026 — implementação incremental
+- A timeline compartilhada renderiza **imagens premium reais, otimizadas em AVIF** quando o marco possui `image` no catálogo. Quatro marcos de **Pixel Quest** já têm AVIF em `public/images/history/`. Snake e Tetris ainda usam o fallback SVG até terem imagens premium específicas. A expressão histórica anterior de que nenhuma imagem raster havia sido importada descreve a fase anterior; não é mais o estado atual.
+- Mantenha `figure`, legenda, fonte, alt e carregamento responsivo padronizados para **todos os jogos**, sem usar imagens de um jogo para representar falsamente outro. Não substituir SVGs por imagens irrelevantes. Sem merge/deploy.
+
 
 ## Padrão editorial visual obrigatório — histórias de TODOS os jogos (20/11/2026)
 - **Implementação única:** `src/components/HistoricalTimeline.astro` consome `src/data/historicalTimeline.ts` para Snake, Tetris e Pixel Quest; títulos futuros deverão usar o mesmo contrato, sem duplicar timelines ou layouts por jogo.
