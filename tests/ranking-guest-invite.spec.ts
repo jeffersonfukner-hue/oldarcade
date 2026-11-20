@@ -51,3 +51,47 @@ test('Jogador já autenticado grava resultado do Quest automaticamente e não re
  await expect(page.locator('[data-end-account-invite]')).toBeHidden();
  await expect(page.locator('#pq-global')).toHaveText('980');
 });
+
+for(const [mode,path] of modes){
+ test(`Login no modal registra o resultado sem navegação: ${mode}`,async({page})=>{
+  const submissions:Array<{score:number;durationMs:number}>=[];
+  await page.route('**/api/auth/me',route=>route.fulfill({status:200,contentType:'application/json',body:'{"player":null}'}));
+  await page.route('**/api/auth/login',route=>route.fulfill({
+   status:200,contentType:'application/json',body:'{"player":{"nickname":"Jogador Teste"}}'
+  }));
+  await page.route('**/api/games/*/leaderboard',route=>{
+   if(route.request().method()==='POST'){
+    const payload=route.request().postDataJSON() as {score:number;durationMs:number};
+    submissions.push(payload);
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+     available:true,saved:true,top:[{nickname:'Jogador Teste',score:payload.score,rank:1}],
+     mine:{nickname:'Jogador Teste',score:payload.score,rank:1}
+    })});
+   }
+   return route.fulfill({status:200,contentType:'application/json',body:'{"available":true,"top":[],"mine":null}'});
+  });
+  await page.goto(path);
+  const originalUrl=page.url();
+  await page.evaluate(mode=>document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{
+   detail:{game:mode,score:100,durationMs:32000,recordDelayMs:800}
+  })),mode);
+  const invite=page.locator('[data-end-account-invite]');
+  await expect(invite).toBeVisible({timeout:5000});
+  await invite.locator('[data-auth-trigger="register"]').click();
+  const modal=page.locator('[data-global-auth]');
+  await expect(modal).toBeVisible();
+  await expect(modal.locator('[data-auth-form="register"]')).toBeVisible();
+  expect(page.url()).toBe(originalUrl);
+  await modal.locator('[data-auth-tab="login"]').click();
+  await expect(modal.locator('[data-auth-form="login"]')).toBeVisible();
+  await modal.locator('[data-auth-form="login"] input[name="nickname"]').fill('Jogador Teste');
+  await modal.locator('[data-auth-form="login"] input[name="password"]').fill('senha-teste-123');
+  await modal.locator('[data-auth-form="login"] button[type="submit"]').click();
+  await expect(modal).toBeHidden();
+  await expect(invite).toBeHidden();
+  await expect(page.locator('[data-player-name]')).toHaveText('Jogador Teste');
+  await expect.poll(()=>submissions.length,{timeout:5000}).toBe(1);
+  expect(submissions[0]).toEqual({score:100,durationMs:32000});
+  expect(page.url()).toBe(originalUrl);
+ });
+}
