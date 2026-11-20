@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL PARA NOVO CHAT — Etapa 4 / auditoria editorial dos jogos (20/11/2026)
+- **Auditoria editorial IMPLEMENTADA nesta branch, aguardando CI novo e aceite visual.** CI documental anterior `#44769169922` aprovado no commit `ed75bd4b`. Histórias de Snake, Tetris e Pixel Quest foram confrontadas com fontes externas: site de Taneli Armanto e MoMA, Tetris Company, MoMA, Apple, SEGA e Nintendo. O corpo das narrativas históricas existente foi preservado; fontes foram complementadas sem confundir o jogo original com o projeto independente OldArcade.
+- **Cinema com contexto:** `historicalScreenings.ts` e `HistoricalScreenings.astro` agora atendem **Snake, Tetris e Pixel Quest**. Para o Pixel Quest, **Super Mario Bros. O Filme (2023)** e **Sonic: O Filme (2020)** são explicitamente obras de outras franquias, não adaptações de Pixel Quest. Fontes oficiais Nintendo/SEGA e consultas de exibição identificadas em links distintos. A disponibilidade específica no Brasil para esses dois filmes fica **não confirmada**, evitando promessa de streaming.
+- **Transparência:** consultas de Tetris/Snake renovadas em 20/11/2026 com catálogos JustWatch Brasil; `publishedAt` anterior preservado; `checkedAt` reflete a nova revisão. O componente distingue fonte cultural de serviço para consultar onde assistir, declara ausência de afiliados e mantém o link de correções. Sem links de afiliados, ofertas ou serviços fictícios.
+- **Teste de regressão:** `tests/editorial-history.spec.ts` cobre páginas de todos os jogos, links de fonte e exibição, datas, aviso comercial, correções e relação explícita de filmes com outras franquias no mobile. Aguardar CI e homologação. Não alterar decisões aprovadas de SITE-01, SITE-03, SITE-08 e etapas 1–3.
+- **PR #4 draft, sem merge, deploy ou alterações no banco.** Etapa 4B e Etapa 5 permanecem futuras, separadas do aceite desta revisão editorial.
+
+
 ## ESTADO ATUAL PARA NOVO CHAT — Etapa 4 / SITE-08 (20/11/2026)
 - **SITE-08 CONCLUÍDA E HOMOLOGADA VISUALMENTE PELO PROPRIETÁRIO EM 20/11/2026; CI #44764104075 APROVADO (success) no commit de código `51e0e06f`:** na home, a chamada editorial agora se chama **História do OldArcade** e leva diretamente à âncora `/sobre/#historia-oldarcade`. Na página Sobre, uma seção específica esclarece a origem do projeto (Snake, Tetris, Pixel Quest), distingue o projeto da história de todos os arcades e encaminha para o diário de bordo e o catálogo de jogos.
 - **Sem reescrever o passado:** marcos e versões da SITE-03, que já foi homologada, permanecem intocados; textos legais e conta homologados na SITE-01 também foram preservados. Histórias dos jogos e filmes seguem como frente editorial distinta, sem reivindicação de marcas de terceiros ou de lançamentos em produção.
