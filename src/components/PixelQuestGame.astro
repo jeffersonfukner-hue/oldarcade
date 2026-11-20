@@ -5,6 +5,7 @@ import GameRelatedGames from './GameRelatedGames.astro';
 import GamePage from './GamePage.astro';
 import GameShare from './GameShare.astro';
 import PixelQuestHistory from './PixelQuestHistory.astro';
+import HistoricalScreenings from './HistoricalScreenings.astro';
 import {gameRegistry} from '../data/gameRegistry';
 const game=gameRegistry['pixel-quest'];
 import GameStageHeader from './GameStageHeader.astro';
@@ -44,6 +45,7 @@ import GameGuide from './GameGuide.astro';
    <GameShare slot="share" gameSlug="pixel-quest" gameName="Pixel Quest" />
    <GameGuide slot="guide"><h2>Como jogar</h2><p>Explore o caminho horizontal. Segure o salto para alcançar plataformas mais altas e solte cedo para saltos baixos. Depois de alcançar o checkpoint, você retorna a ele ao cair em abismos; contato lateral com inimigo tira um coração e provoca recuo. Pausas não consomem tempo de jogo.</p><h3>Pontuação</h3><p>Cristal: <strong>10 pontos</strong>; inimigo derrotado: <strong>50</strong>; portal: <strong>100</strong>; bônus de tempo: até <strong>500</strong>, reduzindo 2 pontos por segundo efetivo. O resultado só é registrado após concluir a fase.</p><p>Inimigos derrotados no nível reiniciam na próxima fase; o total acumula durante a campanha. A fase 1-1 concluída pode entrar no ranking global de contas. Marcas locais continuam disponíveis sem cadastro; campanhas futuras terão classificação própria e não serão misturadas com esta fase.</p></GameGuide>
    <PixelQuestHistory slot="history" />
+   <HistoricalScreenings slot="screenings" game="pixel-quest" />
    <GameRelatedGames slot="related" currentGame="pixel-quest" />
    <GameDevelopmentHistory slot="development" gameSlug="pixel-quest" id="pq-development-history" />
   </GamePageSections>
