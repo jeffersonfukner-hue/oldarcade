@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL PARA NOVO CHAT — Etapa 4 / SITE-08 (20/11/2026)
+- **SITE-08 implementada nesta branch, aguardando CI atualizado e homologação visual:** na home, a chamada editorial agora se chama **História do OldArcade** e leva diretamente à âncora `/sobre/#historia-oldarcade`. Na página Sobre, uma seção específica esclarece a origem do projeto (Snake, Tetris, Pixel Quest), distingue o projeto da história de todos os arcades e encaminha para o diário de bordo e o catálogo de jogos.
+- **Sem reescrever o passado:** marcos e versões da SITE-03, que já foi homologada, permanecem intocados; textos legais e conta homologados na SITE-01 também foram preservados. Histórias dos jogos e filmes seguem como frente editorial distinta, sem reivindicação de marcas de terceiros ou de lançamentos em produção.
+- **Teste SITE-08:** `tests/site-identity.spec.ts` confere rotulagem, link/âncora, três jogos, distinção editorial, diário de bordo e navegação 320px. Seguir CI e homologar somente após evidência técnica e visual.
+- PR #4 continua draft, sem merge/deploy, sem mudanças em D1, mecânicas de jogos, ranking, autenticação ou infraestrutura. Próxima frente após aceite da SITE-08: revisão factual dos artigos históricos e referências culturais dentro da Etapa 4; a Etapa 4B e Etapa 5 continuam separadas.
+
+
 ## ESTADO ATUAL PARA NOVO CHAT — Etapa 4 / SITE-03 (20/11/2026)
 - **SITE-03 CONCLUÍDA E HOMOLOGADA VISUALMENTE PELO PROPRIETÁRIO EM 20/11/2026.** CI funcional #44671411568 aprovado no commit `d31f4406`; CI documental #44672139189 aprovado no commit `60db580c`. Não reabrir a homologação sem solicitação explícita. Versão do portal mantida em `v0.2.0-dev` (base `package.json`), Snake `v0.2.0-dev`, Tetris e Pixel Quest `v0.1.0-dev` (fonte `gameRegistry.ts`). Nenhuma versão foi inventada, incrementada nem declarada como publicação oficial.
 - **Fonte canônica:** `src/data/portalHistory.ts` fornece versão do portal, marcos de desenvolvimento auditados com links de commit e histórico imutável. `Base.astro` e `sobre.astro` exibem exatamente a mesma versão. A página Sobre também apresenta versões próprias dos três jogos. `GameDevelopmentHistory.astro` oferece links de commits quando presentes no registro do jogo, mantendo todos os históricos anteriores.
