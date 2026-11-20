@@ -2,6 +2,19 @@
 
 # OldArcade — regras permanentes para agentes
 
+## Decisões globais aprovadas em 19/11/2026 — aplicação obrigatória
+
+**Largura confortável:** 980px é o limite máximo do conteúdo regular **de todo o portal** (home, jogos/modos, conta, rankings, textos institucionais, cabeçalho e rodapé). Centralizar e usar largura fluida abaixo disso, com margens laterais seguras: 20px por lado no desktop/tablet e 12px em telas de até 580px. Fonte única `--oa-content-width` em `src/styles/global.css`, aplicada a `.shell` e `.oa-game-page`. Não usar 1160/1480px como largura de página. Cada stage do jogo mantém seu tamanho ideal: canvas quadrado Snake, vertical Tetris, 16:9 Pixel Quest; fullscreen continua expandindo com a viewport/altura disponível, nunca fixado em 980px.
+
+**Rankings somente com conta:** jogar é livre, sem autenticação. **Somente quem cria e usa conta autenticada pode ter resultados em rankings competitivos** (independentemente do modo, incluindo o chamado local). O ranking local por nickname sem conta do Snake é legado e deve ser **retirado da interface de classificação na Etapa 3**, preservando dados pessoais/histórico e IDs dependentes até migração segura; NÃO criar rankings novos anônimos nem limpar históricos automaticamente. Recorde local privado no navegador não é classificação de jogadores. Regras, APIs, autenticação e migração de ranking permanecem fora do escopo da Etapa 1.
+
+**SEO editorial:** artigos históricos completos e úteis são ativos de pesquisa orgânica, não elementos decorativos a remover ou encurtar. Preservar HTML visível/indexável, título/descrição específicos, H1 único, H2/H3 descritivos, links internos relevantes, fontes verificáveis e conteúdo original. Dar destaque semântico com `<strong>` a **termos, nomes, jogos, datas e conceitos historicamente relevantes**, com moderação e sem repetições artificiais ou promessas de posição no Google; negrito não garante ranking. Planejar revisão editorial na Etapa 4, não alterar artigos na Etapa 1.
+
+**Contrato editorial unificado para páginas de jogos:** ordem final planejada após a largura (Etapas 2–4): (1) apresentação/modos, (2) palco/placar, (3) desempenho e ranking compacto, (4) compartilhar, (5) guia, (6) história do jogo ou gênero, (7) filmes/livros verificados **somente se houver itens reais** (nenhum placeholder no Pixel Quest), (8) continue jogando com jogos disponíveis e links reais, (9) bastidores/histórico de desenvolvimento. Implementar por componentes globais; diferentes regras/contadores são dados de cada jogo, não justificativa para cópia da UI. Ranking inexistente exibe estado factual e nunca números fictícios.
+
+**Sequência acordada:** Etapa 1 largura geral → Etapa 2 presença/ordem de seções → Etapa 3 desempenho/ranking e autenticação exclusiva → Etapa 4 conteúdo histórico/SEO, identidade e ligações entre jogos → Etapa 5 testes gerais e homologação. Subetapas exigem tipagem/build/API/Playwright e Preview manual para aceite. Não fazer merge nem deploy por iniciativa do agente; documentar resultados e pendências para o próximo chat.
+
+
 > Antes de qualquer alteração, ler este arquivo, `docs/CONTINUIDADE.md`, `docs/ARQUITETURA.md` e, ao tratar de releases, `docs/VERSIONAMENTO_E_PUBLICACAO.md`.
 
 ## Verificação obrigatória antes de qualquer mudança

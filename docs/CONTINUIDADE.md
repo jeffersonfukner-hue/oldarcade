@@ -4,6 +4,15 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL PARA NOVO CHAT — padronização de largura (19/11/2026)
+- **Aprovação do proprietário:** plano global de padronização aprovado com três complementos obrigatórios: (1) ranking só de contas autenticadas, (2) história relevante para SEO com `<strong>` criterioso em termos relevantes, sem keyword stuffing, (3) decisões preservadas nos .md para todos os chats futuros. Ver contrato no início de `docs/PADROES_GLOBAIS_DOS_JOGOS.md` e em `AGENTS.md`.
+- **Etapa 1 em implementação nesta PR:** `--oa-content-width:980px` controla home, páginas de jogos e modos, rankings, conta e todas as outras páginas via `.shell`/`.oa-game-page`. Centralização com 20px laterais (desktop/tablet) e 12px (mobile até 580px); proporções nativas e fullscreen preservados. Testes de larguras para 1440/1024/390/320 e estabilidade de fullscreen devem rodar no CI.
+- **GitHub:** repo `jeffersonfukner-hue/oldarcade`; PR #4 draft, branch `feat/layout-unificado-snake-quest` sobre `feat/pixel-quest-jogo-003`. Consultar HEAD real e GitHub Actions ao retomar; o estado do CI de qualquer commit novo precisa ser confirmado. O commit anterior de layout `4573e95` tinha CI aprovado (217 passed, 49 skipped).
+- **Escopo futuro já aprovado, NÃO executado nesta etapa:** seções editoriais na ordem global (apresentação → jogo → desempenho/ranking → compartilhamento → guia → história → audiovisual verificado → continue jogando → bastidores), depois compactação de rankings/perfil (e retirada do ranking local sem conta) e SEO dos artigos históricos. **Não** criar conteúdos/filmes fictícios, não modificar mecânica, pontuação, IDs de scripts ou banco sem etapa específica.
+- **Preview:** CI e artifact não provam deploy. Não fazer merge, publicação ou alteração de Cloudflare/produção pelo agente; para homologação solicitar confirmação do commit exato no Preview e prints do proprietário.
+- **Outros bloqueadores preservados:** bug de ranking do Tetris Sobrevivência (maior tempo e desempate por linhas) permanece pendente até trabalho específico, como registrado abaixo; Desafio Diário segue oculto, sem retomada nesta frente.
+
+
 ## PENDENTE — painéis de ranking, desempenho e identidade visual (19/11/2026)
 - **Escopo: layout, não regras de pontuação.** Observações adiantadas pelo proprietário durante o ajuste global de cabeçalho + HUD do Tetris. Não interromper o trabalho em andamento e não iniciar jogo #004 sem terminar a revisão dos três jogos.
 - **Problema observado:** cartão "Seu desempenho" / "Resumo de partidas locais" ocupa uma faixa extensa, com grandes espaços entre estatísticas, duplicando informações importantes que já estão no HUD. Não expor métricas secundárias extensas na página do jogo se puderem estar somente em "Minha Conta" / perfil. **Não apagar os dados nem remover IDs que os scripts atualizam**; primeiro verificar quem depende dos valores.

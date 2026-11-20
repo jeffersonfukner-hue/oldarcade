@@ -2,6 +2,12 @@
 
 # OldArcade · Arquitetura e critérios de aceite
 
+## Contrato de largura e semântica (aprovado 19/11/2026)
+- Site inteiro usa a mesma variável CSS `--oa-content-width:980px` com `.shell`; páginas de jogos `.oa-game-page` usam o mesmo token. A largura do conteúdo é fluida até o máximo de 980px e mantém alinhamento entre header, corpo e footer; 20px de respiro lateral em desktop/tablet e 12px em mobile até 580px.
+- Este limite **não se aplica ao palco em fullscreen**; aí a resolução/altura disponível comandam a escala, respeitando proporções nativas (Snake 1:1, Tetris 1:2, Quest 16:9) e mantendo HUD/controles presentes.
+- Qualquer tela nova entra automaticamente pelo container compartilhado. Verificar 1440/1024/390/320, alinhamento e scroll horizontal; QA visual no Preview é etapa separada do CI.
+- Resultados públicos em ranking exigem **conta autenticada**; nickname solto no navegador não qualifica. História real mantém HTML indexável, destaque semântico moderado, fontes e títulos descritivos (sem encher palavras-chave). Mais detalhes em `docs/PADROES_GLOBAIS_DOS_JOGOS.md`.
+
 ## Princípios
 1. Cada jogo deve funcionar antes de entrar no catálogo.
 2. Não reutilizar o código do antigo oldarcade.com.br.
