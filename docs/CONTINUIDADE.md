@@ -4,6 +4,14 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL — Snake: arte de capa aprovada, demais textos em inventário (20/11/2026)
+- **Aprovação expressa:** imagem única `neon_pixel_snake_chasing_apple.png` (1672×941, PNG, 1.434.767 bytes, SHA-256 `e24e03a8c208a995288cfc955efa35238b74fb9bac66b5d7f995bfd2bf113e6f`). Salva sem alterar os bytes no acervo persistente do ChatGPT, caminho `/OldArcade/assets-aprovados/Snake/snake-capa-aprovada.png`. **Ainda NÃO está no repositório GitHub**, pois as ações GitHub disponíveis permitem criar arquivo UTF-8 ou blob a partir de conteúdo de texto/base64, mas não aceitam diretamente o arquivo binário montado. Não afirmar que o upload GitHub foi concluído.
+- **Destino GitHub quando houver upload de bytes:** `public/images/games/snake-cover.png`; somente salvar, sem alterar `src/pages/index.astro` ou aplicar no site até aprovação global dos assets.
+- **Nova instrução do proprietário:** ilustrar **todos os textos editoriais aplicáveis**, não apenas a linha do tempo. Inventário Snake: capa/card, introdução, guia Como jogar, controles, regras, conteúdos de Clássico/Evolution/Aventura, história e seus seis marcos, filmes/documentários citados, referências e histórico de desenvolvimento quando útil. **Não decorar HUD, rankings, formulários, navegação ou botões**: acessibilidade e funcionalidade são prioritárias. Cada arte deve corresponder ao conteúdo real, ser arquivo individual, sem texto embutido e com proporção final verificável; créditos e legendas são HTML do site, não impressos na arte.
+- **Trabalho desta conversa:** inspeção somente leitura de código e arte existente, aprovação original recuperada, uma arte experimental da era de arcade Blockade (1976) gerada para revisão, sem aprovação e sem upload, outras tentativas genéricas de Snake não devem ser confundidas com ilustrações históricas aprovadas. A sequência de aprovações Snake → Tetris → Pixel Quest permanece vigente.
+- **Não fazer merge/deploy.** Preservar decisões antigas. CI só pode ser considerado aprovado para commits específicos conferidos.
+
+
 ## DIREÇÃO ARTÍSTICA APROVADA E NOVO FLUXO DE ASSETS — 20/11/2026
 - Variação **2 — pixel art premium** HOMOLOGADA como **padrão artístico global**. Já aprovou **o estilo**, NÃO os arquivos de cada título.
 - **Ordem obrigatória:** 1) Snake (arte representativa da implementação atual + seis marcos históricos), apresentar imagens → aguardar aprovação → somente então salvar em assets do GitHub; 2) Tetris (arte principal + seis marcos), aprovação → salvar; 3) Pixel Quest (arte principal + quatro marcos), aprovação → salvar. Cada lote é um checkpoint independente.
