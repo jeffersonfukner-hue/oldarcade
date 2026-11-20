@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL PARA NOVO CHAT — Etapa 4 / SITE-03 (20/11/2026)
+- **SITE-03 implementada no PR #4, ainda aguardando CI do novo HEAD e aceite visual.** Versão do portal mantida em `v0.2.0-dev` (base `package.json`), Snake `v0.2.0-dev`, Tetris e Pixel Quest `v0.1.0-dev` (fonte `gameRegistry.ts`). Nenhuma versão foi inventada, incrementada nem declarada como publicação oficial.
+- **Fonte canônica:** `src/data/portalHistory.ts` fornece versão do portal, marcos de desenvolvimento auditados com links de commit e histórico imutável. `Base.astro` e `sobre.astro` exibem exatamente a mesma versão. A página Sobre também apresenta versões próprias dos três jogos. `GameDevelopmentHistory.astro` oferece links de commits quando presentes no registro do jogo, mantendo todos os históricos anteriores.
+- **Referências auditadas no GitHub:** commits `102503cf`, `3a4c7909`, `ef402e3f`, `633e6f03`, `29704a14` recuperados com título correspondente ao marco registrado. Testes: `tests/site-versions.spec.ts` cobrem versões independentes, cronologia, links e mobile.
+- **Proteções:** SITE-01 permanece homologada (CI #44670407963 aprovado). Sem mudanças de motor, contadores, rankings, dados, esquema D1, segurança, merge ou deploy. SITE-08, restante da Etapa 4, Etapa 4B e Etapa 5 continuam na fila. Confirmar CI do novo HEAD antes de homologar SITE-03.
+
+
 ## ESTADO ATUAL PARA NOVO CHAT — Etapa 4 / SITE-01 (20/11/2026)
 - **Etapa 3 homologada visualmente e CI documental #44669327081 aprovado** (commit anterior `43244be3`), PR #4 draft, sem merge/deploy.
 - **SITE-01 IMPLEMENTADA E HOMOLOGADA VISUALMENTE PELO PROPRIETÁRIO (20/11/2026):** CI #44670407963 concluído com **success** no commit funcional/documental `954931a53b77aabba279f7cbc7f215443c6db170`. Atualizadas `/privacidade/`, `/sobre/`, `/contato/`; criada `/termos/` e link no rodapé; contato passa a incluir solicitações de privacidade e não promete redefinição automática por e-mail. Testes E2E `tests/site-legal.spec.ts` incluídos. Não reabrir esta homologação sem nova solicitação.
