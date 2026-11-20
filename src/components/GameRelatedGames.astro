@@ -12,7 +12,7 @@ const suggestions=Object.entries(gameRegistry).filter(([slug])=>slug!==currentGa
  <div class="oa-related-grid">
  {suggestions.map(({slug,game,url})=>url&&<a class="oa-related-link" href={url} data-related-game={slug}>
   <span class="eyebrow">Jogo #{String(game.number).padStart(3,'0')}</span><strong>{game.name}</strong>
-  <span>{slug==='snake'?'Clássico da cobrinha':slug==='tetris'?'Blocos, estratégia e desafios':'Aventura de plataforma em desenvolvimento'}</span>
+  <span>{slug==='snake'?'Colete frutas e supere seus limites':slug==='tetris'?'Blocos, estratégia e desafios':'Aventura de plataforma em desenvolvimento'}</span>
   <span class="oa-related-action">Explorar jogo →</span>
  </a>)}
  </div>
