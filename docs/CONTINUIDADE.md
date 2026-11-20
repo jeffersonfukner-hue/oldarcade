@@ -4,6 +4,12 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL — Etapa 4 / padrão global de timelines ilustradas (20/11/2026)
+- **Solicitação expressa:** imagens históricas com legenda e fonte **para todos os jogos**, não só Pixel Quest. Implementados `src/components/HistoricalTimeline.astro` e `src/data/historicalTimeline.ts`, consumidos por Snake, Tetris e Pixel Quest com os mesmos estilos, SVGs editoriais originais, fontes históricas clicáveis e responsividade. Testes globais adicionados a `tests/editorial-history.spec.ts`.
+- **Distinção obrigatória:** os desenhos vetoriais são **ilustrações, não screenshots, capas ou assets comerciais**. As imagens raster premium geradas no ChatGPT anteriormente não foram carregadas no repositório; continuam referências para refinamento visual posterior. Não alegar que esses arquivos foram integrados ou que o Pixel Quest já usa sprites premium no motor.
+- **Aguardam:** CI do HEAD e validação visual; preservar homologações anteriores e não executar merge/deploy. Biblioteca de links SITE-09, futuro arcade inspirado em Space Panic e ART-QUEST-01 continuam documentados no backlog.
+
+
 ## ESTADO ATUAL — Etapa 4 / linha do tempo do Pixel Quest (20/11/2026)
 - **Solicitação expressa executada na branch do PR #4:** `src/components/PixelQuestHistory.astro` agora inclui o mesmo título de linha do tempo resumida e a mesma classe visual `ol.timeline` do Snake. Quatro marcos factuais: Space Panic (1980), Donkey Kong (1981), Super Mario Bros. (1985) e início de desenvolvimento do Pixel Quest (novembro/2026).
 - **Regressão adicionada:** `tests/editorial-history.spec.ts` verifica os quatro marcos e layout desktop/mobile de 320px, e preserva a timeline do Snake. Aguardar CI do HEAD e validação visual; não declarar homologação automaticamente.
