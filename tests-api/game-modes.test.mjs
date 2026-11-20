@@ -45,6 +45,6 @@ test('Pixel Quest só publica resultado competitivo quando a fase é concluída'
  const victory=finish.match(/if\(won\)\{([\s\S]*?)\n  \}else description/)?.[1];
  assert.ok(victory,'ramo de vitória da fase existe');
  assert.match(victory,/oldarcade:game-finished/,'vitória deve notificar ranking e convite global');
- assert.match(victory,/game:'pixel-quest',score:result.score,durationMs:Math.round(result.elapsedMs)/,'usar placar calculado e duração inteira aceita pelo servidor');
+ assert.ok(victory.includes("game:'pixel-quest',score:result.score,durationMs:Math.round(result.elapsedMs)"),'usar placar calculado e duração inteira aceita pelo servidor');
  assert.equal((finish.match(/oldarcade:game-finished/g)||[]).length,1,'derrota não deve registrar conclusão da fase');
 });
