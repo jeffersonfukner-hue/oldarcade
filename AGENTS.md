@@ -2,6 +2,12 @@
 
 # OldArcade — regras permanentes para agentes
 
+## STATUS HOMOLOGADO — Etapa 3 (20/11/2026)
+- O proprietário homologou visualmente o convite de cadastro **centralizado na frente do jogo**. O CI #44668666640 do commit `29704a14` terminou com sucesso (tipos, build, API e testes E2E desktop/mobile). A Etapa 3 está concluída tecnicamente na branch do PR #4; não reabrir a decisão visual aprovada.
+- Padrão final de todos os sete modos: ranking público para visitantes; convite após partida elegível com destaque para salvar recorde, login/cadastro no modal global sem trocar de página; jogadores já autenticados registram automaticamente; Pixel Quest só registra conclusão de fase. Não confundir teste sintético de fim de jogo do Snake com pontuação real da rotina própria do Snake.
+- PR #4 continua draft/aberto, **sem merge nem deploy**. A conclusão da etapa não autoriza publicação. `docs/CONTINUIDADE.md` contém os detalhes e pendências; seções abaixo são histórico de decisão e não revogam esta homologação.
+
+
 ## REGRA OFICIAL — ranking para todos os jogos; visitantes veem líderes e convite final (19/11/2026)
 
 - **Correção prioritária exigida na Etapa 3, ainda em homologação:** O Pixel Quest foi incorretamente marcado `competitive:false`, ficando ausente da página `/rankings/`, do perfil competitivo e do endpoint de leaderboard. A regra original do Old Arcade é **todos os jogos com classificação**, embora só fases/partidas elegíveis gerem pontos. Ativar `pixel-quest` no catálogo compartilhado e permitir GET público + POST autenticado pela API existente. Ranking Quest v1 = **maior pontuação da fase 1-1 concluída**, não somar campanhas futuras, não registrar derrotas como vitórias. Histórico local é preservado, e a API de ranking não apaga marca antiga.
