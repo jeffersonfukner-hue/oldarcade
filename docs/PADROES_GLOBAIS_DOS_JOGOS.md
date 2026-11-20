@@ -1,5 +1,12 @@
 # OldArcade — padrões globais obrigatórios de jogos e modos
 
+## Padrão editorial visual obrigatório — histórias de TODOS os jogos (20/11/2026)
+- **Implementação única:** `src/components/HistoricalTimeline.astro` consome `src/data/historicalTimeline.ts` para Snake, Tetris e Pixel Quest; títulos futuros deverão usar o mesmo contrato, sem duplicar timelines ou layouts por jogo.
+- Cada marco traz título/data, **imagem ilustrativa editorial original**, legenda pequena deixando claro que não é screenshot original, e **link clicável da fonte histórica** que documenta o fato (não confundir a fonte da informação com a autoria da imagem).
+- Layout responsivo 320px+, contraste, texto alternativo `role=img`, nenhuma arte de jogo comercial copiada, sem catálogo externo de imagens com licença incerta. As quatro imagens raster geradas na conversa para Space Panic, Donkey Kong, Mario e Pixel Quest **não foram importadas ao GitHub**; o site apresenta ilustrações vetoriais autorais provisórias enquanto o acervo premium SITE-04/ART-QUEST-01 aguarda homologação visual individual.
+- Preserve a ordem dos artigos, a mesma classe `ol.timeline`, histórias documentadas, fontes e testes. Mudanças visuais não autorizam merge/deploy.
+
+
 ## REGRA OFICIAL — ranking para todos os jogos; visitantes veem líderes e convite final (19/11/2026)
 
 - **Correção prioritária exigida na Etapa 3, ainda em homologação:** O Pixel Quest foi incorretamente marcado `competitive:false`, ficando ausente da página `/rankings/`, do perfil competitivo e do endpoint de leaderboard. A regra original do Old Arcade é **todos os jogos com classificação**, embora só fases/partidas elegíveis gerem pontos. Ativar `pixel-quest` no catálogo compartilhado e permitir GET público + POST autenticado pela API existente. Ranking Quest v1 = **maior pontuação da fase 1-1 concluída**, não somar campanhas futuras, não registrar derrotas como vitórias. Histórico local é preservado, e a API de ranking não apaga marca antiga.
