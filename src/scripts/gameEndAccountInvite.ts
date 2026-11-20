@@ -6,10 +6,12 @@ if(box){
  const copy=box.querySelector<HTMLElement>('[data-end-invite-result]')!;
  const link=box.querySelector<HTMLAnchorElement>('[data-end-invite-ranking]')!;
  const dismiss=box.querySelector<HTMLButtonElement>('[data-end-invite-dismiss]')!;
- let activeAccount=false,sequence=0;
+ let activeAccount=false,sequence=0,accountVersion=0;
+ const versionAtStart=accountVersion;
  const session=fetch('/api/auth/me',{cache:'no-store'}).then(async response=>{
   if(!response.ok)return;
   const payload=await response.json() as {player?:{nickname:string}|null};
+  if(versionAtStart!==accountVersion)return;
   activeAccount=Boolean(payload.player);
   if(activeAccount)box.hidden=true;
  }).catch(()=>{});
@@ -18,6 +20,7 @@ if(box){
  document.addEventListener('oldarcade:game-started',hide);
  document.addEventListener('oldarcade:account-changed',event=>{
   const player=(event as CustomEvent<{player?:{nickname:string}|null}>).detail?.player;
+  accountVersion++;
   activeAccount=Boolean(player);
   if(activeAccount)hide();
  });

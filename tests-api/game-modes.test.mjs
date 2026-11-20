@@ -17,14 +17,14 @@ test('catálogo central mantém os três modos Snake isolados e com URLs própri
  assert.equal(validGameScore('tetris-sprint',86400000),true);
  assert.equal(validGameScore('tetris-sprint',86400001),false);
  for(const id of gameModeIds){
-  assert.equal(gameMode(id)?.competitive,id!=='pixel-quest');
+  assert.equal(gameMode(id)?.competitive,true);
   assert.ok(gameMode(id).url.startsWith('/jogos/'));
-  assert.equal(validGameScore(id,395),id!=='pixel-quest');
+  assert.equal(validGameScore(id,395),true);
   assert.equal(validGameScore(id,395.875),id.startsWith('snake'));
 
  }
- assert.equal(gameModes['pixel-quest'].competitive,false,'ranking online aguarda integração oficial');
- assert.equal(validGameScore('pixel-quest',999),false,'o Preview não aceita recordes autodeclarados');
+ assert.equal(gameModes['pixel-quest'].competitive,true,'Pixel Quest integra o ranking por fase concluída');
+ assert.equal(validGameScore('pixel-quest',999),true,'recorde da fase concluída pode ser submetido por conta autenticada');
  assert.equal(gameMode('__proto__'),null);
  assert.equal(gameMode('unknown'),null);
 });

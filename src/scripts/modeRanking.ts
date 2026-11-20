@@ -1,4 +1,4 @@
-import {isTimeRanking,isLowerBetter,formatRankingValue,betterResult} from '../data/rankingRules.js';
+import {isTimeRanking,formatRankingValue} from '../data/rankingRules.js';
 import {renderRankingPodium} from './rankingPresentation';
 type Entry={nickname:string;score:number;rank?:number;achievedAt?:string;durationMs?:number|null};
 type Board={available:boolean;top?:Entry[];mine?:Entry|null;error?:string;saved?:boolean;code?:string};
