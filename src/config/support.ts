@@ -4,7 +4,8 @@ export const support = {
   subjects: [
     { key: 'duvida', label: 'Dúvidas sobre o site' },
     { key: 'problema', label: 'Problema com um jogo' },
-    { key: 'recuperacao', label: 'Recuperar nickname ou senha' },
+    { key: 'recuperacao', label: 'Dificuldade para acessar minha conta' },
+    { key: 'privacidade', label: 'Dados pessoais e privacidade' },
     { key: 'sugestao', label: 'Sugestões e melhorias' },
     { key: 'outros', label: 'Outros assuntos' }
   ]
