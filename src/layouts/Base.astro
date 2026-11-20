@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import packageData from '../../package.json';
+import {portalVersion} from '../data/portalHistory';
 import GlobalAuthModal from '../components/GlobalAuthModal.astro';
 import GameBreadcrumbs from '../components/GameBreadcrumbs.astro';
 import {breadcrumbsForPath} from '../data/breadcrumbs';
@@ -8,7 +8,7 @@ const { title, description, path = '/', type = 'website' } = Astro.props;
 const configured = Astro.site?.hostname !== 'example.invalid';
 const base = new URL(Astro.site ?? 'https://example.invalid');
 const canonical = new URL(path, base).toString();
-const version = packageData.version+'-dev';
+
 const breadcrumbs=breadcrumbsForPath(path);
 const breadcrumbsStructured= configured && breadcrumbs.length>0 ? {
  '@context':'https://schema.org',
@@ -47,7 +47,7 @@ const breadcrumbsStructured= configured && breadcrumbs.length>0 ? {
   <main><GameBreadcrumbs items={breadcrumbs} /><slot /></main>
   <GlobalAuthModal />
   <footer class="site-footer">
-    <div class="shell footer-inner"><span>© {new Date().getFullYear()} OldArcade · Jogos clássicos, histórias reais.</span><div><a href="/sobre/">Sobre</a><a href="/contato/">Contato</a><a href="/privacidade/">Privacidade</a><a href="/termos/">Termos de Uso</a><a class="version" href="/sobre/#historico-versoes" title="Conheça o diário de bordo do OldArcade">v{version} · diário de bordo</a></div></div>
+    <div class="shell footer-inner"><span>© {new Date().getFullYear()} OldArcade · Jogos clássicos, histórias reais.</span><div><a href="/sobre/">Sobre</a><a href="/contato/">Contato</a><a href="/privacidade/">Privacidade</a><a href="/termos/">Termos de Uso</a><a class="version" href="/sobre/#historico-versoes" title="Conheça o diário de bordo do OldArcade">v{portalVersion} · diário de bordo</a></div></div>
   </footer>
   <script>import '../scripts/siteCounters.ts';import '../scripts/accountIdentity.ts';</script>
 </body>
