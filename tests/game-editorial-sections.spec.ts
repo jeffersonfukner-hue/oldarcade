@@ -7,7 +7,7 @@ const samples=[
  {name:'Tetris Clássico',url:'/jogos/tetris/',history:true,film:true,ranking:'live',game:'tetris'},
  {name:'Tetris Sprint',url:'/jogos/tetris/sprint/',history:true,film:true,ranking:'live',game:'tetris'},
  {name:'Tetris Sobrevivência',url:'/jogos/tetris/sobrevivencia/',history:true,film:true,ranking:'live',game:'tetris'},
- {name:'Pixel Quest',url:'/jogos/pixel-quest/',history:true,film:false,ranking:'live',game:'pixel-quest'}
+ {name:'Pixel Quest',url:'/jogos/pixel-quest/',history:true,film:true,ranking:'live',game:'pixel-quest'}
 ];
 for(const sample of samples){
  test(`Página de ${sample.name} segue ordem editorial e links reais`,async({page})=>{
