@@ -98,8 +98,14 @@ for(const [mode,path] of modes){
   await expect(modal).toBeHidden();
   await expect(invite).toBeHidden();
   await expect(page.locator('[data-player-name]')).toHaveText('Jogador Teste');
-  await expect.poll(()=>submissions.length,{timeout:5000}).toBe(1);
-  expect(submissions[0]).toEqual({score:100,durationMs:32000});
+  if(mode==='snake'||mode==='snake-evolution'){
+   // Estes modos registram pela rotina própria de encerramento de snake.ts.
+   // O evento sintético testa o convite, não cria a partida/pontuação interna.
+   expect(submissions).toHaveLength(0);
+  }else{
+   await expect.poll(()=>submissions.length,{timeout:5000}).toBe(1);
+   expect(submissions[0]).toEqual({score:100,durationMs:32000});
+  }
   expect(page.url()).toBe(originalUrl);
  });
 }
