@@ -28,7 +28,7 @@ const pixelSize=16;
        {item.scene==='phone'&&<><rect x="111" y="10" width="64" height="122" rx="9" fill="#b4c6ce" stroke="#586d83" stroke-width="5"/><rect x="119" y="24" width="48" height="63" rx="2" fill="#9fbe99"/>{Array.from({length:12},(_,j)=><rect x={123+(j%3)*14} y={95+Math.floor(j/3)*8} width="9" height="5" rx="2" fill="#546579"/>)}</>}
       </>}
       {game==='tetris'&&<>
-       {tetrominoes.map(piece=>piece.cells.map(([x,y])=><rect x={piece.x+x*pixelSize} y={piece.y+y*pixelSize} width="15" height="15" fill={piece.fill} stroke="#101a32" stroke-width="2"/ >))}
+       {tetrominoes.map(piece=>piece.cells.map(([x,y])=><rect x={piece.x+x*pixelSize} y={piece.y+y*pixelSize} width="15" height="15" fill={piece.fill} stroke="#101a32" stroke-width="2"/>))}
        {Array.from({length:8},(_,j)=><rect x={48+j*24} y="112" width="22" height="22" fill={j%2?'#6c6bf9':'#56c9e1'} stroke="#141d36" stroke-width="2"/>)}
        {item.scene==='computer'&&<><rect x="88" y="12" width="112" height="86" rx="7" fill="#ccd4e3" stroke="#74849c" stroke-width="5"/><rect x="100" y="23" width="88" height="60" fill="#0b2939"/><text x="111" y="56" fill="#9ff4a8" font-size="12" font-family="monospace">[][][]</text></>}
        {item.scene==='handheld'&&<><rect x="102" y="8" width="82" height="126" rx="13" fill="#d9cce5" stroke="#827b9a" stroke-width="4"/><rect x="112" y="23" width="61" height="62" rx="3" fill="#7c9e8d"/><circle cx="135" cy="111" r="9" fill="#68537f"/><circle cx="157" cy="102" r="7" fill="#68537f"/></>}
