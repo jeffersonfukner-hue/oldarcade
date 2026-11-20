@@ -1,4 +1,6 @@
 ---
+import GamePageSections from './GamePageSections.astro';
+import GameRelatedGames from './GameRelatedGames.astro';
 import GamePage from './GamePage.astro';
 import GameHud from './GameHud.astro';
 import GameStageHeader from './GameStageHeader.astro';
@@ -78,9 +80,11 @@ import GameGuide from './GameGuide.astro';
 
    </aside>
   </GameLayout>
-  <GameRanking game={modeId} name={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris Clássico"} />
-  <GameShare gameSlug={modeId} gameName={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris"} gamePath={survival?"/jogos/tetris/sobrevivencia/":sprint?"/jogos/tetris/sprint/":"/jogos/tetris/"} />
-  <GameGuide>
+
+  <GamePageSections>
+   <GameRanking slot="rankings" game={modeId} name={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris Clássico"} />
+   <GameShare slot="share" gameSlug={modeId} gameName={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris"} gamePath={survival?"/jogos/tetris/sobrevivencia/":sprint?"/jogos/tetris/sprint/":"/jogos/tetris/"} />
+   <GameGuide slot="guide">
    <h2>{survival?"Como jogar Sobrevivência":sprint?"Como jogar o Sprint":"Como jogar"}</h2>
    <p>{survival?'Mantenha o tabuleiro livre e resista à queda cada vez mais rápida. Não existe objetivo de linhas: sobreviva até o tabuleiro encher. O tempo efetivo é a sua marca.':sprint?'Limpe 40 linhas no menor tempo possível. Você pode limpar uma, duas, três ou quatro de cada vez; a corrida termina quando a meta é alcançada. O relógio é pausado quando você pausa ou troca de aba. Se o tabuleiro encher, a tentativa é encerrada sem entrar na classificação.':'Encaixe as peças que caem para preencher linhas horizontais. Uma linha completa desaparece, libera espaço e rende pontos, exibidos no tabuleiro no momento da limpeza. Movimentar peças não aumenta o placar. A partida termina quando uma nova peça já não consegue entrar no tabuleiro. A peça fantasma mostra onde a atual vai cair.'}</p>
    <h3>Controles</h3>
@@ -89,9 +93,11 @@ import GameGuide from './GameGuide.astro';
    <h3>Estratégia rápida</h3>
    <p>{survival?'Evite empilhar alto, limpe linhas sempre que possível e guarde peças úteis para corrigir buracos. Depois de algumas ondas, os encaixes precisarão ser mais rápidos.':sprint?'Priorize encaixes limpos e use a reserva para evitar buracos. Finalizar quatro linhas simultaneamente economiza tempo e movimentos.':'Deixe espaço para peças compridas, evite buracos inacessíveis e use a reserva para esperar uma combinação melhor. Completar quatro linhas de uma vez rende mais pontos que apagar quatro linhas separadamente.'}</p>
   </GameGuide>
-  <TetrisHistory />
-  <HistoricalScreenings game="tetris" />
-  <GameDevelopmentHistory gameSlug="tetris" id="tetris-history" />
+   <TetrisHistory slot="history" />
+   <HistoricalScreenings slot="screenings" game="tetris" />
+   <GameRelatedGames slot="related" currentGame="tetris" />
+   <GameDevelopmentHistory slot="development" gameSlug="tetris" id="tetris-history" />
+  </GamePageSections>
  </main>
  <script>import '../scripts/tetris.ts';</script>
  <style is:global>

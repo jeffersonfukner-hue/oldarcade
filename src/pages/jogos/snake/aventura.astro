@@ -1,4 +1,8 @@
 ---
+import GamePageSections from '../../../components/GamePageSections.astro';
+import SnakeHistory from '../../../components/SnakeHistory.astro';
+import HistoricalScreenings from '../../../components/HistoricalScreenings.astro';
+import GameRelatedGames from '../../../components/GameRelatedGames.astro';
 import GamePage from '../../../components/GamePage.astro';
 import {gameRegistry} from '../../../data/gameRegistry';
 import GameStageHeader from '../../../components/GameStageHeader.astro';
@@ -67,15 +71,21 @@ import GameGuide from '../../../components/GameGuide.astro';
     <p class="small muted">Protótipo de níveis progressivos. Depois do terceiro, a partida continua em modo sobrevivência. Barreiras aumentam progressivamente; a fruta de velocidade aparece a partir do nível 4. Seus resultados locais ficam separados do Clássico. Com uma conta conectada, também entram no ranking exclusivo do Aventura.</p>
    </aside>
   </GameLayout>
-  <GameRanking game="snake-adventure" name="Snake Aventura" />
-  <GameShare gameSlug="snake-adventure" gameName="Snake Aventura" gamePath="/jogos/snake/aventura/" />
-  <GameDevelopmentHistory gameSlug="snake" id="adventure-history-title" title="Desenvolvimento do Aventura" mode="snake-adventure" />
-  <GameGuide>
+
+  <GamePageSections>
+   <GameRanking slot="rankings" game="snake-adventure" name="Snake Aventura" />
+   <GameShare slot="share" gameSlug="snake-adventure" gameName="Snake Aventura" gamePath="/jogos/snake/aventura/" />
+   <GameGuide slot="guide">
    <h2>Como funciona</h2>
    <p>Uma única partida para todos os níveis. Você só avança quando completa a missão e alcança a pontuação mínima. A cobrinha não reinicia ao mudar de nível.</p>
    <p><strong>Maçã vermelha:</strong> 10 pontos. <strong>Fruta dourada:</strong> 50 pontos, disponível por um período curto. <strong>Cristal de gelo:</strong> 15 pontos e deixa a cobrinha mais lenta temporariamente. <strong>Fruta de velocidade:</strong> 20 pontos e acelera a cobrinha por um período curto, a partir do nível 4. Cada item coletado faz crescer uma célula.</p>
    <p>O nível 2 apresenta a dourada; o nível 3 apresenta o gelo; o nível 4 apresenta a fruta de velocidade. A velocidade aumenta progressivamente, mas tem limite. Se perder, você reinicia no primeiro nível e mantém os melhores resultados salvos neste navegador. Somente contas conectadas enviam pontuações ao ranking global do Aventura.</p>
   </GameGuide>
+   <SnakeHistory slot="history" />
+   <HistoricalScreenings slot="screenings" game="snake" />
+   <GameRelatedGames slot="related" currentGame="snake" />
+   <GameDevelopmentHistory slot="development" gameSlug="snake" id="adventure-history-title" title="Desenvolvimento do Aventura" mode="snake-adventure" />
+  </GamePageSections>
  </div>
  <script>import '../../../scripts/snakeAdventure.ts';</script>
 </GamePage>

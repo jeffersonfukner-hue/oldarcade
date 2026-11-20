@@ -1,0 +1,19 @@
+---
+import {gameRegistry} from '../data/gameRegistry';
+import {gameModes} from '../data/gameModes.js';
+interface Props{currentGame:keyof typeof gameRegistry}
+const {currentGame}=Astro.props;
+const suggestions=Object.entries(gameRegistry).filter(([slug])=>slug!==currentGame)
+ .sort((a,b)=>a[1].number-b[1].number)
+ .map(([slug,game])=>({slug,game,url:Object.values(gameModes).find(mode=>mode.title===slug)?.url}));
+---
+<section class="section panel oa-related-games" aria-labelledby="oa-related-games-heading">
+ <span class="eyebrow">Explore o arcade</span><h2 id="oa-related-games-heading">Continue jogando</h2>
+ <div class="oa-related-grid">
+ {suggestions.map(({slug,game,url})=>url&&<a class="oa-related-link" href={url} data-related-game={slug}>
+  <span class="eyebrow">Jogo #{String(game.number).padStart(3,'0')}</span><strong>{game.name}</strong>
+  <span>{slug==='snake'?'Clássico da cobrinha':slug==='tetris'?'Blocos, estratégia e desafios':'Aventura de plataforma em desenvolvimento'}</span>
+  <span class="oa-related-action">Explorar jogo →</span>
+ </a>)}
+ </div>
+</section>

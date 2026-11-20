@@ -678,8 +678,8 @@ body.oa-auth-open{overflow:hidden}
 
 /* Revisão global de conteúdo: cartões largos com texto de leitura controlado. */
 .oa-game-page>.section.panel,.oa-game-page>.game-share{width:100%;max-width:none;min-width:0}
-.oa-game-page>.text-content{max-width:none}
-.oa-game-page>.text-content>p,.oa-game-page>.text-content>ol,.oa-game-page>.text-content>ul{max-width:85ch}
+.oa-game-page .text-content{max-width:none}
+.oa-game-page .text-content>p,.oa-game-page .text-content>ol,.oa-game-page .text-content>ul{max-width:100%}
 .oa-game-page>.section{margin:24px 0 32px}
 .oa-game-page .section-head{margin-bottom:15px}
 .oa-game-page .section-head h2{font-size:clamp(1.25rem,2vw,1.65rem)}
@@ -963,3 +963,31 @@ body.oa-auth-open{overflow:hidden}
 /* Contrato global de largura 19/11/2026: margem móvel de 12px para header, corpo e footer.
    Os stages em :fullscreen continuam fora deste limite e preservam o canvas nativo. */
 @media(max-width:580px){.shell.oa-game-page{width:min(var(--oa-content-width),calc(100% - 24px))}}
+
+/* Etapa 2: seções semânticas, parágrafos até o limite interno do card. */
+.oa-game-page .oa-game-sections{min-width:0;width:100%}
+.oa-game-page .oa-game-sections>.section{margin:24px 0 32px;min-width:0}
+.oa-game-page .oa-game-sections>.text-content{max-width:none;width:100%}
+.oa-game-page .oa-game-sections>.text-content>p,
+.oa-game-page .oa-game-sections>.text-content>ol,
+.oa-game-page .oa-game-sections>.text-content>ul,
+.oa-game-page .oa-game-sections>.oa-game-guide p,
+.oa-game-page .oa-game-sections>.oa-game-guide ol,
+.oa-game-page .oa-game-sections>.oa-game-guide ul{max-width:100%}
+.oa-game-page>.hero .lede{max-width:100%}
+.oa-related-games{padding:20px 24px}
+.oa-related-games h2{margin:7px 0 16px}
+.oa-related-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.oa-related-link{display:flex;flex-direction:column;gap:7px;padding:16px;border:1px solid #3a4b71;border-radius:12px;background:#111f38;color:#eaf0ff;min-width:0}
+.oa-related-link:hover,.oa-related-link:focus-visible{border-color:#ac97ff;background:#1b2c4a}
+.oa-related-link strong{font-size:1.2rem}
+.oa-related-link>span:not(.eyebrow):not(.oa-related-action){font-size:.85rem;color:#bcc9df}
+.oa-related-action{margin-top:auto;color:#b6a1ff;font-size:.82rem;font-weight:700}
+.oa-ranking-unavailable{padding:20px 24px}
+.oa-ranking-unavailable h2{font-size:1.3rem;margin:7px 0 12px}
+.oa-ranking-unavailable p{margin-bottom:12px}
+.oa-ranking-unavailable .btn{margin-top:4px}
+@media(max-width:580px){
+ .oa-related-games,.oa-ranking-unavailable{padding:16px}
+ .oa-related-grid{grid-template-columns:minmax(0,1fr)}
+}

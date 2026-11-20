@@ -4,6 +4,16 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL PARA NOVO CHAT — Etapa 2 editorial (19/11/2026)
+- **Etapa 1 de largura 980px aprovada visualmente pelo proprietário** após CI #1040 no commit `c7f4cd1`. Largura permanente via `--oa-content-width` continua válida para home, jogos, rankings e conta.
+- **Etapa 2 solicitada e implementada no código desta branch:** `GamePageSections.astro` coordena ordem semântica igual entre todos os 7 modos: ranking/estado → compartilhar → guia → história → filmes verificados se houver → Continue jogando → bastidores. `SnakeHistory.astro` remove duplicação de história; `GameRelatedGames.astro` aponta outros títulos reais; `GameCompetitionNotice.astro` exibe estado factual do ranking indisponível no Pixel Quest. Filmes Snake inseridos também em Evolution/Aventura. Nenhuma mecânica, IDs, backend ou banco alterados.
+- **Correção do texto:** remover `max-width:85ch` e largura editorial menor que a seção; respeitar 980px com padding interno para parágrafos, sem reduzir o fullscreen. Testar largura textual em desktop e mobile.
+- **Novo escopo adicional aprovado:** Etapa 2B de breadcrumbs reutilizáveis e navegação contextual, incluindo JSON-LD BreadcrumbList quando houver domínio canônico válido; não executado na Etapa 2. Outras melhorias anteriormente sugeridas permanecem no backlog de rankings/desempenho e conteúdo histórico/SEO. O usuário pediu registrar sugestões nos .md para novos chats.
+- **Regra de competição:** somente contas autenticadas entram em rankings (Etapa 3 corrigirá recursos locais legados do Snake sem apagar dados). Qualquer visitante pode jogar. Pixel Quest não tem ranking global oficial; não fingir dados.
+- **GitHub:** `jeffersonfukner-hue/oldarcade`; branch `feat/layout-unificado-snake-quest`; PR #4 draft. Consultar HEAD e CI atualizado na próxima conversa: etapa 2 deve passar no Actions e dependerá de homologação visual antes da 2B/Etapa 3.
+- **Não autorizado:** merge, deploy, mudanças no Cloudflare, SQL em D1, alteração de produção, reinício do Desafio Diário ou lançamento de jogo #004.
+
+
 ## ESTADO ATUAL PARA NOVO CHAT — padronização de largura (19/11/2026)
 - **Aprovação do proprietário:** plano global de padronização aprovado com três complementos obrigatórios: (1) ranking só de contas autenticadas, (2) história relevante para SEO com `<strong>` criterioso em termos relevantes, sem keyword stuffing, (3) decisões preservadas nos .md para todos os chats futuros. Ver contrato no início de `docs/PADROES_GLOBAIS_DOS_JOGOS.md` e em `AGENTS.md`.
 - **Etapa 1 em implementação nesta PR:** `--oa-content-width:980px` controla home, páginas de jogos e modos, rankings, conta e todas as outras páginas via `.shell`/`.oa-game-page`. Centralização com 20px laterais (desktop/tablet) e 12px (mobile até 580px); proporções nativas e fullscreen preservados. Testes de larguras para 1440/1024/390/320 e estabilidade de fullscreen devem rodar no CI.
