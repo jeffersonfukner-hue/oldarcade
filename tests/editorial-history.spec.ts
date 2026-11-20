@@ -50,3 +50,20 @@ test('Pixel Quest exibe linha do tempo resumida no mesmo padrão do Snake em des
  await expect(snakeHistory.locator('ol.timeline')).toBeVisible();
  await expect(snakeHistory).toContainText('Uma linha do tempo conectada ao mundo');
 });
+
+test('Padrão global: todos os jogos mostram artes editoriais originais, fontes e legendas no celular',async({page})=>{
+ for(const game of games){
+  await page.setViewportSize({width:320,height:700});
+  await page.goto(game.path);
+  const timeline=page.locator('.oa-game-sections .oa-illustrated-timeline');
+  await expect(timeline).toHaveCount(1);
+  const entries=timeline.locator(':scope > li');
+  await expect(entries).toHaveCount(game.slug==='pixel-quest'?4:6);
+  await expect(timeline.locator('svg[role="img"]')).toHaveCount(game.slug==='pixel-quest'?4:6);
+  await expect(timeline.locator('figcaption')).toHaveCount(game.slug==='pixel-quest'?4:6);
+  await expect(timeline.locator('.oa-era-source a')).toHaveCount(game.slug==='pixel-quest'?4:6);
+  await expect(timeline).toContainText('Ilustração editorial original');
+  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1);
+  expect(overflow).toBe(false);
+ }
+});
