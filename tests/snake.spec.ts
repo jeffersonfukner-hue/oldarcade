@@ -606,17 +606,18 @@ test('rankings reúne Top 3 e Top 10 distintos e desafia o líder real',async({p
   return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Outra pessoa',score:480,rank:1}]})});
  });
  await page.goto('/rankings/');
- await expect(page).toHaveTitle(/Rankings OldArcade/);
+ await expect(page).toHaveTitle(/Rankings Old Arcade/);
  const classic=page.locator('[data-rank-page-mode="snake"]');
  const adventure=page.locator('[data-rank-page-mode="snake-adventure"]');
- await expect(classic.locator('[data-rank-leader-name]')).toHaveText('Lider');
- await expect(classic.locator('[data-rank-leader-score]')).toHaveText('320 pontos');
+ await expect(classic.locator('.rankings-podium-card.podium-1')).toContainText('Lider');
+ await expect(classic.locator('.rankings-podium-card.podium-1')).toContainText('320 pontos');
+ await expect(classic.locator('[data-rank-challenge-message]')).toContainText('320 pontos');
  await expect(classic.locator('.rankings-podium-card')).toHaveCount(2);
  await expect(classic.locator('[data-rank-challenge]')).toHaveAttribute('href','/jogos/snake/');
  await classic.locator('.rankings-top10 summary').click();
  await expect(classic.locator('[data-rank-table]')).toContainText('Segundo');
- await expect(adventure.locator('[data-rank-leader-name]')).toHaveText('Outra pessoa');
- await expect(adventure.locator('[data-rank-leader-score]')).toHaveText('480 pontos');
+ await expect(adventure.locator('.rankings-podium-card.podium-1')).toContainText('Outra pessoa');
+ await expect(adventure.locator('.rankings-podium-card.podium-1')).toContainText('480 pontos');
  await expect(adventure.locator('[data-rank-challenge]')).toHaveAttribute('href','/jogos/snake/aventura/');
  expect(calls).toEqual({classic:1,adventure:1});
 });
@@ -624,7 +625,7 @@ test('rankings sem dados não inventa Top 3 nem pontuação',async({page})=>{
  await page.route('**/api/games/**/leaderboard',r=>r.fulfill({status:503,contentType:'application/json',body:'{"available":false}'}));
  await page.goto('/rankings/');
  await expect(page.locator('[data-rank-page-mode="snake"] [data-rank-status]')).toContainText('indisponível');
- await expect(page.locator('[data-rank-page-mode="snake"] [data-rank-leader-score]')).toHaveText('—');
+ await expect(page.locator('[data-rank-page-mode="snake"] [data-rank-podium]')).toContainText('Classificação indisponível.');
  await expect(page.locator('.rankings-podium-card')).toHaveCount(0);
 });
 test('nickname conectado aparece no header e sidebar, saindo da conta reverte',async({page})=>{
