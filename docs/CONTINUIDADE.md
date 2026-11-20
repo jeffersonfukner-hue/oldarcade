@@ -4,6 +4,12 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL — artes premium da timeline Pixel Quest (20/11/2026)
+- **Quatro imagens premium reais foram integradas à branch do PR #4**, em `public/images/history/`, utilizando as quatro artes ilustrativas previamente geradas na conversa, com recorte da cena e otimização em AVIF. O componente único `HistoricalTimeline.astro` agora exibe essas imagens nas quatro entradas de Pixel Quest e mantém SVG como fallback somente nos marcos ainda sem raster próprio (Snake e Tetris).
+- **Contrato global preservado:** imagem + legenda de ilustração autoral (não screenshot) + link da fonte histórica; dados declarativos em `historicalTimeline.ts`. Teste Playwright atualizado para verificar carregamento real da imagem e manter cobertura dos três jogos. O código atual não altera motores, pontuação, conta ou ranking.
+- **Ainda pendentes:** artes premium específicas para Snake e Tetris (não confundir com os quatro arquivos do Pixel Quest), CI atualizado e homologação visual; **não declarar todos os jogos com arte premium já concluídos**. CI anterior #44805062229 foi aprovado antes da importação. Sem merge/deploy.
+
+
 ## ESTADO ATUAL — Etapa 4 / padrão global de timelines ilustradas (20/11/2026)
 - **Solicitação expressa:** imagens históricas com legenda e fonte **para todos os jogos**, não só Pixel Quest. Implementados `src/components/HistoricalTimeline.astro` e `src/data/historicalTimeline.ts`, consumidos por Snake, Tetris e Pixel Quest com os mesmos estilos, SVGs editoriais originais, fontes históricas clicáveis e responsividade. Testes globais adicionados a `tests/editorial-history.spec.ts`.
 - **Distinção obrigatória:** os desenhos vetoriais são **ilustrações, não screenshots, capas ou assets comerciais**. As imagens raster premium geradas no ChatGPT anteriormente não foram carregadas no repositório; continuam referências para refinamento visual posterior. Não alegar que esses arquivos foram integrados ou que o Pixel Quest já usa sprites premium no motor.
