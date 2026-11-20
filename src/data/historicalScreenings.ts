@@ -46,7 +46,7 @@ export const historicalScreenings={
     description:'Adaptação da franquia Sonic, da Sega, que ajudou a popularizar aventuras de ação e plataforma. Não é um filme sobre Pixel Quest.',
     relation:'Filme de outra franquia de jogos de plataforma',
     availability:'Disponibilidade no Brasil não confirmada nesta revisão; consulte as opções atuais',
-    watchUrl:'https://www.sega.co.jp/en/release/220216_1.html',
+    watchUrl:'https://br.justwatch.com/br/filme/sonic-o-filme',
     sourceUrl:'https://www.sega.co.jp/en/release/220216_1.html'
    }
   ]
