@@ -6,6 +6,14 @@
 - **Pixel Quest / História na tela:** o proprietário aprovou também filmes baseados em outros jogos do **gênero plataforma**, ou obras comprovadamente inspiradas por videogames dessa família. A relação é com o gênero/história do tipo de jogo, **não com Pixel Quest como adaptação cinematográfica**. Ex.: *Super Mario Bros. — O Filme* (2023) e *Sonic: O Filme* (2020) são adaptações de outras franquias; *Detona Ralph* (2012) é uma obra original inspirada em arcades. Fontes e critérios no plano. Adicionar a seção no **trabalho editorial da Etapa 4**, com verificação da disponibilidade no Brasil, data da consulta e fontes verificáveis. Não afirmar ausência de filmes relevantes ao Pixel Quest apenas porque não há uma adaptação do próprio título.
 - Enquanto não incluídas na fonte editorial `historicalScreenings.ts`, essas obras **não estão implementadas na interface**. Não inventar onde assistir nem usar links comerciais/afiliados sem aprovação.
  
+## Proposta pendente: seletor único de modos e troca segura (19/11/2026)
+
+- Reutilizar futuramente `GameModeSwitcher` baseado em `src/data/gameModes.js`, substituindo abas isoladas do Tetris e links soltos do Snake. O contrato serve também para **Pixel Quest quando novas modalidades estiverem disponíveis**. Por enquanto, não mostrar opções desabilitadas ou inexistentes.
+- Durante partida ativa, pausada ou contagem regressiva, trocar de modo exige aviso/modal global e confirmação explícita; cancelar preserva estado, sair encerra conscientemente, com alerta reforçado para desafio diário de tentativa única. Modal não substitui validação de tentativas e ranking na API.
+- Pixel Quest: ideia futura de **corrida lateral com câmera avançando e jogador obrigado a acompanhar**, além de outras modalidades a estudar. Não inventar nomes/regras definitivos.
+- A retomada de jogo depois de rolar a página deve recentralizar o tabuleiro por `centerGameBoard` antes do countdown, conforme regra já aprovada em `docs/ARQUITETURA.md`. Há omissão provável em Snake Clássico/Evolution; investigar e testar todos.
+- **Status: proposta documentada, não implementada.** Ver `PLANO_PADRONIZACAO.md` e `CONTINUIDADE.md`; não pular homologação da Etapa 2 nem subetapa 2B.
+
 ## Etapa 2 aprovada — seções editoriais e amplitude do texto (19/11/2026)
 
 - **Estrutura oficial única:** `src/components/GamePageSections.astro` organiza no HTML (nunca com CSS `order`) os slots `rankings → share → guide → history → screenings → related → development`, sempre **após o palco/área jogável e seu desempenho auxiliar**. Aplicável ao Snake Clássico/Evolution/Aventura, Tetris Clássico/Sprint/Sobrevivência e Pixel Quest. Diferenças justificadas devem ser declaradas como dados, sem fork de estrutura.

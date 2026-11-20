@@ -2,6 +2,11 @@
 
 # OldArcade — regras permanentes para agentes
 
+## Fila de navegação dos jogos — proposta ainda não implementada (19/11/2026)
+- Consolidar no futuro os seletores de modos de Snake/Tetris e novos modos do Pixel Quest em um único componente global alimentado por `gameModes.js`. Modo auto-scroll/corrida lateral do Pixel Quest é **ideia registrada**, não mecânica aprovada para implementação.
+- Troca de modo durante `playing`/`paused`/`countdown` exige confirmação sem perda acidental; desafio diário requer alerta de tentativa única. A retomada após ler/rolar artigo deve centralizar o tabuleiro de novo; verificar possível falha no `pause()` do Snake Clássico/Evolution.
+- Detalhes e testes planejados em `docs/PLANO_PADRONIZACAO.md` e `docs/CONTINUIDADE.md`. Não alterar código sem entrar na etapa correta. Preservar plano 1–5 e etapa 2B.
+
 ## Plano de execução aprovado — preservar ordem
 - Ler e cumprir [docs/PLANO_PADRONIZACAO.md](docs/PLANO_PADRONIZACAO.md): cinco etapas originais intactas, Etapa 2B de breadcrumbs, fila separada de refinamentos. **Não confundir a chegada de novas ideias com autorização para pular a homologação da etapa em curso.**
 - A seção `História na tela` pode cobrir adaptações de outros jogos do mesmo gênero, desde que a relação editorial seja correta, verificável e não implique adaptação do título original Old Arcade. Para Pixel Quest, esta tarefa pertence à Etapa 4, não à Etapa 2.
