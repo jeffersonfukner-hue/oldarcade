@@ -39,7 +39,7 @@ test('Pixel Quest exibe linha do tempo resumida no mesmo padrão do Snake em des
   const timeline=history.locator('ol.timeline');
   await expect(timeline).toBeVisible();
   await expect(timeline.locator('li')).toHaveCount(4);
-  for(const year of ['1980:','1981:','1985:','Novembro de 2026:']){
+  for(const year of ['1980 ·','1981 ·','1985 ·','Novembro de 2026 ·']){
    await expect(timeline).toContainText(year);
   }
   await expect(timeline).toContainText('Pixel Quest');
