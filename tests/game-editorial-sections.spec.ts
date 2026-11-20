@@ -24,7 +24,7 @@ for(const sample of samples){
    development:node.classList.contains('oa-development-history')
   })));
   const first=(key:keyof (typeof sections)[number])=>sections.findIndex(row=>row[key]);
-  for(const key of ['ranking','share','guide','history','related','development'])expect(first(key),key).toBeGreaterThanOrEqual(0);
+  for(const key of ['ranking','share','guide','history','related','development'] as const)expect(first(key),key).toBeGreaterThanOrEqual(0);
   expect(first('ranking')).toBeLessThan(first('share'));
   expect(first('share')).toBeLessThan(first('guide'));
   expect(first('guide')).toBeLessThan(first('history'));
