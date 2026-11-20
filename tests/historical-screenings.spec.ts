@@ -7,8 +7,9 @@ test('História do Tetris exibe filme, data fixa e correção nos três modos',a
   await expect(section.getByRole('heading',{name:'Filmes e documentários relacionados'})).toBeVisible();
   await expect(section.getByText('Tetris (2023)')).toBeVisible();
   await expect(section.getByText(/Brasil · Apple TV/)).toBeVisible();
-  await expect(section.locator('time[datetime="2026-11-17"]')).toHaveCount(2);
-  await expect(section.getByRole('link',{name:/Consultar onde assistir a Tetris/})).toHaveAttribute('href',/tv\.apple\.com\/br\/movie\/tetris/);
+  await expect(section.locator('time[datetime="2026-11-17"]')).toHaveCount(1);
+  await expect(section.locator('time[datetime="2026-11-20"]')).toHaveCount(1);
+  await expect(section.getByRole('link',{name:/Consultar opções para assistir a Tetris/})).toHaveAttribute('href',/tv\.apple\.com\/br\/movie\/tetris/);
   await expect(section.getByRole('link',{name:/Sugerir uma correção/i})).toHaveAttribute('href',/jogo=tetris/);
  }
 });
