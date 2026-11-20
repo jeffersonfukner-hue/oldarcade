@@ -13,7 +13,7 @@ const pixelSize=16;
   <li>
    <div class="oa-era-entry">
     <figure class="oa-era-visual">
-     <svg class="oa-era-art" viewBox="0 0 280 142" xmlns="http://www.w3.org/2000/svg" role="img" aria-label={`Ilustração editorial original: ${item.title}`} preserveAspectRatio="xMidYMid slice">
+     {item.image ? <img class="oa-era-art" src={item.image} width="320" height="133" loading="lazy" decoding="async" alt={`Ilustração artística original inspirada no contexto de ${item.title}; não é uma captura do jogo`} /> : <svg class="oa-era-art" viewBox="0 0 280 142" xmlns="http://www.w3.org/2000/svg" role="img" aria-label={`Ilustração editorial original: ${item.title}`} preserveAspectRatio="xMidYMid slice">
       <defs>
        <linearGradient id={`era-bg-${game}-${i}`} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color={game==='pixel-quest'?'#1e4758':game==='tetris'?'#162b57':'#143d3b'} /><stop offset="100%" stop-color="#0a1022"/></linearGradient>
        <pattern id={`era-grid-${game}-${i}`} width="18" height="18" patternUnits="userSpaceOnUse"><path d="M18 0H0V18" stroke="#ffffff" stroke-opacity=".045" fill="none"/></pattern>
@@ -42,7 +42,7 @@ const pixelSize=16;
        {item.scene==='forest'&&<><path d="M0 48L40 4L74 52L112 12L155 61" fill="none" stroke="#337a65" stroke-width="14"/>{[95,165,195].map((x,j)=><polygon points={`${x},${28+j*5} ${x+9},${40+j*5} ${x},${52+j*5} ${x-9},${40+j*5}`} fill="#75f6d3" stroke="#24877b" stroke-width="2"/>)}<rect x="218" y="45" width="35" height="54" rx="18" fill="#2ed7bd" stroke="#b6ffe7" stroke-width="6"/></>}
        <rect x="82" y="75" width="14" height="20" rx="2" fill={item.scene==='forest'?'#a8f16b':'#8cbeff'}/><rect x="86" y="65" width="11" height="12" fill="#ffe2b6"/><rect x="78" y="65" width="23" height="5" fill="#ed9772"/>
       </>}
-     </svg>
+     </svg>}
      <figcaption>Ilustração editorial original · não é captura do jogo</figcaption>
     </figure>
     <div class="oa-era-copy">
@@ -59,7 +59,7 @@ const pixelSize=16;
  .oa-illustrated-timeline>li{margin:0;padding:0;min-width:0}
  .oa-era-entry{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:16px;align-items:center;padding:12px;border:1px solid #344362;border-radius:14px;background:linear-gradient(135deg,#17243d,#10182b)}
  .oa-era-visual{margin:0;min-width:0}
- .oa-era-art{display:block;width:100%;height:auto;aspect-ratio:280/142;border-radius:9px;overflow:hidden;border:1px solid #4f577b}
+ .oa-era-art{display:block;width:100%;height:auto;aspect-ratio:320/133;object-fit:cover;border-radius:9px;overflow:hidden;border:1px solid #4f577b}
  .oa-era-visual figcaption{font-size:.69rem;line-height:1.35;color:#95a6c5;margin-top:5px}
  .oa-era-date{display:block;color:#e4ddff;font-weight:850;font-size:1.04rem;margin-bottom:5px}
  .oa-era-copy{min-width:0}
