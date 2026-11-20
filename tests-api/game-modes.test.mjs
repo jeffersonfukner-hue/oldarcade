@@ -37,3 +37,14 @@ test('ranking e contadores consultam o mesmo catálogo, sem allowlists divergent
  assert.ok(stats.includes('gameMode('));
  assert.ok(page.includes('Object.entries(gameModes)'));
 });
+
+test('Pixel Quest só publica resultado competitivo quando a fase é concluída',()=>{
+ const source=readFileSync(new URL('../src/scripts/pixelQuest/index.ts',import.meta.url),'utf8');
+ const finish=source.match(/function finish\(won:boolean\)\{([\s\S]*?)\n \}\n function startGame\(/)?.[1];
+ assert.ok(finish,'função de encerramento do Quest existe');
+ const victory=finish.match(/if\(won\)\{([\s\S]*?)\n  \}else description/)?.[1];
+ assert.ok(victory,'ramo de vitória da fase existe');
+ assert.match(victory,/oldarcade:game-finished/,'vitória deve notificar ranking e convite global');
+ assert.match(victory,/game:'pixel-quest',score:result.score,durationMs:result.elapsedMs/,'usar placar final calculado e tempo efetivo');
+ assert.equal((finish.match(/oldarcade:game-finished/g)||[]).length,1,'derrota não deve registrar conclusão da fase');
+});
