@@ -1069,7 +1069,6 @@ body.oa-auth-open{overflow:hidden}
 .oa-end-invite-skip{display:block;margin:10px auto 0;padding:9px 12px;color:#d3cde6;background:transparent;border:0;text-decoration:underline;cursor:pointer;font-size:.85rem}
 .oa-end-account-invite :focus-visible{outline:3px solid #ffeb9a;outline-offset:3px}
 @media(max-width:520px){.oa-end-account-invite{padding:10px}.oa-end-invite-card{padding:19px 15px;border-radius:15px}.oa-end-invite-card strong{margin:0 25px;font-size:1.3rem}}
-}
 
 /* Marca em andamento é feedback motivacional, nunca recorde oficial. */
 .mode-ranking-provisional:not([hidden]){display:block;padding:8px 12px;border:1px solid #e1b45f80;border-radius:9px;background:#3d302239;color:#ffdfa4;font-size:.82rem}
