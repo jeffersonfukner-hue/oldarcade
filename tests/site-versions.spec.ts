@@ -1,5 +1,6 @@
 import {expect,test} from '@playwright/test';
-import packageData from '../package.json';
+import {readFileSync} from 'node:fs';
+const packageData=JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8')) as {version:string};
 import {gameRegistry} from '../src/data/gameRegistry';
 
 const portalVersion='v'+packageData.version+'-dev';
