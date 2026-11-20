@@ -23,7 +23,7 @@ for(const sample of samples){
    related:node.classList.contains('oa-related-games'),
    development:node.classList.contains('oa-development-history')
   })));
-  const first=key=>sections.findIndex(row=>row[key]);
+  const first=(key:keyof (typeof sections)[number])=>sections.findIndex(row=>row[key]);
   for(const key of ['ranking','share','guide','history','related','development'])expect(first(key),key).toBeGreaterThanOrEqual(0);
   expect(first('ranking')).toBeLessThan(first('share'));
   expect(first('share')).toBeLessThan(first('guide'));
