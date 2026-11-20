@@ -19,7 +19,7 @@ export const historicalScreenings={
  },
  snake:{
   publishedAt:'2026-11-17',
-  checkedAt:'2026-11-17',
+  checkedAt:'2026-11-20',
   works:[{
    id:'man-vs-snake',title:'Man vs Snake: The Long and Twisted Tale of Nibbler',year:2015,type:'Documentário',
    description:'Acompanha Tim McVey em sua busca por um recorde de Nibbler, jogo de arcade da família de jogos de cobra. Não é um filme sobre a versão do Snake criada para os celulares Nokia.',
