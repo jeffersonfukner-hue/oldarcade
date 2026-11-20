@@ -5,10 +5,10 @@
 # OldArcade — continuidade obrigatória
 
 ## ESTADO ATUAL PARA NOVO CHAT — Etapa 4 / SITE-03 (20/11/2026)
-- **SITE-03 implementada no PR #4, ainda aguardando CI do novo HEAD e aceite visual.** Versão do portal mantida em `v0.2.0-dev` (base `package.json`), Snake `v0.2.0-dev`, Tetris e Pixel Quest `v0.1.0-dev` (fonte `gameRegistry.ts`). Nenhuma versão foi inventada, incrementada nem declarada como publicação oficial.
+- **SITE-03 implementada no PR #4, com CI #44671411568 aprovado no commit de código/testes `d31f4406`; aguardando aceite visual.** Versão do portal mantida em `v0.2.0-dev` (base `package.json`), Snake `v0.2.0-dev`, Tetris e Pixel Quest `v0.1.0-dev` (fonte `gameRegistry.ts`). Nenhuma versão foi inventada, incrementada nem declarada como publicação oficial.
 - **Fonte canônica:** `src/data/portalHistory.ts` fornece versão do portal, marcos de desenvolvimento auditados com links de commit e histórico imutável. `Base.astro` e `sobre.astro` exibem exatamente a mesma versão. A página Sobre também apresenta versões próprias dos três jogos. `GameDevelopmentHistory.astro` oferece links de commits quando presentes no registro do jogo, mantendo todos os históricos anteriores.
 - **Referências auditadas no GitHub:** commits `102503cf`, `3a4c7909`, `ef402e3f`, `633e6f03`, `29704a14` recuperados com título correspondente ao marco registrado. Testes: `tests/site-versions.spec.ts` cobrem versões independentes, cronologia, links e mobile.
-- **Proteções:** SITE-01 permanece homologada (CI #44670407963 aprovado). Sem mudanças de motor, contadores, rankings, dados, esquema D1, segurança, merge ou deploy. SITE-08, restante da Etapa 4, Etapa 4B e Etapa 5 continuam na fila. Confirmar CI do novo HEAD antes de homologar SITE-03.
+- **Proteções:** SITE-01 permanece homologada (CI #44670407963 aprovado). Sem mudanças de motor, contadores, rankings, dados, esquema D1, segurança, merge ou deploy. SITE-08, restante da Etapa 4, Etapa 4B e Etapa 5 continuam na fila. CI funcional #44671411568 confirmado como success; qualquer novo commit documental precisará de sua própria verificação. Homologação visual da SITE-03 ainda pendente.
 
 
 ## ESTADO ATUAL PARA NOVO CHAT — Etapa 4 / SITE-01 (20/11/2026)
