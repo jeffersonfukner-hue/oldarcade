@@ -6,9 +6,9 @@
 
 ## ESTADO ATUAL PARA NOVO CHAT — Etapa 4 / SITE-01 (20/11/2026)
 - **Etapa 3 homologada visualmente e CI documental #44669327081 aprovado** (commit anterior `43244be3`), PR #4 draft, sem merge/deploy.
-- **SITE-01 executada em código nesta branch, PENDENTE CI do novo HEAD e homologação:** atualizadas `/privacidade/`, `/sobre/`, `/contato/`; criada `/termos/` e link no footer; canal de contato agora inclui solicitações de dados pessoais e não promete redefinição automática por e-mail. Adicionados testes E2E `tests/site-legal.spec.ts`.
+- **SITE-01 IMPLEMENTADA E HOMOLOGADA VISUALMENTE PELO PROPRIETÁRIO (20/11/2026):** CI #44670407963 concluído com **success** no commit funcional/documental `954931a53b77aabba279f7cbc7f215443c6db170`. Atualizadas `/privacidade/`, `/sobre/`, `/contato/`; criada `/termos/` e link no rodapé; contato passa a incluir solicitações de privacidade e não promete redefinição automática por e-mail. Testes E2E `tests/site-legal.spec.ts` incluídos. Não reabrir esta homologação sem nova solicitação.
 - **Inventário técnico e riscos de lançamento:** `docs/AUDITORIA_SITE_01_DADOS_E_LEGAL.md`. Conta e sessão em D1, cookie HttpOnly/Secure/SameSite=Strict 30 dias, placares públicos por nickname, UUIDs de contador, dados locais, e-mail opcional e preferências sem envio. Sem fluxo público de recuperação automática ou exclusão de conta; não inventar serviços nem alegar conformidade legal.
-- **Pendências:** CI, homologação visual e avaliação jurídica/operacional antes de lançamento. SITE-03 (versões), SITE-08 (história) e artigos/cinema continuam na Etapa 4; SITE-02/04/05/06/07/09 são Etapa 4B separada. Não antecipar Etapa 5 nem publicar automaticamente.
+- **Pendências:** avaliação jurídica/operacional e confirmação de responsável/prazos de dados antes de lançamento oficial; a aprovação técnica/visual não equivale a revisão jurídica. SITE-03 (versões), SITE-08 (história) e artigos/cinema continuam na Etapa 4; SITE-02/04/05/06/07/09 são Etapa 4B separada. Não antecipar Etapa 5 nem publicar automaticamente.
 
 
 ## ESTADO ATUAL PARA NOVO CHAT — Etapa 3 homologada (20/11/2026)
