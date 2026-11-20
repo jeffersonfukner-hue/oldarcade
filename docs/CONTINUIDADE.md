@@ -4,6 +4,13 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO ATUAL PARA NOVO CHAT — Etapa 4 / SITE-01 (20/11/2026)
+- **Etapa 3 homologada visualmente e CI documental #44669327081 aprovado** (commit anterior `43244be3`), PR #4 draft, sem merge/deploy.
+- **SITE-01 executada em código nesta branch, PENDENTE CI do novo HEAD e homologação:** atualizadas `/privacidade/`, `/sobre/`, `/contato/`; criada `/termos/` e link no footer; canal de contato agora inclui solicitações de dados pessoais e não promete redefinição automática por e-mail. Adicionados testes E2E `tests/site-legal.spec.ts`.
+- **Inventário técnico e riscos de lançamento:** `docs/AUDITORIA_SITE_01_DADOS_E_LEGAL.md`. Conta e sessão em D1, cookie HttpOnly/Secure/SameSite=Strict 30 dias, placares públicos por nickname, UUIDs de contador, dados locais, e-mail opcional e preferências sem envio. Sem fluxo público de recuperação automática ou exclusão de conta; não inventar serviços nem alegar conformidade legal.
+- **Pendências:** CI, homologação visual e avaliação jurídica/operacional antes de lançamento. SITE-03 (versões), SITE-08 (história) e artigos/cinema continuam na Etapa 4; SITE-02/04/05/06/07/09 são Etapa 4B separada. Não antecipar Etapa 5 nem publicar automaticamente.
+
+
 ## ESTADO ATUAL PARA NOVO CHAT — Etapa 3 homologada (20/11/2026)
 - **Etapa 3 de desempenho e rankings: concluída tecnicamente nesta branch e homologada visualmente pelo proprietário.** GitHub Actions run **#44668666640** no commit de código `29704a1403cd483fb6fee54b97f765e5bcd21a30`: conclusão **success** em check/tipos, build, testes API e navegador desktop/mobile. URL: https://github.com/jeffersonfukner-hue/oldarcade/actions/runs/44668666640 . Este registro documental é posterior ao commit testado; conferir o CI do novo HEAD documental antes de qualquer integração.
 - **Interface homologada:** convite de fim de partida centralizado SOBRE o jogo, fundo escurecido, destaque para "Salvar meu recorde · Criar conta", ações "Já tenho conta", "Ver os líderes" e "Agora não"; usa autenticação global em modal, permanece na URL e pode ser fechado. Padrão compartilhado para os sete modos: Snake Clássico, Aventura, Evolution; Tetris Clássico, Sprint, Sobrevivência; Pixel Quest. Não voltar ao toast no canto nem redirecionar para /conta/.
