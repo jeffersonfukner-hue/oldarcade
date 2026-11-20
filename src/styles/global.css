@@ -1001,3 +1001,33 @@ body.oa-auth-open{overflow:hidden}
 .oa-breadcrumbs a:hover{text-decoration:underline;color:#b9a5ff}
 .oa-breadcrumbs [aria-current='page']{color:#eeeaff;font-weight:650;overflow-wrap:anywhere}
 @media(max-width:580px){.oa-breadcrumbs{padding-top:9px;font-size:.72rem}.oa-breadcrumbs li+li::before{margin-inline:6px}}
+
+/* Etapa 3: um card externo por título, com linhas compactas por modalidade.
+   Os atributos data-account-* continuam ligados às APIs existentes. */
+.account-game-list{display:grid;grid-template-columns:minmax(0,1fr);gap:15px}
+.account-game-card{min-width:0;padding:18px 20px;border:1px solid var(--oa-border);border-radius:var(--oa-radius);background:linear-gradient(155deg,var(--oa-surface-raised),var(--oa-surface) 70%);box-shadow:var(--oa-shadow)}
+.account-game-card .account-game-heading{margin:0 0 5px;padding:0 0 12px;border-bottom:1px solid #34415e}
+.account-mode-list{display:grid;gap:0}
+.account-mode-item{display:grid;gap:8px;min-width:0;padding:14px 0}
+.account-mode-item+.account-mode-item{border-top:1px solid #34415e}
+.account-mode-main{display:grid;grid-template-columns:minmax(125px,1fr) minmax(210px,1.4fr) minmax(135px,.8fr);gap:12px;align-items:center;min-width:0}
+.account-mode-main .account-record-heading{min-width:0}
+.account-mode-main .account-record-metrics{padding:0;border:0;gap:10px}
+.account-mode-main .account-record-play{width:100%;margin:0;min-width:0;min-height:42px}
+.account-mode-item .account-record-status{min-height:0}
+.account-mode-item .account-missions{border-top:0;padding:0}
+.account-mode-empty{padding:14px 0 2px}
+.account-mode-empty p{margin:0 0 14px;line-height:1.5}
+@media(max-width:780px){
+ .account-mode-main{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+ .account-mode-main .account-record-heading{grid-column:1 / -1}
+ .account-mode-main .account-record-metrics{grid-column:1;grid-row:2}
+ .account-mode-main .account-record-play{grid-column:2;grid-row:2}
+}
+@media(max-width:520px){
+ .account-game-card{padding:14px}
+ .account-mode-main{grid-template-columns:minmax(0,1fr)}
+ .account-mode-main .account-record-heading,.account-mode-main .account-record-metrics,.account-mode-main .account-record-play{grid-column:1;grid-row:auto}
+ .account-mode-main .account-record-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .account-mode-main .account-record-play{justify-self:start;width:auto}
+}

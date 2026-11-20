@@ -1,5 +1,14 @@
 # OldArcade — padrões globais obrigatórios de jogos e modos
 
+## Contrato técnico vigente — Etapa 3 (19/11/2026)
+
+- Área `Minha conta → Meu desempenho`: **um card por jogo**, com os modos listados dentro. Cada modalidade mantém suas próprias métricas, escalas, ranking e atributos `data-account-record`, `data-account-best`, `data-account-rank`, `data-account-challenge`, `data-account-missions`, `data-account-play`. Pixel Quest não tem ranking global e não pode fingir recordes de conta.
+- Classificação competitiva exige sessão de **conta autenticada no servidor**. Visitantes podem jogar e conservar marca privada; **nunca apresentar ranking por nickname solto em armazenamento local**. Dados legados de Snake permanecem intactos no navegador, mas o ranking antigo deixa de ser alimentado/exibido.
+- `isLowerBetter` para direção: menor tempo somente em Sprint; **maior tempo em Sobrevivência**; demais jogos maior pontuação. O POST deve usar `improvementOperator`, não `isTimeRanking`, para decidir substituição.
+- **Atenção:** sessão validada não significa partida validada; API responde `verified:false` e não prova legitimidade de pontuação. Não afirmar antifraude. Testes da etapa devem abranger autenticação, formatos de valores e mobile.
+- Manter a ordem original das 5 etapas e status atualizado no início de `docs/CONTINUIDADE.md`, preservando backlog de refinamentos do usuário. CI e validação visual antecedem a Etapa 4.
+
+
 ## Padrão compartilhado — breadcrumbs e estatísticas por jogo (decisão 19/11/2026)
 - **Etapa 2B:** trilhas de navegação renderizadas uma única vez no `src/layouts/Base.astro` por `GameBreadcrumbs.astro`, derivadas de `src/data/breadcrumbs.ts`/catálogo `gameModes.js`. Exibir `Início › Jogos › Tetris › Sprint` e `Início › Jogos › Snake › Aventura`; “Jogos” usa `/#destaques`, link real da home, pois não existe ainda uma página autônoma `/jogos/`. Os jogos base encerram a trilha em Snake/Tetris/Pixel Quest sem repetir o URL do modo Clássico. Em `/conta/`, `/rankings/`, `/sobre/`, `/contato/` e `/privacidade/`: `Início › página`. Home sem trilha. Atual sempre `aria-current="page"` e não clicável. Apenas configurar `BreadcrumbList` quando `Astro.site` tiver URL real, não em `example.invalid`. Respeitar 980px e a usabilidade de toque.
 - **Etapa 3 futura:** na página de estatística/perfil, **um card por jogo com modalidades internas**. Não multiplicar card externo por modo, mas conservar métricas e classificações específicas, identificadores/atributos dos elementos dinâmicos, leitura no celular e privacidade/autenticação. Ver `docs/PLANO_PADRONIZACAO.md`.

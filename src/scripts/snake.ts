@@ -51,9 +51,10 @@ function drawAccountResults(){
  const signed=Boolean(account);
  const local=document.querySelector<HTMLElement>('#local-results')!;
  const cloud=document.querySelector<HTMLElement>('#account-results')!;
- local.hidden=signed;cloud.hidden=!signed;
- text('results-heading',signed?'Meus recordes por jogo':'Ranking local');
- text('results-scope',signed?'Minha conta':'Neste navegador');
+ const guest=document.querySelector<HTMLElement>('#guest-results')!;
+ local.hidden=true;cloud.hidden=!signed;guest.hidden=signed;
+ text('results-heading',signed?'Meus recordes por jogo':'Meu desempenho');
+ text('results-scope',signed?'Minha conta':'Conta necessária para ranking');
  if(!signed)return;
  const scores=new Map(accountGameRecords.map(item=>[item.game,item.score]));
  cloud.querySelectorAll<HTMLElement>('[data-player-game]').forEach(row=>{
@@ -318,20 +319,7 @@ function refresh(){
  text('hud-global-best',shownGlobal===null?'—':String(shownGlobal));
  text('global-best',shownGlobal===null?'—':String(shownGlobal));
  text('hud-global-label',provisionalGlobal?'Recorde global (provisório):':'Recorde global:');
- text('global-best-label',provisionalGlobal?'Recorde global (provisório)':'Recorde global (contas)');text('score',String(score));text('best',best===null?'—':String(best));text('hud-score',String(score));text('hud-best',best===null?'—':String(best));text('plays',String(saved.plays));text('visits',String(saved.visits));const body=document.getElementById('rank-body')!;body.replaceChildren();if(!saved.scores.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=3;td.textContent='Salve um nickname e jogue uma partida para aparecer no ranking.';tr.append(td);body.append(tr)}else saved.scores.slice(0,10).forEach((entry,i)=>{const tr=document.createElement('tr');[String(i+1),entry.name,String(entry.score)].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td)});body.append(tr)})}
-function draw(){ctx.fillStyle='#071a20';ctx.fillRect(0,0,600,600);ctx.strokeStyle='#122c32';ctx.lineWidth=1;for(let n=0;n<=size;n++){ctx.beginPath();ctx.moveTo(n*cell,0);ctx.lineTo(n*cell,600);ctx.moveTo(0,n*cell);ctx.lineTo(600,n*cell);ctx.stroke()}if(evolutionPreview){for(const item of items){const colors={normal:'#ff657c',rare:'#ffdc51',shrink:'#a17bff',slow:'#71d8ff',blaster:'#ff9c3d',scare:'#60e4cf'};ctx.fillStyle=colors[item.kind];ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*(item.kind==='rare'?.4:.33),0,Math.PI*2);ctx.fill();if(item.expires){ctx.strokeStyle='#fff9';ctx.lineWidth=3;ctx.beginPath();ctx.arc(item.point.x*cell+cell/2,item.point.y*cell+cell/2,cell*.44,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(0,(item.expires-evolutionClock)/(item.kind==='rare'?38:45)));ctx.stroke()}}for(const block of obstacles){const hits=obstacleHits.get(block.x+','+block.y)??0;ctx.fillStyle='#8392a5';ctx.fillRect(block.x*cell+3,block.y*cell+3,cell-6,cell-6);if(hits){ctx.strokeStyle='#20242e';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(block.x*cell+cell*.25,block.y*cell+4);ctx.lineTo(block.x*cell+cell*.5,block.y*cell+cell*.55);ctx.lineTo(block.x*cell+cell*.72,block.y*cell+cell-4);ctx.stroke()}}for(const wall of borderWalls){if(wall.restoreAt)continue;ctx.fillStyle='#cf79ee';const x=wall.side==='left'?0:wall.side==='right'?size-1:wall.index;const y=wall.side==='top'?0:wall.side==='bottom'?size-1:wall.index;const thickness=cell*.22;if(wall.side==='top')ctx.fillRect(x*cell,y*cell,cell,thickness);else if(wall.side==='bottom')ctx.fillRect(x*cell,(y+1)*cell-thickness,cell,thickness);else if(wall.side==='left')ctx.fillRect(x*cell,y*cell,thickness,cell);else ctx.fillRect((x+1)*cell-thickness,y*cell,thickness,cell)}for(const enemy of enemies){
- const cx=enemy.point.x*cell+cell/2,cy=enemy.point.y*cell+cell/2;
- ctx.fillStyle=evolutionClock<scareUntil?'#6988ff':enemy.kind==='hunter'?'#fa668b':enemy.kind==='ambusher'?'#f6b66e':'#c69cf9';
- ctx.beginPath();ctx.arc(cx,cy-2,cell*.34,Math.PI,0);ctx.lineTo(cx+cell*.34,cy+cell*.3);ctx.lineTo(cx-cell*.34,cy+cell*.3);ctx.closePath();ctx.fill();
- ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx-5,cy-3,3,0,Math.PI*2);ctx.arc(cx+5,cy-3,3,0,Math.PI*2);ctx.fill();
- ctx.fillStyle='#172633';ctx.beginPath();ctx.arc(cx-5,cy-3,1.4,0,Math.PI*2);ctx.arc(cx+5,cy-3,1.4,0,Math.PI*2);ctx.fill();
- }
- if(projectiles.length){ctx.fillStyle='#f7f2d2';for(const shot of projectiles){const p=shot.point;ctx.beginPath();ctx.arc(p.x*cell+cell/2,p.y*cell+cell/2,cell*.16,0,Math.PI*2);ctx.fill()}}}else{
- ctx.fillStyle='#ff657c';ctx.beginPath();ctx.arc(food.x*cell+cell/2,food.y*cell+cell/2,cell*.35,0,Math.PI*2);ctx.fill();
- if(dailyHazardActive()){
-  for(const block of obstacles){ctx.fillStyle='#8598ad';ctx.fillRect(block.x*cell+4,block.y*cell+4,cell-8,cell-8);ctx.strokeStyle='#ffba82';ctx.lineWidth=2;ctx.strokeRect(block.x*cell+5,block.y*cell+5,cell-10,cell-10)}
-  for(const enemy of enemies){const cx=enemy.point.x*cell+cell/2,cy=enemy.point.y*cell+cell/2;ctx.fillStyle='#f45d83';ctx.beginPath();ctx.arc(cx,cy,cell*.33,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(cx-7,cy-4,4,4);ctx.fillRect(cx+3,cy-4,4,4)}
- }
+ text('global-best-label',provisionalGlobal?'Recorde global (provisório)':'Recorde global (contas)');text('score',String(score));text('best',best===null?'—':String(best));text('hud-score',String(score));text('hud-best',best===null?'—':String(best));text('plays',String(saved.plays));text('visits',String(saved.visits));const body=document.getElementById('rank-body');body?.replaceChildren();
 }snake.forEach((piece,i)=>{ctx.fillStyle=i===0?'#a0ffd0':'#46dca2';ctx.fillRect(piece.x*cell+2,piece.y*cell+2,cell-4,cell-4)});}
 function floatPoints(at:Point,amount:number){
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
@@ -427,10 +415,8 @@ function end(won:boolean){
  }));
  state='over';setStatus(won?'Vitória':'Fim de jogo');window.clearTimeout(timer);
  if(!dailyAttempt&&score>saved.best)saved.best=score;
- if(!dailyAttempt&&saved.nickname.trim()){
-  saved.scores.push({name:saved.nickname.trim(),score,at:Date.now()});
-  saved.scores.sort((a,b)=>b.score-a.score||a.at-b.at);saved.scores=saved.scores.slice(0,20);
- }
+ // Histórico local legado permanece armazenado, mas não recebe novos resultados anônimos.
+
  if(!dailyAttempt)store();refresh();
  if(dailyAttempt?.practice){
   const attempt=dailyAttempt;

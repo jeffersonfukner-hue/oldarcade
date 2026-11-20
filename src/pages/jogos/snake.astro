@@ -77,8 +77,8 @@ import GameGuide from '../../components/GameGuide.astro';
     <GamePageSections>
      <Fragment slot="rankings">
       <SnakeGlobalRanking title="Ranking global do Snake" />
-      <section class="section panel" aria-labelledby="results-heading"><div class="section-head"><div><span class="eyebrow">Seus resultados</span><h2 id="results-heading">Ranking local</h2></div><span class="pill" id="results-scope">Neste navegador</span></div>
-      <div id="local-results"><table class="ranking"><thead><tr><th>#</th><th>Jogador</th><th>Pontos</th></tr></thead><tbody id="rank-body"><tr><td colspan="3">Salve um nickname e jogue uma partida para aparecer no ranking.</td></tr></tbody></table></div>
+      <section class="section panel" aria-labelledby="results-heading"><div class="section-head"><div><span class="eyebrow">Seus resultados</span><h2 id="results-heading">Meu desempenho</h2></div><span class="pill" id="results-scope">Conta do jogador</span></div>
+      <div id="local-results" class="oa-metric-bridge" hidden aria-hidden="true"><table><tbody id="rank-body"></tbody></table></div><div id="guest-results"><p class="small muted">Você pode jogar sem cadastro; seu melhor resultado privado permanece no navegador. Para participar de rankings e registrar recordes da conta, entre ou crie uma conta.</p><a class="btn secondary" href="/conta/">Entrar ou criar conta →</a></div>
       <div id="account-results" hidden>
         <p class="small muted">Seus melhores resultados registrados na conta. Escolha um jogo para tentar superar seu próprio recorde.</p>
         <table class="ranking account-game-records"><thead><tr><th>Jogo</th><th>Seu recorde</th><th>Próximo desafio</th></tr></thead>

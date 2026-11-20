@@ -1,6 +1,6 @@
 import {currentPlayer,reply,sameOrigin,parseBody} from '../../_lib/auth.js';
 import {competitiveGame,validGameScore} from '../../../../src/data/gameModes.js';
-import {isTimeRanking,isLowerBetter} from '../../../../src/data/rankingRules.js';
+import {isTimeRanking,isLowerBetter,improvementOperator} from '../../../../src/data/rankingRules.js';
 export {validGameScore} from '../../../../src/data/gameModes.js';
 async function scoreColumn(db){
  const schema=await db.prepare("PRAGMA table_info('player_game_records')").all();
@@ -59,7 +59,7 @@ export async function onRequestPost(ctx){
  if(column!=='best_score_milli'&&data.score%1!==0)return reply({available:false,saved:false,code:'DECIMAL_MIGRATION_PENDING',error:'Pontuações decimais aguardam migração do banco Preview.'},503);
  const units=column==='best_score_milli'?Math.round(data.score*1000):data.score;
  const now=Date.now();
- const comparison=isTimeRanking(game)?'<':'>';
+ const comparison=improvementOperator(game);
  try{
   const result=await db.prepare(
    `INSERT INTO player_game_records(game,player_id,${column},achieved_at_ms,duration_ms) VALUES (?,?,?,?,?) ON CONFLICT(game,player_id) DO UPDATE SET ${column}=excluded.${column},achieved_at_ms=excluded.achieved_at_ms,duration_ms=excluded.duration_ms WHERE excluded.${column}${comparison}player_game_records.${column} OR (excluded.${column}=player_game_records.${column} AND (player_game_records.duration_ms IS NULL OR excluded.duration_ms<player_game_records.duration_ms))`

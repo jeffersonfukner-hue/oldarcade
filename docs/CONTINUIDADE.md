@@ -4,6 +4,17 @@
 
 # OldArcade — continuidade obrigatória
 
+## ESTADO VIGENTE — Etapa 3: auditoria e implementação inicial (19/11/2026)
+
+- **Etapas 1, 2 e 2B aprovadas visualmente pelo proprietário.** CI #1048 do commit `eb4512a` concluído com sucesso. Repositório `jeffersonfukner-hue/oldarcade`, PR #4 draft, branch `feat/layout-unificado-snake-quest`, sem merge.
+- **Escopo executado no código da Etapa 3:** componente `AccountGameStats.astro` agrupa **um card por jogo** e linhas internas por modalidade, sem soma fictícia; preserva `data-account-record` e hooks de metas/recordes/posição. Inclui Pixel Quest como jogo sem ranking global, sem inventar resultados de conta.
+- **Autenticação validada por inspeção de `functions/api/games/[game]/leaderboard.js`:** POST exige `currentPlayer`; anônimos recebem 401. Snake Clássico/Evolution param de exibir ranking local por nickname e de gravar novas entradas `saved.scores` de usuários sem conta, **mantendo histórico local antigo**. A marca privada do navegador permanece. Nenhum SQL ou modificação de banco executada.
+- **Correção de ranking Sobrevivência:** API usava `isTimeRanking` para melhorar recorde como menor tempo, mas Sobrevivência exige **maior tempo**. `improvementOperator` agora usa `isLowerBetter` e ganhou testes de regressão; Sprint segue menor tempo. Não alterar D1.
+- **Limitação existente, NÃO resolvida:** o endpoint recebe pontuação fornecida pelo cliente e sinaliza `verified:false`; login obrigatório não é mecanismo antifraude. Manter anotação para auditoria posterior sem alegar proteção completa.
+- **Próxima ação:** conferir CI do novo commit, corrigir falhas na mesma branch, homologar cards por jogo e exclusão da classificação local; depois revisar Top 3, Top 10 e redundâncias dos rankings públicos para encerrar a Etapa 3. Etapa 4 e 5 e RF-JOGOS-01 / RF-SNAKE-02 / RF-VISUAL-03 / RF-QUEST-04 / BUG-QUEST-05 / RF-MODOS-06/07 / RF-QUEST-08 / BUG-UX-09 permanecem pendentes e documentadas abaixo.
+- **Ordem de prioridade documental:** este bloco é o estado atual; entradas mais antigas registram histórico da época, não cancelam aprovações recentes.
+
+
 ## ESTADO ATUAL — Etapa 2 homologada; 2B breadcrumbs e estatísticas por jogo (19/11/2026)
 - **Proprietário homologou visualmente a Etapa 2.** Seguir a Etapa 2B de breadcrumbs sem esperar nova aprovação da Etapa 2. Etapa 1 (980px) também homologada.
 - **2B implementada no código desta PR:** `src/data/breadcrumbs.ts` determina trilhas das páginas pela URL real em `gameModes.js`; `src/components/GameBreadcrumbs.astro` compartilha HTML acessível entre jogos e páginas institucionais; `src/layouts/Base.astro` centraliza a renderização no início do `main` e dados estruturados `BreadcrumbList` apenas com `SITE_URL` válido. CSS global preserva 980px e adapta 320/390px. Nenhuma alteração de lógica, recordes, APIs ou banco. Ver CI do HEAD antes de declarar validação técnica.
