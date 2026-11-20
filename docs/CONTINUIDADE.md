@@ -5,10 +5,10 @@
 # OldArcade — continuidade obrigatória
 
 ## ESTADO ATUAL PARA NOVO CHAT — Etapa 4 / SITE-08 (20/11/2026)
-- **SITE-08 implementada nesta branch, aguardando CI atualizado e homologação visual:** na home, a chamada editorial agora se chama **História do OldArcade** e leva diretamente à âncora `/sobre/#historia-oldarcade`. Na página Sobre, uma seção específica esclarece a origem do projeto (Snake, Tetris, Pixel Quest), distingue o projeto da história de todos os arcades e encaminha para o diário de bordo e o catálogo de jogos.
+- **SITE-08 CONCLUÍDA E HOMOLOGADA VISUALMENTE PELO PROPRIETÁRIO EM 20/11/2026; CI #44764104075 APROVADO (success) no commit de código `51e0e06f`:** na home, a chamada editorial agora se chama **História do OldArcade** e leva diretamente à âncora `/sobre/#historia-oldarcade`. Na página Sobre, uma seção específica esclarece a origem do projeto (Snake, Tetris, Pixel Quest), distingue o projeto da história de todos os arcades e encaminha para o diário de bordo e o catálogo de jogos.
 - **Sem reescrever o passado:** marcos e versões da SITE-03, que já foi homologada, permanecem intocados; textos legais e conta homologados na SITE-01 também foram preservados. Histórias dos jogos e filmes seguem como frente editorial distinta, sem reivindicação de marcas de terceiros ou de lançamentos em produção.
-- **Teste SITE-08:** `tests/site-identity.spec.ts` confere rotulagem, link/âncora, três jogos, distinção editorial, diário de bordo e navegação 320px. Seguir CI e homologar somente após evidência técnica e visual.
-- PR #4 continua draft, sem merge/deploy, sem mudanças em D1, mecânicas de jogos, ranking, autenticação ou infraestrutura. Próxima frente após aceite da SITE-08: revisão factual dos artigos históricos e referências culturais dentro da Etapa 4; a Etapa 4B e Etapa 5 continuam separadas.
+- **Teste SITE-08:** `tests/site-identity.spec.ts` confere rotulagem, link/âncora, três jogos, distinção editorial, diário de bordo e navegação 320px. CI #44764104075 concluído com sucesso, incluindo os testes de navegador; homologação visual confirmada pelo proprietário. Não reabrir decisões homologadas sem nova solicitação.
+- PR #4 continua draft, sem merge/deploy, sem mudanças em D1, mecânicas de jogos, ranking, autenticação ou infraestrutura. **Próxima prioridade da Etapa 4:** auditoria factual e editorial dos artigos históricos de Snake, Tetris e Pixel Quest, suas fontes e referências culturais (livros/filmes), sem inventar disponibilidade de streaming ou programas de afiliados; a Etapa 4B e Etapa 5 continuam separadas.
 
 
 ## ESTADO ATUAL PARA NOVO CHAT — Etapa 4 / SITE-03 (20/11/2026)
