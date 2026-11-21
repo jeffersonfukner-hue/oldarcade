@@ -1,0 +1,24 @@
+---
+/** Ilustrações editoriais originais de Tetris, previamente homologadas. */
+type ArtId='how-to-play'|'controls'|'strategy'|'sprint'|'survival'|'tetris-film-history';
+interface Props{art:ArtId}
+const {art}=Astro.props;
+const labels:Record<ArtId,{alt:string;caption:string}>={
+ 'how-to-play':{alt:'Ilustração pixel art de peças caindo e linhas preenchidas no Tetris',caption:'Como jogar Tetris · ilustração original'},
+ controls:{alt:'Ilustração pixel art de movimentos, rotação e reserva de peças no Tetris',caption:'Controles de Tetris · ilustração original'},
+ strategy:{alt:'Ilustração pixel art sobre planejamento dos encaixes e eliminação de quatro linhas',caption:'Estratégia de Tetris · ilustração original'},
+ sprint:{alt:'Ilustração pixel art de uma partida rápida de Tetris com cronômetro',caption:'Modo Sprint · ilustração original'},
+ survival:{alt:'Ilustração pixel art de um tabuleiro de Tetris sob pressão crescente do tempo',caption:'Modo Sobrevivência · ilustração original'},
+ 'tetris-film-history':{alt:'Ilustração pixel art original sobre as negociações internacionais relacionadas à história do Tetris',caption:'Contexto histórico do filme Tetris (2023) · ilustração editorial original, não é pôster ou cena do filme'}
+};
+const item=labels[art];
+---
+<figure class="tetris-editorial-art">
+ <img src={`/images/editorial/tetris/${art}.png`} alt={item.alt} loading="lazy" decoding="async" width="1672" height="941" />
+ <figcaption>{item.caption}</figcaption>
+</figure>
+<style>
+ .tetris-editorial-art{margin:1rem 0 1.35rem;max-width:760px}
+ .tetris-editorial-art img{display:block;width:100%;height:auto;max-height:420px;object-fit:contain;border-radius:12px;border:1px solid #ffffff24;background:#101222}
+ .tetris-editorial-art figcaption{font-size:.79rem;color:var(--muted,#aab0c7);padding-top:.42rem}
+</style>
