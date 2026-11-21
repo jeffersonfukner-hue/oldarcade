@@ -1,3 +1,9 @@
+## 20/11/2026 — Aceite provisório da nova proposta de capa Pixel Quest
+- **Horário inicial/final e duração efetiva (Brasília):** não aferidos; nenhuma hora presumida.
+- **Atividade:** registro da decisão expressa do proprietário de aprovar provisoriamente a imagem de capa mais recente.
+- **Resultado:** versão mais recente marcada como provisoriamente aprovada; versão anterior preservada; demais artes ainda não homologadas.
+- **Evidência:** manifestação “aprovada por hora” nesta conversa e commit documental; sem alterações em código, merge ou deploy.
+
 ## 20/11/2026 — Correção expressa do status de aprovação Pixel Quest
 - **Início/término (Brasília) e duração:** não aferidos; não imputar horas.
 - **Atividade:** conferir e corrigir registros de aceite de artes após manifestação expressa do proprietário.
