@@ -1,3 +1,9 @@
+## Primeira capa proposta para revisão (20/11/2026)
+- Ilustração individual premium do Pixel Quest gerada e apresentada nesta conversa, representando personagem amarelo, cristais ciano, inimigos rosa, plataformas com grama, checkpoint e portal bloqueado.
+- **Estado: proposta visual, ainda NÃO homologada nem enviada ao GitHub.** Conservar a arte gerada sem aplicar, recortar ou substituir antes do aceite.
+- O novo fundo de floresta é interpretação artística editorial, não screenshot nem novo cenário implementado.
+- Correções de testes após CI Tetris falho estão na mesma branch, aguardando nova confirmação.
+
 # Pixel Quest — inventário de imagens e aprovação
 
 ## Estado vigente (20/11/2026)
