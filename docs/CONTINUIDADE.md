@@ -1,3 +1,8 @@
+## ESTADO ATUAL — Snake homologado visualmente; início do lote Tetris (20/11/2026)
+- **Homologação visual EXPRESSA do Snake:** proprietário informou "homologado. pode ir pro tetris" após conferir a versão no Cloudflare Pages. O aceite cobre a integração visual das 15 imagens do Snake. Não confundir com certificação de SHA-256 byte a byte ou CI do HEAD, que continuam sem evidência suficiente; não desfazer homologação.
+- **Próxima fase autorizada:** Tetris (#002), no padrão pixel art premium já homologado; inventário a partir de `TetrisGame.astro`, `TetrisHistory.astro`, `historicalTimeline.ts` e `historicalScreenings.ts`. Criar e apresentar arquivos individuais para aprovação antes de transferir/aplicar ao site. Três modos reais: Clássico, Sprint 40 linhas, Sobrevivência (aceleração a cada 30 segundos). Seis marcos históricos existentes: Electronika 60 (1984), microcomputadores (anos 1980), Game Boy (1989), The Tetris Company (1996), MoMA (2012), interpretações atuais; referência cultural ao filme Tetris (2023).
+- **Restrições:** não tocar no Pixel Quest, não fazer merge/deploy, nem afirmar testes que não rodaram.
+
 ## ATUALIZAÇÃO PRIORITÁRIA — lote Snake completo integrado (20/11/2026)
 
 - **15 de 15 PNGs presentes no GitHub** na branch do PR #4, todos com SHA Git de blob recuperado (12 originais mais `adventure-missions.png`, `evolution-powers.png`, `nibbler-documentary.png`). O texto histórico abaixo que diz que não houve upload refere-se a uma fase anterior.
