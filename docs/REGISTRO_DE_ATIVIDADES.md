@@ -1,3 +1,10 @@
+## 20/11/2026 — Limpeza de pacote Pixel Quest
+- **Horários início/término e duração efetiva (Brasília):** não aferidos; sem estimativa.
+- **Atividades:** inspecionar o pacote anterior, excluir arte pendente e duplicações do pacote final, montar um único ZIP com dois PNGs selecionados e manifesto; conferir hash de cada PNG reextraído.
+- **Resultados:** `oldarcade-pixel-quest-somente-aprovadas.zip`, SHA-256 `31f0ba278f4e484bf03daf20da99dee33d18ac470a382053fd96bbbec594aab1`.
+- **Pendências:** transferência manual e integração ao site somente após verificação da branch. Sem merge/deploy.
+- **Evidência:** manifesto com SHA-256 no ZIP; decisão expressa do proprietário nesta conversa.
+
 ## 20/11/2026 — Aprovação definitiva da nova capa Pixel Quest
 - **Início/término e duração comprovada:** não aferidos; não atribuir horas não medidas.
 - **Atividade executada:** registrar substituição expressa da capa anterior pela capa nova, conferir ausência do caminho final na branch GitHub, preservar bytes da imagem final e criar ZIP de upload manual com SHA-256.
