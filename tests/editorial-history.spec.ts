@@ -147,3 +147,27 @@ test('Tetris: as 13 artes homologadas carregam no contexto correto em desktop e 
   }
  }
 });
+
+test('Pixel Quest: quatro artes aprovadas carregam na home e no guia em desktop e celular',async({page})=>{
+ for(const width of [1280,320]){
+  await page.setViewportSize({width,height:740});
+  await page.goto('/');
+  const cover=page.locator('[data-home-game="pixel-quest"] img[src="/images/games/pixel-quest.webp"]');
+  await expect(cover).toHaveCount(1);
+  await expect(cover).toHaveAttribute('alt',/.+/);
+  await cover.scrollIntoViewIfNeeded();
+  await expect.poll(()=>cover.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+
+  await page.goto('/jogos/pixel-quest/');
+  const guide=page.locator('.oa-game-guide');
+  for(const art of ['how-to-play','checkpoint','progression']){
+   const figure=guide.locator(`.pixel-quest-editorial-art img[src="/images/editorial/pixel-quest/${art}.webp"]`);
+   await expect(figure).toHaveCount(1);
+   await expect(figure).toHaveAttribute('alt',/.+/);
+   await figure.scrollIntoViewIfNeeded();
+   await expect.poll(()=>figure.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+   await expect(figure.locator('..').locator('figcaption')).not.toBeEmpty();
+  }
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ }
+});
