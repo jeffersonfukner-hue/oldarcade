@@ -21,3 +21,11 @@
 - **Pendências/bloqueio:** upload dos arquivos binários para GitHub inacessível com ferramentas atuais; **não houve commit de PNG nem alteração visual do site**. Pendente verificar hash de cada PNG no GitHub após transferência e definir se serão criadas artes adicionais para Aventura, Evolution e Nibbler. Sem merge/deploy.
 - **Evidências:** [Manifesto e inventário](ASSETS_SNAKE_APROVADOS.md); [PR #4](https://github.com/jeffersonfukner-hue/oldarcade/pull/4); arquivo ZIP entregue na conversa.
 
+
+## 20/11/2026 — Integração editorial Snake (projeto: OldArcade)
+- **Início / término (Brasília):** não aferidos de modo verificável nesta execução.
+- **Duração efetiva comprovada:** não aferida; **estimada:** não calculada; períodos sem registro não contabilizados.
+- **Atividades executadas:** leitura de CONTINUIDADE, inventário de assets, páginas e componentes; conferência da presença dos 15 PNGs via GitHub; criação de componente reutilizável de imagem editorial; vinculação das artes aos textos do Snake; adição de regressões desktop/mobile e carregamento lazy.
+- **Resultados:** branch `feat/layout-unificado-snake-quest`, PR #4; integração feita apenas no código dessa branch; sem merge/deploy.
+- **Pendências:** comprovar SHA-256 dos 15 PNGs pelos bytes remotos ou ZIP original; conferir CI do commit final e homologar no Preview. Não declarar testes aprovados sem evidências.
+- **Evidências:** [PR #4](https://github.com/jeffersonfukner-hue/oldarcade/pull/4), commits da integração visíveis no histórico da branch.
