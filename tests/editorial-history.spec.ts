@@ -90,16 +90,19 @@ test('Snake: 15 artes homologadas estão vinculadas aos textos corretos e carreg
     const img=page.locator(selector);
     await expect(img).toHaveCount(1);
     await expect(img).toHaveAttribute('alt',/.+/);
+    await img.scrollIntoViewIfNeeded();
     await expect.poll(()=>img.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
    }
    if(target.path!=='/'){
     const history=page.locator('.oa-game-history .oa-illustrated-timeline img.oa-era-art');
     await expect(history).toHaveCount(6);
     for(const image of await history.all()){
+     await image.scrollIntoViewIfNeeded();
      await expect.poll(()=>image.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
     }
     const film=page.locator('.historical-film img[src="/images/editorial/snake/nibbler-documentary.png"]');
     await expect(film).toHaveCount(1);
+    await film.scrollIntoViewIfNeeded();
     await expect.poll(()=>film.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
    }
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
