@@ -17,6 +17,7 @@ import GameDevelopmentHistory from '../../../components/GameDevelopmentHistory.a
 import SnakePerformance from '../../../components/SnakePerformance.astro';
 import SnakeGlobalRanking from '../../../components/SnakeGlobalRanking.astro';
 import GameGuide from '../../../components/GameGuide.astro';
+import SnakeEditorialArt from '../../../components/SnakeEditorialArt.astro';
 ---
 <GamePage modeId="snake-evolution" title={title} description={description} structured={structured}>
   <div class="shell oa-game-page">
@@ -82,7 +83,7 @@ import GameGuide from '../../../components/GameGuide.astro';
       </div></section>
      </Fragment>
      <GameShare slot="share" gameSlug="snake" gameName="Snake Evolution" gamePath="/jogos/snake/evolution/" />
-     <GameGuide slot="guide"><span class="eyebrow">Guia rápido</span><h2>Como jogar Snake</h2><p>Seu objetivo é conduzir a cobrinha até as frutas que aparecem no tabuleiro. Cada fruta aumenta sua pontuação e faz a cobrinha crescer. Quanto maior ela fica, mais difícil é encontrar um caminho livre.</p><h3>Controles</h3><p>No computador, use as <strong>setas do teclado</strong> ou <strong>W, A, S e D</strong>. No celular, deslize o dedo no tabuleiro para cima, baixo, esquerda ou direita, ou utilize os quatro botões direcionais. Pressione <strong>Espaço</strong> para pausar ou continuar e <strong>F</strong> para entrar ou sair da tela cheia sem tirar as mãos do teclado. Também há um botão para tela cheia; Esc sai da tela cheia nativa. Se uma partida estiver acontecendo, a transição pausa o jogo e retoma depois de uma contagem regressiva de 3, 2, 1.</p><h3>Regras desta versão</h3><p>Você perde ao bater nas bordas ou no próprio corpo. Cada fruta vale 10 pontos. Não é possível inverter a direção imediatamente. A velocidade aumenta conforme você marca pontos. Ao trocar de aba, a partida pausa automaticamente. Seu melhor resultado fica salvo neste navegador.</p></GameGuide>
+     <GameGuide slot="guide"><span class="eyebrow">Guia rápido</span><h2>Como jogar Snake</h2><SnakeEditorialArt art="evolution" /><SnakeEditorialArt art="evolution-powers" /><p>Seu objetivo é conduzir a cobrinha até as frutas que aparecem no tabuleiro. Cada fruta aumenta sua pontuação e faz a cobrinha crescer. Quanto maior ela fica, mais difícil é encontrar um caminho livre.</p><h3>Controles</h3><p>No computador, use as <strong>setas do teclado</strong> ou <strong>W, A, S e D</strong>. No celular, deslize o dedo no tabuleiro para cima, baixo, esquerda ou direita, ou utilize os quatro botões direcionais. Pressione <strong>Espaço</strong> para pausar ou continuar e <strong>F</strong> para entrar ou sair da tela cheia sem tirar as mãos do teclado. Também há um botão para tela cheia; Esc sai da tela cheia nativa. Se uma partida estiver acontecendo, a transição pausa o jogo e retoma depois de uma contagem regressiva de 3, 2, 1.</p><h3>Regras desta versão</h3><p>Você perde ao bater nas bordas ou no próprio corpo. Cada fruta vale 10 pontos. Não é possível inverter a direção imediatamente. A velocidade aumenta conforme você marca pontos. Ao trocar de aba, a partida pausa automaticamente. Seu melhor resultado fica salvo neste navegador.</p></GameGuide>
      <SnakeHistory slot="history" />
      <HistoricalScreenings slot="screenings" game="snake" />
      <GameRelatedGames slot="related" currentGame="snake" />
