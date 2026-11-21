@@ -60,7 +60,7 @@ test('Padrão global: todos os jogos mostram artes editoriais originais, fontes 
   const entries=timeline.locator(':scope > li');
   await expect(entries).toHaveCount(game.slug==='pixel-quest'?4:6);
   await expect(timeline.locator('svg[role="img"],img.oa-era-art')).toHaveCount(game.slug==='pixel-quest'?4:6);
-  await expect(timeline.locator('img.oa-era-art')).toHaveCount(game.slug==='pixel-quest'?4:0);
+  await expect(timeline.locator('img.oa-era-art')).toHaveCount(game.slug==='pixel-quest'?4:game.slug==='snake'?6:0);
   if(game.slug==='pixel-quest'){
    for(const img of await timeline.locator('img.oa-era-art').all()){
     await expect(img).toHaveAttribute('src',/\\.avif$/);
@@ -72,5 +72,37 @@ test('Padrão global: todos os jogos mostram artes editoriais originais, fontes 
   await expect(timeline).toContainText('Ilustração editorial original');
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1);
   expect(overflow).toBe(false);
+ }
+});
+
+test('Snake: 15 artes homologadas estão vinculadas aos textos corretos e carregam no navegador',async({page})=>{
+ const targets=[
+  {path:'/',selectors:['img[src="/images/games/snake-cover.png"]']},
+  {path:'/jogos/snake/',selectors:['img[src="/images/editorial/snake/how-to-play.png"]','img[src="/images/editorial/snake/controls.png"]','img[src="/images/editorial/snake/rules.png"]']},
+  {path:'/jogos/snake/aventura/',selectors:['img[src="/images/editorial/snake/adventure.png"]','img[src="/images/editorial/snake/adventure-missions.png"]']},
+  {path:'/jogos/snake/evolution/',selectors:['img[src="/images/editorial/snake/evolution.png"]','img[src="/images/editorial/snake/evolution-powers.png"]']}
+ ];
+ for(const width of [1280,320]){
+  await page.setViewportSize({width,height:740});
+  for(const target of targets){
+   await page.goto(target.path);
+   for(const selector of target.selectors){
+    const img=page.locator(selector);
+    await expect(img).toHaveCount(1);
+    await expect(img).toHaveAttribute('alt',/.+/);
+    await expect.poll(()=>img.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+   }
+   if(target.path!=='/'){
+    const history=page.locator('.oa-game-history .oa-illustrated-timeline img.oa-era-art');
+    await expect(history).toHaveCount(6);
+    for(const image of await history.all()){
+     await expect.poll(()=>image.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+    }
+    const film=page.locator('.historical-film img[src="/images/editorial/snake/nibbler-documentary.png"]');
+    await expect(film).toHaveCount(1);
+    await expect.poll(()=>film.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+   }
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  }
  }
 });
