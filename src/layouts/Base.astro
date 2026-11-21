@@ -5,7 +5,7 @@ import GlobalAuthModal from '../components/GlobalAuthModal.astro';
 import GameBreadcrumbs from '../components/GameBreadcrumbs.astro';
 import {breadcrumbsForPath} from '../data/breadcrumbs';
 const { title, description, path = '/', type = 'website' } = Astro.props;
-const configured = Astro.site?.hostname !== 'example.invalid';
+const configured = import.meta.env.PUBLIC_INDEXING_ENABLED === 'true' && Astro.site?.hostname !== 'example.invalid';
 const base = new URL(Astro.site ?? 'https://example.invalid');
 const canonical = new URL(path, base).toString();
 
