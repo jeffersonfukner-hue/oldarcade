@@ -1,6 +1,11 @@
-## Primeira capa proposta para revisão (20/11/2026)
+## CORREÇÃO DE HOMOLOGAÇÃO — Pixel Quest (20/11/2026)
+- **SOMENTE a capa do Pixel Quest foi aprovada expressamente pelo proprietário.** A arte do guia `how-to-play` foi apenas apresentada e **NÃO foi aprovada**. A arte de checkpoint/inimigos/pontuação não foi concluída como arquivo individual; os painéis compostos gerados são **rejeitados como arte final e NÃO aprovados**.
+- As quatro imagens históricas AVIF são legado já existente, **sem nova homologação** neste lote.
+- Não enviar, aplicar ou substituir imagens editoriais não aprovadas; nenhuma imagem do Pixel Quest foi integrada nesta etapa. Manter Snake e Tetris homologados.
+
+## Registro histórico da proposta de capa (antes da homologação)
 - Ilustração individual premium do Pixel Quest gerada e apresentada nesta conversa, representando personagem amarelo, cristais ciano, inimigos rosa, plataformas com grama, checkpoint e portal bloqueado.
-- **Estado: proposta visual, ainda NÃO homologada nem enviada ao GitHub.** Conservar a arte gerada sem aplicar, recortar ou substituir antes do aceite.
+- **Estado atualizado pela correção prioritária acima: capa homologada pelo proprietário, mas não enviada ao GitHub.** Conservar a arte gerada sem aplicar, recortar ou substituir antes do aceite.
 - O novo fundo de floresta é interpretação artística editorial, não screenshot nem novo cenário implementado.
 - Correções de testes após CI Tetris falho estão na mesma branch, aguardando nova confirmação.
 
@@ -17,7 +22,7 @@
 ## Inventário de ilustrações a avaliar
 | Grupo | Tema | Caminho planejado | Estado |
 |---|---|---|---|
-| Capa | Fase 1-1 real, personagem do projeto, cristais, plataformas e portal | `public/images/games/pixel-quest-cover.png` | Pendente de aprovação individual |
+| Capa | Fase 1-1 real, personagem do projeto, cristais, plataformas e portal | `public/images/games/pixel-quest-cover.png` | **Aprovada pelo proprietário; upload pendente** |
 | Editorial | Como jogar: avançar, saltar e coletar seis cristais | `public/images/editorial/pixel-quest/how-to-play.png` | Pendente |
 | Editorial | Checkpoint, inimigos patrulheiros, corações e pontuação | `public/images/editorial/pixel-quest/checkpoint-enemies.png` | Pendente |
 | Histórico | Space Panic (1980) | `public/images/history/space-panic-1980.avif` | Arte existente, conferir necessidade de nova aprovação antes de substituição |
