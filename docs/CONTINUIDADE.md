@@ -1,3 +1,10 @@
+## HOMOLOGAÇÃO — Tetris visual aprovado; CI em correção (20/11/2026)
+- Proprietário informou expressamente "homologado" após integração das 13 imagens Tetris e visualização no ambiente de teste Cloudflare Pages. **Homologação visual Tetris confirmada e preservada.** Snake já homologado. Próximo título: Pixel Quest.
+- **CI comprovado:** o workflow de commit `d7413919b7` foi concluído com *failure* na etapa Playwright; falhas: testes legados ainda esperavam capas SVG de Snake/Tetris, carregamento lazy de imagem Pixel Quest não acionado na verificação e localizador ambíguo para "Tetris (2023)" após adição da legenda ilustrativa. Não declarar CI aprovado.
+- Correções aplicadas somente aos testes `tests/home-catalog-daily.spec.ts`, `tests/historical-screenings.spec.ts` e `tests/editorial-history.spec.ts`, na mesma branch, sem alterar arte ou comportamento homologados. Verificar novo CI do commit HEAD e corrigir eventuais problemas reais.
+- **Pixel Quest:** já existem quatro artes AVIF de timeline no GitHub, vinculadas ao código. Elas são **legado existente**, não o novo lote integral. Inventariar capa e textos específicos antes de criar imagens; não duplicar artes úteis já existentes nem reabrir homologações.
+- Nenhum merge ou deploy realizado pela assistência.
+
 ## ESTADO VIGENTE — 13 imagens Tetris integradas na branch (20/11/2026)
 
 - **Transferência confirmada:** os quatro PNGs restantes (`tetris-cover.png`, `sprint.png`, `survival.png`, `tetris-film-history.png`) foram encontrados na branch do PR #4; os respectivos SHA-1 de blobs Git coincidem exatamente com os hashes calculados sobre os PNGs originais dentro do ZIP aprovado. Os 9 arquivos anteriores já estavam confirmados, totalizando 13/13.
