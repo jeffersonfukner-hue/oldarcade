@@ -1,3 +1,0 @@
-User-agent: *
-Disallow: /
-# O deploy público permanece bloqueado até configurar SITE_URL e revisar SEO.
