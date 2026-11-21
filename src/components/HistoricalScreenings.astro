@@ -1,5 +1,6 @@
 ---
 import {historicalScreenings} from '../data/historicalScreenings';
+import SnakeEditorialArt from './SnakeEditorialArt.astro';
 interface Props{game:'tetris'|'snake'|'pixel-quest'}
 const {game}=Astro.props;
 const entry=historicalScreenings[game];
@@ -13,6 +14,7 @@ const formatDate=(iso:string)=>new Date(iso+'T12:00:00').toLocaleDateString('pt-
   {entry.works.map(work=>
    <article class="historical-film">
     <h3>{work.title} ({work.year})</h3>
+    {game==='snake' && work.id==='man-vs-snake' && <SnakeEditorialArt art="nibbler-documentary" />}
     <p class="small muted">{work.type} · {work.relation}</p>
     <p>{work.description}</p>
     <p><strong>Onde assistir na data da consulta:</strong> {work.availability}.</p>
