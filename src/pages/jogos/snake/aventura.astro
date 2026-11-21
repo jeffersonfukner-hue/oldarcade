@@ -14,6 +14,7 @@ const description='Snake Aventura gratuito: uma única partida, níveis progress
 import GameLayout from '../../../components/GameLayout.astro';
 import GameDevelopmentHistory from '../../../components/GameDevelopmentHistory.astro';
 import GameGuide from '../../../components/GameGuide.astro';
+import SnakeEditorialArt from '../../../components/SnakeEditorialArt.astro';
 ---
 <GamePage modeId="snake-adventure" title={title} description={description}>
  <div class="shell oa-game-page">
@@ -76,9 +77,9 @@ import GameGuide from '../../../components/GameGuide.astro';
    <GameRanking slot="rankings" game="snake-adventure" name="Snake Aventura" />
    <GameShare slot="share" gameSlug="snake-adventure" gameName="Snake Aventura" gamePath="/jogos/snake/aventura/" />
    <GameGuide slot="guide">
-   <h2>Como funciona</h2>
+   <h2>Como funciona</h2><SnakeEditorialArt art="adventure" />
    <p>Uma única partida para todos os níveis. Você só avança quando completa a missão e alcança a pontuação mínima. A cobrinha não reinicia ao mudar de nível.</p>
-   <p><strong>Maçã vermelha:</strong> 10 pontos. <strong>Fruta dourada:</strong> 50 pontos, disponível por um período curto. <strong>Cristal de gelo:</strong> 15 pontos e deixa a cobrinha mais lenta temporariamente. <strong>Fruta de velocidade:</strong> 20 pontos e acelera a cobrinha por um período curto, a partir do nível 4. Cada item coletado faz crescer uma célula.</p>
+   <SnakeEditorialArt art="adventure-missions" /><p><strong>Maçã vermelha:</strong> 10 pontos. <strong>Fruta dourada:</strong> 50 pontos, disponível por um período curto. <strong>Cristal de gelo:</strong> 15 pontos e deixa a cobrinha mais lenta temporariamente. <strong>Fruta de velocidade:</strong> 20 pontos e acelera a cobrinha por um período curto, a partir do nível 4. Cada item coletado faz crescer uma célula.</p>
    <p>O nível 2 apresenta a dourada; o nível 3 apresenta o gelo; o nível 4 apresenta a fruta de velocidade. A velocidade aumenta progressivamente, mas tem limite. Se perder, você reinicia no primeiro nível e mantém os melhores resultados salvos neste navegador. Somente contas conectadas enviam pontuações ao ranking global do Aventura.</p>
   </GameGuide>
    <SnakeHistory slot="history" />
