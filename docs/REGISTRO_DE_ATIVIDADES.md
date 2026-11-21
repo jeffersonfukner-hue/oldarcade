@@ -1,3 +1,10 @@
+## 20/11/2026 — Correção expressa do status de aprovação Pixel Quest
+- **Início/término (Brasília) e duração:** não aferidos; não imputar horas.
+- **Atividade:** conferir e corrigir registros de aceite de artes após manifestação expressa do proprietário.
+- **Resultado:** somente capa homologada; `how-to-play` não aprovada; segunda imagem editorial não concluída; imagens históricas são legado sem novo aceite.
+- **Evidência:** declaração expressa do proprietário nesta conversa; atualização do inventário e continuidade na branch do PR #4.
+- **Pendências:** homologação das ilustrações editoriais, sem merge ou deploy.
+
 
 ## 20/11/2026 — Homologação visual Tetris e investigação de CI (projeto: OldArcade)
 - **Início / término Brasília:** não aferidos; **duração efetiva comprovada:** não mensurada; estimativa não calculada; não atribuir horas entre mensagens.
