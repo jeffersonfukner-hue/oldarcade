@@ -1,3 +1,10 @@
+## ESTADO PRIORITÁRIO — homologação das artes Tetris (20/11/2026)
+- **13 imagens homologadas individualmente:** capa, nove imagens do primeiro lote, Sprint, Sobrevivência e contexto histórico do filme *Tetris* (2023). A última foi aprovada expressamente nesta conversa. Não alterar nem substituir arquivos sem novo aceite.
+- **9 PNGs do primeiro lote já estão no repositório** na branch `feat/layout-unificado-snake-quest`. Verificou-se igualdade byte a byte indireta com ZIP local calculando Git blob SHA-1, exatamente igual ao GitHub para cada um dos 9.
+- **4 PNGs ainda ausentes na branch:** `public/images/games/tetris-cover.png`, `public/images/editorial/tetris/sprint.png`, `public/images/editorial/tetris/survival.png`, `public/images/editorial/tetris/tetris-film-history.png`.
+- **ZIP exclusivo de transferência manual** `oldarcade-tetris-4-imagens-restantes-aprovadas.zip`, SHA-256 `75eb17d7ddddac83e5a9948db96849f82b86e4da285bf461105e3b1a3edecb2c` (8.956.462 bytes). Inclui 4 PNGs individuais com caminhos finais e `manifest.json` com SHA-256 e Git blob SHA-1 conferidos.
+- **Futuro:** após upload, verificar quatro hashes Git; só então implementar integrações das 13 imagens no Tetris e testes de regressão; usuário homologa visualmente usando deploy controlado no Cloudflare Pages. Nenhuma alteração no Tetris foi feita nesta etapa. Sem merge/deploy.
+
 ## ATUALIZAÇÃO — Lote Tetris 1 homologado (20/11/2026)
 - Proprietário aprovou expressamente as 9 ilustrações do primeiro lote: seis marcos da timeline e três editoriais (como jogar, controles, estratégia). PNGs individuais originais preservados e conferidos por SHA-256, ZIP `oldarcade-tetris-lote-1-aprovado.zip` (SHA-256 `040dbc10021effd918e178bf6710e64a1f9b94f34373b2fddd73681d6e93aa85`). Destinos/hash no documento `docs/ASSETS_TETRIS_INVENTARIO.md`.
 - Arquivos **não enviados ao GitHub** e **não aplicados**; upload manual está previsto. Não confundir criação do registro documental com commit binário.
