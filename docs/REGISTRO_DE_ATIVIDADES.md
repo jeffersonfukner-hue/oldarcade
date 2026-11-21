@@ -1,3 +1,10 @@
+## 21/11/2026 — Auditoria de lançamento dos três jogos e proteção SEO (OldArcade)
+- **Início/término em Brasília e duração efetiva:** não aferidos com cronômetro; **tempo comprovado:** não mensurado; **estimativa:** não calculada. Não computar intervalo entre mensagens.
+- **Atividades executadas:** leitura dos contratos/documentos, código de SEO e testes de Snake, Tetris e Pixel Quest; confronto com orientações oficiais do Google; preparação de indexação somente para domínio autorizado, robots.txt gerado por ambiente, proteção noindex/canonical e testes Playwright; documentação de lançamento.
+- **Resultados:** bloqueio SEO de publicação tratado no código da branch; Preview permanece com noindex e Disallow; domínios não aprovados não recebem sitemap; testes adicionados para preservar esse comportamento. Nenhuma modificação em motores homologados, contas, D1 ou configurações Cloudflare.
+- **Pendências:** confirmar CI do HEAD atual, testar build de lançamento com domínio efetivo quando autorizado, homologação visual final e revisão legal operacional. Antifraude de ranking permanece separado.
+- **Evidências:** `astro.config.mjs`, `src/pages/robots.txt.ts`, `src/layouts/Base.astro`, `tests/seo-launch.spec.ts`, `docs/PLANO_LANCAMENTO_SEO_2026-11-21.md`, GitHub Actions PR #4. Nenhum merge ou deploy manual.
+
 ## 21/11/2026 — Auditoria BUG-QUEST-05, SEC-RANKING, D1 e LEGAL (OldArcade)
 - **Horários Brasília de início/fim:** não aferidos; **duração efetiva comprovada:** não mensurada; **estimativa:** não calculada. Períodos entre mensagens não foram computados.
 - **Atividades efetivas:** leitura de AGENTS, arquitetura e auditoria legal; confronto de motor/recordes do Pixel Quest, endpoint de ranking, autenticação, catálogo e textos legais; classificação de evidências e dependências de D1 real; elaboração de relatório técnico sem modificar código funcional.
