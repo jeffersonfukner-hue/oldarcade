@@ -62,7 +62,7 @@ const description='Jogue Snake, Tetris e Pixel Quest gratuitamente no OldArcade.
           <div class="arcade-mode-grid home-game-grid">
             {orderedGames.map(([id,game])=><article class="home-game-card" data-home-game={id}>
               <a class="home-game-art" href={modesByTitle[id][0]?.[1].url??'#destaques'} aria-label={'Jogar '+game.name}>
-                <img src={id==='snake'?'/images/snake-arcade.svg':id==='tetris'?'/images/tetris-arcade.svg':'/images/pixel-quest-arcade.svg'} alt={id==='snake'?'Cobrinha pixelada no tabuleiro neon':id==='tetris'?'Blocos de Tetris coloridos em queda':'Explorador original em cenário de plataforma com cristais e portal'} loading="lazy" width="680" height="300" />
+                <img src={id==='snake'?'/images/games/snake-cover.png':id==='tetris'?'/images/tetris-arcade.svg':'/images/pixel-quest-arcade.svg'} alt={id==='snake'?'Cobrinha pixelada no tabuleiro neon':id==='tetris'?'Blocos de Tetris coloridos em queda':'Explorador original em cenário de plataforma com cristais e portal'} loading="lazy" width="680" height="300" />
                 <span class="home-game-art-number" aria-hidden="true">#{String(game.number).padStart(3,'0')}</span>
                 <span class="home-game-art-title">{game.name}</span>
                 <span class="home-game-art-stamp">{id==='pixel-quest'?'EM DESENVOLVIMENTO':'ORIGINAL ARCADE'}</span>
