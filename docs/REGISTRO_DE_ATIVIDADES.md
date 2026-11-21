@@ -1,3 +1,10 @@
+## 21/11/2026 — Integração das quatro artes Pixel Quest (OldArcade)
+- **Horário de início e término (Brasília):** não aferidos com cronômetro; **duração efetiva comprovada:** não mensurada; **estimativa:** não calculada. Intervalos sem atividade registrada não são computados.
+- **Atividades:** consulta somente leitura à branch e à documentação de aprovações, verificação da presença de quatro blobs WebP, inspeção da home, guia e testes existentes; integração da capa e das três ilustrações editoriais, criação de componente compartilhado e regressão Playwright para desktop e mobile.
+- **Resultados:** quatro caminhos confirmados no GitHub, referências adicionadas no código da branch e documentação atualizada; não houve merge ou deploy.
+- **Pendências:** verificar CI no commit resultante; homologação visual pelo proprietário no Preview controlado.
+- **Evidências:** `src/pages/index.astro`, `src/components/PixelQuestGame.astro`, `src/components/PixelQuestEditorialArt.astro`, `tests/editorial-history.spec.ts`, `docs/ASSETS_PIXEL_QUEST_INVENTARIO.md`; commits desta sessão na branch.
+
 ## 21/11/2026 — Revisão final de necessidade de artes Pixel Quest
 - **Horários início/fim e duração efetiva:** não aferidos; não computar horas por intervalo entre mensagens.
 - **Atividades executadas:** leitura de PixelQuestGame, PixelQuestHistory, historicalTimeline, home e inventário; verificação da estrutura do ZIP com dois PNGs e manifesto; encerramento do escopo de produção de novas artes.
