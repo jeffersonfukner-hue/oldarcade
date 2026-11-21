@@ -63,7 +63,7 @@ test('Padrão global: todos os jogos mostram artes editoriais originais, fontes 
   await expect(timeline.locator('img.oa-era-art')).toHaveCount(game.slug==='pixel-quest'?4:6);
   if(game.slug==='pixel-quest'){
    for(const img of await timeline.locator('img.oa-era-art').all()){
-    await expect(img).toHaveAttribute('src',/\\.avif$/);
+    await expect(img).toHaveAttribute('src',new RegExp('[.]avif$'));
     await expect.poll(()=>img.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
    }
   }
@@ -132,7 +132,7 @@ test('Tetris: as 13 artes homologadas carregam no contexto correto em desktop e 
     const timeline=page.locator('.oa-illustrated-timeline img.oa-era-art');
     await expect(timeline).toHaveCount(6);
     for(const img of await timeline.all()){
-     await expect(img).toHaveAttribute('src',/^\\/images\\/history\\/tetris\\/.+\\.png$/);
+     await expect(img).toHaveAttribute('src',new RegExp('^/images/history/tetris/.*[.]png$'));
      await img.scrollIntoViewIfNeeded();
      await expect.poll(()=>img.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
     }
