@@ -1,3 +1,16 @@
+# Atualização de integração — 20/11/2026
+
+**Estado atual:** os 15 caminhos PNG homologados existem na branch `feat/layout-unificado-snake-quest`; presença confirmada por consulta GitHub de cada arquivo e SHA de blob. Os 12 originais abaixo permanecem preservados; os três complementares também foram localizados. A referência histórica abaixo descreve o estado antes do upload, não o estado atual. **A conferência de SHA-256 byte a byte contra o ZIP original não foi executada nesta sessão**, pois a ferramenta de consulta de binários não forneceu bytes para calcular hashes independentemente.
+
+Complementares:
+- `public/images/editorial/snake/adventure-missions.png` — ilustração aprovada de missões e frutas.
+- `public/images/editorial/snake/evolution-powers.png` — ilustração aprovada de poderes do Evolution.
+- `public/images/editorial/snake/nibbler-documentary.png` — ilustração editorial original de Nibbler/Man vs Snake.
+
+**Aplicação atual nesta branch (sem merge/deploy):** capa na home; seis marcos de Snake na timeline; três figuras no guia Clássico; duas no Aventura; duas no Evolution; referência cultural Nibbler junto ao documentário. `SnakeEditorialArt.astro` contém alt, legenda e apresentação responsiva; testes de imagem e navegador acrescentados em `tests/editorial-history.spec.ts`. **Homologação visual e CI do HEAD ainda dependem de confirmação; não avançar ao Tetris antes disso.**
+
+---
+
 # Inventário — 12 imagens Snake aprovadas (20/11/2026)
 
 **Estado verificado:** todas as 12 aprovadas e preparadas como arquivos PNG individuais, cópia byte a byte sem alterações; ZIP de entrega e manifest.json gerados e SHA-256 conferidos. **NENHUMA das 12 foi enviada ao GitHub pelo fluxo atual, nem aplicada ao site.** Os caminhos abaixo são destinos previstos, não arquivos já existentes. A conexão GitHub disponível não recebe o caminho de um PNG local para upload binário; a rede do ambiente de geração não resolve github.com. Não inventar commit de assets nem converter arquivos.
