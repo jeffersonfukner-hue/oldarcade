@@ -1,3 +1,9 @@
+## ATUALIZAÇÃO — Lote Tetris 1 homologado (20/11/2026)
+- Proprietário aprovou expressamente as 9 ilustrações do primeiro lote: seis marcos da timeline e três editoriais (como jogar, controles, estratégia). PNGs individuais originais preservados e conferidos por SHA-256, ZIP `oldarcade-tetris-lote-1-aprovado.zip` (SHA-256 `040dbc10021effd918e178bf6710e64a1f9b94f34373b2fddd73681d6e93aa85`). Destinos/hash no documento `docs/ASSETS_TETRIS_INVENTARIO.md`.
+- Arquivos **não enviados ao GitHub** e **não aplicados**; upload manual está previsto. Não confundir criação do registro documental com commit binário.
+- Lote restante: Sprint, Sobrevivência e referência cultural ao filme Tetris 2023. Primeira proposta de Sprint foi gerada para revisão, **sem homologação**; outras saídas do gerador que não atenderam aos temas não devem ser tratadas como imagens aprovadas.
+- Sem merge/deploy.
+
 ## ESTADO ATUAL — Snake homologado visualmente; início do lote Tetris (20/11/2026)
 - **Homologação visual EXPRESSA do Snake:** proprietário informou "homologado. pode ir pro tetris" após conferir a versão no Cloudflare Pages. O aceite cobre a integração visual das 15 imagens do Snake. Não confundir com certificação de SHA-256 byte a byte ou CI do HEAD, que continuam sem evidência suficiente; não desfazer homologação.
 - **Próxima fase autorizada:** Tetris (#002), no padrão pixel art premium já homologado; inventário a partir de `TetrisGame.astro`, `TetrisHistory.astro`, `historicalTimeline.ts` e `historicalScreenings.ts`. Criar e apresentar arquivos individuais para aprovação antes de transferir/aplicar ao site. Três modos reais: Clássico, Sprint 40 linhas, Sobrevivência (aceleração a cada 30 segundos). Seis marcos históricos existentes: Electronika 60 (1984), microcomputadores (anos 1980), Game Boy (1989), The Tetris Company (1996), MoMA (2012), interpretações atuais; referência cultural ao filme Tetris (2023).
