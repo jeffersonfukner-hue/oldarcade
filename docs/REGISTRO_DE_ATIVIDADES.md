@@ -1,3 +1,10 @@
+## 21/11/2026 — Registro de decisão de lançamento progressivo Pixel Quest
+- **Horários de início/término (Brasília):** não aferidos; **duração comprovada:** não mensurada; **estimativa:** não calculada. Não computar intervalos entre mensagens.
+- **Atividades executadas:** conferência dos documentos de lançamento e continuidade; registro formal da decisão do proprietário de lançar o Mundo 1 (3 fases e chefão) antes dos mundos 2 (5 fases e chefão) e 3 (8 fases e chefão), com campanha visitável sem conta, salvamento autenticado e opção separada de receber novidades.
+- **Resultados:** planejamento de entrega incremental atualizado, critérios de lançamento e de anúncio de mundos futuros definidos; sem alterações funcionais de jogo, banco ou produção.
+- **Pendências:** implementar e testar Mundo 1 completo, persistência autenticada e UX de convite; projetar opt-in de atualizações antes de prometer envio; homologação e autorização de publicação.
+- **Evidência:** `docs/PLANO_LANCAMENTO_SEO_2026-11-21.md` na branch `feat/layout-unificado-snake-quest`.
+
 ## 21/11/2026 — Auditoria de lançamento dos três jogos e proteção SEO (OldArcade)
 - **Início/término em Brasília e duração efetiva:** não aferidos com cronômetro; **tempo comprovado:** não mensurado; **estimativa:** não calculada. Não computar intervalo entre mensagens.
 - **Atividades executadas:** leitura dos contratos/documentos, código de SEO e testes de Snake, Tetris e Pixel Quest; confronto com orientações oficiais do Google; preparação de indexação somente para domínio autorizado, robots.txt gerado por ambiente, proteção noindex/canonical e testes Playwright; documentação de lançamento.
