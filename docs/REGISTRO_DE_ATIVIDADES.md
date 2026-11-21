@@ -1,3 +1,10 @@
+## 20/11/2026 — Aprovação definitiva da nova capa Pixel Quest
+- **Início/término e duração comprovada:** não aferidos; não atribuir horas não medidas.
+- **Atividade executada:** registrar substituição expressa da capa anterior pela capa nova, conferir ausência do caminho final na branch GitHub, preservar bytes da imagem final e criar ZIP de upload manual com SHA-256.
+- **Resultado:** a nova imagem é a única capa de Pixel Quest aprovada para uso, arquivo `pixel-quest-cover.png` (SHA-256 `4f69be97eae06b40247b48645e87fa728e780e26928d18282b4c3c1cdd49c5ff`), ZIP `oldarcade-pixel-quest-capa-aprovada.zip`.
+- **Pendências:** upload do PNG ao GitHub e conferência remota; após isso aplicar à home e testar. Não houve merge ou deploy.
+- **Evidência:** aprovação explícita nesta conversa; decisão registrada na documentação da branch.
+
 ## 20/11/2026 — Aceite provisório da nova proposta de capa Pixel Quest
 - **Horário inicial/final e duração efetiva (Brasília):** não aferidos; nenhuma hora presumida.
 - **Atividade:** registro da decisão expressa do proprietário de aprovar provisoriamente a imagem de capa mais recente.
