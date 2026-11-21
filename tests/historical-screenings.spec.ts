@@ -5,7 +5,7 @@ test('História do Tetris exibe filme, data fixa e correção nos três modos',a
   await page.goto(path);
   const section=page.locator('section[aria-labelledby="historical-screenings-tetris"]');
   await expect(section.getByRole('heading',{name:'Filmes e documentários relacionados'})).toBeVisible();
-  await expect(section.getByText('Tetris (2023)')).toBeVisible();
+  await expect(section.getByRole('heading',{name:'Tetris (2023)'})).toBeVisible();
   await expect(section.getByText(/Brasil · Apple TV/)).toBeVisible();
   await expect(section.locator('time[datetime="2026-11-17"]')).toHaveCount(1);
   await expect(section.locator('time[datetime="2026-11-20"]')).toHaveCount(1);
