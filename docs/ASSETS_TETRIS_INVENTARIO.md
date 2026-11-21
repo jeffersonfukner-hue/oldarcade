@@ -1,3 +1,10 @@
+## Atualização — ilustração Sobrevivência apresentada (20/11/2026)
+- Arte individual de Sobrevivência gerada e apresentada para avaliação do proprietário. **Não homologada, nem enviada ao GitHub, nem aplicada ao site.**
+- A criação da arte individual sobre o filme *Tetris* (2023) falhou na ferramenta de imagens. **Arquivo final não gerado.** Não substituir pela composição descartada.
+- Sprint permanece aprovado, sem modificação de seus bytes. A versão original do lote 1 permanece aprovada.
+- Próximo checkpoint depende da aprovação visual da arte Sobrevivência e de nova solicitação para geração do item sobre o filme.
+- Sem merge ou deploy.
+
 ## Atualização — Sprint aprovado; Sobrevivência e cinema ainda pendentes (20/11/2026)
 - Proprietário aprovou expressamente a **ilustração individual do Sprint** apresentada anteriormente. Manter esse arquivo original como aprovado, sem recriação, alteração ou recompressão.
 - Lote 1: nove imagens históricas/editoriais aprovadas e organizadas em ZIP; ainda não há prova de upload binário ao GitHub.
