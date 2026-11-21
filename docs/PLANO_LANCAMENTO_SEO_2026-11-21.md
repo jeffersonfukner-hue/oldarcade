@@ -10,6 +10,16 @@
 - **Segurança de rankings:** `verified:false` continua explícito na API; a entrada é autodeclarada, portanto requer política de confiança/antifraude antes de apresentar rankings como verificados. Não mascarar ou invalidar recordes atuais.
 - **D1 Preview:** consulta do proprietário confirmou 23 recordes em sete modos, chaves e índices presentes, `best_score_milli` e vínculos de contas existentes. Não solicitar repetição desta verificação. Não acessar dados pessoais. Binding da UI não foi confirmado; não bloquear o trabalho dos jogos por esse ponto enquanto o Preview funcional não apresentar erro real.
 
+## Decisão de produto — lançamento progressivo do Pixel Quest (21/11/2026)
+
+- **MVP público:** lançar OldArcade com **Mundo 1 — Floresta Esmeralda**, fases **1-1, 1-2 e 1-3**, incluindo **chefão ao final de 1-3**. A experiência precisa ser completa e satisfatória por si só; mundo incompleto não deve impedir o lançamento dos três jogos.
+- **Atualizações posteriores, sem prometer datas:** **Mundo 2 — Cavernas de Cristal**, cinco fases (2-1 a 2-5), chefão na 2-5; **Mundo 3 — Fortaleza do Portal**, oito fases (3-1 a 3-8), chefão na 3-8. Total planejado: 16 fases, 3 chefões. Mostrar esses mundos como **Em desenvolvimento / Em breve**, sem criar links falsos, prometer conteúdo jogável ou adicionar páginas vazias ao sitemap.
+- **Retenção e cadastro:** visitante pode jogar o conteúdo disponível até o final, com avanço entre fases na mesma sessão, sem conta. Recarregar/sair encerra o progresso não salvo. Somente conta autenticada permite persistir e retomar a campanha após retornar; cadastro via modal global, sem sair do jogo e sem bloquear a continuidade do visitante.
+- **Novidades opcionais:** oferecer opt-in separado para atualizações sobre os mundos futuros; não tratar criação de conta ou aceite dos Termos como consentimento automático para e-mails de novidades. Evitar prometer notificações até existir mecanismo operacional testado, cancelamento e tratamento de dados correspondente.
+- **SEO editorial:** textos sobre os mundos seguintes devem informar que não estão jogáveis e explicar o que está previsto, sem usar páginas isca vazias. Conteúdo do Mundo 1 e dos três jogos deve ser útil, acessível e indexável no lançamento público aprovado.
+- **Critério de lançamento:** Mundo 1 completo e testado (inclusive chefão, progressão, recuperação de campanha logada e visita sem login), além dos bloqueadores gerais do portal; mundos 2 e 3 não bloqueiam publicação.
+- **Estado nesta data:** decisão registrada documentalmente; nenhuma fase nova ou sistema de notificações implementado por esta entrada.
+
 ## SEO — bloqueador real e correção preparada na branch
 
 **Antes:** `public/robots.txt` bloqueava todo o rastreamento e `astro.config.mjs` só gerava sitemap quando `SITE_URL` estivesse definida; páginas usavam `noindex` sem SITE_URL.
