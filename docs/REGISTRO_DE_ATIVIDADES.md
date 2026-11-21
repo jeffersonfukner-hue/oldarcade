@@ -1,3 +1,10 @@
+
+## 20/11/2026 — Organização de Tetris lote 1 e tentativa de lote 2
+- **Horários início/término (Brasília):** não aferidos; **duração efetiva:** não aferida; **estimativa:** não calculada.
+- **Atividades executadas:** validação de integridade e SHA-256 das 9 imagens do primeiro lote, cópia com nomes de destino do GitHub, geração do ZIP e manifesto; registro de aprovação do proprietário; primeira arte de Sprint gerada para avaliação.
+- **Resultados comprovados:** ZIP `oldarcade-tetris-lote-1-aprovado.zip`, 9 PNGs com SHA-256 no inventário e arquivo ZIP validado. Arquivos de imagens não enviados ao GitHub. Primeira arte do Sprint de 1672×941, SHA-256 `ee7374ea94ac2365a0bb08d428fd9bfd70dd9016ae4846f74a5ced49cb321bf9`, ainda não aprovada.
+- **Pendências:** upload manual do lote 1, aprovação do Sprint e criação correta das artes individuais de Sobrevivência e filme Tetris (2023), além de testes após aplicação. Nenhum merge/deploy.
+- **Evidências:** `docs/ASSETS_TETRIS_INVENTARIO.md`, ZIP e arquivos disponibilizados na conversa e commits documentais na branch do PR #4.
 # REGISTRO DE ATIVIDADES — OldArcade
 
 > Documento oficial cronológico de trabalho deste repositório. Registram-se apenas ações verificáveis, com horários e duração **não aferidos** quando indisponíveis. Não inferir tempo entre mensagens nem horas faturáveis a partir desta cronologia.
