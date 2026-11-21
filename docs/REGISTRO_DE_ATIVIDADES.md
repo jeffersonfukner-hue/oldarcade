@@ -1,4 +1,12 @@
 
+## 20/11/2026 — Homologação final e preparação de upload Tetris (projeto: OldArcade)
+- **Início e término (Brasília):** não aferidos de forma confiável; **duração efetiva comprovada:** não mensurada; **tempo estimado:** não calculado.
+- **Atividades executadas:** registrar aceites expressos de Sobrevivência e da ilustração histórica do filme de 2023; consultar 13 caminhos na branch GitHub; calcular SHA-1 Git dos nove PNGs do ZIP anterior e comparar com os blobs GitHub (todos coincidentes); verificar dimensões 1672×941 e SHA-256 dos quatro PNGs restantes; gerar ZIP final com manifesto e conferir cada item após compactação.
+- **Resultados comprovados:** nove arquivos aprovados no GitHub com integridade idêntica aos originais; quatro imagens aprovadas embaladas em `oldarcade-tetris-4-imagens-restantes-aprovadas.zip` com SHA-256 `75eb17d7ddddac83e5a9948db96849f82b86e4da285bf461105e3b1a3edecb2c`.
+- **Pendências:** upload manual dos quatro PNGs, confirmação dos hashes remotos, integração das imagens no código do Tetris e testes/homologação visual. Não foi feito merge ou deploy.
+- **Evidências:** `docs/ASSETS_TETRIS_INVENTARIO.md`, manifesto do ZIP gerado e PR #4.
+
+
 ## 20/11/2026 — Organização de Tetris lote 1 e tentativa de lote 2
 - **Horários início/término (Brasília):** não aferidos; **duração efetiva:** não aferida; **estimativa:** não calculada.
 - **Atividades executadas:** validação de integridade e SHA-256 das 9 imagens do primeiro lote, cópia com nomes de destino do GitHub, geração do ZIP e manifesto; registro de aprovação do proprietário; primeira arte de Sprint gerada para avaliação.
