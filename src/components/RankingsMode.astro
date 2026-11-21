@@ -1,0 +1,30 @@
+---
+/** Unidade de modo reutilizável dentro do card do jogo em /rankings/. */
+import {isTimeRanking,isLowerBetter} from '../data/rankingRules.js';
+import {gameMode} from '../data/gameModes.js';
+interface Props {modeId:string; initiallyOpen?:boolean}
+const {modeId,initiallyOpen=false}=Astro.props;
+const mode=gameMode(modeId)!;
+const timed=isTimeRanking(modeId);
+const lowerBetter=isLowerBetter(modeId);
+---
+<details class="rankings-mode" id={'ranking-'+modeId} data-ranking-mode-details open={initiallyOpen}>
+ <summary><span class="rankings-mode-label"><span aria-hidden="true">{mode.symbol}</span><strong>{mode.name}</strong><small>{mode.tagline}</small></span></summary>
+ <section class="rankings-panel" data-rank-page-mode={modeId} aria-label={'Ranking do '+mode.name}>
+  <div class="rankings-panel-heading">
+   <div><p>{mode.description}</p><p class="small muted">{timed?(lowerBetter?'Menor tempo vence.':'Maior tempo vence.'):'Maior pontuação vence.'} Cada modalidade tem seu próprio ranking.</p></div>
+   <a class="btn" data-rank-challenge href={mode.url}>Jogar e desafiar</a>
+  </div>
+  <p class="rankings-challenge-line" data-rank-challenge-message>Consegue superar o primeiro colocado?</p>
+  <h3>Pódio — Top 3</h3>
+  <div class="rankings-podium" data-rank-podium><p class="small muted">Consultando classificação…</p></div>
+  <details class="rankings-top10">
+   <summary>Ver classificação completa (Top 10)</summary>
+   <div class="ranking-overflow"><table class="ranking">
+    <thead><tr><th>#</th><th>Jogador</th><th>{timed?'Tempo':'Pontos'}</th><th>Registrado em</th></tr></thead>
+    <tbody data-rank-table><tr><td colspan="4">Consultando ranking…</td></tr></tbody>
+   </table></div>
+  </details>
+  <p class="small muted" data-rank-status role="status">Aguardando classificação real do servidor.</p>
+ </section>
+</details>

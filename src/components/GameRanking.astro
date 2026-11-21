@@ -1,38 +1,22 @@
 ---
 import {isTimeRanking,isLowerBetter} from '../data/rankingRules.js';
-interface Props {game:string;name:string}
+interface Props {game:string;name:string;slot?:string}
 const {game,name}=Astro.props;
 const timed=isTimeRanking(game);
 const lowerBetter=isLowerBetter(game);
 ---
 <section class="section panel mode-ranking" id={"ranking-"+game} data-mode-ranking data-game={game} data-ranking-metric={timed?"time":"points"} aria-label={`Ranking global do ${name}`}>
- <div class="section-head"><div><span class="eyebrow">Desafio OldArcade</span><h2>Ranking global — {name}</h2></div><span class="pill">Top 10 · Contas cadastradas</span></div>
- <div class="mode-ranking-hero"><span>{timed?"⏱ Melhor tempo:":"🏆 Global:"} <strong data-rank-global>—</strong><em data-rank-provisional hidden> (provisório)</em></span><span>{timed?"⭐ Seu tempo:":"⭐ Seu recorde:"} <strong data-rank-personal>—</strong></span></div>
- <p class="small muted">{timed?(lowerBetter?'Cada jogador disputa com seu menor tempo em 40 linhas.':'Cada jogador disputa com o maior tempo de sobrevivência.')+' Empates favorecem o registro mais antigo.':'Cada jogador ocupa uma posição. Em empate, vence quem registrou primeiro.'} Resultados ainda não são verificados contra a partida.</p>
- <div class="ranking-overflow"><table class="ranking"><thead><tr><th>Posição</th><th>Nickname</th><th>{timed?"Tempo":"Pontos"}</th><th>{timed?"Registrado em":"Data e hora"}</th></tr></thead><tbody data-rank-body><tr><td colspan="4">Carregando…</td></tr></tbody></table></div>
- <p data-rank-mine hidden></p><p data-rank-status class="small muted" role="status">Consultando classificação…</p>
+ <div class="section-head"><div><span class="eyebrow">Desafio Old Arcade</span><h2>Ranking global — {name}</h2></div><span class="pill">Contas cadastradas</span></div>
+ <p class="small muted">{timed?(lowerBetter?'Vence quem completa 40 linhas no menor tempo.':'Vence quem sobrevive pelo maior tempo.'):'Vence a maior pontuação.'} Empates seguem os critérios do modo. Qualquer pessoa pode consultar a classificação; somente contas registram resultados.</p>
+ <p class="mode-ranking-provisional small" data-rank-provisional hidden aria-live="polite">Marca provisória — só será confirmada no final da partida e com conta autenticada.</p>
+ <h3 class="oa-ranking-podium-title">Pódio — Top 3</h3>
+ <div class="rankings-podium" data-rank-podium><p class="small muted">Consultando classificação…</p></div>
+ <details class="rankings-top10"><summary>Ver classificação completa (Top 10)</summary>
+  <div class="ranking-overflow"><table class="ranking"><thead><tr><th>Posição</th><th>Nickname</th><th>{timed?"Tempo":"Pontos"}</th><th>Registrado em</th></tr></thead><tbody data-rank-body><tr><td colspan="4">Carregando…</td></tr></tbody></table></div>
+ </details>
+ <p data-rank-mine class="small" hidden></p>
+ <p data-rank-status class="small muted" role="status">Consultando classificação…</p>
  <p data-rank-summary class="record-end-summary" role="status" aria-live="polite"></p>
- <button data-rank-retry type="button" class="btn secondary" hidden>Tentar registrar novamente</button>
- <button data-rank-auth-button type="button" class="btn secondary">Entrar ou criar conta para registrar recordes</button>
- <div class="mode-account-modal" data-rank-modal role="dialog" aria-modal="true" aria-label="Registrar recorde" hidden>
-  <div class="mode-account-inner">
-   <h3>Registrar seu recorde</h3><p data-rank-hint class="small muted">Entre ou crie uma conta para participar.</p>
-   <div class="account-tabs"><button type="button" data-rank-login-tab>Já tenho conta</button><button type="button" data-rank-register-tab>Criar conta</button></div>
-   <form data-rank-login-form>
-    <label>Nickname<input name="nickname" maxlength="18" autocomplete="username" required /></label>
-    <label>Senha<input name="password" type="password" minlength="8" autocomplete="current-password" required /></label>
-    <button class="btn" type="submit">Entrar e registrar</button>
-   </form>
-   <form data-rank-register-form hidden>
-    <label>Nickname único<input name="nickname" minlength="3" maxlength="18" autocomplete="username" required /></label>
-    <label>E-mail (opcional)<input name="email" type="email" maxlength="254" autocomplete="email" /></label>
-    <label>Senha<input name="password" type="password" minlength="8" maxlength="128" autocomplete="new-password" required /></label>
-    <fieldset class="notification-choices"><legend>Avisos por e-mail (opcionais, ainda não enviados)</legend><label><input name="recordEmailOptIn" type="checkbox" /> Se alguém superar meu recorde</label><label><input name="dailyEmailOptIn" type="checkbox" /> Quando houver Desafio Diário</label></fieldset>
-    <button class="btn" type="submit">Criar conta e registrar</button>
-   </form>
-   <div data-rank-recovery hidden><p>Guarde seu código de recuperação. Ele aparece apenas uma vez; não compartilhe.</p><code data-rank-code></code><button class="btn secondary" type="button" data-rank-done>Guardei o código</button></div>
-   <p data-rank-auth-status role="status"></p><button type="button" class="btn secondary" data-rank-close>Fechar</button>
-  </div>
- </div>
+ <div class="oa-ranking-cache" hidden aria-hidden="true"><span data-rank-global>—</span><span data-rank-personal>—</span></div>
 </section>
 <script>import '../scripts/modeRanking.ts';</script>

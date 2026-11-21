@@ -5,18 +5,18 @@ interface Props {
  globalLabelId?:string;provisionalId?:string;levelId?:string;
  bestLabel?:string;globalLabel?:string;scoreLabel?:string;hint?:string;
  statId?:string;statLabel?:string;secondStatId?:string;secondStatLabel?:string;
- compact?:boolean;
+ compact?:boolean;hideSecondStat?:boolean;
 }
-const {statusId,scoreId,bestId,globalId,globalLabelId,provisionalId,levelId,bestLabel='Recorde pessoal',globalLabel='Recorde global',scoreLabel='Pontos',hint,statId,statLabel='Progresso',secondStatId,secondStatLabel='Progresso do nível',compact=false}=Astro.props;
+const {statusId,scoreId,bestId,globalId,globalLabelId,provisionalId,levelId,bestLabel='Recorde pessoal',globalLabel='Recorde global',scoreLabel='Pontos',hint,statId,statLabel='Progresso',secondStatId,secondStatLabel='Progresso do nível',compact=false,hideSecondStat=false}=Astro.props;
 ---
 <div class:list={["game-hud",compact&&"oa-hud-compact"]} aria-label={compact?"Placar da partida":undefined}>
  <span id={statusId} role="status" class={compact?"oa-hud-status":undefined}>● Pronto</span>
- {levelId&&(compact?<span class="oa-hud-metric" title="Nível" aria-label="Nível"><span class="oa-hud-symbol" aria-hidden="true">LVL</span><strong id={levelId}>1</strong></span>:<span>Nível: <strong id={levelId}>1</strong></span>)}
- {compact?<span class="oa-hud-metric" title={scoreLabel} aria-label={scoreLabel}><span class="oa-hud-symbol" aria-hidden="true">★</span><strong id={scoreId}>0</strong></span>:<span>{scoreLabel}: <strong id={scoreId}>0</strong></span>}
+ {levelId&&(compact?<span class="oa-hud-metric" title="Nível" aria-label="Nível"><span class="oa-hud-symbol" aria-hidden="true">LVL</span><span class="oa-hud-label">Nível</span><strong id={levelId}>1</strong></span>:<span>Nível: <strong id={levelId}>1</strong></span>)}
+ {compact?<span class="oa-hud-metric" title={scoreLabel} aria-label={scoreLabel}><span class="oa-hud-symbol" aria-hidden="true">★</span><span class="oa-hud-label">{scoreLabel}</span><strong id={scoreId}>0</strong></span>:<span>{scoreLabel}: <strong id={scoreId}>0</strong></span>}
  {statId&&<span>{statLabel}: <strong id={statId}>0</strong></span>}
- {secondStatId&&<span>{secondStatLabel}: <strong id={secondStatId}>0</strong></span>}
- {compact?<span class="oa-hud-metric" title={bestLabel} aria-label={bestLabel}><span class="oa-hud-symbol" aria-hidden="true">♙</span><strong id={bestId}>0</strong></span>:<span>{bestLabel}: <strong id={bestId}>0</strong></span>}
- {compact?<span class="oa-hud-metric" title={globalLabel} aria-label={globalLabel}><span class="oa-hud-symbol" aria-hidden="true">🏆</span>{globalLabelId&&<span id={globalLabelId} hidden>{globalLabel}</span>}<strong id={globalId}>—</strong>{provisionalId&&<small id={provisionalId} hidden> (provisório)</small>}</span>:<span>{globalLabelId?<span id={globalLabelId}>{globalLabel}:</span>:globalLabel+':'} <strong id={globalId}>—</strong>{provisionalId&&<small id={provisionalId} hidden> (provisório)</small>}</span>}
+ {secondStatId&&<span class:list={[hideSecondStat&&"oa-metric-bridge"]} hidden={hideSecondStat} aria-hidden={hideSecondStat?"true":undefined}>{secondStatLabel}: <strong id={secondStatId}>0</strong></span>}
+ {compact?<span class="oa-hud-metric" title={bestLabel} aria-label={bestLabel}><span class="oa-hud-symbol" aria-hidden="true">♙</span><span class="oa-hud-label">{bestLabel}</span><strong id={bestId}>0</strong></span>:<span>{bestLabel}: <strong id={bestId}>0</strong></span>}
+ {compact?<span class="oa-hud-metric" title={globalLabel} aria-label={globalLabel}><span class="oa-hud-symbol" aria-hidden="true">🏆</span>{globalLabelId&&<span id={globalLabelId} hidden>{globalLabel}</span>}<span class="oa-hud-label">{globalLabel}</span><strong id={globalId}>—</strong>{provisionalId&&<small id={provisionalId} hidden> (provisório)</small>}</span>:<span>{globalLabelId?<span id={globalLabelId}>{globalLabel}:</span>:globalLabel+':'} <strong id={globalId}>—</strong>{provisionalId&&<small id={provisionalId} hidden> (provisório)</small>}</span>}
  <slot />
  {hint&&<span class="hud-hint">{hint}</span>}
 </div>

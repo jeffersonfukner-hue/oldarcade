@@ -2,6 +2,31 @@
 
 # OldArcade · Arquitetura e critérios de aceite
 
+## Padrão compartilhado — breadcrumbs e estatísticas por jogo (decisão 19/11/2026)
+- **Etapa 2B:** trilhas de navegação renderizadas uma única vez no `src/layouts/Base.astro` por `GameBreadcrumbs.astro`, derivadas de `src/data/breadcrumbs.ts`/catálogo `gameModes.js`. Exibir `Início › Jogos › Tetris › Sprint` e `Início › Jogos › Snake › Aventura`; “Jogos” usa `/#destaques`, link real da home, pois não existe ainda uma página autônoma `/jogos/`. Os jogos base encerram a trilha em Snake/Tetris/Pixel Quest sem repetir o URL do modo Clássico. Em `/conta/`, `/rankings/`, `/sobre/`, `/contato/` e `/privacidade/`: `Início › página`. Home sem trilha. Atual sempre `aria-current="page"` e não clicável. Apenas configurar `BreadcrumbList` quando `Astro.site` tiver URL real, não em `example.invalid`. Respeitar 980px e a usabilidade de toque.
+- **Etapa 3 futura:** na página de estatística/perfil, **um card por jogo com modalidades internas**. Não multiplicar card externo por modo, mas conservar métricas e classificações específicas, identificadores/atributos dos elementos dinâmicos, leitura no celular e privacidade/autenticação. Ver `docs/PLANO_PADRONIZACAO.md`.
+- Etapa 2 visualmente homologada; Etapa 2B deve receber CI e homologação próprios antes da Etapa 3.
+
+
+## Etapa 2 aprovada — seções editoriais e amplitude do texto (19/11/2026)
+
+- **Estrutura oficial única:** `src/components/GamePageSections.astro` organiza no HTML (nunca com CSS `order`) os slots `rankings → share → guide → history → screenings → related → development`, sempre **após o palco/área jogável e seu desempenho auxiliar**. Aplicável ao Snake Clássico/Evolution/Aventura, Tetris Clássico/Sprint/Sobrevivência e Pixel Quest. Diferenças justificadas devem ser declaradas como dados, sem fork de estrutura.
+- **Seções presentes em todos:** classificação/estado factual, convite compartilhado, guia, artigo histórico, seção `Continue jogando` com links reais a outros jogos e histórico do desenvolvimento. O jogo só mostra `História na tela` quando existe filme/documentário **verificado** para aquele título. Não exibir placeholder artificial (Pixel Quest não possui título confirmado). Para modo sem ranking, exibir a indisponibilidade verdadeira, sem inventar valores; rankings competitivos só com conta.
+- **Artigo Snake único:** `SnakeHistory.astro` compartilha o artigo original entre os três modos, preservando textos, fontes e HTML real. `GameRelatedGames.astro` lista outros jogos a partir do catálogo, substituindo mensagens antigas de "mais clássicos estão a caminho". `GameCompetitionNotice.astro` explica recordes locais provisórios do Pixel Quest.
+- **Parágrafos:** remover o limite artificial de `85ch` e os estilos que restringem artigos/editoriais a 870px dentro de cards com até 980px; parágrafos devem aproveitar **a largura interna disponível do card**, respeitando apenas o padding e o comportamento responsivo. No fullscreen, proporções e elementos jogáveis são independentes destes estilos.
+- **Sem escopo funcional:** não modificar motores, IDs de scripts, pontuação, conta, ranking existente, banco, SEO factual, versão ou regras de jogabilidade nesta etapa. Os ajustes de ranking legados do Snake ficam na Etapa 3; SEO/negritos históricos na Etapa 4.
+
+### Etapa adicional aprovada: navegação e breadcrumbs
+
+- **Etapa 2B — Breadcrumbs e navegação contextual** após homologação visual da Etapa 2, antes da revisão final: trilha de navegação visível e acessível em todas as páginas aplicáveis (ex.: `Início › Jogos › Snake › Aventura`, `Início › Jogos › Tetris › Sprint`, `Início › Rankings`), com último item indicando página atual e links reais. Metadados `BreadcrumbList` JSON-LD apenas quando representarem a navegação visível; URL canônica absoluta somente com domínio público confirmado. Criar **um componente comum**, não breadcrumb hardcoded por página; home não precisa trilha. Garantir responsividade e evitar repetição excessiva de termos para SEO.
+- **Outras melhorias do proprietário preservadas no backlog (não executar nesta etapa):** ranking e desempenho sem duplicação e com conta autenticada (Etapa 3); identidade editorial `Old Arcade`, artigos históricos úteis e indexáveis com negritos semânticos moderados, filmes/livros verificados e afiliados apenas quando autorizados (Etapa 4); navegação/links reais `Continue jogando`, controles e layouts compartilhados, histórico do desenvolvimento e padronização global. Não presumir que esta relação exaure sugestões anteriores não recuperadas; consultar `docs/CONTINUIDADE.md` ao retomar.
+
+## Contrato de largura e semântica (aprovado 19/11/2026)
+- Site inteiro usa a mesma variável CSS `--oa-content-width:980px` com `.shell`; páginas de jogos `.oa-game-page` usam o mesmo token. A largura do conteúdo é fluida até o máximo de 980px e mantém alinhamento entre header, corpo e footer; 20px de respiro lateral em desktop/tablet e 12px em mobile até 580px.
+- Este limite **não se aplica ao palco em fullscreen**; aí a resolução/altura disponível comandam a escala, respeitando proporções nativas (Snake 1:1, Tetris 1:2, Quest 16:9) e mantendo HUD/controles presentes.
+- Qualquer tela nova entra automaticamente pelo container compartilhado. Verificar 1440/1024/390/320, alinhamento e scroll horizontal; QA visual no Preview é etapa separada do CI.
+- Resultados públicos em ranking exigem **conta autenticada**; nickname solto no navegador não qualifica. História real mantém HTML indexável, destaque semântico moderado, fontes e títulos descritivos (sem encher palavras-chave). Mais detalhes em `docs/PADROES_GLOBAIS_DOS_JOGOS.md`.
+
 ## Princípios
 1. Cada jogo deve funcionar antes de entrar no catálogo.
 2. Não reutilizar o código do antigo oldarcade.com.br.

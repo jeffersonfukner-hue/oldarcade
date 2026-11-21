@@ -15,3 +15,6 @@ export function formatRankingValue(id,value){
 export function betterResult(id,newValue,previous){
  return previous===null||previous===undefined||(isLowerBetter(id)?newValue<previous:newValue>previous);
 }
+
+/** Melhor marca: apenas Sprint minimiza; Sobrevivência e pontos maximizam. */
+export function improvementOperator(id){return isLowerBetter(id)?'<':'>'}

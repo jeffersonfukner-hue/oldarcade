@@ -1,0 +1,18 @@
+---
+/** Convite global de fim de partida, centralizado em frente ao jogo e com autenticação na mesma página. */
+---
+<aside class="oa-end-account-invite" data-end-account-invite role="dialog" aria-modal="true" aria-labelledby="oa-end-invite-title" aria-describedby="oa-end-invite-result" hidden>
+ <div class="oa-end-invite-card">
+  <button type="button" class="oa-end-account-dismiss" data-end-invite-dismiss aria-label="Fechar convite e voltar ao jogo">×</button>
+  <span class="oa-end-invite-eyebrow">Desafio OldArcade</span>
+  <strong id="oa-end-invite-title">Seu nome merece estar no ranking!</strong>
+  <p id="oa-end-invite-result" data-end-invite-result>Seu resultado pode entrar na classificação. Crie uma conta gratuita ou entre para participar.</p>
+  <div class="oa-end-invite-actions">
+   <button type="button" class="btn" data-auth-trigger="register">Salvar meu recorde · Criar conta</button>
+   <button type="button" class="btn secondary" data-auth-trigger="login">Já tenho conta</button>
+  </div>
+  <a href="/rankings/" data-end-invite-ranking>Ver os líderes</a>
+  <button type="button" class="oa-end-invite-skip" data-end-invite-skip>Agora não · Voltar ao jogo</button>
+ </div>
+</aside>
+<script>import '../scripts/gameEndAccountInvite.ts';</script>

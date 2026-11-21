@@ -13,11 +13,12 @@ test('Minha Conta apresenta dashboard estatístico uniforme e configurações se
  await expect(page.locator('#account-stat-modes')).toHaveText('2');
  await expect(page.locator('#account-stat-leads')).toHaveText('1');
  await expect(page.locator('#account-stat-podium')).toHaveText('2');
- await expect(page.locator('.account-record-card')).toHaveCount(6);
+ await expect(page.locator('.account-game-card')).toHaveCount(3);
+ await expect(page.locator('[data-account-record]')).toHaveCount(7);
  await expect(page.locator('#account-preferences')).toBeVisible();
  await expect(page.locator('#account-records')).toBeVisible();
- await expect(page.locator('#account-records .account-game-heading')).toHaveCount(2);
- const count=await page.locator('.account-record-card').evaluateAll(cards=>new Set(cards.map(card=>getComputedStyle(card).borderRadius)).size);
+ await expect(page.locator('#account-records .account-game-heading')).toHaveCount(3);
+ const count=await page.locator('.account-game-card').evaluateAll(cards=>new Set(cards.map(card=>getComputedStyle(card).borderRadius)).size);
  expect(count).toBe(1);
 });
 test('Dashboard mantém largura contida e métricas visíveis em celular',async({page})=>{
@@ -28,7 +29,7 @@ test('Dashboard mantém largura contida e métricas visíveis em celular',async(
  await page.route('**/api/games/*/leaderboard',route=>route.fulfill({status:200,contentType:'application/json',body:'{"available":true,"mine":null,"top":[]}'}));
  await page.goto('/conta/');
  await expect(page.locator('.account-kpi-grid')).toBeVisible();
- await expect(page.locator('.account-record-card').first()).toBeVisible();
+ await expect(page.locator('.account-game-card').first()).toBeVisible();
  await expect(page.locator('#account-stat-modes')).toHaveText('0');
  const width=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,view:window.innerWidth}));
  expect(width.scroll).toBeLessThanOrEqual(width.view+1);

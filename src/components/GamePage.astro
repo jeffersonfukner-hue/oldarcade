@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import GameEndAccountInvite from './GameEndAccountInvite.astro';
 import {gameMode} from '../data/gameModes.js';
 import {gameRegistry} from '../data/gameRegistry';
 interface Props { modeId:string; title:string; description:string; structured?:Record<string,unknown> }
@@ -12,6 +13,7 @@ const schema=structured??{'@context':'https://schema.org','@type':'VideoGame',na
 <Base title={title} description={description} path={mode.url}>
  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
  <slot />
+ <GameEndAccountInvite />
  <div id="game-celebration" class="oa-celebration" hidden aria-live="polite" aria-atomic="true"><div class="oa-celebration-card"><span data-celebration-icon></span><strong data-celebration-title></strong><p data-celebration-message></p><a data-celebration-replay class="btn" href={mode.url} hidden>▶ Jogar novamente</a></div></div>
  <aside id="celebration-test-panel" class="oa-test-panel" hidden aria-label="Simulador de comemorações"><details><summary>🧪 Testar comemorações · Preview</summary><p>Simulação visual. Não altera pontuações nem rankings.</p><div class="oa-test-actions">{[["personal","✨ Recorde pessoal"],["mission","🎯 Missão cumprida"],["podium","🥉 Top 3"],["leader","🏆 Liderança"],["rival","⚡ Fui ultrapassado"],["danger","🐍 Perigo!"],["rescue","🍇 Salva-Cobra"],["provisional","🏆 Marca global"],["defeat","💥 Fim de jogo"]].map(([kind,label])=><button type="button" data-test-celebration={kind}>{label}</button>)}</div></details></aside>
  <script>import '../scripts/gameCelebration.ts';</script>

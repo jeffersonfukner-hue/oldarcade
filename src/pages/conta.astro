@@ -1,11 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
 import {gameModes} from '../data/gameModes.js';
-import {isTimeRanking} from '../data/rankingRules.js';
 import {gameRegistry} from '../data/gameRegistry';
 import DailyHistory from '../components/DailyHistory.astro';
+import AccountGameStats from '../components/AccountGameStats.astro';
 import {DAILY_CHALLENGES_ENABLED} from '../data/featureFlags';
-const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title, modes:Object.entries(gameModes).filter(([,mode])=>mode.title===titleId&&mode.competitive)})).filter(group=>group.modes.length>0);
+const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title,modes:Object.entries(gameModes).filter(([,mode])=>mode.title===titleId)}));
 ---
 <Base title="Minha conta — OldArcade" description="Crie sua conta de jogador com nickname único, e-mail opcional e senha, ou entre na sua conta OldArcade." path="/conta/">
  <div class="shell account-shell">
@@ -43,21 +43,9 @@ const groups=Object.entries(gameRegistry).map(([titleId,title])=>({titleId,title
      <div class="account-kpi"><span class="account-kpi-icon" aria-hidden="true">🏆</span><strong id="account-stat-leads">—</strong><span>Lideranças</span></div>
      <div class="account-kpi"><span class="account-kpi-icon" aria-hidden="true">🥉</span><strong id="account-stat-podium">—</strong><span>Posições Top 3</span></div>
     </div>
-    {groups.map(group=><section aria-label={group.title.name}>
-     <div class="account-game-heading"><div><span class="eyebrow">Jogo #{String(group.title.number).padStart(3,"0")}</span><h4>{group.title.name}</h4></div><span class="small muted">{group.modes.length} modalidades</span></div>
-     <div class="account-record-grid">
-      {group.modes.map(([id,mode])=><article class="account-record-card" data-account-record={id}>
-       <div class="account-record-heading"><span class="account-record-symbol" aria-hidden="true">{mode.symbol}</span><h5>{mode.name.replace(group.title.name,'').trim()||'Clássico'}</h5></div>
-       <div class="account-record-metrics">
-        <div><span>{isTimeRanking(id)?'Melhor tempo':'Recorde pessoal'}</span><strong data-account-best>Consultando…</strong></div>
-        <div><span>Posição global</span><strong data-account-rank>—</strong></div>
-       </div>
-       <p class="small account-record-status" data-account-challenge>Consultando progresso…</p>
-       <details class="account-missions" aria-label="Metas pessoais"><summary>🎯 Minhas próximas metas</summary><ul data-account-missions><li>Consultando seu progresso…</li></ul></details>
-       <a class="btn secondary account-record-play" data-account-play href={mode.url}>Jogar agora →</a>
-      </article>)}
-     </div>
-    </section>)}
+    <div class="account-game-list">
+     {groups.map(group=><AccountGameStats {...group} />)}
+    </div>
     <p class="small muted" id="account-records-status" role="status"></p>
     {DAILY_CHALLENGES_ENABLED && <DailyHistory />}
    </section>

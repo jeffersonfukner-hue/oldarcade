@@ -1,3 +1,4 @@
+import {renderRankingPodium} from './rankingPresentation';
 type Entry={nickname:string;score:number;place?:number;rank?:number;achievedAt?:string;durationMs?:number|null};
 type Board={available:boolean;top?:Entry[];mine?:Entry|null;myGames?:{game:string;score:number}[];serverNow?:string;verified?:boolean;registeredOnly?:boolean};
 function formatDuration(ms?:number|null){if(ms==null)return 'Tempo anterior indisponível';const sec=Math.floor(ms/1000);return Math.floor(sec/60)+'m '+String(sec%60).padStart(2,'0')+'s'}
@@ -8,6 +9,7 @@ function localDate(iso?:string){
 }
 export function setupGlobalLeaderboard(game='snake'){
  const body=document.querySelector<HTMLElement>('#global-rank-body')!;
+ const podium=document.querySelector<HTMLElement>('#global-rank-podium')!;
  const status=document.querySelector<HTMLElement>('#global-rank-status')!;
  const best=document.querySelector<HTMLElement>('#global-best')!;
  const challenge=document.querySelector<HTMLElement>('#challenge-text')!;
@@ -30,6 +32,8 @@ export function setupGlobalLeaderboard(game='snake'){
  function draw(data:Board,source:'initial'|'end'|'submit'='initial'){
   if(data.available)latestBoard=data;
   body.replaceChildren();
+  if(data.available&&Array.isArray(data.top))renderRankingPodium(podium,data.top,score=>score.toLocaleString('pt-BR')+' pontos');
+  else podium.textContent='Classificação indisponível.';
   drawMine(data.mine);
   if(data.available)document.dispatchEvent(new CustomEvent('oldarcade:player-game-records',{detail:{records:data.myGames||[]}}));
   const globalScore=data.available&&data.top?.length?data.top[0].score:null;

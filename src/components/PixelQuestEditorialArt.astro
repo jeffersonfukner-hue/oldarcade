@@ -1,0 +1,21 @@
+---
+/** Artes aprovadas do Pixel Quest; fonte única de textos alternativos e legendas. */
+type ArtId='how-to-play'|'checkpoint'|'progression';
+interface Props{art:ArtId}
+const {art}=Astro.props;
+const labels:Record<ArtId,{alt:string;caption:string}>={
+ 'how-to-play':{alt:'Ilustração pixel art do explorador geométrico saltando por plataformas e coletando cristais',caption:'Como jogar Pixel Quest · ilustração original'},
+ checkpoint:{alt:'Ilustração pixel art de checkpoint, inimigos geométricos e desafios de plataforma no Pixel Quest',caption:'Checkpoint e inimigos · ilustração original'},
+ progression:{alt:'Ilustração pixel art de exploração, cristais e progressão por plataformas em Pixel Quest',caption:'Exploração e progressão · ilustração original'}
+};
+const item=labels[art];
+---
+<figure class="pixel-quest-editorial-art">
+ <img src={`/images/editorial/pixel-quest/${art}.webp`} alt={item.alt} loading="lazy" decoding="async" />
+ <figcaption>{item.caption}</figcaption>
+</figure>
+<style>
+ .pixel-quest-editorial-art{margin:1rem 0 1.35rem;max-width:760px}
+ .pixel-quest-editorial-art img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;border-radius:12px;border:1px solid #ffffff24;background:#101222}
+ .pixel-quest-editorial-art figcaption{font-size:.79rem;color:var(--muted,#aab0c7);padding-top:.42rem}
+</style>

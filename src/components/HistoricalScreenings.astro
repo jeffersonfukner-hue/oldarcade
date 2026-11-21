@@ -1,6 +1,8 @@
 ---
 import {historicalScreenings} from '../data/historicalScreenings';
-interface Props{game:'tetris'|'snake'}
+import SnakeEditorialArt from './SnakeEditorialArt.astro';
+import TetrisEditorialArt from './TetrisEditorialArt.astro';
+interface Props{game:'tetris'|'snake'|'pixel-quest'}
 const {game}=Astro.props;
 const entry=historicalScreenings[game];
 const formatDate=(iso:string)=>new Date(iso+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
@@ -13,12 +15,17 @@ const formatDate=(iso:string)=>new Date(iso+'T12:00:00').toLocaleDateString('pt-
   {entry.works.map(work=>
    <article class="historical-film">
     <h3>{work.title} ({work.year})</h3>
+    {game==='snake' && work.id==='man-vs-snake' && <SnakeEditorialArt art="nibbler-documentary" />}
+    {game==='tetris' && work.id==='tetris-2023' && <TetrisEditorialArt art="tetris-film-history" />}
     <p class="small muted">{work.type} · {work.relation}</p>
     <p>{work.description}</p>
     <p><strong>Onde assistir na data da consulta:</strong> {work.availability}.</p>
-    <p><a class="accent" href={work.watchUrl} target="_blank" rel="noopener noreferrer">Consultar onde assistir a {work.title}</a></p>
+    <p><a class="accent" href={work.watchUrl} target="_blank" rel="noopener noreferrer">Consultar opções para assistir a {work.title}</a> · <a class="accent" href={work.sourceUrl} target="_blank" rel="noopener noreferrer">Fonte da referência cultural</a></p>
    </article>
   )}
+  <p class="small muted">
+   As obras citadas são relacionadas à história ou à cultura do gênero, não necessariamente adaptações do jogo desta página. Quando a disponibilidade não foi confirmada, o link oferece apenas consulta, não uma promessa de exibição.
+  </p>
   <p class="small muted">
    Informação editorial consultada para o Brasil em <time datetime={entry.checkedAt}>{formatDate(entry.checkedAt)}</time>.
    O artigo foi preparado em <time datetime={entry.publishedAt}>{formatDate(entry.publishedAt)}</time>.

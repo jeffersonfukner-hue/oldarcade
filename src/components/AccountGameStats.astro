@@ -1,0 +1,35 @@
+---
+/** Um único card por título. Cada modalidade mantém seus próprios atributos de consulta. */
+import {isTimeRanking} from '../data/rankingRules.js';
+import {gameModes} from '../data/gameModes.js';
+interface Props{
+ titleId:string;
+ title:{number:number;name:string};
+ modes:Array<[string,(typeof gameModes)[keyof typeof gameModes]]>;
+}
+const {titleId,title,modes}=Astro.props;
+const competitive=modes.filter(([,mode])=>mode.competitive);
+---
+<section class="account-game-card" data-account-game={titleId} aria-label={`Desempenho em ${title.name}`}>
+ <header class="account-game-heading">
+  <div><span class="eyebrow">Jogo #{String(title.number).padStart(3,'0')}</span><h4>{title.name}</h4></div>
+  <span class="small muted">{modes.length} {modes.length===1?'modalidade':'modalidades'}</span>
+ </header>
+ {competitive.length>0?<div class="account-mode-list">
+  {competitive.map(([id,mode])=><article class="account-mode-item" data-account-record={id} aria-label={mode.name}>
+   <div class="account-mode-main">
+    <div class="account-record-heading"><span class="account-record-symbol" aria-hidden="true">{mode.symbol}</span><h5>{mode.name.replace(title.name,'').trim()||'Clássico'}</h5></div>
+    <div class="account-record-metrics">
+     <div><span>{isTimeRanking(id)?'Melhor tempo':'Recorde pessoal'}</span><strong data-account-best>Consultando…</strong></div>
+     <div><span>Posição global</span><strong data-account-rank>—</strong></div>
+    </div>
+    <a class="btn secondary account-record-play" data-account-play href={mode.url}>Jogar agora →</a>
+   </div>
+   <p class="small account-record-status" data-account-challenge>Consultando progresso…</p>
+   <details class="account-missions" aria-label={`Metas pessoais de ${mode.name}`}><summary>Minhas próximas metas</summary><ul data-account-missions><li>Consultando seu progresso…</li></ul></details>
+  </article>)}
+ </div>:<div class="account-mode-empty">
+  <p>Este jogo ainda não possui ranking global por conta. Os resultados locais provisórios não são apresentados como recordes da sua conta.</p>
+  <a class="btn secondary" href={modes[0]?.[1]?.url??`/jogos/${titleId}/`}>Jogar {title.name} →</a>
+ </div>}
+</section>
