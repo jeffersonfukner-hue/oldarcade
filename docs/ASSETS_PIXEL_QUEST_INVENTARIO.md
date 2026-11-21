@@ -1,3 +1,10 @@
+## ESTADO VIGENTE — quatro WebP aprovados (21/11/2026)
+
+- Aprovação posterior do proprietário na conversa de criação de imagens: **capa, Como Jogar, Checkpoint e Exploração e Progressão**. Este aceite mais recente prevalece sobre os estados históricos de aprovação parcial abaixo, que permanecem preservados para rastreabilidade.
+- Arquivos presentes na branch `feat/layout-unificado-snake-quest`: `public/images/games/pixel-quest.webp`, `public/images/editorial/pixel-quest/how-to-play.webp`, `checkpoint.webp` e `progression.webp`.
+- Integração: home usa a capa WebP; guia do Pixel Quest exibe as três artes por componente editorial reutilizável, com textos alternativos e legendas. Artes AVIF da linha do tempo permanecem intactas.
+- Teste Playwright adicionado para presença e carregamento das quatro imagens em desktop (1280px) e celular (320px), com verificação de overflow; execução depende do CI. Sem merge ou deploy.
+
 ## FECHAMENTO DE ESCOPO VISUAL — 21/11/2026
 - **Não gerar novas ilustrações para completar volume.** Revisão de `src/components/PixelQuestGame.astro`, `PixelQuestHistory.astro`, `src/data/historicalTimeline.ts` e `src/pages/index.astro`: o guia já explica regras, controles, checkpoint e pontuação em texto; quatro marcos históricos já usam imagens AVIF; único uso novo obrigatório na home é a capa, que atualmente aponta para SVG legado.
 - Pacote escolhido pelo proprietário contém exclusivamente `pixel-quest-cover.png` (capa definitiva) e `checkpoint-enemies.png` (editorial selecionada). `how-to-play.png` e outras cenas redundantes ficam descartadas.
