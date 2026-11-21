@@ -63,6 +63,7 @@ test('Padrão global: todos os jogos mostram artes editoriais originais, fontes 
   await expect(timeline.locator('img.oa-era-art')).toHaveCount(game.slug==='pixel-quest'?4:6);
   if(game.slug==='pixel-quest'){
    for(const img of await timeline.locator('img.oa-era-art').all()){
+    await img.scrollIntoViewIfNeeded();
     await expect(img).toHaveAttribute('src',new RegExp('[.]avif$'));
     await expect.poll(()=>img.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
    }
