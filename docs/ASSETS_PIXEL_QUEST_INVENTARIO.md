@@ -1,3 +1,9 @@
+## FECHAMENTO DE ESCOPO VISUAL — 21/11/2026
+- **Não gerar novas ilustrações para completar volume.** Revisão de `src/components/PixelQuestGame.astro`, `PixelQuestHistory.astro`, `src/data/historicalTimeline.ts` e `src/pages/index.astro`: o guia já explica regras, controles, checkpoint e pontuação em texto; quatro marcos históricos já usam imagens AVIF; único uso novo obrigatório na home é a capa, que atualmente aponta para SVG legado.
+- Pacote escolhido pelo proprietário contém exclusivamente `pixel-quest-cover.png` (capa definitiva) e `checkpoint-enemies.png` (editorial selecionada). `how-to-play.png` e outras cenas redundantes ficam descartadas.
+- Para finalizar: upload manual do ZIP descompactado no GitHub, respeitando caminhos internos; conferir hashes, integrar capa no card da home e imagem editorial no guia; rodar checks/CI, apresentar preview para validação. **Sem merge ou deploy pela assistência.**
+- O conteúdo histórico anterior do inventário permanece como registro cronológico, mas seus estados preliminares de proposta/pendência foram superados por esta decisão.
+
 ## CORREÇÃO FINAL DO PACOTE PIXEL QUEST — somente imagens aceitas (20/11/2026)
 - O proprietário rejeitou a inclusão de imagens repetitivas/pendentes. O ZIP anterior com `PENDENTE_DE_APROVACAO/how-to-play.png` **não deve ser usado**.
 - **Pacote limpo:** `oldarcade-pixel-quest-somente-aprovadas.zip`; SHA-256 `31f0ba278f4e484bf03daf20da99dee33d18ac470a382053fd96bbbec594aab1`. Dois PNGs originais não modificados, mais `MANIFESTO.json`.
