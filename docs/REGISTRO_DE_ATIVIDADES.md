@@ -29,3 +29,10 @@
 - **Resultados:** branch `feat/layout-unificado-snake-quest`, PR #4; integração feita apenas no código dessa branch; sem merge/deploy.
 - **Pendências:** comprovar SHA-256 dos 15 PNGs pelos bytes remotos ou ZIP original; conferir CI do commit final e homologar no Preview. Não declarar testes aprovados sem evidências.
 - **Evidências:** [PR #4](https://github.com/jeffersonfukner-hue/oldarcade/pull/4), commits da integração visíveis no histórico da branch.
+
+## 20/11/2026 — Homologação Snake e inventário inicial Tetris (projeto: OldArcade)
+- **Início/término (Brasília):** não aferidos; **duração efetiva:** não mensurada; estimativa não calculada.
+- **Atividades:** registro da homologação visual expressa das 15 imagens Snake informada pelo proprietário; consulta ao código de Tetris, seus três modos, guia, história e timeline; delimitação de cenas históricas e editoriais para nova coleção.
+- **Resultados:** homologação Snake registrada; direção artística pixel art premium preservada; início de preparação do lote Tetris sem alterar as páginas do jogo.
+- **Pendências:** aprovação individual das novas imagens, futura conferência de integridade no GitHub; CI do último HEAD Snake não comprovado.
+- **Evidências:** PR #4, `src/components/TetrisGame.astro`, `src/components/TetrisHistory.astro`, `src/data/historicalTimeline.ts` e manifestação do proprietário nesta conversa.
