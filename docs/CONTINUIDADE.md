@@ -1,3 +1,8 @@
+## CORREÇÃO DE HOMOLOGAÇÃO — Pixel Quest (20/11/2026)
+- **SOMENTE a capa do Pixel Quest foi aprovada expressamente pelo proprietário.** A arte do guia `how-to-play` foi apenas apresentada e **NÃO foi aprovada**. A arte de checkpoint/inimigos/pontuação não foi concluída como arquivo individual; os painéis compostos gerados são **rejeitados como arte final e NÃO aprovados**.
+- As quatro imagens históricas AVIF são legado já existente, **sem nova homologação** neste lote.
+- Não enviar, aplicar ou substituir imagens editoriais não aprovadas; nenhuma imagem do Pixel Quest foi integrada nesta etapa. Manter Snake e Tetris homologados.
+
 ## HOMOLOGAÇÃO — Tetris visual aprovado; CI em correção (20/11/2026)
 - Proprietário informou expressamente "homologado" após integração das 13 imagens Tetris e visualização no ambiente de teste Cloudflare Pages. **Homologação visual Tetris confirmada e preservada.** Snake já homologado. Próximo título: Pixel Quest.
 - **CI comprovado:** o workflow de commit `d7413919b7` foi concluído com *failure* na etapa Playwright; falhas: testes legados ainda esperavam capas SVG de Snake/Tetris, carregamento lazy de imagem Pixel Quest não acionado na verificação e localizador ambíguo para "Tetris (2023)" após adição da legenda ilustrativa. Não declarar CI aprovado.
