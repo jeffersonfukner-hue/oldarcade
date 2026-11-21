@@ -1,3 +1,10 @@
+## 21/11/2026 — Revisão final de necessidade de artes Pixel Quest
+- **Horários início/fim e duração efetiva:** não aferidos; não computar horas por intervalo entre mensagens.
+- **Atividades executadas:** leitura de PixelQuestGame, PixelQuestHistory, historicalTimeline, home e inventário; verificação da estrutura do ZIP com dois PNGs e manifesto; encerramento do escopo de produção de novas artes.
+- **Resultado comprovado:** quatro ilustrações históricas já referenciadas; guia e controles existentes; home ainda usa SVG da capa antiga; dois PNGs do pacote possuem SHA-256 conferíveis. Nenhuma arte nova exigida.
+- **Pendência:** upload dos PNGs no GitHub e integração apenas após confirmação de hash, CI e validação de preview.
+- **Evidências:** `src/pages/index.astro`, `src/components/PixelQuestGame.astro`, `src/data/historicalTimeline.ts`, `docs/ASSETS_PIXEL_QUEST_INVENTARIO.md`; ZIP com manifesto.
+
 ## 20/11/2026 — Limpeza de pacote Pixel Quest
 - **Horários início/término e duração efetiva (Brasília):** não aferidos; sem estimativa.
 - **Atividades:** inspecionar o pacote anterior, excluir arte pendente e duplicações do pacote final, montar um único ZIP com dois PNGs selecionados e manifesto; conferir hash de cada PNG reextraído.
