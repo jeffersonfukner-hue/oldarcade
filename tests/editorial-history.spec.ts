@@ -60,7 +60,7 @@ test('Padrão global: todos os jogos mostram artes editoriais originais, fontes 
   const entries=timeline.locator(':scope > li');
   await expect(entries).toHaveCount(game.slug==='pixel-quest'?4:6);
   await expect(timeline.locator('svg[role="img"],img.oa-era-art')).toHaveCount(game.slug==='pixel-quest'?4:6);
-  await expect(timeline.locator('img.oa-era-art')).toHaveCount(game.slug==='pixel-quest'?4:game.slug==='snake'?6:0);
+  await expect(timeline.locator('img.oa-era-art')).toHaveCount(game.slug==='pixel-quest'?4:6);
   if(game.slug==='pixel-quest'){
    for(const img of await timeline.locator('img.oa-era-art').all()){
     await expect(img).toHaveAttribute('src',/\\.avif$/);
@@ -104,6 +104,43 @@ test('Snake: 15 artes homologadas estão vinculadas aos textos corretos e carreg
     await expect(film).toHaveCount(1);
     await film.scrollIntoViewIfNeeded();
     await expect.poll(()=>film.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+   }
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  }
+ }
+});
+
+test('Tetris: as 13 artes homologadas carregam no contexto correto em desktop e celular',async({page})=>{
+ const pages=[
+  {path:'/',assets:['/images/games/tetris-cover.png']},
+  {path:'/jogos/tetris/',assets:['/images/editorial/tetris/how-to-play.png','/images/editorial/tetris/controls.png','/images/editorial/tetris/strategy.png']},
+  {path:'/jogos/tetris/sprint/',assets:['/images/editorial/tetris/sprint.png','/images/editorial/tetris/controls.png','/images/editorial/tetris/strategy.png']},
+  {path:'/jogos/tetris/sobrevivencia/',assets:['/images/editorial/tetris/survival.png','/images/editorial/tetris/controls.png','/images/editorial/tetris/strategy.png']}
+ ];
+ for(const width of [1280,320]){
+  await page.setViewportSize({width,height:740});
+  for(const target of pages){
+   await page.goto(target.path);
+   for(const src of target.assets){
+    const figure=page.locator(`img[src="${src}"]`);
+    await expect(figure).toHaveCount(1);
+    await expect(figure).toHaveAttribute('alt',/.+/);
+    await figure.scrollIntoViewIfNeeded();
+    await expect.poll(()=>figure.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+   }
+   if(target.path!=='/'){
+    const timeline=page.locator('.oa-illustrated-timeline img.oa-era-art');
+    await expect(timeline).toHaveCount(6);
+    for(const img of await timeline.all()){
+     await expect(img).toHaveAttribute('src',/^\\/images\\/history\\/tetris\\/.+\\.png$/);
+     await img.scrollIntoViewIfNeeded();
+     await expect.poll(()=>img.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+    }
+    const film=page.locator('img[src="/images/editorial/tetris/tetris-film-history.png"]');
+    await expect(film).toHaveCount(1);
+    await film.scrollIntoViewIfNeeded();
+    await expect.poll(()=>film.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+    await expect(page.locator('.tetris-editorial-art figcaption').first()).toContainText('ilustração original');
    }
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   }
