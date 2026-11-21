@@ -1,0 +1,26 @@
+---
+/** Ilustrações originais homologadas do Snake; sem interferência nos canvases. */
+type ArtId='how-to-play'|'controls'|'rules'|'adventure'|'adventure-missions'|'evolution'|'evolution-powers'|'nibbler-documentary';
+interface Props{art:ArtId}
+const {art}=Astro.props;
+const labels:Record<ArtId,{alt:string;caption:string}>={
+ 'how-to-play':{alt:'Ilustração pixel art da cobrinha recolhendo frutas no tabuleiro',caption:'Como jogar Snake · ilustração original'},
+ controls:{alt:'Ilustração pixel art de controles direcionais do Snake',caption:'Controles do Snake · ilustração original'},
+ rules:{alt:'Ilustração pixel art de obstáculos e trajetória de Snake',caption:'Regras do Snake · ilustração original'},
+ adventure:{alt:'Ilustração original em pixel art do modo Snake Aventura',caption:'Snake Aventura · ilustração original'},
+ 'adventure-missions':{alt:'Ilustração original em pixel art de itens especiais e missões de Snake Aventura',caption:'Itens e missões do Aventura · ilustração original'},
+ evolution:{alt:'Ilustração original em pixel art do modo Snake Evolution',caption:'Snake Evolution · ilustração original'},
+ 'evolution-powers':{alt:'Ilustração original em pixel art de poderes e obstáculos do Snake Evolution',caption:'Poderes do Evolution · ilustração original'},
+ 'nibbler-documentary':{alt:'Ilustração editorial original em pixel art inspirada na história de Nibbler',caption:'Nibbler e Man vs Snake · ilustração editorial original, não é pôster do filme'}
+};
+const item=labels[art];
+---
+<figure class="snake-editorial-art">
+ <img src={`/images/editorial/snake/${art}.png`} alt={item.alt} loading="lazy" decoding="async" width="1200" height="675" />
+ <figcaption>{item.caption}</figcaption>
+</figure>
+<style>
+ .snake-editorial-art{margin:1rem 0 1.35rem;max-width:760px}
+ .snake-editorial-art img{display:block;width:100%;height:auto;max-height:420px;object-fit:contain;border-radius:12px;border:1px solid #ffffff24;background:#101222}
+ .snake-editorial-art figcaption{font-size:.79rem;color:var(--muted,#aab0c7);padding-top:.42rem}
+</style>
