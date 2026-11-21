@@ -13,12 +13,12 @@ export interface HistoricalMilestone {
 }
 export const historicalTimelines:Record<HistoricalGame,HistoricalMilestone[]>={
  snake:[
-  {date:'1976',title:'Blockade',description:'Duas linhas deixam rastros e tornam a arena mais perigosa.',sourceLabel:'Histórico de Snake — Taneli Armanto',sourceUrl:'https://taneliarmanto.com/news/history-of-snake',scene:'trail'},
-  {date:'Início dos anos 1980',title:'Variantes de arcade',description:'Novas versões exploram coleta, obstáculos e labirintos.',sourceLabel:'Histórico de Snake — Taneli Armanto',sourceUrl:'https://taneliarmanto.com/news/history-of-snake',scene:'maze'},
-  {date:'1997',title:'Nokia 6110',description:'A versão de Taneli Armanto leva a cobrinha aos telefones.',sourceLabel:'Taneli Armanto — FAQ',sourceUrl:'https://taneliarmanto.com/faq',scene:'phone'},
-  {date:'Anos 2000',title:'Novos celulares',description:'A mecânica acompanha aparelhos e interfaces móveis.',sourceLabel:'Histórico de Snake — Taneli Armanto',sourceUrl:'https://taneliarmanto.com/news/history-of-snake',scene:'snake'},
-  {date:'2015',title:'Snake Rewind',description:'O gênero ganha mais uma interpretação para telas de toque.',sourceLabel:'Histórico de Snake — Taneli Armanto',sourceUrl:'https://taneliarmanto.com/news/history-of-snake',scene:'phone'},
-  {date:'Hoje',title:'Snake no navegador',description:'Uma tradição que continua nos jogos independentes de navegador.',sourceLabel:'OldArcade — versão independente',sourceUrl:'/jogos/snake/',scene:'snake'}
+  {date:'1976',title:'Blockade',description:'Duas linhas deixam rastros e tornam a arena mais perigosa.',sourceLabel:'Histórico de Snake — Taneli Armanto',sourceUrl:'https://taneliarmanto.com/news/history-of-snake',scene:'trail',image:'/images/history/snake/blockade-1976.png'},
+  {date:'Início dos anos 1980',title:'Variantes de arcade',description:'Novas versões exploram coleta, obstáculos e labirintos.',sourceLabel:'Histórico de Snake — Taneli Armanto',sourceUrl:'https://taneliarmanto.com/news/history-of-snake',scene:'maze',image:'/images/history/snake/home-computers-1980s.png'},
+  {date:'1997',title:'Nokia 6110',description:'A versão de Taneli Armanto leva a cobrinha aos telefones.',sourceLabel:'Taneli Armanto — FAQ',sourceUrl:'https://taneliarmanto.com/faq',scene:'phone',image:'/images/history/snake/nokia-1997.png'},
+  {date:'Anos 2000',title:'Novos celulares',description:'A mecânica acompanha aparelhos e interfaces móveis.',sourceLabel:'Histórico de Snake — Taneli Armanto',sourceUrl:'https://taneliarmanto.com/news/history-of-snake',scene:'snake',image:'/images/history/snake/mobile-2000s.png'},
+  {date:'2015',title:'Snake Rewind',description:'O gênero ganha mais uma interpretação para telas de toque.',sourceLabel:'Histórico de Snake — Taneli Armanto',sourceUrl:'https://taneliarmanto.com/news/history-of-snake',scene:'phone',image:'/images/history/snake/rewind-2015.png'},
+  {date:'Hoje',title:'Snake no navegador',description:'Uma tradição que continua nos jogos independentes de navegador.',sourceLabel:'OldArcade — versão independente',sourceUrl:'/jogos/snake/',scene:'snake',image:'/images/history/snake/browser-today.png'}
  ],
  tetris:[
   {date:'1984',title:'Electronika 60',description:'Alexey Pajitnov cria Tetris com caracteres de texto.',sourceLabel:'The Tetris Company — About',sourceUrl:'https://tetris.com/about',scene:'computer'},
