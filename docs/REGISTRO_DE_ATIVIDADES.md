@@ -1,4 +1,12 @@
 
+## 20/11/2026 — Aplicação das 13 imagens Tetris (projeto: OldArcade)
+- **Início/término (Brasília):** não aferidos com medidor; **duração efetiva:** indisponível; **estimativa:** não calculada. Períodos não documentados não são considerados trabalho.
+- **Ações executadas:** conferência dos quatro PNGs restantes via GitHub e comparação dos hashes de blob Git com o manifesto aprovado; leitura do código de Tetris e regressões; criação de componente de arte editorial; aplicação na home, em seis marcos históricos, nos três guias e na seção do filme; adição de teste Playwright desktop/mobile e correção da expressão regular para extensões.
+- **Resultados comprovados:** 13/13 arquivos presentes na branch, quatro novos com hashes Git coincidentes; código alterado exclusivamente para integrar imagens do Tetris, sem alteração de lógica de jogo, Tetris/Snake/Pixel Quest preservados; PR #4 draft.
+- **Pendências:** execução comprovada de checks, build e Playwright no commit HEAD, eventual correção de falhas e homologação visual do proprietário no ambiente de teste Cloudflare. Não houve merge nem deploy.
+- **Evidências:** PR #4, `src/components/TetrisEditorialArt.astro`, `src/components/TetrisGame.astro`, `src/data/historicalTimeline.ts`, `src/components/HistoricalScreenings.astro`, `tests/editorial-history.spec.ts`.
+
+
 ## 20/11/2026 — Homologação final e preparação de upload Tetris (projeto: OldArcade)
 - **Início e término (Brasília):** não aferidos de forma confiável; **duração efetiva comprovada:** não mensurada; **tempo estimado:** não calculado.
 - **Atividades executadas:** registrar aceites expressos de Sobrevivência e da ilustração histórica do filme de 2023; consultar 13 caminhos na branch GitHub; calcular SHA-1 Git dos nove PNGs do ZIP anterior e comparar com os blobs GitHub (todos coincidentes); verificar dimensões 1672×941 e SHA-256 dos quatro PNGs restantes; gerar ZIP final com manifesto e conferir cada item após compactação.
