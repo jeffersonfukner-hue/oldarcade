@@ -1,3 +1,11 @@
+## CORREÇÃO FINAL DO PACOTE PIXEL QUEST — somente imagens aceitas (20/11/2026)
+- O proprietário rejeitou a inclusão de imagens repetitivas/pendentes. O ZIP anterior com `PENDENTE_DE_APROVACAO/how-to-play.png` **não deve ser usado**.
+- **Pacote limpo:** `oldarcade-pixel-quest-somente-aprovadas.zip`; SHA-256 `31f0ba278f4e484bf03daf20da99dee33d18ac470a382053fd96bbbec594aab1`. Dois PNGs originais não modificados, mais `MANIFESTO.json`.
+- **Capa definitiva aprovada:** `public/images/games/pixel-quest-cover.png`, SHA-256 `4f69be97eae06b40247b48645e87fa728e780e26928d18282b4c3c1cdd49c5ff`.
+- **Imagem destinada pelo proprietário a checkpoint/inimigos/pontuação:** `public/images/editorial/pixel-quest/checkpoint-enemies.png`, SHA-256 `08d81756c6a7531bd1efd44e9e9ca8ea4463a0d0ca76a7b8127788af206c3abb`. Registrar como **selecionada para esse uso**, sem afirmar que todo o conjunto editorial foi homologado.
+- **Descartada:** `how-to-play.png` e variações visuais quase idênticas à capa. Não colocar no ZIP aprovado, não subir nem aplicar.
+- As 4 artes históricas já estão no repositório e não precisam de download/reenviar. Nenhum merge/deploy.
+
 ## DECISÃO DEFINITIVA MAIS RECENTE — capa Pixel Quest (20/11/2026)
 - **Capa aprovada DEFINITIVAMENTE pelo proprietário:** a imagem mais recente, `pixel_quest_moonlit_crystal_valley.png`, **substitui a capa anteriormente escolhida**. A aprovação provisória registrada abaixo é histórica e foi explicitamente superada pela frase: "pode substituir a anterior, essa eh a aprovada".
 - PNG original preservado sem edição: **1672 × 941**, SHA-256 `4f69be97eae06b40247b48645e87fa728e780e26928d18282b4c3c1cdd49c5ff`. Destino final: `public/images/games/pixel-quest-cover.png`. ZIP de transferência: `oldarcade-pixel-quest-capa-aprovada.zip`, SHA-256 `56c980f0d5085a1fb1473557175dd88c43fe3351fb5cc7c9fb89a4083f4ded3e`.
