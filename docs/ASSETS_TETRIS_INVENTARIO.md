@@ -1,3 +1,10 @@
+## Atualização — Sprint aprovado; Sobrevivência e cinema ainda pendentes (20/11/2026)
+- Proprietário aprovou expressamente a **ilustração individual do Sprint** apresentada anteriormente. Manter esse arquivo original como aprovado, sem recriação, alteração ou recompressão.
+- Lote 1: nove imagens históricas/editoriais aprovadas e organizadas em ZIP; ainda não há prova de upload binário ao GitHub.
+- Uma tentativa de gerar Sobrevivência e referência ao filme Tetris (2023) produziu **imagem composta com texto e elementos de pôster**, incompatível com o contrato de ilustrações individuais sem texto. **Descartada como arte final, não aprovada e não aplicada.**
+- Continuam pendentes duas artes individuais, isoladas e originais: `public/images/editorial/tetris/survival.png` e `public/images/editorial/tetris/tetris-film-history.png`. A arte cultural deve ser interpretação original e não pôster oficial.
+- Sem merge, deploy ou alteração no site.
+
 ## Atualização — primeiro lote de 9 imagens APROVADO
 - Aprovação expressa do proprietário nesta conversa: "aprovado primeiro lote".
 - Os 9 PNGs originais de 1672×941 foram copiados byte a byte para a árvore prevista; manifesto e ZIP verificados por SHA-256, **sem upload ao GitHub e sem aplicação ao site**.
