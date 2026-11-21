@@ -17,6 +17,7 @@ const enemiesInLevel=firstLevel.entities.filter(entity=>entity.kind==='patroller
 import GameLayout from './GameLayout.astro';
 import GameDevelopmentHistory from './GameDevelopmentHistory.astro';
 import GameGuide from './GameGuide.astro';
+import PixelQuestEditorialArt from './PixelQuestEditorialArt.astro';
 ---
 <GamePage modeId="pixel-quest" title="Jogar Pixel Quest — Plataforma 2D original | OldArcade" description="Jogue Pixel Quest, jogo original de plataforma 2D: colete cristais, vença inimigos e dispute o ranking por fase concluída.">
  <div class="shell oa-game-page pq-shell">
@@ -43,7 +44,7 @@ import GameGuide from './GameGuide.astro';
   <GamePageSections>
    <GameRanking slot="rankings" game="pixel-quest" name="Pixel Quest" />
    <GameShare slot="share" gameSlug="pixel-quest" gameName="Pixel Quest" />
-   <GameGuide slot="guide"><h2>Como jogar</h2><p>Explore o caminho horizontal. Segure o salto para alcançar plataformas mais altas e solte cedo para saltos baixos. Depois de alcançar o checkpoint, você retorna a ele ao cair em abismos; contato lateral com inimigo tira um coração e provoca recuo. Pausas não consomem tempo de jogo.</p><h3>Pontuação</h3><p>Cristal: <strong>10 pontos</strong>; inimigo derrotado: <strong>50</strong>; portal: <strong>100</strong>; bônus de tempo: até <strong>500</strong>, reduzindo 2 pontos por segundo efetivo. O resultado só é registrado após concluir a fase.</p><p>Inimigos derrotados no nível reiniciam na próxima fase; o total acumula durante a campanha. A fase 1-1 concluída pode entrar no ranking global de contas. Marcas locais continuam disponíveis sem cadastro; campanhas futuras terão classificação própria e não serão misturadas com esta fase.</p></GameGuide>
+   <GameGuide slot="guide"><h2>Como jogar</h2><PixelQuestEditorialArt art="how-to-play" /><p>Explore o caminho horizontal. Segure o salto para alcançar plataformas mais altas e solte cedo para saltos baixos. Depois de alcançar o checkpoint, você retorna a ele ao cair em abismos; contato lateral com inimigo tira um coração e provoca recuo. Pausas não consomem tempo de jogo.</p><PixelQuestEditorialArt art="checkpoint" /><h3>Pontuação</h3><p>Cristal: <strong>10 pontos</strong>; inimigo derrotado: <strong>50</strong>; portal: <strong>100</strong>; bônus de tempo: até <strong>500</strong>, reduzindo 2 pontos por segundo efetivo. O resultado só é registrado após concluir a fase.</p><p>Inimigos derrotados no nível reiniciam na próxima fase; o total acumula durante a campanha. A fase 1-1 concluída pode entrar no ranking global de contas. Marcas locais continuam disponíveis sem cadastro; campanhas futuras terão classificação própria e não serão misturadas com esta fase.</p><PixelQuestEditorialArt art="progression" /></GameGuide>
    <PixelQuestHistory slot="history" />
    <HistoricalScreenings slot="screenings" game="pixel-quest" />
    <GameRelatedGames slot="related" currentGame="pixel-quest" />
