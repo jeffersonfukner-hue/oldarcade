@@ -21,12 +21,12 @@ export const historicalTimelines:Record<HistoricalGame,HistoricalMilestone[]>={
   {date:'Hoje',title:'Snake no navegador',description:'Uma tradição que continua nos jogos independentes de navegador.',sourceLabel:'OldArcade — versão independente',sourceUrl:'/jogos/snake/',scene:'snake',image:'/images/history/snake/browser-today.png'}
  ],
  tetris:[
-  {date:'1984',title:'Electronika 60',description:'Alexey Pajitnov cria Tetris com caracteres de texto.',sourceLabel:'The Tetris Company — About',sourceUrl:'https://tetris.com/about',scene:'computer'},
-  {date:'Meados dos anos 1980',title:'Microcomputadores',description:'A adaptação para IBM PC amplia a circulação do jogo.',sourceLabel:'Smithsonian — Tetris e Guerra Fria',sourceUrl:'https://americanhistory.si.edu/explore/stories/tetris-fun-cold-war',scene:'blocks'},
-  {date:'1989',title:'Game Boy',description:'A versão portátil ajuda a popularizar Tetris mundialmente.',sourceLabel:'The Tetris Company — História',sourceUrl:'https://tetris.com/news/the-history-of-tetris',scene:'handheld'},
-  {date:'1996',title:'The Tetris Company',description:'Pajitnov e Henk Rogers consolidam a administração comercial da marca.',sourceLabel:'The Tetris Company — About',sourceUrl:'https://tetris.com/about',scene:'blocks'},
-  {date:'2012',title:'MoMA',description:'Tetris entra no acervo de design do museu de Nova York.',sourceLabel:'MoMA — Tetris',sourceUrl:'https://www.moma.org/collection/works/152403',scene:'museum'},
-  {date:'Hoje',title:'Novas interpretações',description:'Clássico, Sprint e Sobrevivência continuam a desafiar jogadores.',sourceLabel:'OldArcade — versão independente',sourceUrl:'/jogos/tetris/',scene:'blocks'}
+  {date:'1984',title:'Electronika 60',description:'Alexey Pajitnov cria Tetris com caracteres de texto.',sourceLabel:'The Tetris Company — About',sourceUrl:'https://tetris.com/about',scene:'computer',image:'/images/history/tetris/electronika-1984.png'},
+  {date:'Meados dos anos 1980',title:'Microcomputadores',description:'A adaptação para IBM PC amplia a circulação do jogo.',sourceLabel:'Smithsonian — Tetris e Guerra Fria',sourceUrl:'https://americanhistory.si.edu/explore/stories/tetris-fun-cold-war',scene:'blocks',image:'/images/history/tetris/home-computers-1980s.png'},
+  {date:'1989',title:'Game Boy',description:'A versão portátil ajuda a popularizar Tetris mundialmente.',sourceLabel:'The Tetris Company — História',sourceUrl:'https://tetris.com/news/the-history-of-tetris',scene:'handheld',image:'/images/history/tetris/game-boy-1989.png'},
+  {date:'1996',title:'The Tetris Company',description:'Pajitnov e Henk Rogers consolidam a administração comercial da marca.',sourceLabel:'The Tetris Company — About',sourceUrl:'https://tetris.com/about',scene:'blocks',image:'/images/history/tetris/licensing-1996.png'},
+  {date:'2012',title:'MoMA',description:'Tetris entra no acervo de design do museu de Nova York.',sourceLabel:'MoMA — Tetris',sourceUrl:'https://www.moma.org/collection/works/152403',scene:'museum',image:'/images/history/tetris/moma-2012.png'},
+  {date:'Hoje',title:'Novas interpretações',description:'Clássico, Sprint e Sobrevivência continuam a desafiar jogadores.',sourceLabel:'OldArcade — versão independente',sourceUrl:'/jogos/tetris/',scene:'blocks',image:'/images/history/tetris/browser-today.png'}
  ],
  'pixel-quest':[
   {date:'1980',title:'Space Panic',description:'Plataformas e escadas em diferentes alturas, antes de o salto dominar o gênero.',sourceLabel:'História dos jogos de plataforma',sourceUrl:'https://code198x.com/vault/genres/platformer/',scene:'ladder',image:'/images/history/space-panic-1980.avif'},
