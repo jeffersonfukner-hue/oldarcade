@@ -1,4 +1,12 @@
 
+## 20/11/2026 — Homologação visual Tetris e investigação de CI (projeto: OldArcade)
+- **Início / término Brasília:** não aferidos; **duração efetiva comprovada:** não mensurada; estimativa não calculada; não atribuir horas entre mensagens.
+- **Atividades:** registrar homologação expressa do Tetris informada pelo proprietário; consultar estado do PR #4, logs de execução do GitHub Actions e conteúdo de testes; identificar falhas de expectativas desatualizadas e lazy loading; ajustar três arquivos de teste; inspecionar componentes e história de Pixel Quest para próxima etapa.
+- **Resultados comprovados:** CI anterior `d7413919b7` com failure no Playwright, causas específicas registradas em `docs/CONTINUIDADE.md`; alterações corretivas de teste somente na branch de trabalho, sem mexer em jogos ou imagens homologadas; inventário inicial do Pixel Quest.
+- **Pendências:** conferir execução do novo CI; criar e homologar coleção Pixel Quest sem alterar imagens legadas antes da decisão.
+- **Evidências:** PR #4, GitHub Actions run 44852845049 e commits dos testes na branch.
+
+
 ## 20/11/2026 — Aplicação das 13 imagens Tetris (projeto: OldArcade)
 - **Início/término (Brasília):** não aferidos com medidor; **duração efetiva:** indisponível; **estimativa:** não calculada. Períodos não documentados não são considerados trabalho.
 - **Ações executadas:** conferência dos quatro PNGs restantes via GitHub e comparação dos hashes de blob Git com o manifesto aprovado; leitura do código de Tetris e regressões; criação de componente de arte editorial; aplicação na home, em seis marcos históricos, nos três guias e na seção do filme; adição de teste Playwright desktop/mobile e correção da expressão regular para extensões.
