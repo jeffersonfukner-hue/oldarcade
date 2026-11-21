@@ -1,3 +1,10 @@
+## DECISÃO DEFINITIVA MAIS RECENTE — capa Pixel Quest (20/11/2026)
+- **Capa aprovada DEFINITIVAMENTE pelo proprietário:** a imagem mais recente, `pixel_quest_moonlit_crystal_valley.png`, **substitui a capa anteriormente escolhida**. A aprovação provisória registrada abaixo é histórica e foi explicitamente superada pela frase: "pode substituir a anterior, essa eh a aprovada".
+- PNG original preservado sem edição: **1672 × 941**, SHA-256 `4f69be97eae06b40247b48645e87fa728e780e26928d18282b4c3c1cdd49c5ff`. Destino final: `public/images/games/pixel-quest-cover.png`. ZIP de transferência: `oldarcade-pixel-quest-capa-aprovada.zip`, SHA-256 `56c980f0d5085a1fb1473557175dd88c43fe3351fb5cc7c9fb89a4083f4ded3e`.
+- **Conferência GitHub:** o destino ainda não existe na branch `feat/layout-unificado-snake-quest`, portanto é necessário upload do PNG original antes de integrá-lo à home. Não afirmar arquivo enviado ou site alterado.
+- A versão de capa anterior fica **substituída como escolha**, preservada apenas como histórico, sem validade para publicação.
+- Os demais editoriais de Pixel Quest **não estão aprovados**. Não gerar novas imagens, não fazer merge nem deploy sem solicitação.
+
 ## DECISÃO MAIS RECENTE — capa Pixel Quest aprovada provisoriamente (20/11/2026)
 - O proprietário declarou **"aprovada por hora"** sobre a última imagem apresentada, de paisagem mais ampla com personagem amarelo em primeiro plano, cristais, ponte e portal roxo, arquivo de conversa `pixel_quest_moonlit_crystal_valley.png`.
 - **Status: aprovação visual PROVISÓRIA**, não homologação definitiva nem autorização para substituição automática ou deploy. A capa anteriormente aprovada deve permanecer preservada como versão anterior; não apagar nem afirmar revogação.
