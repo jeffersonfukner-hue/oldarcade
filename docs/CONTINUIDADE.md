@@ -1,3 +1,11 @@
+## ESTADO VIGENTE — 13 imagens Tetris integradas na branch (20/11/2026)
+
+- **Transferência confirmada:** os quatro PNGs restantes (`tetris-cover.png`, `sprint.png`, `survival.png`, `tetris-film-history.png`) foram encontrados na branch do PR #4; os respectivos SHA-1 de blobs Git coincidem exatamente com os hashes calculados sobre os PNGs originais dentro do ZIP aprovado. Os 9 arquivos anteriores já estavam confirmados, totalizando 13/13.
+- **Aplicação realizada exclusivamente no Tetris:** `src/pages/index.astro` passou a usar a capa do Tetris; seis marcos em `src/data/historicalTimeline.ts` referenciam ilustrações históricas; `src/components/TetrisGame.astro` integra imagens no guia Clássico, Sprint e Sobrevivência; `src/components/HistoricalScreenings.astro` exibe imagem original de contexto do filme (2023), não um pôster; `src/components/TetrisEditorialArt.astro` é o componente para imagens, alt e legendas. Nenhuma mecânica, ranking ou imagem Pixel Quest foi alterada nesta integração.
+- **Testes:** regressão Playwright acrescentada/atualizada em `tests/editorial-history.spec.ts` para verificar carregamento real, alt, timeline e ausência de overflow em 1280px e 320px. **Execução de build e Playwright ainda não comprovada**: container sem resolução DNS de github.com; aguardar resultado do CI exatamente no HEAD desta branch. Não presumir sucesso.
+- **Homologação visual:** pendente do proprietário via ambiente de teste Cloudflare Pages; nenhuma publicação realizada por esta assistência. Sem merge/deploy.
+- **Próxima etapa:** verificar CI do HEAD, resolver eventuais falhas, então homologação visual das páginas Tetris; Pixel Quest só depois.
+
 ## ESTADO PRIORITÁRIO — homologação das artes Tetris (20/11/2026)
 - **13 imagens homologadas individualmente:** capa, nove imagens do primeiro lote, Sprint, Sobrevivência e contexto histórico do filme *Tetris* (2023). A última foi aprovada expressamente nesta conversa. Não alterar nem substituir arquivos sem novo aceite.
 - **9 PNGs do primeiro lote já estão no repositório** na branch `feat/layout-unificado-snake-quest`. Verificou-se igualdade byte a byte indireta com ZIP local calculando Git blob SHA-1, exatamente igual ao GitHub para cada um dos 9.
