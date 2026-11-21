@@ -1,3 +1,9 @@
+## DECISÃO MAIS RECENTE — capa Pixel Quest aprovada provisoriamente (20/11/2026)
+- O proprietário declarou **"aprovada por hora"** sobre a última imagem apresentada, de paisagem mais ampla com personagem amarelo em primeiro plano, cristais, ponte e portal roxo, arquivo de conversa `pixel_quest_moonlit_crystal_valley.png`.
+- **Status: aprovação visual PROVISÓRIA**, não homologação definitiva nem autorização para substituição automática ou deploy. A capa anteriormente aprovada deve permanecer preservada como versão anterior; não apagar nem afirmar revogação.
+- **Como jogar:** não aprovada. **Checkpoint, inimigos e pontuação:** a última arte foi destinada pelo proprietário a esse tema; não houve nova confirmação de aprovação individual. Ambas permanecem pendentes de homologação.
+- **Nenhuma imagem nova aplicada ao código do site** por este registro. Não fazer merge nem deploy.
+
 ## CORREÇÃO DE HOMOLOGAÇÃO — Pixel Quest (20/11/2026)
 - **SOMENTE a capa do Pixel Quest foi aprovada expressamente pelo proprietário.** A arte do guia `how-to-play` foi apenas apresentada e **NÃO foi aprovada**. A arte de checkpoint/inimigos/pontuação não foi concluída como arquivo individual; os painéis compostos gerados são **rejeitados como arte final e NÃO aprovados**.
 - As quatro imagens históricas AVIF são legado já existente, **sem nova homologação** neste lote.
