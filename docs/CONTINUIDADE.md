@@ -1,3 +1,10 @@
+## ATUALIZAÇÃO PRIORITÁRIA — lote Snake completo integrado (20/11/2026)
+
+- **15 de 15 PNGs presentes no GitHub** na branch do PR #4, todos com SHA Git de blob recuperado (12 originais mais `adventure-missions.png`, `evolution-powers.png`, `nibbler-documentary.png`). O texto histórico abaixo que diz que não houve upload refere-se a uma fase anterior.
+- **Integração restrita ao Snake executada na branch**: capa home, seis marcos históricos, guia Clássico, Aventura e Evolution e referência cultural ao documentário. Nenhuma imagem foi recriada. Tetris e Pixel Quest não tiveram imagens substituídas.
+- **Validação pendente:** teste de regressão e CI do HEAD; avaliação visual desktop/mobile pelo proprietário. O SHA-256 original dos arquivos não foi refeito a partir dos bytes remotos; presença no GitHub não deve ser confundida com integridade byte a byte comprovada.
+- **Restrições:** não fazer merge ou deploy; não avançar ao Tetris antes de homologação visual do Snake.
+
 
 - Disparo Evolution alterado conforme decisão do proprietário: automático e contínuo enquanto power-up ativo (70 ticks, cadência 4 ticks ~0,5s na velocidade base); sem tecla X. Tiro atravessa corpo, para na primeira fruta comum/rara (+10/+50 sem crescimento) ou obstáculo (3 impactos para destruir, dano visual); poderes especiais e Salva-Cobra não são coletados por tiro. Somente Preview experimental. A cadência por ticks acompanha velocidade/slow; balanceamento e testes E2E ainda pendentes.
 > **Contrato obrigatório para todo jogo/modo:** [PADROES_GLOBAIS_DOS_JOGOS.md](PADROES_GLOBAIS_DOS_JOGOS.md). Histórico abaixo não substitui os padrões globais vigentes.
