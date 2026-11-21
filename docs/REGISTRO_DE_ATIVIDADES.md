@@ -1,3 +1,10 @@
+## 21/11/2026 — Auditoria BUG-QUEST-05, SEC-RANKING, D1 e LEGAL (OldArcade)
+- **Horários Brasília de início/fim:** não aferidos; **duração efetiva comprovada:** não mensurada; **estimativa:** não calculada. Períodos entre mensagens não foram computados.
+- **Atividades efetivas:** leitura de AGENTS, arquitetura e auditoria legal; confronto de motor/recordes do Pixel Quest, endpoint de ranking, autenticação, catálogo e textos legais; classificação de evidências e dependências de D1 real; elaboração de relatório técnico sem modificar código funcional.
+- **Resultados comprovados:** evento de conclusão e persistência local existem; API de ranking exige conta mas recebe resultados autodeclarados (`verified:false`); D1 real não consultado; textos legais já homologados exigem revisão operacional/jurídica antes do lançamento.
+- **Pendências:** teste de vitória/persistência com D1 Preview autorizado; desenho antifraude; levantamento de retenção/fornecedores e identificação do controlador; confirmar CI deste commit documental.
+- **Evidências:** `docs/AUDITORIA_RANKING_D1_LEGAL_2026-11-21.md`, `src/scripts/pixelQuest/index.ts`, `src/scripts/pixelQuest/records.ts`, `functions/api/games/[game]/leaderboard.js`, `functions/api/_lib/auth.js`, `src/pages/privacidade.astro`, `src/pages/termos.astro`.
+
 ## 21/11/2026 — Integração das quatro artes Pixel Quest (OldArcade)
 - **Horário de início e término (Brasília):** não aferidos com cronômetro; **duração efetiva comprovada:** não mensurada; **estimativa:** não calculada. Intervalos sem atividade registrada não são computados.
 - **Atividades:** consulta somente leitura à branch e à documentação de aprovações, verificação da presença de quatro blobs WebP, inspeção da home, guia e testes existentes; integração da capa e das três ilustrações editoriais, criação de componente compartilhado e regressão Playwright para desktop e mobile.
