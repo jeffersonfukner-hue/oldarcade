@@ -1,0 +1,173 @@
+import {test,expect} from '@playwright/test';
+
+const games=[
+ {slug:'snake',path:'/jogos/snake/',historical:'De Blockade ao celular: a história de Snake',film:'Man vs Snake'},
+ {slug:'tetris',path:'/jogos/tetris/',historical:'De um laboratório soviético ao mundo: a história do Tetris',film:'Tetris (2023)'},
+ {slug:'pixel-quest',path:'/jogos/pixel-quest/',historical:'A história dos jogos de plataforma: antes da Trilha Esmeralda',film:'Super Mario Bros. O Filme'}
+] as const;
+
+for(const game of games){
+ test('Etapa 4 editorial: fontes e cinema com contexto de '+game.slug,async({page})=>{
+  await page.goto(game.path);
+  const sections=page.locator('[data-game-sections]');
+  await expect(sections).toContainText(game.historical);
+  const cinema=page.getByRole('heading',{name:'Filmes e documentários relacionados'}).locator('..');
+  await expect(cinema).toContainText(game.film);
+  await expect(cinema).toContainText('20/11/2026');
+  await expect(cinema).toContainText('não são afiliados');
+  await expect(cinema.getByRole('link',{name:/Fonte da referência cultural/}).first()).toHaveAttribute('href',/^https:\/\//);
+  await expect(cinema.getByRole('link',{name:/Consultar opções para assistir/}).first()).toHaveAttribute('href',/^https:\/\//);
+  await expect(cinema.getByRole('link',{name:/Sugerir uma correção/})).toHaveAttribute('href',/\/contato\/\?assunto=sugestao/);
+ });
+}
+test('Etapa 4 editorial: filmes de outras franquias nunca são atribuídos a Pixel Quest',async({page})=>{
+ await page.setViewportSize({width:320,height:700});
+ await page.goto('/jogos/pixel-quest/');
+ const section=page.getByRole('heading',{name:'Filmes e documentários relacionados'}).locator('..');
+ await expect(section).toContainText('Sonic: O Filme');
+ await expect(section).toContainText('Não adapta Pixel Quest');
+ await expect(section).toContainText('não confirmada nesta revisão');
+ await expect(section.getByRole('link',{name:/Consultar opções para assistir/})).toHaveCount(2);
+});
+
+test('Pixel Quest exibe linha do tempo resumida no mesmo padrão do Snake em desktop e mobile',async({page})=>{
+ for(const width of [1280,320]){
+  await page.setViewportSize({width,height:740});
+  await page.goto('/jogos/pixel-quest/');
+  const history=page.locator('#pq-platform-history').locator('..');
+  await expect(history.getByRole('heading',{name:'Uma linha do tempo conectada ao mundo'})).toBeVisible();
+  const timeline=history.locator('ol.timeline');
+  await expect(timeline).toBeVisible();
+  await expect(timeline.locator('li')).toHaveCount(4);
+  for(const year of ['1980 ·','1981 ·','1985 ·','Novembro de 2026 ·']){
+   await expect(timeline).toContainText(year);
+  }
+  await expect(timeline).toContainText('Pixel Quest');
+  await expect(history.getByRole('heading',{name:'O que Pixel Quest faz de próprio'})).toBeVisible();
+ }
+ await page.goto('/jogos/snake/');
+ const snakeHistory=page.locator('.oa-game-history');
+ await expect(snakeHistory.locator('ol.timeline')).toBeVisible();
+ await expect(snakeHistory).toContainText('Uma linha do tempo conectada ao mundo');
+});
+
+test('Padrão global: todos os jogos mostram artes editoriais originais, fontes e legendas no celular',async({page})=>{
+ for(const game of games){
+  await page.setViewportSize({width:320,height:700});
+  await page.goto(game.path);
+  const timeline=page.locator('.oa-game-sections .oa-illustrated-timeline');
+  await expect(timeline).toHaveCount(1);
+  const entries=timeline.locator(':scope > li');
+  await expect(entries).toHaveCount(game.slug==='pixel-quest'?4:6);
+  await expect(timeline.locator('svg[role="img"],img.oa-era-art')).toHaveCount(game.slug==='pixel-quest'?4:6);
+  await expect(timeline.locator('img.oa-era-art')).toHaveCount(game.slug==='pixel-quest'?4:6);
+  if(game.slug==='pixel-quest'){
+   for(const img of await timeline.locator('img.oa-era-art').all()){
+    await img.scrollIntoViewIfNeeded();
+    await expect(img).toHaveAttribute('src',new RegExp('[.]avif$'));
+    await expect.poll(()=>img.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+   }
+  }
+  await expect(timeline.locator('figcaption')).toHaveCount(game.slug==='pixel-quest'?4:6);
+  await expect(timeline.locator('.oa-era-source a')).toHaveCount(game.slug==='pixel-quest'?4:6);
+  await expect(timeline).toContainText('Ilustração editorial original');
+  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1);
+  expect(overflow).toBe(false);
+ }
+});
+
+test('Snake: 15 artes homologadas estão vinculadas aos textos corretos e carregam no navegador',async({page})=>{
+ const targets=[
+  {path:'/',selectors:['img[src="/images/games/snake-cover.png"]']},
+  {path:'/jogos/snake/',selectors:['img[src="/images/editorial/snake/how-to-play.png"]','img[src="/images/editorial/snake/controls.png"]','img[src="/images/editorial/snake/rules.png"]']},
+  {path:'/jogos/snake/aventura/',selectors:['img[src="/images/editorial/snake/adventure.png"]','img[src="/images/editorial/snake/adventure-missions.png"]']},
+  {path:'/jogos/snake/evolution/',selectors:['img[src="/images/editorial/snake/evolution.png"]','img[src="/images/editorial/snake/evolution-powers.png"]']}
+ ];
+ for(const width of [1280,320]){
+  await page.setViewportSize({width,height:740});
+  for(const target of targets){
+   await page.goto(target.path);
+   for(const selector of target.selectors){
+    const img=page.locator(selector);
+    await expect(img).toHaveCount(1);
+    await expect(img).toHaveAttribute('alt',/.+/);
+    await img.scrollIntoViewIfNeeded();
+    await expect.poll(()=>img.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+   }
+   if(target.path!=='/'){
+    const history=page.locator('.oa-game-history .oa-illustrated-timeline img.oa-era-art');
+    await expect(history).toHaveCount(6);
+    for(const image of await history.all()){
+     await image.scrollIntoViewIfNeeded();
+     await expect.poll(()=>image.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+    }
+    const film=page.locator('.historical-film img[src="/images/editorial/snake/nibbler-documentary.png"]');
+    await expect(film).toHaveCount(1);
+    await film.scrollIntoViewIfNeeded();
+    await expect.poll(()=>film.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+   }
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  }
+ }
+});
+
+test('Tetris: as 13 artes homologadas carregam no contexto correto em desktop e celular',async({page})=>{
+ const pages=[
+  {path:'/',assets:['/images/games/tetris-cover.png']},
+  {path:'/jogos/tetris/',assets:['/images/editorial/tetris/how-to-play.png','/images/editorial/tetris/controls.png','/images/editorial/tetris/strategy.png']},
+  {path:'/jogos/tetris/sprint/',assets:['/images/editorial/tetris/sprint.png','/images/editorial/tetris/controls.png','/images/editorial/tetris/strategy.png']},
+  {path:'/jogos/tetris/sobrevivencia/',assets:['/images/editorial/tetris/survival.png','/images/editorial/tetris/controls.png','/images/editorial/tetris/strategy.png']}
+ ];
+ for(const width of [1280,320]){
+  await page.setViewportSize({width,height:740});
+  for(const target of pages){
+   await page.goto(target.path);
+   for(const src of target.assets){
+    const figure=page.locator(`img[src="${src}"]`);
+    await expect(figure).toHaveCount(1);
+    await expect(figure).toHaveAttribute('alt',/.+/);
+    await figure.scrollIntoViewIfNeeded();
+    await expect.poll(()=>figure.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+   }
+   if(target.path!=='/'){
+    const timeline=page.locator('.oa-illustrated-timeline img.oa-era-art');
+    await expect(timeline).toHaveCount(6);
+    for(const img of await timeline.all()){
+     await expect(img).toHaveAttribute('src',new RegExp('^/images/history/tetris/.*[.]png$'));
+     await img.scrollIntoViewIfNeeded();
+     await expect.poll(()=>img.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+    }
+    const film=page.locator('img[src="/images/editorial/tetris/tetris-film-history.png"]');
+    await expect(film).toHaveCount(1);
+    await film.scrollIntoViewIfNeeded();
+    await expect.poll(()=>film.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+    await expect(page.locator('.tetris-editorial-art figcaption').first()).toContainText('ilustração original');
+   }
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  }
+ }
+});
+
+test('Pixel Quest: quatro artes aprovadas carregam na home e no guia em desktop e celular',async({page})=>{
+ for(const width of [1280,320]){
+  await page.setViewportSize({width,height:740});
+  await page.goto('/');
+  const cover=page.locator('[data-home-game="pixel-quest"] img[src="/images/games/pixel-quest.webp"]');
+  await expect(cover).toHaveCount(1);
+  await expect(cover).toHaveAttribute('alt',/.+/);
+  await cover.scrollIntoViewIfNeeded();
+  await expect.poll(()=>cover.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+
+  await page.goto('/jogos/pixel-quest/');
+  const guide=page.locator('.oa-game-guide');
+  for(const art of ['how-to-play','checkpoint','progression']){
+   const figure=guide.locator(`.pixel-quest-editorial-art img[src="/images/editorial/pixel-quest/${art}.webp"]`);
+   await expect(figure).toHaveCount(1);
+   await expect(figure).toHaveAttribute('alt',/.+/);
+   await figure.scrollIntoViewIfNeeded();
+   await expect.poll(()=>figure.evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+   await expect(figure.locator('..').locator('figcaption')).not.toBeEmpty();
+  }
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ }
+});

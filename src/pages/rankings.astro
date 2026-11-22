@@ -1,41 +1,33 @@
 ---
 import Base from '../layouts/Base.astro';
+import RankingsMode from '../components/RankingsMode.astro';
 import {gameModes} from '../data/gameModes.js';
-import {isTimeRanking} from '../data/rankingRules.js';
-const modes=Object.entries(gameModes).filter(([,mode])=>mode.competitive).map(([key,mode])=>({key,...mode}));
+import {gameRegistry} from '../data/gameRegistry';
+const groups=Object.entries(gameRegistry)
+ .map(([gameId,game])=>({gameId,game,modes:Object.entries(gameModes).filter(([,mode])=>mode.title===gameId&&mode.competitive).map(([key])=>key)}))
+ .filter(group=>group.modes.length>0);
 ---
-<Base title="Rankings OldArcade — Líderes, recordes e desafios" description="Confira Top 3 e Top 10 dos jogos do OldArcade, incluindo Snake e Tetris. Veja recordes e desafie os líderes de cada modalidade." path="/rankings/">
+<Base title="Rankings Old Arcade — Líderes, recordes e desafios" description="Confira o Top 3 e o Top 10 de cada modalidade do Snake, Tetris e Pixel Quest. Compare recordes de contas cadastradas e desafie seus líderes." path="/rankings/">
  <div class="shell rankings-page">
   <header class="rankings-hero">
-   <div><span class="eyebrow">Competição OldArcade</span><h1>Rankings e <span class="accent">desafios</span></h1><p>Veja quem lidera cada modo e tente superar a marca do primeiro colocado. Os rankings são independentes.</p></div>
-   <a class="btn secondary" href="/#destaques">🎮 Escolher jogo</a>
+   <div><span class="eyebrow">Competição Old Arcade</span><h1>Rankings e <span class="accent">desafios</span></h1><p>Escolha um jogo e explore suas modalidades. Os recordes de cada modo são independentes e pertencem a contas cadastradas.</p></div>
+   <a class="btn secondary" href="/#destaques">Escolher jogo</a>
   </header>
-  <nav class="rankings-jump" aria-label="Navegação entre rankings">
-   {modes.map(mode=><a href={'#ranking-'+mode.key}>{mode.symbol} {mode.name}</a>)}
+  <nav class="rankings-jump" aria-label="Navegação entre jogos do ranking">
+   {groups.map(group=><a href={'#rankings-'+group.gameId}>{group.game.name} · {group.modes.length} modos</a>)}
   </nav>
   <div class="rankings-list">
-  {modes.map(mode=><section class="rankings-panel" id={'ranking-'+mode.key} data-rank-page-mode={mode.key} aria-label={'Ranking do '+mode.name}>
-   <div class="rankings-panel-heading">
-    <div><span class="eyebrow">{mode.tagline}</span><h2>{mode.symbol} {mode.name}</h2><p>{mode.description}</p></div>
-    <a class="btn" data-rank-challenge href={mode.url}>🎮 Jogar e desafiar</a>
-   </div>
-   <div class="rankings-leader">
-    <div><span class="eyebrow">Líder atual</span><strong data-rank-leader-name>Consultando…</strong><span data-rank-leader-score>—</span></div>
-    <p data-rank-challenge-message>Consegue superar o primeiro colocado?</p>
-   </div>
-   <h3>🏆 Pódio — Top 3</h3>
-   <div class="rankings-podium" data-rank-podium><p class="small muted">Consultando classificação…</p></div>
-   <details class="rankings-top10">
-    <summary>Ver classificação completa (Top 10)</summary>
-    <div class="ranking-overflow"><table class="ranking">
-     <thead><tr><th>#</th><th>Jogador</th><th>{isTimeRanking(mode.key)?"Tempo":"Pontos"}</th><th>Registrado em</th></tr></thead>
-     <tbody data-rank-table><tr><td colspan="4">Consultando ranking…</td></tr></tbody>
-    </table></div>
-   </details>
-   <p class="small muted" data-rank-status role="status">Aguardando classificação real do servidor.</p>
-  </section>)}
+   {groups.map(group=><section class="rankings-game-card" data-rank-page-game={group.gameId} id={'rankings-'+group.gameId} aria-label={'Rankings de '+group.game.name}>
+    <header class="rankings-game-heading">
+     <div><span class="eyebrow">Jogo #{String(group.game.number).padStart(3,'0')}</span><h2>{group.game.name}</h2></div>
+     <span class="pill">{group.modes.length} modalidades</span>
+    </header>
+    <div class="rankings-modes">
+     {group.modes.map((modeId,i)=><RankingsMode modeId={modeId} initiallyOpen={i===0} />)}
+    </div>
+   </section>)}
   </div>
-  <p class="rankings-disclaimer small muted">Classificações baseadas nos resultados das contas: maior pontuação no Clássico e menor tempo no Sprint. Os desempates seguem o critério de cada modo. Os resultados ainda não são validados pelo servidor contra a partida. Em caso de indisponibilidade, não exibimos números fictícios.</p>
+  <p class="rankings-disclaimer small muted">Somente resultados vinculados a contas entram no ranking. No Sprint vence o menor tempo; na Sobrevivência vence o maior tempo; nos demais modos vence a maior pontuação. Desempates seguem os critérios registrados para cada modo. As pontuações ainda não são verificadas pelo servidor contra a execução da partida. Não exibimos valores fictícios quando a consulta falha.</p>
  </div>
  <script>import '../scripts/rankingsPage.ts';</script>
 </Base>

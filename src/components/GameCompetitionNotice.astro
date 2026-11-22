@@ -1,0 +1,10 @@
+---
+/** Jogo sem ranking oficial: estado factual, sem dados de classificação inventados. */
+interface Props{gameName:string;detail:string}
+const {gameName,detail}=Astro.props;
+---
+<section class="section panel oa-ranking-unavailable" data-ranking-state="unavailable" aria-label={`Classificação de ${gameName}`}>
+ <span class="eyebrow">Desempenho e rankings</span><h2>Recordes e classificação</h2>
+ <p>{detail}</p><p class="small muted">O ranking global exige uma conta autenticada e só será exibido quando estiver habilitado para este jogo.</p>
+ <a class="btn secondary" href="/rankings/">Ver rankings dos outros jogos →</a>
+</section>

@@ -1,4 +1,5 @@
 import {isTimeRanking,isLowerBetter,formatRankingValue} from '../data/rankingRules.js';
+import {renderRankingPodium} from './rankingPresentation';
 type RankEntry={nickname:string;score:number;rank?:number;achievedAt?:string};
 type RankData={available:boolean;top?:RankEntry[]};
 document.querySelectorAll<HTMLElement>('[data-rank-page-mode]').forEach(section=>{
@@ -7,32 +8,22 @@ document.querySelectorAll<HTMLElement>('[data-rank-page-mode]').forEach(section=
  const value=(v:number)=>formatRankingValue(game,v);
  const get=<T extends Element>(s:string)=>section.querySelector<T>('[data-rank-'+s+']')!;
  const podium=get<HTMLElement>('podium'),table=get<HTMLTableSectionElement>('table'),status=get<HTMLElement>('status');
- const leaderName=get<HTMLElement>('leader-name'),leaderScore=get<HTMLElement>('leader-score'),challengeMessage=get<HTMLElement>('challenge-message');
+ const challengeMessage=get<HTMLElement>('challenge-message');
  const date=(iso?:string)=>{
   const d=new Date(iso||'');return Number.isNaN(d.getTime())?'—':new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'short'}).format(d);
  };
  function cell(row:HTMLTableRowElement,value:string){const td=document.createElement('td');td.textContent=value;row.append(td)}
  function render(data:RankData){
   if(!data.available||!Array.isArray(data.top)){status.textContent='Ranking indisponível neste ambiente.';podium.textContent='Classificação indisponível.';table.replaceChildren();return}
-  podium.replaceChildren();table.replaceChildren();
+  table.replaceChildren();
   const entries=data.top.slice(0,10);
   const leader=entries[0];
   if(leader){
-   leaderName.textContent=leader.nickname;leaderScore.textContent=value(leader.score);
    challengeMessage.textContent=(timed?(lowerBetter?'O menor tempo a superar é ':'O maior tempo a superar é '):'A marca a superar é ')+value(leader.score)+'. Você aceita o desafio?';
   }else{
-   leaderName.textContent='Seja o primeiro!';leaderScore.textContent='Sem recorde registrado';
    challengeMessage.textContent='O primeiro lugar ainda está aberto. Entre no jogo e tente conquistá-lo.';
   }
-  const medals=['🥇','🥈','🥉'];
-  for(const [index,entry] of entries.slice(0,3).entries()){
-   const card=document.createElement('article');card.className='rankings-podium-card podium-'+(index+1);
-   const icon=document.createElement('span');icon.textContent=medals[index];
-   const nickname=document.createElement('strong');nickname.textContent=entry.nickname;
-   const score=document.createElement('span');score.textContent=value(entry.score);
-   card.append(icon,nickname,score);podium.append(card);
-  }
-  if(!entries.length){const empty=document.createElement('p');empty.className='small muted';empty.textContent='Ainda não há jogadores classificados.';podium.append(empty)}
+  renderRankingPodium(podium,entries,value);
   for(const [index,entry] of entries.entries()){
    const row=document.createElement('tr');
    for(const v of [(entry.rank??index+1)+'º',entry.nickname,value(entry.score),date(entry.achievedAt)])cell(row,v);
@@ -49,3 +40,13 @@ document.querySelectorAll<HTMLElement>('[data-rank-page-mode]').forEach(section=
   }catch{render({available:false})}
  })();
 });
+
+// A URL antiga por modalidade continua abrindo o painel correto, mesmo que não seja o primeiro.
+function openReferencedMode(){
+ const target=window.location.hash.slice(1);
+ if(!target)return;
+ const el=document.getElementById(target);
+ if(el instanceof HTMLDetailsElement&&el.matches('[data-ranking-mode-details]'))el.open=true;
+}
+window.addEventListener('hashchange',openReferencedMode);
+openReferencedMode();

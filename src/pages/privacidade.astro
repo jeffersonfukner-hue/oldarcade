@@ -1,6 +1,28 @@
 ---
 import Base from '../layouts/Base.astro';
 ---
-<Base title="Privacidade — OldArcade" description="Saiba como o OldArcade armazena localmente pontuações e preferências e quais dados não são enviados nesta fase do site." path="/privacidade/">
-<div class="shell"><section class="hero text-content"><h1>Privacidade</h1><p class="lede">Transparência sobre o funcionamento da versão de testes do OldArcade.</p></section><section class="panel text-content"><h2>Dados locais</h2><p>O jogo Snake utiliza o armazenamento local do seu navegador para guardar nickname opcional, resultados, recorde, partidas e contagem de visitas neste dispositivo. Os contadores globais e o ranking recreativo utilizam o banco Cloudflare D1 no ambiente de testes. Ao registrar recorde global, nickname e melhor pontuação são enviados ao servidor.</p><h2>Como remover</h2><p>Você pode apagar os dados usando a opção do navegador para limpar o armazenamento do site. Caso use outro navegador ou dispositivo, os dados não serão compartilhados automaticamente.</p><h2>Futuras integrações</h2><p>O ranking recreativo está em testes. Cadastro de conta com senha, recuperação por e-mail, administração e anúncios ainda não foram implementados. Esta política deverá ser atualizada antes de habilitar serviços que transmitam ou processem dados pessoais, inclusive ferramentas de análise e publicidade.</p></section></div>
+<Base title="Privacidade e dados pessoais — OldArcade" description="Entenda os dados usados para contas, recordes, visitas e sessões do OldArcade e como entrar em contato." path="/privacidade/">
+ <div class="shell">
+  <section class="hero text-content"><span class="eyebrow">Informações do serviço</span><h1>Política de Privacidade</h1><p class="lede">Como funcionam os dados de quem joga, visita o site ou cria uma conta no OldArcade.</p><p class="small muted">Atualizada em <time datetime="2026-11-20">20/11/2026</time> · Serviço em desenvolvimento.</p></section>
+  <section class="section panel text-content" aria-labelledby="privacy-data">
+   <h2 id="privacy-data">Quais informações utilizamos</h2>
+   <p><strong>Sem cadastro:</strong> é possível jogar e consultar os rankings públicos. Os jogos podem guardar recordes, preferências e progresso neste navegador, por meio de armazenamento local. Identificadores temporários de sessão são usados para evitar contagem duplicada de visitas e partidas.</p>
+   <p><strong>Com conta:</strong> o cadastro solicita nickname e senha; e-mail é opcional. O servidor armazena o nickname, o e-mail informado, representações criptográficas da senha e do código de recuperação, preferências de avisos e dados necessários para a sessão. A senha não é armazenada em texto simples.</p>
+   <p><strong>Rankings:</strong> os melhores resultados elegíveis, a modalidade, o tempo de partida e a data de registro podem ser guardados no banco para exibir a classificação. O nickname e o recorde aparecem publicamente; não divulgamos e-mail ou senha no ranking. Os resultados são recreativos e ainda não são verificados pelo servidor contra a execução integral da partida.</p>
+   <p><strong>Contadores:</strong> o portal registra eventos de visita e partida com identificadores aleatórios, para totalização e prevenção de duplicatas. Isso não equivale a um cadastro individual de visitantes.</p>
+  </section>
+  <section class="section panel text-content" aria-labelledby="privacy-technology">
+   <h2 id="privacy-technology">Armazenamento, cookies e serviços</h2>
+   <p>O OldArcade utiliza recursos da Cloudflare, incluindo o banco <strong>D1</strong>, para contas, sessões, eventos e rankings quando o ambiente está conectado. Dados locais podem permanecer no <code>localStorage</code>; identificadores de visita da sessão usam <code>sessionStorage</code>.</p>
+   <p>Ao entrar, o navegador recebe o cookie necessário <code>oldarcade_session</code>, configurado com <code>HttpOnly</code>, <code>Secure</code> e <code>SameSite=Strict</code>, com duração máxima de 30 dias. O servidor usa o identificador de sessão para reconhecer a conta. Encerrar a sessão remove o cookie e invalida sua sessão no servidor, quando a operação é concluída.</p>
+   <p>O site não implementou nesta fase disparo automático de notificações por e-mail. Opções de aviso e endereço de e-mail podem ser guardados como preferências para serviços futuros, mas selecionar uma opção não significa que mensagens serão enviadas.</p>
+   <p>A página de contato prepara uma mensagem para o WhatsApp. O conteúdo somente é encaminhado quando você confirma o envio no aplicativo ou site do WhatsApp; nesse caso, o tratamento da mensagem também segue as condições dessa plataforma.</p>
+  </section>
+  <section class="section panel text-content" aria-labelledby="privacy-control">
+   <h2 id="privacy-control">Suas escolhas e solicitações</h2>
+   <p>Você pode jogar sem criar conta, acessar o próprio desempenho após entrar, editar o e-mail e as preferências de avisos disponíveis na área <a href="/conta/">Minha conta</a>, sair da sessão e limpar os dados locais usando as opções do navegador. Apagar dados do navegador <strong>não remove</strong> automaticamente registros vinculados à conta no servidor.</p>
+   <p>Para dúvidas sobre os seus dados, correção ou solicitação de exclusão, utilize <a href="/contato/">Contato e suporte</a>. As solicitações precisam de análise e verificação de titularidade; <strong>não há, nesta versão, botão ou procedimento automatizado de exclusão de conta</strong>. Não compartilhe senhas nem códigos de recuperação por WhatsApp.</p>
+   <p>O serviço está em desenvolvimento. Esta página descreve a implementação verificada no repositório nesta data; operações de infraestrutura, prazos de retenção e eventuais prestadores adicionais precisam de revisão operacional e jurídica antes do lançamento público. Nenhuma conformidade legal específica é declarada somente por esta publicação.</p>
+  </section>
+ </div>
 </Base>

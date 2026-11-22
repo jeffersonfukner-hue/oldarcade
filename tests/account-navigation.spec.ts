@@ -20,7 +20,7 @@ test('Voltar ao Sprint consulta sessão atual e não restaura usuário anterior'
  await page.goBack();
  await page.evaluate(()=>window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true})));
  await expect(page.locator('[data-player-name]')).toHaveText('Conta B');
- await expect(page.locator('[data-rank-auth-button]')).toHaveText('Conectado como Conta B');
+ await expect(page.locator('[data-rank-auth-button]')).toHaveCount(0); // Nenhum botão de login duplicado no ranking.
  await expect(page.locator('[data-rank-personal]')).toHaveText('1:16.000');
  await expect(page.locator('#tetris-best')).toHaveText('1:16.000');
  expect(checks).toBeGreaterThanOrEqual(2);

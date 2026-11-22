@@ -34,15 +34,15 @@ test('Snake inicia, pausa e retoma com contagem honesta', async ({page}) => {
   await expect(page.locator('#visits')).toHaveText('1');
 });
 
-test('nickname é opcional, ranking não se anuncia como global', async ({page}) => {
-  await page.goto('/jogos/snake/');
-  await page.getByRole('textbox', {name:/Nickname para participar do ranking local/}).fill('Jogador teste');
-  await page.getByRole('button', {name:'Salvar'}).click();
-  await expect(page.locator('#nick-status')).toContainText('salvo');
-  await page.reload();
-  await expect(page.locator('#nickname')).toHaveValue('Jogador teste');
-  await expect(page.getByRole('heading', {name:'Ranking local'})).toBeVisible();
-  await expect(page.getByText(/O nickname e o ranking ficam salvos neste navegador/)).toBeVisible();
+test('sem conta, ranking por nickname local não aparece e o jogo continua livre',async({page})=>{
+ await page.goto('/jogos/snake/');
+ await expect(page.locator('#nickname-form')).toBeHidden();
+ await expect(page.locator('#rank-body')).toBeHidden();
+ await expect(page.locator('#local-results')).toBeHidden();
+ await expect(page.locator('#guest-results')).toBeVisible();
+ await expect(page.locator('#guest-results')).toContainText('rankings');
+ await expect(page.getByRole('heading',{name:'Ranking local'})).toHaveCount(0);
+ await expect(page.locator('#start-btn')).toBeVisible();
 });
 
 test('área jogável e controles respeitam ponteiro de desktop ou toque', async ({page}) => {
@@ -154,32 +154,23 @@ test('visita mantém ID ao atualizar e partida envia novo ID',async({page})=>{
 });
 
 
-test('ranking local mostra somente jogadores com nickname e persiste apelido',async({page})=>{
+test('históricos antigos do navegador são preservados, mas não classificados',async({page})=>{
  await page.addInitScript(()=>{
   if(sessionStorage.getItem('oldarcade:seeded-test'))return;
   sessionStorage.setItem('oldarcade:seeded-test','1');
   localStorage.setItem('oldarcade:snake:v1',JSON.stringify({
    best:60,plays:3,visits:1,nickname:'Jogador 12',
-   scores:[
-    {name:'Anônimo',score:60,at:1},
-    {name:'',score:50,at:2},
-    {name:'Jogador 12',score:40,at:3},
-    {name:'Outro nick',score:30,at:4}
-   ]
+   scores:[{name:'Jogador 12',score:40,at:3},{name:'Outro nick',score:30,at:4}]
   }));
  });
  await page.goto('/jogos/snake/');
- await expect(page.locator('#nickname')).toHaveValue('Jogador 12');
- await expect(page.locator('#rank-body tr')).toHaveCount(2);
- await expect(page.locator('#rank-body')).toContainText('Jogador 12');
- await expect(page.locator('#rank-body')).toContainText('Outro nick');
- await expect(page.locator('#rank-body')).not.toContainText('Anônimo');
- await page.locator('#nickname').fill('');
- await page.getByRole('button',{name:'Salvar'}).click();
- await expect(page.locator('#nick-status')).toContainText('sem nickname');
- await page.reload();
- await expect(page.locator('#nickname')).toHaveValue('');
- await expect(page.locator('#rank-body tr')).toHaveCount(2);
+ await expect(page.locator('#local-results')).toBeHidden();
+ await expect(page.locator('#rank-body')).toBeEmpty();
+ await expect(page.locator('#nickname-form')).toBeHidden();
+ const history=await page.evaluate(()=>JSON.parse(localStorage.getItem('oldarcade:snake:v1')||'{}'));
+ expect(history.nickname).toBe('Jogador 12');
+ expect(history.scores).toHaveLength(2);
+ await expect(page.locator('#hud-best')).toHaveText('60');
 });
 
 test('recorde global é exibido como desafio e ranking usa texto seguro',async({page})=>{
@@ -226,15 +217,20 @@ test('recorde de conta vindo do servidor aparece nos dois placares',async({page}
  await expect(page.locator('#my-global-position')).toHaveText('98º lugar');
 });
 
-test('cadastro dentro do Snake aceita nickname com espaços e senha de oito caracteres',async({page})=>{
+test('cadastro dentro do Snake usa modal global sem navegação e aceita nickname com espaços',async({page})=>{
  await page.goto('/jogos/snake/');
- await expect(page.locator('#record-register-nick')).toHaveAttribute('maxlength','18');
- await expect(page.locator('#record-register-pass')).toHaveAttribute('minlength','8');
- await page.evaluate(()=>{document.querySelector<HTMLElement>('#record-modal')!.hidden=false});
- await page.locator('#record-register-nick').fill('Vovo do 3D');
- await page.locator('#record-register-pass').fill('12345678');
- await expect(page.locator('#record-register-nick')).toHaveValue('Vovo do 3D');
- expect(await page.locator('#record-register-pass').evaluate((el:HTMLInputElement)=>el.checkValidity())).toBe(true);
+ const original=page.url();
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:open-auth',{detail:{tab:'register'}})));
+ await expect(page.locator('[data-global-auth]')).toBeVisible();
+ await expect(page.locator('[data-global-auth] [data-auth-form=register] input[name=nickname]')).toHaveAttribute('maxlength','18');
+ await expect(page.locator('[data-global-auth] [data-auth-form=register] input[name=password]')).toHaveAttribute('minlength','8');
+ await page.locator('[data-global-auth] [data-auth-form=register] input[name=nickname]').fill('Vovo do 3D');
+ await page.locator('[data-global-auth] [data-auth-form=register] input[name=password]').fill('12345678');
+ await expect(page.locator('[data-global-auth] [data-auth-form=register] input[name=nickname]')).toHaveValue('Vovo do 3D');
+ expect(await page.locator('[data-global-auth] [data-auth-form=register] input[name=password]').evaluate((el:HTMLInputElement)=>el.checkValidity())).toBe(true);
+ await page.locator('[data-auth-close]').click();
+ await expect(page.locator('[data-global-auth]')).toBeHidden();
+ expect(page.url()).toBe(original);
 });
 
 test('HUD mostra recordes pessoal e global lado a lado',async({page})=>{
@@ -254,18 +250,26 @@ test('recordes legados não aparecem no novo ranking',async({page})=>{
  await expect(page.locator('#challenge-text')).toContainText('primeiro a registrar');
 });
 
-test('modal de registro inicia no campo e não foca o título',async({page})=>{
+test('fim do Snake oferece convite discreto e login global preserva rota',async({page})=>{
+ await page.route('**/api/auth/me',r=>r.fulfill({status:200,contentType:'application/json',body:'{"player":null}'}));
  await page.goto('/jogos/snake/');
+ const gameUrl=page.url();
  await page.getByRole('button',{name:/Começar partida/}).click();
  await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
  await page.keyboard.press('ArrowUp');
- await expect(page.locator('#record-modal')).toBeVisible({timeout:8000});
- await expect(page.locator('#record-register-nick')).toBeFocused();
- await expect(page.locator('#record-modal-title')).not.toHaveAttribute('tabindex');
- await page.locator('#record-tab-login').click();
- await expect(page.locator('#record-login-nick')).toBeFocused();
- await page.locator('#record-tab-register').click();
- await expect(page.locator('#record-register-nick')).toBeFocused();
+ await expect(page.locator('#game-overlay')).toBeVisible({timeout:8000});
+ await expect(page.locator('#record-modal')).toBeHidden();
+ await expect(page.locator('[data-end-account-invite]')).toBeVisible({timeout:6000});
+ await page.locator('[data-end-account-invite] [data-auth-trigger=register]').click();
+ await expect(page.locator('[data-global-auth]')).toBeVisible();
+ await expect(page.locator('[data-auth-form=register] input[name=nickname]')).toBeFocused();
+ await page.locator('[data-auth-tab=login]').click();
+ await expect(page.locator('[data-auth-form=login] input[name=nickname]')).toBeFocused();
+ await page.locator('[data-auth-tab=register]').click();
+ await expect(page.locator('[data-auth-form=register] input[name=nickname]')).toBeFocused();
+ expect(page.url()).toBe(gameUrl);
+ await page.locator('[data-auth-close]').click();
+ await expect(page.locator('[data-global-auth]')).toBeHidden();
 });
 
 test('avisos de adversários aguardam o encerramento da partida',async({page})=>{
@@ -305,7 +309,7 @@ test('ranking consulta na entrada e ao fim, nunca durante a partida',async({page
  await page.waitForTimeout(600);
  expect(calls).toBe(1);
  await page.keyboard.press('ArrowUp');
- await expect(page.locator('#record-modal')).toBeVisible({timeout:8000});
+ await expect(page.locator('[data-end-account-invite]')).toBeVisible({timeout:6000});
  await expect.poll(()=>calls).toBe(2);
 });
 
@@ -322,7 +326,7 @@ test('resumo no fim destaca quem ultrapassou e há quanto tempo',async({page})=>
  await page.getByRole('button',{name:/Começar partida/}).click();
  await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
  await page.keyboard.press('ArrowUp');
- await expect(page.locator('#record-modal')).toBeVisible({timeout:8000});
+ await expect(page.locator('[data-end-account-invite]')).toBeVisible({timeout:6000});
  await expect(page.locator('#record-end-summary')).toContainText('alonso assumiu a liderança com 150 pontos há 30 segundos');
  expect(calls).toBe(2);
 });
@@ -370,7 +374,7 @@ test('placar mostra meta global provisória ao atingir pontuação e volta ao of
  await expect(page.locator('#global-best')).toHaveText('10');
  expect(gets).toBe(1);
  await page.keyboard.press('ArrowUp');
- await expect(page.locator('#record-modal')).toBeVisible({timeout:8000});
+ await expect(page.locator('[data-end-account-invite]')).toBeVisible({timeout:6000});
  await expect(page.locator('#hud-global-best')).toHaveText('5');
  await expect(page.locator('#hud-global-label')).not.toContainText('provisório');
 });
@@ -381,7 +385,7 @@ test('erro de confirmação nunca mantém recorde provisório como oficial',asyn
  await expect(page.locator('#game-overlay')).toBeHidden({timeout:5000});
  await expect(page.locator('#hud-global-best')).toHaveText('10',{timeout:5000});
  await page.keyboard.press('ArrowUp');
- await expect(page.locator('#record-modal')).toBeVisible({timeout:8000});
+ await expect(page.locator('[data-end-account-invite]')).toBeVisible({timeout:6000});
  await expect(page.locator('#hud-global-best')).toHaveText('5');
 });
 
@@ -428,16 +432,18 @@ test('conta conectada mostra recordes dos jogos sem consulta extra',async({page}
  await expect(page.locator('#results-heading')).toHaveText('Meus recordes por jogo');
  await expect(page.locator('#account-results')).toBeVisible();
  await expect(page.locator('#local-results')).toBeHidden();
+ await expect(page.locator('#guest-results')).toBeHidden();
  await expect(page.locator('[data-player-game="snake"] [data-record-score]')).toHaveText('90 pontos');
  await expect(page.locator('[data-player-game="snake"] [data-record-action]')).toHaveText('Superar meu recorde');
  expect(gets).toBe(1);
 });
-test('sem login preserva ranking local no navegador',async({page})=>{
+test('sem login exibe convite à conta sem ranking local competitivo',async({page})=>{
  await page.route('**/api/auth/me',r=>r.fulfill({status:200,contentType:'application/json',body:'{"player":null}'}));
  await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:'{"available":true,"top":[],"mine":null,"myGames":[]}'}));
  await page.goto('/jogos/snake/');
- await expect(page.locator('#results-heading')).toHaveText('Ranking local');
- await expect(page.locator('#local-results')).toBeVisible();
+ await expect(page.locator('#results-heading')).toHaveText('Meu desempenho');
+ await expect(page.locator('#local-results')).toBeHidden();
+ await expect(page.locator('#guest-results')).toBeVisible();
  await expect(page.locator('#account-results')).toBeHidden();
 });
 
@@ -613,17 +619,18 @@ test('rankings reúne Top 3 e Top 10 distintos e desafia o líder real',async({p
   return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Outra pessoa',score:480,rank:1}]})});
  });
  await page.goto('/rankings/');
- await expect(page).toHaveTitle(/Rankings OldArcade/);
+ await expect(page).toHaveTitle(/Rankings Old Arcade/);
  const classic=page.locator('[data-rank-page-mode="snake"]');
  const adventure=page.locator('[data-rank-page-mode="snake-adventure"]');
- await expect(classic.locator('[data-rank-leader-name]')).toHaveText('Lider');
- await expect(classic.locator('[data-rank-leader-score]')).toHaveText('320 pontos');
+ await expect(classic.locator('.rankings-podium-card.podium-1')).toContainText('Lider');
+ await expect(classic.locator('.rankings-podium-card.podium-1')).toContainText('320 pontos');
+ await expect(classic.locator('[data-rank-challenge-message]')).toContainText('320 pontos');
  await expect(classic.locator('.rankings-podium-card')).toHaveCount(2);
  await expect(classic.locator('[data-rank-challenge]')).toHaveAttribute('href','/jogos/snake/');
  await classic.locator('.rankings-top10 summary').click();
  await expect(classic.locator('[data-rank-table]')).toContainText('Segundo');
- await expect(adventure.locator('[data-rank-leader-name]')).toHaveText('Outra pessoa');
- await expect(adventure.locator('[data-rank-leader-score]')).toHaveText('480 pontos');
+ await expect(adventure.locator('.rankings-podium-card.podium-1')).toContainText('Outra pessoa');
+ await expect(adventure.locator('.rankings-podium-card.podium-1')).toContainText('480 pontos');
  await expect(adventure.locator('[data-rank-challenge]')).toHaveAttribute('href','/jogos/snake/aventura/');
  expect(calls).toEqual({classic:1,adventure:1});
 });
@@ -631,7 +638,7 @@ test('rankings sem dados não inventa Top 3 nem pontuação',async({page})=>{
  await page.route('**/api/games/**/leaderboard',r=>r.fulfill({status:503,contentType:'application/json',body:'{"available":false}'}));
  await page.goto('/rankings/');
  await expect(page.locator('[data-rank-page-mode="snake"] [data-rank-status]')).toContainText('indisponível');
- await expect(page.locator('[data-rank-page-mode="snake"] [data-rank-leader-score]')).toHaveText('—');
+ await expect(page.locator('[data-rank-page-mode="snake"] [data-rank-podium]')).toContainText('Classificação indisponível.');
  await expect(page.locator('.rankings-podium-card')).toHaveCount(0);
 });
 test('nickname conectado aparece no header e sidebar, saindo da conta reverte',async({page})=>{
@@ -701,10 +708,10 @@ test('Clássico: Espaço reinicia após fim sem rolar página',async({page})=>{
  await page.keyboard.press('ArrowUp');
  await expect(page.locator('#game-overlay')).toBeVisible({timeout:9000});
  await expect(page.locator('#hud-status')).toContainText('Fim');
- // Sem conta, o Clássico abre o modal de cadastro ao terminar; Espaço não deve atravessar esse modal.
- const recordModal=page.locator('#record-modal');
- await expect(recordModal).toBeVisible({timeout:5000});
- await page.locator('#record-skip').click();
+ // Sem conta, o convite de cadastro não bloqueia a navegação nem o reinício.
+ const invite=page.locator('[data-end-account-invite]');
+ await expect(invite).toBeVisible({timeout:6000});
+ await invite.locator('[data-end-invite-dismiss]').click();
  await page.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';document.activeElement instanceof HTMLElement&&document.activeElement.blur();window.scrollTo(0,0)});
  const beforeScroll=await page.evaluate(()=>window.scrollY);
  await page.keyboard.press('Space');
