@@ -118,7 +118,8 @@ export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
     p.y=boss.y-p.h;p.vy=-330;p.grounded=false;p.coyote=0;
     // Vulnerabilidade curta após a investida; não contar múltiplos golpes no stun.
     if(boss.stun<=0&&(boss.mode==='recover'||boss.mode==='walk')){
-     boss.hearts--;boss.stun=1.1;boss.mode='warning';boss.modeTime=0;
+     boss.hearts--;if(boss.hearts===0)run.score+=250;
+     boss.stun=1.1;boss.mode='warning';boss.modeTime=0;
     }
    }else if(run.invulnerable<=0&&boss.stun<=0){
     receiveDamage(run,boss.x);return;
