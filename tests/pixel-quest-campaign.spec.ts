@@ -1,5 +1,6 @@
 import {test,expect} from '@playwright/test';
 import {worldOneLevels,worldOneTotal} from '../src/data/pixelQuest/world-1';
+import {forestLayoutAudit} from '../src/data/pixelQuest/forestDesign';
 import {validateLevel} from '../src/scripts/pixelQuest/levels';
 import {createRun,portalUnlocked} from '../src/scripts/pixelQuest/gameplay';
 import {entranceForLevel,stageTitle} from '../src/scripts/pixelQuest/stageIntro';
@@ -15,11 +16,11 @@ test('Mundo 1 contém 3 fases válidas, final com guardião e progressão conser
   expect(level.entities.filter(e=>e.kind==='exit')).toHaveLength(1);
   expect(level.entities.filter(e=>e.kind==='checkpoint')).toHaveLength(1);
  }
- expect(worldOneLevels[0].entities.filter(e=>e.kind==='crystal')).toHaveLength(6);
+ expect(worldOneLevels[0].entities.filter(e=>e.kind==='crystal')).toHaveLength(14);
  expect(worldOneLevels[1].width).toBeGreaterThan(worldOneLevels[0].width);
  expect(worldOneLevels[2].entities.filter(e=>e.kind==='boss')).toHaveLength(1);
  const bossRun=createRun(worldOneLevels[2]);
- expect(bossRun.boss?.hearts).toBe(3);
+ expect(bossRun.boss?.hearts).toBe(5);
  expect(portalUnlocked(bossRun,worldOneLevels[2])).toBe(false);
 });
 
@@ -80,5 +81,16 @@ test('Patrulheiros das três fases não ficam sob tetos de plataforma',()=>{
     expect(level.tiles[r]?.[col],`teto bloqueando inimigo em ${level.id} col ${col}`).not.toBe(1);
    }
   }
+ }
+});
+
+test('Nova floresta: três mapas maiores, sem abismos excessivos nem inimigos encobertos',()=>{
+ const counts=[{crystals:14,enemies:6},{crystals:17,enemies:9},{crystals:19,enemies:11}];
+ const widths=[300,366,425];
+ for(const [i,level] of worldOneLevels.entries()){
+  expect(level.width).toBe(widths[i]);
+  expect(level.entities.filter(e=>e.kind==='crystal')).toHaveLength(counts[i].crystals);
+  expect(level.entities.filter(e=>e.kind==='patroller')).toHaveLength(counts[i].enemies);
+  expect(forestLayoutAudit(level)).toEqual([]);
  }
 });
