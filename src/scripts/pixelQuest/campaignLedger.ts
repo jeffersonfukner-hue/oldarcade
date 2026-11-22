@@ -10,3 +10,10 @@ export function campaignSnapshot(completed:readonly LevelResult[],current:{score
  if(!Number.isSafeInteger(score)||!Number.isFinite(elapsedMs))throw Error('Total inválido');
  return {score,elapsedMs,completedLevels:completed.length,finished};
 }
+
+/** Chaves distintas de ranking, mantendo o identificador legado intocado. */
+export function questRecordId(scope:'total'|'phase',phaseId?:string):string{
+ if(scope==='total')return 'pixel-quest-total-v2';
+ if(!phaseId||!/^\d+-\d+$/.test(phaseId))throw Error('Fase inválida');
+ return 'pixel-quest-stage-'+phaseId+'-v2';
+}
