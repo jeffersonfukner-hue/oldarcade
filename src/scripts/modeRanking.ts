@@ -5,7 +5,7 @@ type Board={available:boolean;top?:Entry[];mine?:Entry|null;error?:string;saved?
 type Result={game:string;score:number;durationMs?:number;recordDelayMs?:number};
 const root=document.querySelector<HTMLElement>('[data-mode-ranking]');
 if(root){
- const game=root.dataset.game||'',endpoint='/api/games/'+encodeURIComponent(game)+'/leaderboard';
+ const game=root.dataset.game||'',endpoint=game==='pixel-quest'?'/api/quest/rankings/total':'/api/games/'+encodeURIComponent(game)+'/leaderboard';
  const timed=isTimeRanking(game),display=(n:number|null|undefined)=>formatRankingValue(game,n);
  const get=<T extends Element>(name:string)=>root.querySelector<T>('[data-rank-'+name+']')!;
  const body=get<HTMLTableSectionElement>('body'),podium=get<HTMLElement>('podium');
