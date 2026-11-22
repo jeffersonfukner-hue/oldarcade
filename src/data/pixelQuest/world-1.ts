@@ -17,6 +17,11 @@ function makeLevel(id:string,width:number,variant:2|3):Level{
  const crystalCols=variant===2?[6,18,32,49,61,78,91,111,129,146,166]:
   [8,20,35,50,64,80,97,113,130,146,164,181];
  const patrolCols=variant===2?[25,59,89,116,143,161]:[24,57,89,120,146,174];
+ // Área livre acima dos patrulheiros: o jogador precisa conseguir acertá-los por cima.
+ // As plataformas decorativas não podem cobrir toda a trajetória de pisão.
+ for(const col of patrolCols)for(let x=Math.max(0,col-3);x<=Math.min(width-1,col+3);x++){
+  for(const row of [12,13,14] as const)tiles[row][x]=0;
+ }
  const entities:Level['entities']=[
   {kind:'player',x:64,y:ground-29},
   ...crystalCols.map(col=>({kind:'crystal' as const,x:col*32,y:tiles[13][col]===1?13*32-26:ground-45})),
