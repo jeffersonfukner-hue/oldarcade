@@ -29,6 +29,25 @@
 - **Limites deste lote:** evolução de mecânicas e ritmo deve passar pela homologação jogável; salvamento autenticado em servidor, comunicação de novidades e ranking de campanha separados ainda **não implementados**. Visitante avança em memória enquanto a página permanecer aberta; carregar de novo recomeça na 1-1. Não afirmar validação de percurso completo sem partida de ponta a ponta.
 - **Critérios de teste:** tipagem, build, testes API, Playwright de mapas/atmosfera/abertura e regressão de outros jogos; prova visual e balanceamento no Preview pelo proprietário. Nenhum merge, deploy manual ou D1.
 
+## Decisão oficial — recordes por fase e total da campanha (22/11/2026)
+
+**Origem:** validação real do Mundo 1 pelo proprietário após jogar as fases 1/3, 2/3 e 3/3. Relato: o recorde parece registrar somente a primeira fase; relato consistente com código auditado, mas **não confundir com confirmação de tentativa de gravação do total no D1**.
+
+### Contrato de jogo (também para futuros jogos com fases/campanha)
+- **Dois rankings independentes:** (a) recorde **de cada fase**, identificado pelo ID estável `1-1`, `1-2`, `1-3` etc., e (b) recorde **total da corrida/campanha**, somando os pontos efetivamente conquistados nas fases percorridas.
+- **HUD lateral ao canvas:** durante a fase atual, mostrar **pontuação da fase e melhor marca da fase** (global e pessoal conforme sessão). Atualização em tempo real dos pontos correntes e das referências consultadas; não apresentar pontuação provisória como liderança confirmada no servidor. Recarregar referências quando a fase mudar e após registro aceito.
+- **Página do jogo / ranking público:** conservar a interface homologada de classificação **única pelo total**, sem adicionar três tabelas ao corpo da página. Melhor campanha = **maior pontuação acumulada**, mesmo quando o jogador foi derrotado ou interrompeu a campanha antes da fase final. Pontos de fases incompletas são contabilizados pelo que foi conquistado até o fim da tentativa; bônus de portal, chefe e tempo de conclusão somente são adicionados quando efetivamente conquistados. Evitar somar duas vezes um mesmo evento.
+- **Exemplo:** jogador A lidera a fase 1-1, mas pode ficar abaixo de B no ranking total; as classificações não dependem uma da outra. Manter valores e critérios de desempate consistentes e auditáveis.
+- **Visitantes:** consultam referências e jogam livremente, incluindo campanhas completas durante a sessão, sem gravar rankings competitivos. **Autenticados:** têm melhores marcas por fase e total na API; progresso de campanha entre visitas será funcionalidade de persistência própria (não confundir progresso salvo e melhor pontuação).
+- **Histórico D1:** os registros atuais `game='pixel-quest'` representam **somente 1-1 pelo contrato anterior**; não devem ser reinterpretados como ranking total nem apagados/alterados automaticamente. Separar novas chaves de leaderboard/API por fase e por campanha, definir migração compatível e não executar SQL sem autorização específica do proprietário. Não inserir dados falsos nem misturar versão v1 com campanha v2.
+- **Atualizações online:** 'em tempo real' no HUD significa resposta imediata ao jogo e atualização das referências via API conforme eventos; não significa push/subscription instantânea de outros jogadores sem infraestrutura específica aprovada.
+
+### Achado técnico confirmado
+- Em `src/scripts/pixelQuest/index.ts`, a conclusão **somente de `1-1`** dispara `oldarcade:game-finished` para o ranking global; `1-2` e `1-3` nunca disparam esse evento.
+- `src/scripts/pixelQuest/records.ts` mantém pontuação por fase e apenas soma local ao **completar todas as fases**, portanto não cobre campanha interrompida. O HUD local atual lê a fase em `localStorage`; `src/scripts/modeRanking.ts` usa o único endpoint público `/api/games/pixel-quest/leaderboard` sem discriminar fases.
+- **Status:** defeito funcional reproduzido por leitura direta de código, sem teste manual de nova gravação; **prioridade alta antes de homologar Mundo 1**. O contrato desta seção **substitui** a restrição anterior de ranking 1-1 como solução definitiva, mas a proteção dos dados históricos permanece até a migração autorizada.
+- **Testes exigidos na implementação:** resultados independentes por fase, acumulado com 1, 2 ou 3 fases (vitória ou derrota), reset/replay sem duplicar pontuação, troca de fase, visita sem conta, login modal, regressão de recordes v1, desempate, API e HUD/página separados, preservação de campanha salva após login.
+
 ## SEO — bloqueador real e correção preparada na branch
 
 **Antes:** `public/robots.txt` bloqueava todo o rastreamento e `astro.config.mjs` só gerava sitemap quando `SITE_URL` estivesse definida; páginas usavam `noindex` sem SITE_URL.
