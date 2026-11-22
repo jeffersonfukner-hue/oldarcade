@@ -1,3 +1,11 @@
+## 22/11/2026 — Registro e diagnóstico dos recordes por fase e total (Pixel Quest)
+- **Início/término Brasília:** não aferidos com cronômetro; **tempo efetivo comprovado:** não mensurado; **estimativa:** não calculada; sem contabilizar intervalos entre mensagens.
+- **Atividades executadas:** leitura do motor de campanha, cálculo de pontuação, recordes locais, camada visual de ranking e API; confronto com a experiência informada pelo proprietário após jogar as três fases; especificação do ranking por fase no HUD e total da campanha na página, incluindo campanhas interrompidas.
+- **Evidência comprovada:** `src/scripts/pixelQuest/index.ts` somente emite `oldarcade:game-finished` para `1-1`; o ranking `pixel-quest` atual não contabiliza `1-2`, `1-3` nem o total; `records.ts` só registra melhor campanha local quando completada. Correção ainda **não implementada**, apenas diagnosticada/documentada.
+- **Resultados:** regra formalizada em `docs/PLANO_LANCAMENTO_SEO_2026-11-21.md`, inclusive proteção dos recordes D1 legados, atualização do HUD, ranking total com conclusão ou derrota e aplicação futura a jogos de campanha.
+- **Pendências:** implementar separação de chaves e tratamento de pontuação parcial no frontend e API, planejar migração D1 Preview sem executar SQL, criar testes de integração e homologar a experiência.
+- **Alterações não realizadas:** nenhuma mudança funcional, de dados, D1, merge ou deploy manual nesta etapa.
+
 ## 22/11/2026 — Completar apresentação cinematográfica do chefe do Mundo 1
 - **Início/término Brasília e duração efetiva:** não aferidos; tempo comprovado não mensurado; sem estimativa de horas.
 - **Atividade efetiva:** integração de apresentação exclusiva do Guardião da Floresta ao aproximar-se da arena 1-3, pausando o relógio e a simulação por 2,2 s; zoom e tremor leve no componente visual já reutilizado para títulos de fase; atualização da documentação.
