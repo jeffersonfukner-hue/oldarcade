@@ -14,7 +14,8 @@ function loadTs(relativePath,dependencies={}){
 const levels=loadTs('../src/scripts/pixelQuest/levels.ts');
 const physics=loadTs('../src/scripts/pixelQuest/physics.ts',{'./levels':levels});
 const gameplay=loadTs('../src/scripts/pixelQuest/gameplay.ts',{'./physics':physics});
-const {firstLevel}=loadTs('../src/data/pixelQuest/level-1-1.ts');
+const forest=loadTs('../src/data/pixelQuest/forestDesign.ts');
+const {firstLevel}=loadTs('../src/data/pixelQuest/level-1-1.ts',{'./forestDesign':forest});
 const idle={left:false,right:false,jump:false};
 const run=()=>gameplay.createRun(firstLevel);
 test('Mapa da fase com entidades válidas',()=>{
