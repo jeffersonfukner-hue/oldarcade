@@ -20,6 +20,15 @@
 - **Critério de lançamento:** Mundo 1 completo e testado (inclusive chefão, progressão, recuperação de campanha logada e visita sem login), além dos bloqueadores gerais do portal; mundos 2 e 3 não bloqueiam publicação.
 - **Estado nesta data:** decisão registrada documentalmente; nenhuma fase nova ou sistema de notificações implementado por esta entrada.
 
+## Mundo 1 — contrato visual de fases e primeiro lote executado (22/11/2026)
+
+- **Dois códigos distintos, exibidos juntos:** ID estável `1-1`, `1-2`, `1-3` = mundo e número sequencial; **Fase 1/3, 2/3, 3/3** = posição do jogador / total disponível naquele mundo. Nos futuros mundos: `2-1` com Fase 1/5; `3-1` com Fase 1/8.
+- **Abertura por fase após o 3–2–1 global:** identificação central `MUNDO 1 · FLORESTA ESMERALDA`, `Fase N/3` e `1-N`; duração total **1,8 s** após a contagem. Fase 1/3: zoom pequeno → centro → cresce e desaparece; 2/3: esquerda → centro → direita; 3/3: baixo → centro → cima. A animação não consome tempo da partida, não altera a contagem padronizada e respeita `prefers-reduced-motion`.
+- **Atmosfera do Mundo 1:** parallax de montanhas (fator 0,10) e duas camadas de pinheiros (0,22 e 0,40); transição suave guiada pela posição da câmera: 1/3 nascer do sol → manhã clara, 2/3 céu de meio-dia → pôr do sol, 3/3 crepúsculo → noite do chefão. Arte procedural interna do jogo, sem substituir capas/imagens editoriais homologadas.
+- **Conteúdo do primeiro lote:** mapas 1-2 e 1-3, guardião geométrico com 3 acertos de pisão, barra de vida e portal dependente do chefão, transição sequencial 1-1 → 1-2 → 1-3, conclusão do Mundo 1. A fase 1-1 e sua pontuação de ranking v1 permanecem com o mesmo identificador; outras fases não são enviadas ao ranking v1, evitando misturas.
+- **Limites deste lote:** evolução de mecânicas e ritmo deve passar pela homologação jogável; salvamento autenticado em servidor, comunicação de novidades e ranking de campanha separados ainda **não implementados**. Visitante avança em memória enquanto a página permanecer aberta; carregar de novo recomeça na 1-1. Não afirmar validação de percurso completo sem partida de ponta a ponta.
+- **Critérios de teste:** tipagem, build, testes API, Playwright de mapas/atmosfera/abertura e regressão de outros jogos; prova visual e balanceamento no Preview pelo proprietário. Nenhum merge, deploy manual ou D1.
+
 ## SEO — bloqueador real e correção preparada na branch
 
 **Antes:** `public/robots.txt` bloqueava todo o rastreamento e `astro.config.mjs` só gerava sitemap quando `SITE_URL` estivesse definida; páginas usavam `noindex` sem SITE_URL.
