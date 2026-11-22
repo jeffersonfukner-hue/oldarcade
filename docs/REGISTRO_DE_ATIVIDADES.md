@@ -1,3 +1,10 @@
+## 22/11/2026 — Completar apresentação cinematográfica do chefe do Mundo 1
+- **Início/término Brasília e duração efetiva:** não aferidos; tempo comprovado não mensurado; sem estimativa de horas.
+- **Atividade efetiva:** integração de apresentação exclusiva do Guardião da Floresta ao aproximar-se da arena 1-3, pausando o relógio e a simulação por 2,2 s; zoom e tremor leve no componente visual já reutilizado para títulos de fase; atualização da documentação.
+- **Resultado:** fluxo implementado na branch, sem interação com banco de dados ou mudanças em produção.
+- **Pendências:** CI do commit final, validação jogável de ponta a ponta e homologação visual do efeito; testes específicos de confronto/avanço em novas fases.
+- **Evidências:** `src/scripts/pixelQuest/index.ts`, `src/components/PixelQuestGame.astro`, `docs/PLANO_LANCAMENTO_SEO_2026-11-21.md`.
+
 ## 22/11/2026 — Implementação inicial da campanha Mundo 1 e abertura animada Pixel Quest
 - **Início/término Brasília:** não aferidos por cronômetro; **duração efetiva comprovada:** não mensurada; **estimativa:** não calculada. Sem cômputo por intervalos de mensagens.
 - **Atividades executadas:** leitura dos contratos de jogo e arquitetura; criação de mapas 1-2/1-3; implementação de progressão de campanha em memória, identificação estável de fase (1-1) e progresso (1/3), abertura animada (zoom/lateral/vertical) após countdown global, desenho procedural de parallax com montanhas e pinheiros, ciclo gradual de dia/noite, chefão de três acertos e controle de portal; separação do ranking v1 para pontuação exclusiva da 1-1; inclusão de testes Playwright e documentação.
