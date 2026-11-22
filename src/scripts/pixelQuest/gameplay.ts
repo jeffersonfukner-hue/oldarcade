@@ -2,7 +2,7 @@ import {createPlayer,stepPlayer,STEP,type Player,type InputFrame} from './physic
 import type {Level} from './levels';
 
 export type Enemy={id:number;x:number;y:number;origin:number;direction:1|-1;alive:boolean};
-export type Boss={x:number;y:number;origin:number;direction:1|-1;hearts:number;stun:number;age:number};
+export type Boss={x:number;y:number;origin:number;direction:1|-1;hearts:number;stun:number;age:number;mode:'walk'|'warning'|'charge'|'recover';modeTime:number};
 export type Run={
  player:Player;hearts:number;score:number;crystals:Set<number>;enemies:Enemy[];boss:Boss|null;
  cumulativeBeforeLevel:number;
@@ -20,7 +20,7 @@ export function createRun(level:Level,cumulativeBeforeLevel=0):Run {
  return {
   player:createPlayer(spawn.x,spawn.y),hearts:3,score:0,crystals:new Set<number>(),cumulativeBeforeLevel,
   enemies:level.entities.flatMap((entity,id)=>entity.kind==='patroller'?[{id,x:entity.x,y:entity.y,origin:entity.x,direction:1 as const,alive:true}]:[]),
-  boss:(()=>{const e=level.entities.find(entity=>entity.kind==='boss');return e?{x:e.x,y:e.y,origin:e.x,direction:-1 as const,hearts:3,stun:0,age:0}:null})(),
+  boss:(()=>{const e=level.entities.find(entity=>entity.kind==='boss');return e?{x:e.x,y:e.y,origin:e.x,direction:-1 as const,hearts:5,stun:0,age:0,mode:'walk' as const,modeTime:0}:null})(),
   checkpoint:{x:spawn.x,y:spawn.y},checkpointActive:false,invulnerable:0,phase:'playing',elapsedMs:0
  };
 }
@@ -88,22 +88,38 @@ export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
    run.score+=50;
   } else if(run.invulnerable<=0){receiveDamage(run,enemy.x);return}
  }
- // Confronto do guardião: três pisões, telegráficos pela pausa após cada acerto.
+ // Guardião: cinco acertos, patrulha -> aviso -> investida -> recuperação.
  const boss=run.boss;
  if(boss&&boss.hearts>0){
   boss.age+=dt;boss.stun=Math.max(0,boss.stun-dt);
   if(boss.stun<=0){
-   const speed=boss.age%5<1.3?0:boss.age%5<3.3?75:110;
+   boss.modeTime+=dt;
+   const enraged=boss.hearts<=2;
+   const warning=enraged?.62:.85,charge=enraged?.72:.86;
+   if(boss.mode==='walk'&&boss.modeTime>1.2){
+    boss.mode='warning';boss.modeTime=0;
+    boss.direction=p.x+11<boss.x+24?-1:1;
+   }else if(boss.mode==='warning'&&boss.modeTime>warning){
+    boss.mode='charge';boss.modeTime=0;
+   }else if(boss.mode==='charge'&&boss.modeTime>charge){
+    boss.mode='recover';boss.modeTime=0;
+   }else if(boss.mode==='recover'&&boss.modeTime>1.15){
+    boss.mode='walk';boss.modeTime=0;
+   }
+   const speed=boss.mode==='charge'?(enraged?240:195):boss.mode==='walk'?(enraged?85:63):0;
    boss.x+=boss.direction*speed*dt;
-   const left=boss.origin-170,right=boss.origin+130;
-   if(boss.x<left){boss.x=left;boss.direction=1}
-   if(boss.x>right){boss.x=right;boss.direction=-1}
+   const left=boss.origin-220,right=boss.origin+105;
+   if(boss.x<left){boss.x=left;boss.direction=1;boss.mode='recover';boss.modeTime=0}
+   if(boss.x>right){boss.x=right;boss.direction=-1;boss.mode='recover';boss.modeTime=0}
   }
   if(overlaps(p.x,p.y,p.w,p.h,boss.x,boss.y,48,56)){
    const stomp=oldBottom<=boss.y+12&&oldVy>=0&&p.vy>=0&&p.y+p.h>=boss.y;
    if(stomp){
     p.y=boss.y-p.h;p.vy=-330;p.grounded=false;p.coyote=0;
-    if(boss.stun<=0){boss.hearts--;boss.stun=1.4}
+    // Vulnerabilidade curta após a investida; não contar múltiplos golpes no stun.
+    if(boss.stun<=0&&(boss.mode==='recover'||boss.mode==='walk')){
+     boss.hearts--;boss.stun=1.1;boss.mode='warning';boss.modeTime=0;
+    }
    }else if(run.invulnerable<=0&&boss.stun<=0){
     receiveDamage(run,boss.x);return;
    }
