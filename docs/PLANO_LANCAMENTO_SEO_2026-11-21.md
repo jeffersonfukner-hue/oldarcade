@@ -48,6 +48,13 @@
 - **Status:** defeito funcional reproduzido por leitura direta de código, sem teste manual de nova gravação; **prioridade alta antes de homologar Mundo 1**. O contrato desta seção **substitui** a restrição anterior de ranking 1-1 como solução definitiva, mas a proteção dos dados históricos permanece até a migração autorizada.
 - **Testes exigidos na implementação:** resultados independentes por fase, acumulado com 1, 2 ou 3 fases (vitória ou derrota), reset/replay sem duplicar pontuação, troca de fase, visita sem conta, login modal, regressão de recordes v1, desempate, API e HUD/página separados, preservação de campanha salva após login.
 
+## Correção de mobilidade e combate — 22/11/2026
+
+- **Feedback da homologação:** inimigos embaixo de plataformas sem janela adequada para o pisão, principalmente na fase 3; algumas plataformas altas não oferecem rota de salto suficiente.
+- **Salto duplo aprovado:** primeiro pressionamento de Espaço/↑/W ou toque no botão Pular = salto inicial; após soltar e pressionar novamente ainda no ar, segundo impulso parte da posição atual. Terceiro pressionamento no ar não gera salto adicional; tocar o solo recarrega os dois saltos. A mecânica aplica-se às três fases e não altera Snake/Tetris.
+- **Geometria corrigida no primeiro lote:** plataforma na 1-1 deslocada para abrir o espaço de ataque superior; em 1-2 e 1-3, removidos blocos superiores nos arredores dos patrulheiros para permitir sua derrota por pisão. A geometria das fases permanece sujeita à revisão completa de alcance, variedade e duração solicitada pelo proprietário.
+- **Testes:** unidade no Playwright para segundo impulso, bloqueio de terceiro salto e reposição após pouso; verificação dos tiles sobre patrulheiros. Falta confirmar CI e homologação jogável real de plataformas elevadas, incluindo dispositivo touch.
+
 ## SEO — bloqueador real e correção preparada na branch
 
 **Antes:** `public/robots.txt` bloqueava todo o rastreamento e `astro.config.mjs` só gerava sitemap quando `SITE_URL` estivesse definida; páginas usavam `noindex` sem SITE_URL.
