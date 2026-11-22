@@ -1,14 +1,61 @@
 import type {Level} from './levels';
 import {portalUnlocked,type Run} from './gameplay';
 export const VIEW_WIDTH=640,VIEW_HEIGHT=360;
+
+// Camadas autorais desenhadas no canvas: sem assets externos e sem afetar colisões.
+function blend(a:string,b:string,t:number){
+ const n=(s:string,i:number)=>parseInt(s.slice(i,i+2),16);
+ const k=(i:number)=>Math.round(n(a,i)*(1-t)+n(b,i)*t);
+ return `rgb(${k(1)},${k(3)},${k(5)})`;
+}
+export function worldOneAtmosphere(levelId:string,ratio:number){
+ const t=Math.max(0,Math.min(1,ratio));
+ const palettes:Record<string,[string,string,string,string]>={
+  '1-1':['#172c52','#4a6992','#e2a16b','#91cbd7'],
+  '1-2':['#4a91c5','#8dd5e8','#693e80','#ff995f'],
+  '1-3':['#664780','#e68b65','#0b1434','#28335e']
+ };
+ const p=palettes[levelId]??palettes['1-1'];
+ return {top:blend(p[0],p[2],t),bottom:blend(p[1],p[3],t)};
+}
+function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number){
+ const ratio=camera/Math.max(1,level.width*level.tileSize-VIEW_WIDTH);
+ const t=Math.max(0,Math.min(1,ratio));
+ const sky=worldOneAtmosphere(level.id,t);
+ const gradient=c.createLinearGradient(0,0,0,VIEW_HEIGHT);
+ gradient.addColorStop(0,sky.top);gradient.addColorStop(1,sky.bottom);
+ c.fillStyle=gradient;c.fillRect(0,0,VIEW_WIDTH,VIEW_HEIGHT);
+ const phase=level.id==='1-1'?0:level.id==='1-2'?1:2;
+ const orbX=Math.round(80+500*t),orbY=Math.round(phase===0?172-105*t:phase===1?48+118*t:155+20*t);
+ c.fillStyle=phase===2&&t>.5?'#f7f4d7':'#ffe3a1';
+ c.beginPath();c.arc(orbX,orbY,phase===2&&t>.5?15:19,0,Math.PI*2);c.fill();
+ // Montanhas mais distantes acompanham somente 10% da câmera.
+ for(let i=-2;i<9;i++){
+  const x=i*170-Math.floor(camera*.10%170);
+  c.fillStyle=phase===2?'#303654':'#547b94';
+  c.beginPath();c.moveTo(x,265);c.lineTo(x+83,104+(i%3)*24);c.lineTo(x+172,265);c.fill();
+ }
+ for(const [factor,width,height,color] of [
+  [.22,78,80,phase===2?'#223e50':'#35636b'],
+  [.40,58,105,phase===2?'#152d40':'#225b52']
+ ] as const){
+  const stride=width+19,offset=(camera*factor)%stride;
+  for(let i=-1;i<Math.ceil(VIEW_WIDTH/stride)+2;i++){
+   const x=Math.round(i*stride-offset),base=268;
+   c.fillStyle=color;
+   c.fillRect(x+width*.45,base-height*.25,Math.max(4,width*.1),height*.30);
+   for(let layer=0;layer<3;layer++){
+    const y=base-height+layer*height*.24;
+    c.beginPath();c.moveTo(x+width/2,y);c.lineTo(x+width*.08-layer*2,y+height*.46);
+    c.lineTo(x+width*.92+layer*2,y+height*.46);c.fill();
+   }
+  }
+ }
+}
 export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,camera:number){
  const context=canvas.getContext('2d');if(!context)return;
  context.imageSmoothingEnabled=false;
- context.fillStyle='#172c52';context.fillRect(0,0,VIEW_WIDTH,VIEW_HEIGHT);
- context.fillStyle='#274875';
- for(let x=((-camera*.12)%180)-180;x<VIEW_WIDTH+180;x+=180){
-  context.beginPath();context.moveTo(x,VIEW_HEIGHT);context.lineTo(x+90,130);context.lineTo(x+180,VIEW_HEIGHT);context.fill();
- }
+ drawLandscape(context,level,camera);
  const vertical=level.height*level.tileSize-VIEW_HEIGHT;
  const first=Math.max(0,Math.floor(camera/32)),last=Math.min(level.width-1,Math.ceil((camera+VIEW_WIDTH)/32));
  for(let row=0;row<level.height;row++)for(let col=first;col<=last;col++){
@@ -39,6 +86,16 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
   const x=Math.round(enemy.x-camera),y=Math.round(enemy.y-vertical);
   context.fillStyle='#fa8a91';context.fillRect(x,y,22,24);
   context.fillStyle='#172c52';context.fillRect(x+5,y+7,4,4);context.fillRect(x+14,y+7,4,4);
+ }
+ const boss=run.boss;
+ if(boss&&boss.hearts>0){
+  const x=Math.round(boss.x-camera),y=Math.round(boss.y-vertical);
+  context.fillStyle=boss.stun>0?'#c7c5ff':'#8f6ca8';
+  context.fillRect(x,y,48,56);
+  context.fillStyle='#f8da80';context.fillRect(x+9,y+16,9,9);context.fillRect(x+30,y+16,9,9);
+  context.fillStyle='#1c203c';context.fillRect(x+12,y+19,4,4);context.fillRect(x+33,y+19,4,4);
+  context.fillStyle='#26334d';context.fillRect(x-4,y-17,56,7);
+  context.fillStyle='#e7a4c6';context.fillRect(x-4,y-17,56*(boss.hearts/3),7);
  }
  const p=run.player;
  if(run.invulnerable<=0||Math.floor(run.invulnerable*12)%2===0){
