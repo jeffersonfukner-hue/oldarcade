@@ -57,13 +57,25 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
  context.imageSmoothingEnabled=false;
  drawLandscape(context,level,camera);
  const vertical=level.height*level.tileSize-VIEW_HEIGHT;
+ // O horizonte fica atrás do terreno; abismos têm profundidade escura.
+ const groundY=15*level.tileSize-vertical;
+ context.fillStyle='#171a23';context.fillRect(0,groundY,VIEW_WIDTH,VIEW_HEIGHT-groundY);
  const first=Math.max(0,Math.floor(camera/32)),last=Math.min(level.width-1,Math.ceil((camera+VIEW_WIDTH)/32));
  for(let row=0;row<level.height;row++)for(let col=first;col<=last;col++){
   const tile=level.tiles[row][col];if(!tile)continue;
   const x=Math.round(col*32-camera),y=row*32-vertical;
-  context.fillStyle=tile===1?'#24735d':'#b9a0d8';context.fillRect(x,y,32,32);
-  context.fillStyle=tile===1?'#64c78b':'#eee0fa';context.fillRect(x,y,32,5);
-  context.strokeStyle='#184e46';context.strokeRect(x+.5,y+.5,31,31);
+  if(tile===1){
+   const surface=row===15;
+   context.fillStyle=surface?'#6a4537':row===16?'#584038':'#443333';
+   context.fillRect(x,y,32,32);
+   if(surface){context.fillStyle='#468a55';context.fillRect(x,y,32,7)}
+   context.fillStyle='#80624f';
+   if((row+col)%3===0)context.fillRect(x+8,y+18,9,4);
+  }else{
+   context.fillStyle='#97775c';context.fillRect(x,y,32,10);
+   context.fillStyle='#74aa71';context.fillRect(x,y,32,4);
+  }
+  context.strokeStyle='rgba(10,17,25,.13)';context.strokeRect(x+.5,y+.5,31,31);
  }
  for(const [id,entity] of level.entities.entries()){
   if(entity.kind==='player'||(entity.kind==='crystal'&&run.crystals.has(id))||entity.kind==='patroller')continue;
@@ -90,12 +102,14 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
  const boss=run.boss;
  if(boss&&boss.hearts>0){
   const x=Math.round(boss.x-camera),y=Math.round(boss.y-vertical);
-  context.fillStyle=boss.stun>0?'#c7c5ff':'#8f6ca8';
+  const alert=boss.mode==='warning'||boss.mode==='charge';
+  context.fillStyle=boss.stun>0?'#b5b7e2':boss.mode==='charge'?'#ed637e':alert?'#eaa57b':'#8f6ca8';
   context.fillRect(x,y,48,56);
   context.fillStyle='#f8da80';context.fillRect(x+9,y+16,9,9);context.fillRect(x+30,y+16,9,9);
   context.fillStyle='#1c203c';context.fillRect(x+12,y+19,4,4);context.fillRect(x+33,y+19,4,4);
   context.fillStyle='#26334d';context.fillRect(x-4,y-17,56,7);
-  context.fillStyle='#e7a4c6';context.fillRect(x-4,y-17,56*(boss.hearts/3),7);
+  context.fillStyle='#e7a4c6';context.fillRect(x-4,y-17,56*(boss.hearts/5),7);
+  if(boss.mode==='warning'){context.strokeStyle='#ffcf71';context.lineWidth=2;context.strokeRect(x-6,y-6,60,68)}
  }
  const p=run.player;
  if(run.invulnerable<=0||Math.floor(run.invulnerable*12)%2===0){
