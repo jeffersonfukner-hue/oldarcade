@@ -69,7 +69,9 @@ if(stage){
   defeated.textContent=String(totalDefeated(run));
   levelKills.textContent=String(defeatedCount);
   levelEnemies.textContent=(run.enemies.length-defeatedCount)+'/'+run.enemies.length;
+  crystalsProgress.max=Math.max(1,totalCrystals());
   crystalsProgress.value=run.crystals.size;
+  enemiesProgress.max=Math.max(1,run.enemies.length);
   enemiesProgress.value=defeatedCount;
   crystalsRemaining.textContent=String(totalCrystals()-run.crystals.size);
   enemiesRemaining.textContent=String(run.enemies.length-defeatedCount);
