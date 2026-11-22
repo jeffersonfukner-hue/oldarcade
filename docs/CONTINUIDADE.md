@@ -1,3 +1,11 @@
+## ATUALIZAÇÃO DE EXECUÇÃO — Pixel Quest Mundo 1 (22/11/2026)
+- **Regra operacional do proprietário:** commits no GitHub estão autorizados; **build/deploy do Cloudflare somente manual pelo proprietário**, quando indicar o commit e após terminar o lote. Não confundir commit com publicação.
+- **Branch isolada de desenvolvimento:** `feat/pixel-quest-mundo1-finalizacao`, criada a partir de `feat/layout-unificado-snake-quest`; sem merge, sem publicação ou D1 alterado.
+- **Implementado na branch:** mapas 1-1/1-2/1-3 expandidos (300/366/425 colunas, 14/17/19 cristais, 6/9/11 patrulheiros), solo terroso com grama, plataformas unidirecionais, chefão de cinco vidas com aviso/investida/recuperação, rankings v2 por fase e total, pontuação de derrota no total, endpoint de progresso autenticado e migração 0011 **somente versionada**.
+- **Regras preservadas:** visitante joga sem conta; rankings antigos de 1-1 permanecem na chave legada; ranking na página é o total, HUD usa classificação da fase; novidades não têm opt-in automático.
+- **Testes:** arquivos de regressão atualizados e novos testes Node adicionados, **não executados contra o HEAD remoto ainda**; pacote de referência local executou testes offline de mapas, limites matemáticos, classificação/progresso simulados e sintaxe, mas essa evidência não substitui CI/E2E nem teste visual.
+- **Pendências de lançamento:** validar CI/Playwright sem consumir Cloudflare, corrigir defeitos, homologar nível de dificuldade, garantir salvamento em D1 Preview após autorização de migração e só então indicar commit para deploy manual.
+
 ## CORREÇÃO FINAL DO PACOTE PIXEL QUEST — somente imagens aceitas (20/11/2026)
 - O proprietário rejeitou a inclusão de imagens repetitivas/pendentes. O ZIP anterior com `PENDENTE_DE_APROVACAO/how-to-play.png` **não deve ser usado**.
 - **Pacote limpo:** `oldarcade-pixel-quest-somente-aprovadas.zip`; SHA-256 `31f0ba278f4e484bf03daf20da99dee33d18ac470a382053fd96bbbec594aab1`. Dois PNGs originais não modificados, mais `MANIFESTO.json`.
