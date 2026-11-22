@@ -4,6 +4,7 @@ import {validateLevel} from '../src/scripts/pixelQuest/levels';
 import {createRun,portalUnlocked} from '../src/scripts/pixelQuest/gameplay';
 import {entranceForLevel,stageTitle} from '../src/scripts/pixelQuest/stageIntro';
 import {worldOneAtmosphere} from '../src/scripts/pixelQuest/render';
+import {createPlayer,stepPlayer,STEP} from '../src/scripts/pixelQuest/physics';
 
 test('Mundo 1 contém 3 fases válidas, final com guardião e progressão conservada',()=>{
  expect(worldOneTotal).toBe(3);
@@ -45,4 +46,39 @@ test('Abertura da primeira fase: zoom com 3-2-1 separado e HUD da campanha',asyn
  await expect(page.locator('#pq-intro-code')).toHaveText('1-1');
  await expect(page.locator('#pq-status')).toContainText('Jogando',{timeout:4000});
  await expect(page.locator('#pq-stage-intro')).toBeHidden();
+});
+
+test('Salto duplo: dois pressionamentos separados, sem permitir o terceiro salto no ar',()=>{
+ const level=worldOneLevels[1];
+ const p=createPlayer(80,15*32-29);
+ const input=(jump:boolean)=>({left:false,right:false,jump});
+ for(let i=0;i<3;i++)stepPlayer(p,input(false),level,STEP);
+ expect(p.grounded).toBe(true);
+ stepPlayer(p,input(true),level,STEP);
+ expect(p.jumpsUsed).toBe(1);
+ const firstVy=p.vy;
+ stepPlayer(p,input(false),level,STEP);
+ stepPlayer(p,input(true),level,STEP);
+ expect(p.jumpsUsed).toBe(2);
+ expect(p.vy).toBeLessThan(firstVy+20);
+ stepPlayer(p,input(false),level,STEP);
+ const beforeThird=p.vy;
+ stepPlayer(p,input(true),level,STEP);
+ expect(p.jumpsUsed).toBe(2);
+ expect(p.vy).toBeGreaterThan(beforeThird);
+ for(let i=0;i<140;i++)stepPlayer(p,input(false),level,STEP);
+ expect(p.grounded).toBe(true);
+ expect(p.jumpsUsed).toBe(0);
+});
+
+test('Patrulheiros das três fases não ficam sob tetos de plataforma',()=>{
+ for(const level of worldOneLevels){
+  const patrols=level.entities.filter(e=>e.kind==='patroller');
+  for(const enemy of patrols){
+   const col=Math.floor(enemy.x/32),row=Math.floor(enemy.y/32);
+   for(let r=row-2;r<row;r++){
+    expect(level.tiles[r]?.[col],`teto bloqueando inimigo em ${level.id} col ${col}`).not.toBe(1);
+   }
+  }
+ }
 });
