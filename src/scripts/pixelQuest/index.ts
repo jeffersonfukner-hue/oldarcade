@@ -51,6 +51,7 @@ if(stage){
  });
  let levelIndex=0,level=worldOneLevels[levelIndex];
  let results:LevelResult[]=[];
+ let bossIntroShown=false;
  let run:Run=createRun(level),camera=0;
  let phase:'ready'|'countdown'|'intro'|'playing'|'paused'|'won'|'lost'='ready';
  let countdownTimer:number|undefined,introTimer:number|undefined,seconds=3,previous=0,accumulator=0;
@@ -86,7 +87,7 @@ if(stage){
  }
  function clearCountdown(){if(countdownTimer!==undefined)window.clearInterval(countdownTimer);countdownTimer=undefined;setCountdownOverlay(overlay,countdown,start,false)}
  function reset(){
-  clearIntro();
+  clearIntro();bossIntroShown=false;
   run=createRun(level,results.reduce((sum,item)=>sum+item.enemies,0));
   camera=0;accumulator=0;clock.reset();input.reset();updateHud();updateLocalRecords();
   drawPlatformScene(canvas,level,run,camera);
@@ -106,6 +107,18 @@ if(stage){
    introTimer=undefined;intro.hidden=true;setPhase('playing');
    previous=performance.now();accumulator=0;
   },STAGE_INTRO_MS);
+ }
+ function beginBossIntro(){
+  setPhase('intro');overlay.hidden=true;
+  introWorld.textContent='CHEFÃO DO MUNDO 1';
+  introProgress.textContent='GUARDIÃO DA FLORESTA';
+  introCode.textContent='Fase 3/3 · 1-3';
+  intro.dataset.entrance='boss';intro.hidden=false;
+  input.reset();
+  introTimer=window.setTimeout(()=>{
+   introTimer=undefined;intro.hidden=true;setPhase('playing');
+   previous=performance.now();accumulator=0;
+  },2200);
  }
  function beginCountdown(){
   clearCountdown();clearIntro();input.reset();setPhase('countdown');overlay.hidden=false;seconds=3;
@@ -185,6 +198,9 @@ if(stage){
     stepRun(run,level,input.read(),STEP);
     camera=cameraX(run.player,camera,level,VIEW_WIDTH);
     accumulator-=STEP;
+    if(run.phase==='playing'&&run.boss&&!bossIntroShown&&run.player.x>run.boss.origin-430){
+     bossIntroShown=true;beginBossIntro();break;
+    }
     if(run.phase!=='playing'){finish(run.phase==='won');break}
    }
    updateHud();
