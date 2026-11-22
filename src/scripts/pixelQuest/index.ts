@@ -178,6 +178,9 @@ if(stage){
   start.textContent=won?(levelIndex===worldOneTotal-1?'↻ Recomeçar aventura':'▶ Próxima fase'):'↻ Tentar novamente';start.hidden=false;input.reset();updateHud();
  }
  function startGame(){
+  if(phase==='ready'||phase==='won'||phase==='lost'){
+   document.dispatchEvent(new CustomEvent('oldarcade:game-started',{detail:{game:'pixel-quest'}}));
+  }
   if(phase==='won'){
    if(levelIndex<worldOneTotal-1)levelIndex++;
    else{levelIndex=0;results=[]}
