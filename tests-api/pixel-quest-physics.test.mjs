@@ -13,7 +13,8 @@ function loadTs(relativePath,dependencies={}){
  return module.exports;
 }
 const levels=loadTs('../src/scripts/pixelQuest/levels.ts');
-const {firstLevel}=loadTs('../src/data/pixelQuest/level-1-1.ts');
+const forest=loadTs('../src/data/pixelQuest/forestDesign.ts');
+const {firstLevel}=loadTs('../src/data/pixelQuest/level-1-1.ts',{'./forestDesign':forest});
 const physics=loadTs('../src/scripts/pixelQuest/physics.ts',{'./levels':levels});
 const blank={left:false,right:false,jump:false},right={left:false,right:true,jump:false};
 const run=(p,controls,ticks)=>{for(let i=0;i<ticks;i++)physics.stepPlayer(p,controls,firstLevel,physics.STEP)};
