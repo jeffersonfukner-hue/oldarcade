@@ -65,6 +65,9 @@ import PixelQuestEditorialArt from './PixelQuestEditorialArt.astro';
   .pq-stage-intro[data-entrance="zoom"] .pq-stage-intro-card{animation:pq-intro-zoom 1.8s both}
   .pq-stage-intro[data-entrance="horizontal"] .pq-stage-intro-card{animation:pq-intro-horizontal 1.8s both}
   .pq-stage-intro[data-entrance="vertical"] .pq-stage-intro-card{animation:pq-intro-vertical 1.8s both}
+  .pq-stage-intro[data-entrance="boss"]{background:rgba(7,7,24,.78)}
+  .pq-stage-intro[data-entrance="boss"] .pq-stage-intro-card{border-color:#f3a4d8;box-shadow:0 0 40px rgba(246,103,164,.36);animation:pq-intro-boss 2.2s both}
+  @keyframes pq-intro-boss{0%{opacity:0;transform:scale(.15)}22%,62%{opacity:1;transform:scale(1)}69%{transform:translateX(-4px)}74%{transform:translateX(4px)}79%{transform:translateX(-3px)}84%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:scale(1.7)}}
   @keyframes pq-intro-zoom{0%{opacity:0;transform:scale(.2)}25%,72%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.6)}}
   @keyframes pq-intro-horizontal{0%{opacity:0;transform:translateX(-130%)}25%,72%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(130%)}}
   @keyframes pq-intro-vertical{0%{opacity:0;transform:translateY(160%)}25%,72%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-160%)}}
