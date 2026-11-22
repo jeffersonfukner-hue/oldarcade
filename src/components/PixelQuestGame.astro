@@ -32,13 +32,16 @@ import PixelQuestEditorialArt from './PixelQuestEditorialArt.astro';
      </GameHud>
      <div class="pq-board-column oa-board-slot"><div id="pq-screen" class="screen-wrap oa-board-surface"><canvas id="pq-canvas" width="640" height="360" aria-label="Mapa interativo da fase 1-1, com cristais, inimigos e portal"></canvas>
       <div id="pq-overlay" class="game-overlay"><h2 id="pq-title">Preparado para explorar?</h2><p id="pq-description">Use as setas ou A/D para mover; Espaço, W ou ↑ para saltar. Colete todos os cristais para liberar o portal!</p><strong id="pq-countdown" class="countdown-value" hidden></strong><button id="pq-start" type="button" class="btn">▶ Começar fase</button></div>
+      <div id="pq-stage-intro" class="pq-stage-intro" hidden aria-live="polite">
+       <div class="pq-stage-intro-card"><span id="pq-intro-world">MUNDO 1 · FLORESTA ESMERALDA</span><strong id="pq-intro-progress">Fase 1/3</strong><span id="pq-intro-code">1-1</span></div>
+      </div>
      </div>
-     <div class="pq-statusline" aria-label="Estado da fase"><span>Vidas: <strong id="pq-hearts" aria-label="Corações">♥♥♥</strong></span><span>Checkpoint: <strong id="pq-checkpoint">Não</strong></span><span id="pq-portal-status" role="status">Portal bloqueado · 0/6 cristais</span><span class="oa-metric-bridge" hidden aria-hidden="true">Inimigos no nível: <strong id="pq-level-enemies">3/3</strong></span><span class="oa-metric-bridge" hidden aria-hidden="true">Cristais no nível: <strong id="pq-crystals">0/6</strong></span></div>
+     <div class="pq-statusline" aria-label="Estado da fase"><span id="pq-level-label">Mundo 1 · Fase 1/3 · 1-1</span><span>Vidas: <strong id="pq-hearts" aria-label="Corações">♥♥♥</strong></span><span>Checkpoint: <strong id="pq-checkpoint">Não</strong></span><span id="pq-portal-status" role="status">Portal bloqueado · 0/6 cristais</span><span class="oa-metric-bridge" hidden aria-hidden="true">Inimigos no nível: <strong id="pq-level-enemies">3/3</strong></span><span class="oa-metric-bridge" hidden aria-hidden="true">Cristais no nível: <strong id="pq-crystals">0/6</strong></span></div>
     </div>
     </div>
     <div class="pq-touch-controls" aria-label="Controles de toque"><button type="button" data-pq-control="left" aria-label="Mover para esquerda">←</button><button type="button" data-pq-control="right" aria-label="Mover para direita">→</button><button type="button" data-pq-control="jump" aria-label="Saltar">↑ Pular</button></div>
    </div>
-   <aside class="panel oa-level-summary" aria-label="Informações da fase"><h2>Fase 1-1 · Trilha Esmeralda</h2><p>O portal exige todos os seis cristais. Inimigos rendem pontos extras, mas não bloqueiam a saída.</p><p class="small muted">Regras, controles e pontuação detalhados abaixo.</p></aside>
+   <aside class="panel oa-level-summary" aria-label="Informações da fase"><h2>Mundo 1 · Floresta Esmeralda · 3 fases</h2><p>Avance da manhã ao anoitecer. A fase 3/3 termina com o Guardião da Floresta. Os Mundos 2 e 3 estão em desenvolvimento.</p><p class="small muted">Regras, controles e pontuação detalhados abaixo.</p></aside>
   </GameLayout>
 
   <GamePageSections>
@@ -53,6 +56,22 @@ import PixelQuestEditorialArt from './PixelQuestEditorialArt.astro';
  </div>
  <script>import '../scripts/pixelQuest/index.ts';</script>
  <style>
+  .pq-stage-intro{position:absolute;inset:0;z-index:6;display:grid;place-items:center;pointer-events:none;background:rgba(6,13,30,.5);overflow:hidden}
+  .pq-stage-intro[hidden]{display:none}
+  .pq-stage-intro-card{display:grid;gap:8px;justify-items:center;max-width:94%;padding:18px 25px;border:2px solid #92e9c3;border-radius:10px;background:rgba(10,28,43,.93);box-shadow:0 0 30px rgba(97,208,178,.22);color:#fff;text-align:center}
+  .pq-stage-intro-card>span:first-child{font-size:clamp(.65rem,1.5vw,.85rem);letter-spacing:.09em;color:#a8f3d2}
+  .pq-stage-intro-card>strong{font-size:clamp(1.35rem,3.5vw,2.5rem);line-height:1.2}
+  .pq-stage-intro-card>span:last-child{color:#d5e5fc;font-variant-numeric:tabular-nums}
+  .pq-stage-intro[data-entrance="zoom"] .pq-stage-intro-card{animation:pq-intro-zoom 1.8s both}
+  .pq-stage-intro[data-entrance="horizontal"] .pq-stage-intro-card{animation:pq-intro-horizontal 1.8s both}
+  .pq-stage-intro[data-entrance="vertical"] .pq-stage-intro-card{animation:pq-intro-vertical 1.8s both}
+  @keyframes pq-intro-zoom{0%{opacity:0;transform:scale(.2)}25%,72%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.6)}}
+  @keyframes pq-intro-horizontal{0%{opacity:0;transform:translateX(-130%)}25%,72%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(130%)}}
+  @keyframes pq-intro-vertical{0%{opacity:0;transform:translateY(160%)}25%,72%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-160%)}}
+  @media(prefers-reduced-motion:reduce){
+   .pq-stage-intro[data-entrance] .pq-stage-intro-card{animation:pq-intro-fade 1.8s both}
+   @keyframes pq-intro-fade{0%{opacity:0}20%,80%{opacity:1}100%{opacity:0}}
+  }
   .pq-shell{min-width:0;max-width:100%;overflow-x:clip}
   .game-layout>.game-stage{min-width:0;max-width:100%}
   .pq-board-column{display:grid;align-content:start;gap:11px;min-width:0;width:100%;max-width:640px;margin-inline:auto}
