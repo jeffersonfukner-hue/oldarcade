@@ -1,3 +1,10 @@
+## 22/11/2026 — Salto duplo e acesso aos inimigos no Mundo 1 do Pixel Quest
+- **Horários início/fim em Brasília:** não aferidos com cronômetro; **duração efetiva comprovada:** não mensurada; **estimativa:** não calculada. Intervalos entre mensagens não são tempo de trabalho.
+- **Atividades efetivamente realizadas:** revisão da física e dos controles de teclado/toque; implementação de dois impulsos de salto por pressionamentos separados, limitados a dois até o próximo pouso; deslocamento de uma plataforma da 1-1 e liberação da trajetória de pisão sobre patrulheiros de 1-2/1-3; atualização do guia e adição de testes para salto duplo e ausência de teto diretamente sobre os inimigos.
+- **Resultados:** alterações gravadas exclusivamente na branch de trabalho, preservando os outros jogos e D1. O controle de toque reutiliza os eventos de pressionar/soltar já existentes; testes e validação final dependem do CI e da jogabilidade real.
+- **Pendências:** confirmar CI, testar salto duplo no celular/teclado e revisar alcançabilidade integral das plataformas; continuar refação do level design e reforço do chefão.
+- **Evidências:** `src/scripts/pixelQuest/physics.ts`, `src/data/pixelQuest/world-1.ts`, `src/data/pixelQuest/level-1-1.ts`, `src/components/PixelQuestGame.astro`, `tests/pixel-quest-campaign.spec.ts`, `docs/PLANO_LANCAMENTO_SEO_2026-11-21.md`.
+
 ## 22/11/2026 — Registro e diagnóstico dos recordes por fase e total (Pixel Quest)
 - **Início/término Brasília:** não aferidos com cronômetro; **tempo efetivo comprovado:** não mensurado; **estimativa:** não calculada; sem contabilizar intervalos entre mensagens.
 - **Atividades executadas:** leitura do motor de campanha, cálculo de pontuação, recordes locais, camada visual de ranking e API; confronto com a experiência informada pelo proprietário após jogar as três fases; especificação do ranking por fase no HUD e total da campanha na página, incluindo campanhas interrompidas.
