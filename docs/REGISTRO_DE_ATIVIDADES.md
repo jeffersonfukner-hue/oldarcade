@@ -1,3 +1,11 @@
+## 22/11/2026 — Implementação inicial da campanha Mundo 1 e abertura animada Pixel Quest
+- **Início/término Brasília:** não aferidos por cronômetro; **duração efetiva comprovada:** não mensurada; **estimativa:** não calculada. Sem cômputo por intervalos de mensagens.
+- **Atividades executadas:** leitura dos contratos de jogo e arquitetura; criação de mapas 1-2/1-3; implementação de progressão de campanha em memória, identificação estável de fase (1-1) e progresso (1/3), abertura animada (zoom/lateral/vertical) após countdown global, desenho procedural de parallax com montanhas e pinheiros, ciclo gradual de dia/noite, chefão de três acertos e controle de portal; separação do ranking v1 para pontuação exclusiva da 1-1; inclusão de testes Playwright e documentação.
+- **Resultados verificáveis no código da branch:** arquivos e testes citados presentes no GitHub; sem mudança em Snake/Tetris, sem merge, D1, produção ou deploy manual.
+- **Testes:** CI do commit final pendente de verificação após este registro; **não afirmar aprovação de regressão antes de resultado**. Gameplay completo das três fases ainda depende de partida real e homologação visual.
+- **Pendências:** conferir CI, corrigir regressões detectadas, ajustar ritmo/dificuldade e arte do Mundo 1; persistência de campanha autenticada no servidor, convite de cadastro e novidades opt-in em lote posterior.
+- **Evidências:** `src/data/pixelQuest/world-1.ts`, `src/scripts/pixelQuest/stageIntro.ts`, `src/scripts/pixelQuest/index.ts`, `src/scripts/pixelQuest/render.ts`, `src/scripts/pixelQuest/gameplay.ts`, `src/scripts/pixelQuest/scoring.ts`, `src/components/PixelQuestGame.astro`, `tests/pixel-quest-campaign.spec.ts`, `docs/PLANO_LANCAMENTO_SEO_2026-11-21.md`.
+
 ## 21/11/2026 — Registro de decisão de lançamento progressivo Pixel Quest
 - **Horários de início/término (Brasília):** não aferidos; **duração comprovada:** não mensurada; **estimativa:** não calculada. Não computar intervalos entre mensagens.
 - **Atividades executadas:** conferência dos documentos de lançamento e continuidade; registro formal da decisão do proprietário de lançar o Mundo 1 (3 fases e chefão) antes dos mundos 2 (5 fases e chefão) e 3 (8 fases e chefão), com campanha visitável sem conta, salvamento autenticado e opção separada de receber novidades.
