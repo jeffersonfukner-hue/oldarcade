@@ -19,9 +19,9 @@ function makeLevel(id:string,width:number,variant:2|3):Level{
  const patrolCols=variant===2?[25,59,89,116,143,161]:[24,57,89,120,146,174];
  const entities:Level['entities']=[
   {kind:'player',x:64,y:ground-29},
-  ...crystalCols.map(col=>({kind:'crystal' as const,x:col*32,y:ground-45})),
+  ...crystalCols.map(col=>({kind:'crystal' as const,x:col*32,y:tiles[13][col]===1?13*32-26:ground-45})),
   ...patrolCols.map(col=>({kind:'patroller' as const,x:col*32,y:ground-24})),
-  {kind:'checkpoint',x:Math.floor(width*.50)*32,y:ground-48},
+  {kind:'checkpoint',x:(variant===3?105:93)*32,y:ground-48},
   ...(variant===3?[{kind:'boss' as const,x:(width-18)*32,y:ground-56}]:[]),
   {kind:'exit',x:(width-3)*32,y:ground-64}
  ];
