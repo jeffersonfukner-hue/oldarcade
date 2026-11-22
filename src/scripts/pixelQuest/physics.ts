@@ -1,9 +1,9 @@
 import {tileAt,type Level} from './levels';
 export type InputFrame={left:boolean;right:boolean;jump:boolean};
-export type Player={x:number;y:number;vx:number;vy:number;w:number;h:number;grounded:boolean;coyote:number;buffer:number;jumpHeld:boolean};
+export type Player={x:number;y:number;vx:number;vy:number;w:number;h:number;grounded:boolean;coyote:number;buffer:number;jumpHeld:boolean;jumpsUsed:number};
 export const STEP=1/60;
 const GRAVITY=1100,MAX_FALL=650,MAX_RUN=180,JUMP=390,COYOTE=.09,BUFFER=.10;
-export function createPlayer(x:number,y:number):Player{return {x,y,vx:0,vy:0,w:22,h:29,grounded:false,coyote:0,buffer:0,jumpHeld:false}}
+export function createPlayer(x:number,y:number):Player{return {x,y,vx:0,vy:0,w:22,h:29,grounded:false,coyote:0,buffer:0,jumpHeld:false,jumpsUsed:0}}
 export function approach(value:number,target:number,amount:number){return value<target?Math.min(value+amount,target):Math.max(value-amount,target)}
 function collides(level:Level,x:number,y:number,w:number,h:number,dy:number):boolean{
  const unit=level.tileSize,left=Math.floor(x/unit),right=Math.floor((x+w-1e-6)/unit);
@@ -20,10 +20,16 @@ export function stepPlayer(player:Player,input:InputFrame,level:Level,dt=STEP):v
  const dir=Number(input.right)-Number(input.left);
  const target=dir*MAX_RUN;
  player.vx=approach(player.vx,target,(dir?(player.grounded?1400:1000):1800)*dt);
- player.coyote=player.grounded?COYOTE:Math.max(0,player.coyote-dt);
+ const wasGrounded=player.grounded;
+ player.coyote=wasGrounded?COYOTE:Math.max(0,player.coyote-dt);
  if(input.jump&&!player.jumpHeld)player.buffer=BUFFER;
  else player.buffer=Math.max(0,player.buffer-dt);
- if(player.buffer>0&&player.coyote>0){player.vy=-JUMP;player.grounded=false;player.coyote=0;player.buffer=0}
+ // Primeiro salto a partir do chão/coyote; segundo somente após soltar e apertar de novo.
+ // Uma terceira pressão no ar não aplica impulso. Novo pouso recarrega os dois saltos.
+ if(player.buffer>0&&(player.coyote>0||player.jumpsUsed===1)){
+  player.vy=-JUMP;player.grounded=false;player.coyote=0;player.buffer=0;
+  player.jumpsUsed=player.jumpsUsed===0?1:2;
+ }
  if(!input.jump&&player.jumpHeld&&player.vy<0)player.vy*=.48;
  player.jumpHeld=input.jump;
  player.vy=Math.min(MAX_FALL,player.vy+GRAVITY*dt);
@@ -38,7 +44,7 @@ export function stepPlayer(player:Player,input:InputFrame,level:Level,dt=STEP):v
   if(!collides(level,player.x,player.y+sy,player.w,player.h,sy))player.y+=sy;
   else{if(sy>0)player.grounded=true;player.vy=0}
  }
- if(player.grounded)player.coyote=COYOTE;
+ if(player.grounded){player.coyote=COYOTE;player.jumpsUsed=0}
 }
 export function cameraX(player:Player,previous:number,level:Level,viewWidth=640){
  const max=Math.max(0,level.width*level.tileSize-viewWidth);
