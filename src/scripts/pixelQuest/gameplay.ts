@@ -2,8 +2,9 @@ import {createPlayer,stepPlayer,STEP,type Player,type InputFrame} from './physic
 import type {Level} from './levels';
 
 export type Enemy={id:number;x:number;y:number;origin:number;direction:1|-1;alive:boolean};
+export type Boss={x:number;y:number;origin:number;direction:1|-1;hearts:number;stun:number;age:number};
 export type Run={
- player:Player;hearts:number;score:number;crystals:Set<number>;enemies:Enemy[];
+ player:Player;hearts:number;score:number;crystals:Set<number>;enemies:Enemy[];boss:Boss|null;
  cumulativeBeforeLevel:number;
  checkpoint:{x:number;y:number};checkpointActive:boolean;invulnerable:number;
  phase:'playing'|'won'|'lost';elapsedMs:number;
@@ -19,6 +20,7 @@ export function createRun(level:Level,cumulativeBeforeLevel=0):Run {
  return {
   player:createPlayer(spawn.x,spawn.y),hearts:3,score:0,crystals:new Set<number>(),cumulativeBeforeLevel,
   enemies:level.entities.flatMap((entity,id)=>entity.kind==='patroller'?[{id,x:entity.x,y:entity.y,origin:entity.x,direction:1 as const,alive:true}]:[]),
+  boss:(()=>{const e=level.entities.find(entity=>entity.kind==='boss');return e?{x:e.x,y:e.y,origin:e.x,direction:-1 as const,hearts:3,stun:0,age:0}:null})(),
   checkpoint:{x:spawn.x,y:spawn.y},checkpointActive:false,invulnerable:0,phase:'playing',elapsedMs:0
  };
 }
@@ -48,7 +50,7 @@ export function fallIntoPit(run:Run):void {
 }
 export function portalUnlocked(run:Run,level:Level):boolean {
  const total=level.entities.filter(entity=>entity.kind==='crystal').length;
- return run.crystals.size===total;
+ return run.crystals.size===total && (!run.boss || run.boss.hearts<=0);
 }
 export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
  if(run.phase!=='playing')return;
@@ -85,6 +87,27 @@ export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
    p.coyote=0;
    run.score+=50;
   } else if(run.invulnerable<=0){receiveDamage(run,enemy.x);return}
+ }
+ // Confronto do guardião: três pisões, telegráficos pela pausa após cada acerto.
+ const boss=run.boss;
+ if(boss&&boss.hearts>0){
+  boss.age+=dt;boss.stun=Math.max(0,boss.stun-dt);
+  if(boss.stun<=0){
+   const speed=boss.age%5<1.3?0:boss.age%5<3.3?75:110;
+   boss.x+=boss.direction*speed*dt;
+   const left=boss.origin-170,right=boss.origin+130;
+   if(boss.x<left){boss.x=left;boss.direction=1}
+   if(boss.x>right){boss.x=right;boss.direction=-1}
+  }
+  if(overlaps(p.x,p.y,p.w,p.h,boss.x,boss.y,48,56)){
+   const stomp=oldBottom<=boss.y+12&&oldVy>=0&&p.vy>=0&&p.y+p.h>=boss.y;
+   if(stomp){
+    p.y=boss.y-p.h;p.vy=-330;p.grounded=false;p.coyote=0;
+    if(boss.stun<=0){boss.hearts--;boss.stun=1.4}
+   }else if(run.invulnerable<=0&&boss.stun<=0){
+    receiveDamage(run,boss.x);return;
+   }
+  }
  }
  const portal=level.entities.find(entity=>entity.kind==='exit');
  if(portal&&portalUnlocked(run,level)&&overlaps(p.x,p.y,p.w,p.h,portal.x,portal.y,32,64)){
