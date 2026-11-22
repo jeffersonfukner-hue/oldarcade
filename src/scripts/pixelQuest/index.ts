@@ -9,7 +9,10 @@ import {setCountdownOverlay} from '../gameCountdownOverlay';
 import {centerGameBoard} from '../gameViewport';
 import {setupGameClock} from '../gameClock';
 import {calculateCompletedLevel,timeBonus,type LevelResult} from './scoring';
-import {readLocalRecord,recordCompletedLevel} from './records';
+import {readLocalRecord,updateLocalRecord} from './records';
+import {campaignSnapshot} from './campaignLedger';
+import {setupQuestStageRecords} from './questStageRecords';
+import {setupQuestProgress} from './questProgressClient';
 
 const stage=document.querySelector<HTMLElement>('#pq-stage')!;
 if(stage){
@@ -44,21 +47,30 @@ if(stage){
  const introCode=stage.querySelector<HTMLElement>('#pq-intro-code')!;
  const levelLabel=stage.querySelector<HTMLElement>('#pq-level-label')!;
  const input=setupPlatformInput(stage);
- document.addEventListener('oldarcade:mode-ranking-updated',event=>{
-  const d=(event as CustomEvent<{game:string;global:number|null;personal:number|null}>).detail;
-  if(d?.game!=='pixel-quest')return;
-  bestGeneral.textContent=d.global===null?'—':String(d.global);
- });
+ // O HUD exibe recorde da fase atual; o ranking geral permanece na página.
  let levelIndex=0,level=worldOneLevels[levelIndex];
  let results:LevelResult[]=[];
  let bossIntroShown=false;
  let run:Run=createRun(level),camera=0;
+ const stageRanks=setupQuestStageRecords((id,board)=>{
+  if(id!==level.id||!board.available)return;
+  bestGeneral.textContent=board.top?.[0]?String(board.top[0].score):'—';
+  if(board.mine)bestLevel.textContent=String(board.mine.score);
+ });
  let phase:'ready'|'countdown'|'intro'|'playing'|'paused'|'won'|'lost'='ready';
+ const progress=setupQuestProgress(completed=>{
+  if(phase!=='ready'||levelIndex!==0||results.length!==0)return;
+  if(completed.length===0||completed.length>=worldOneTotal)return;
+  results=completed.slice();levelIndex=completed.length;level=worldOneLevels[levelIndex];
+  reset();
+  title.textContent='Continuar aventura salva';
+  description.textContent='Sua conta salvou '+completed.length+' fase(s). Continue na fase '+(levelIndex+1)+'/'+worldOneTotal+'.';
+ });
  let countdownTimer:number|undefined,introTimer:number|undefined,seconds=3,previous=0,accumulator=0;
  const clock=setupGameClock(screen,()=>phase==='playing');
  const totalCrystals=()=>level.entities.filter(entity=>entity.kind==='crystal').length;
  function updateLocalRecords(){
-  bestLevel.textContent=readLocalRecord('level-'+level.id)?.score.toString()??'—';
+  bestLevel.textContent=readLocalRecord('level-v2-'+level.id)?.score.toString()??'—';
   // HUD global pertence ao leaderboard, enquanto a campanha local mantém sua chave própria.
  }
  function updateHud(){
@@ -91,6 +103,7 @@ if(stage){
   run=createRun(level,results.reduce((sum,item)=>sum+item.enemies,0));
   camera=0;accumulator=0;clock.reset();input.reset();updateHud();updateLocalRecords();
   drawPlatformScene(canvas,level,run,camera);
+  bestGeneral.textContent='—';void stageRanks.refresh(level.id);
  }
  function clearIntro(){
   if(introTimer!==undefined)window.clearTimeout(introTimer);
@@ -146,12 +159,22 @@ if(stage){
    // Pontuação de eventos + bônus de conclusão e tempo é reconciliada na vitória.
    run.score=result.score;
    results.push(result);
-   recordCompletedLevel(result,results,worldOneTotal);
+   progress.record(results);
+   updateLocalRecord('level-v2-'+level.id,{score:result.score,elapsedMs:result.elapsedMs});
+   const snapshot=campaignSnapshot(results,null,levelIndex===worldOneTotal-1);
+   updateLocalRecord('campaign-total-v2',{score:snapshot.score,elapsedMs:snapshot.elapsedMs});
+   stageRanks.record({levelId:level.id,score:result.score,durationMs:Math.round(result.elapsedMs)});
    updateLocalRecords();
-   // Ranking v1 continua EXCLUSIVAMENTE com 1-1; outras fases não contaminam recordes antigos.
-   if(level.id==='1-1')document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'pixel-quest',score:result.score,durationMs:Math.round(result.elapsedMs)}}));
+   document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'pixel-quest',score:snapshot.score,durationMs:Math.round(snapshot.elapsedMs)}}));
    description.textContent=`Fase ${levelIndex+1}/${worldOneTotal} (${level.id}): ${result.score} pontos · Cristais ${result.crystals*10} · Inimigos ${result.enemies*50} · Portal 100 · Tempo +${timeBonus(result.elapsedMs)}.`+(levelIndex===worldOneTotal-1?' Mundo 2: Cavernas de Cristal, em desenvolvimento. Mundo 3: Fortaleza do Portal, em breve.':' A próxima fase está disponível.');
-  }else description.textContent='Seus três corações acabaram. Tente novamente a trilha.';
+  }else{
+   const snapshot=campaignSnapshot(results,{score:run.score,elapsedMs:run.elapsedMs},false);
+   updateLocalRecord('level-v2-'+level.id,{score:run.score,elapsedMs:run.elapsedMs});
+   updateLocalRecord('campaign-total-v2',{score:snapshot.score,elapsedMs:snapshot.elapsedMs});
+   stageRanks.record({levelId:level.id,score:run.score,durationMs:Math.round(run.elapsedMs)});
+   document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'pixel-quest',score:snapshot.score,durationMs:Math.round(snapshot.elapsedMs)}}));
+   description.textContent='Seus corações acabaram. Pontos conquistados nesta campanha: '+snapshot.score+'. Você pode tentar esta fase novamente.';
+  }
   start.textContent=won?(levelIndex===worldOneTotal-1?'↻ Recomeçar aventura':'▶ Próxima fase'):'↻ Tentar novamente';start.hidden=false;input.reset();updateHud();
  }
  function startGame(){
@@ -208,7 +231,7 @@ if(stage){
   drawPlatformScene(canvas,level,run,camera);
   requestAnimationFrame(frame);
  }
- setPhase('ready');updateHud();updateLocalRecords();drawPlatformScene(canvas,level,run,camera);
+ setPhase('ready');updateHud();updateLocalRecords();drawPlatformScene(canvas,level,run,camera);void stageRanks.refresh(level.id);
  document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-request',{detail:{game:'pixel-quest'}}));
  requestAnimationFrame(frame);
 }
