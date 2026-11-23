@@ -93,7 +93,12 @@ export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
   enemy.age+=dt;
   const speed=enemy.kind==='runner'?90:enemy.kind==='sentry'?24:enemy.kind==='hopper'?48:36;
   const range=enemy.kind==='runner'?64:enemy.kind==='sentry'?12:enemy.kind==='hopper'?28:32;
-  enemy.x+=enemy.direction*speed*dt;
+  const nextX=enemy.x+enemy.direction*speed*dt;
+  const supportRow=Math.floor((enemy.originY+24)/level.tileSize);
+  const nextCol=Math.floor((nextX+11)/level.tileSize);
+  const support=level.tiles[supportRow]?.[nextCol]??0;
+  if(support===0)enemy.direction=enemy.direction===1?-1:1;
+  else enemy.x=nextX;
   if(enemy.x>enemy.origin+range){enemy.x=enemy.origin+range;enemy.direction=-1}
   else if(enemy.x<enemy.origin-range){enemy.x=enemy.origin-range;enemy.direction=1}
   enemy.y=enemy.kind==='hopper'?enemy.originY-Math.max(0,Math.sin(enemy.age*5))*35:enemy.originY;
