@@ -12,6 +12,10 @@ test('Rankings: um card por jogo, modos internos e Top 3 real com Top 10 recolhi
    {nickname:'Jogador Delta',score:mode==='tetris-sprint'?92000:mode==='tetris-survival'?50000:80,rank:4,achievedAt:'2026-11-18T23:00:00.000Z'}
   ]})});
  });
+ await page.route('**/api/quest/rankings/total',route=>{
+  requested.push('pixel-quest');
+  return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[]})});
+ });
  await page.goto('/rankings/');
  await expect(page.locator('[data-rank-page-game]')).toHaveCount(3);
  await expect(page.locator('[data-rank-page-game="snake"] [data-rank-page-mode]')).toHaveCount(3);
@@ -36,6 +40,7 @@ test('Rankings: um card por jogo, modos internos e Top 3 real com Top 10 recolhi
 });
 test('Rankings agrupados são responsivos e link por modo abre seu detalhe',async({page})=>{
  await page.route('**/api/games/*/leaderboard',route=>route.fulfill({status:200,contentType:'application/json',body:'{"available":true,"top":[]}'}));
+ await page.route('**/api/quest/rankings/total',route=>route.fulfill({status:200,contentType:'application/json',body:'{"available":true,"top":[]}'}));
  for(const width of [320,390,1024,1440]){
   await page.setViewportSize({width,height:900});
   await page.goto('/rankings/#ranking-snake-evolution');
@@ -49,6 +54,10 @@ test('Top 3 é acessível nas páginas Snake e Tetris; Top 10 sob demanda',async
  await page.route('**/api/games/*/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,mine:null,myGames:[],top:[
  {nickname:'Primeiro',score:150,rank:1,achievedAt:'2026-11-18T20:00:00.000Z'},
  {nickname:'Segundo',score:100,rank:2,achievedAt:'2026-11-18T20:00:00.000Z'}
+ ]})}));
+ await page.route('**/api/quest/rankings/total',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,mine:null,top:[
+  {nickname:'Primeiro',score:150,rank:1,achievedAt:'2026-11-18T20:00:00.000Z'},
+  {nickname:'Segundo',score:100,rank:2,achievedAt:'2026-11-18T20:00:00.000Z'}
  ]})}));
  for(const url of ['/jogos/snake/','/jogos/snake/evolution/','/jogos/tetris/','/jogos/tetris/sprint/','/jogos/pixel-quest/']){
   await page.goto(url);
