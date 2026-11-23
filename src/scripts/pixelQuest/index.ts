@@ -54,6 +54,8 @@ if(stage){
  let results:LevelResult[]=[];
  let bossIntroShown=false;
  let run:Run=createRun(level),camera=0;
+ // Relógio de mundo independente da câmera: pode avançar mesmo quando o jogador retorna.
+ let worldElapsedMs=0;
  const stageRanks=setupQuestStageRecords((id,board)=>{
   if(id!==level.id||!board.available)return;
   bestGeneral.textContent=board.top?.[0]?String(board.top[0].score):'—';
@@ -66,7 +68,7 @@ if(stage){
   if(completed.length===0){
    // Uma segunda conta sem progresso não herda a fase restaurada da conta anterior.
    if(!restoredFromServer)return;
-   restoredFromServer=false;results=[];levelIndex=0;level=worldOneLevels[0];
+   restoredFromServer=false;results=[];worldElapsedMs=0;levelIndex=0;level=worldOneLevels[0];
    reset();
    title.textContent='Preparado para explorar?';
    description.textContent='Sua conta ainda não tem fases concluídas neste mundo.';
@@ -75,7 +77,8 @@ if(stage){
   if(completed.length>=worldOneTotal)return;
   // Não descartar uma campanha local já em andamento ao fazer o primeiro login.
   if(results.length>0&&!restoredFromServer)return;
-  restoredFromServer=true;results=completed.slice();levelIndex=completed.length;level=worldOneLevels[levelIndex];
+  restoredFromServer=true;results=completed.slice();worldElapsedMs=results.reduce((sum,stage)=>sum+stage.elapsedMs,0);
+  levelIndex=completed.length;level=worldOneLevels[levelIndex];
   reset();
   title.textContent='Continuar aventura salva';
   description.textContent='Sua conta salvou '+completed.length+' fase(s). Continue na fase '+(levelIndex+1)+'/'+worldOneTotal+'.';
@@ -120,7 +123,7 @@ if(stage){
   clearIntro();bossIntroShown=false;
   run=createRun(level,results.reduce((sum,item)=>sum+item.enemies,0));
   camera=0;accumulator=0;clock.reset();input.reset();updateHud();updateLocalRecords();
-  drawPlatformScene(canvas,level,run,camera);
+  drawPlatformScene(canvas,level,run,camera,worldElapsedMs,levelIndex);
   bestGeneral.textContent='—';void stageRanks.refresh(level.id);
  }
  function clearIntro(){
@@ -202,7 +205,7 @@ if(stage){
   }
   if(phase==='won'){
    if(levelIndex<worldOneTotal-1)levelIndex++;
-   else{levelIndex=0;results=[]}
+   else{levelIndex=0;results=[];worldElapsedMs=0}
    level=worldOneLevels[levelIndex];
   }
   if(phase==='ready'||phase==='won'||phase==='lost')reset();
@@ -240,7 +243,9 @@ if(stage){
   if(phase==='playing'){
    accumulator=Math.min(accumulator+dt,STEP*4);
    while(accumulator>=STEP){
+    const celebrating=run.bossCelebrationMs>0;
     stepRun(run,level,input.read(),STEP);
+    if(!celebrating&&run.phase==='playing')worldElapsedMs+=STEP*1000;
     camera=cameraX(run.player,camera,level,VIEW_WIDTH);
     for(const event of run.scoreEvents.splice(0)){
      showWorldScoreFeedback(screen,canvas,event.amount,event.context,
