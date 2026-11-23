@@ -14,6 +14,8 @@ import {readLocalRecord,updateLocalRecord} from './records';
 import {campaignSnapshot} from './campaignLedger';
 import {setupQuestStageRecords} from './questStageRecords';
 import {setupQuestProgress} from './questProgressClient';
+import {setupQuestRunRankings} from './questRunRankings';
+import type {RankingCelebration} from './rankingVisuals';
 
 const stage=document.querySelector<HTMLElement>('#pq-stage')!;
 if(stage){
@@ -57,10 +59,28 @@ if(stage){
  let run:Run=createRun(level),camera=0;
  // Relógio de mundo independente da câmera: pode avançar mesmo quando o jogador retorna.
  let worldElapsedMs=0;
+ let rankingFx:RankingCelebration|null=null;
+ const completeScore=()=>results.reduce((sum,item)=>sum+item.score,0);
+ const milestones=setupQuestRunRankings(milestone=>{
+  rankingFx={rank:milestone.rank,message:milestone.message,detail:milestone.detail,startedAt:performance.now()};
+ },message=>{
+  // Mensagem oficial de reconciliação, após o POST no D1.
+  rankingNotice.textContent=message;rankingNotice.hidden=false;
+ });
+ const rankingNotice=document.createElement('p');
+ rankingNotice.id='pq-ranking-notice';rankingNotice.className='small';rankingNotice.hidden=true;
+ rankingNotice.setAttribute('role','status');rankingNotice.setAttribute('aria-live','polite');
+ const statusline=stage.querySelector<HTMLElement>('.pq-statusline');
+ statusline?.after(rankingNotice);
+ document.addEventListener('oldarcade:ranking-confirmed',event=>{
+  const data=(event as CustomEvent<{game:string;scope:string;score:number;mine?:{rank:number;score:number}|null}>).detail;
+  if(data?.game==='pixel-quest'&&data.scope==='total')milestones.confirm('total',data.score,data.mine);
+ });
  const stageRanks=setupQuestStageRecords((id,board)=>{
   if(id!==level.id||!board.available)return;
   bestGeneral.textContent=board.top?.[0]?String(board.top[0].score):'—';
   if(board.mine)bestLevel.textContent=String(board.mine.score);
+  if(board.saved&&board.mine)milestones.confirm('fase',board.mine.score,board.mine);
  });
  let phase:'ready'|'countdown'|'intro'|'playing'|'paused'|'won'|'lost'='ready';
  let restoredFromServer=false;
@@ -123,8 +143,10 @@ if(stage){
  function reset(){
   clearIntro();bossIntroShown=false;
   run=createRun(level,results.reduce((sum,item)=>sum+item.enemies,0));
-  camera=0;accumulator=0;clock.reset();input.reset();updateHud();updateLocalRecords();
-  drawPlatformScene(canvas,level,run,camera,worldElapsedMs,levelIndex,reducedMotion);
+  camera=0;accumulator=0;rankingFx=null;rankingNotice.hidden=true;rankingNotice.textContent='';
+  clock.reset();input.reset();updateHud();updateLocalRecords();
+  drawPlatformScene(canvas,level,run,camera,worldElapsedMs,levelIndex,reducedMotion,
+   completeScore(),rankingFx,performance.now());
   bestGeneral.textContent='—';void stageRanks.refresh(level.id);
  }
  function clearIntro(){
@@ -181,7 +203,9 @@ if(stage){
     elapsedMs:run.elapsedMs,crystals:run.crystals.size,enemies:levelDefeated(run)};
    // Pontuação de eventos + bônus de conclusão e tempo é reconciliada na vitória.
    run.score=result.score;
+   milestones.score(result.score,completeScore()+result.score);
    results.push(result);
+   milestones.end(level.id,result.score,completeScore());
    progress.record(results);
    updateLocalRecord('level-v2-'+level.id,{score:result.score,elapsedMs:result.elapsedMs});
    const snapshot=campaignSnapshot(results,null,levelIndex===worldOneTotal-1);
@@ -192,6 +216,7 @@ if(stage){
    description.textContent=`Fase ${levelIndex+1}/${worldOneTotal} (${level.id}): ${result.score} pontos · ${result.crystals} cristais · ${result.enemies} inimigos · Power-ups e combos incluídos · Tempo +${timeBonus(result.elapsedMs)}.`+(levelIndex===worldOneTotal-1?' Mundo 2: Cavernas de Cristal, em desenvolvimento. Mundo 3: Fortaleza do Portal, em breve.':' A próxima fase está disponível.');
   }else{
    const snapshot=campaignSnapshot(results,{score:run.score,elapsedMs:run.elapsedMs},false);
+   milestones.end(level.id,run.score,snapshot.score);
    updateLocalRecord('level-v2-'+level.id,{score:run.score,elapsedMs:run.elapsedMs});
    updateLocalRecord('campaign-total-v2',{score:snapshot.score,elapsedMs:snapshot.elapsedMs});
    stageRanks.record({levelId:level.id,score:run.score,durationMs:Math.round(run.elapsedMs)});
@@ -210,6 +235,10 @@ if(stage){
    level=worldOneLevels[levelIndex];
   }
   if(phase==='ready'||phase==='won'||phase==='lost')reset();
+  if(phase==='ready'||phase==='won'||phase==='lost'){
+   milestones.begin(level.id,readLocalRecord('level-v2-'+level.id)?.score??null,
+    readLocalRecord('campaign-total-v2')?.score??null);
+  }
   if(phase==='ready'||phase==='won'||phase==='lost'||phase==='paused')beginCountdown();
  }
  start.addEventListener('click',startGame);
@@ -247,6 +276,7 @@ if(stage){
     const celebrating=run.bossCelebrationMs>0;
     stepRun(run,level,input.read(),STEP);
     if(!celebrating&&run.phase==='playing')worldElapsedMs+=STEP*1000;
+    if(run.phase==='playing'&&run.score>0)milestones.score(run.score,completeScore()+run.score);
     camera=cameraX(run.player,camera,level,VIEW_WIDTH);
     for(const event of run.scoreEvents.splice(0)){
      showWorldScoreFeedback(screen,canvas,event.amount,event.context,
