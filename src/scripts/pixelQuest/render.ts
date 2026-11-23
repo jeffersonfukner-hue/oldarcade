@@ -4,6 +4,7 @@ import {worldTimeAt,formatWorldTime,skyColors} from './worldClock';
 import {drawDefeatEffects} from './victoryEffects';
 import {drawRankingCelebration,type RankingCelebration} from './rankingVisuals';
 import {drawWorldAtmosphere} from './worldAtmosphere';
+import {drawQuestMinimap} from './minimap';
 export const VIEW_WIDTH=640,VIEW_HEIGHT=360;
 /** A câmera sobe quando o personagem escala, mantendo a cabeça visível.
  * De chão: base fixa (mapa atual). Plataformas altas: segue o jogador.
@@ -40,6 +41,7 @@ function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number,vert
  c.beginPath();c.arc(sky.moonX,sky.moonY,14,0,Math.PI*2);c.fill();c.restore();
  const night=sky.moonAlpha>.5;
  const verticalShift=(level.height*level.tileSize-VIEW_HEIGHT-vertical);
+ drawWorldAtmosphere(c,worldElapsedMs,false,'sky');
  // Montanhas acompanham a câmera em frações distintas para dar profundidade.
  for(let i=-2;i<9;i++){
   const x=i*170-Math.floor(camera*.10%170);
@@ -68,7 +70,7 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
  context.imageSmoothingEnabled=false;
  const vertical=pixelQuestVerticalOffset(level,run.player.y);
  drawLandscape(context,level,camera,vertical,worldElapsedMs);
- drawWorldAtmosphere(context,worldElapsedMs,reducedMotion);
+ drawWorldAtmosphere(context,worldElapsedMs,reducedMotion,'forest',camera);
  // O horizonte fica atrás do terreno; abismos têm profundidade escura.
  const groundY=15*level.tileSize-vertical;
  context.fillStyle='#171a23';context.fillRect(0,groundY,VIEW_WIDTH,VIEW_HEIGHT-groundY);
@@ -161,5 +163,6 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
  context.fillText('FASE '+run.score.toLocaleString('pt-BR'),455,22);
  context.fillText('TOTAL '+(completedScore+run.score).toLocaleString('pt-BR'),width-16,22);
  context.restore();
+ drawQuestMinimap(context,level,run);
  drawRankingCelebration(context,rankingFx,now,reducedMotion);
 }

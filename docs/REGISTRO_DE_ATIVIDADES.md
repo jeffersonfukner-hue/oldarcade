@@ -1,3 +1,9 @@
+## 23/11/2026 — Pixel Quest Mundo 1: atmosfera pixelada e minimapa de proximidade
+- **Horário de início/fim (Brasília):** não aferidos com cronômetro; **tempo efetivo:** não mensurado; **estimativa:** não calculada. Nenhum intervalo entre mensagens foi considerado tempo trabalhado.
+- **Atividades executadas:** consulta da documentação e dos arquivos reais da branch; reformulação de meteorito, balão multicolorido, aeronaves e aves com trajetória ligada ao relógio mundial e sem dependência do player; correção da sobreposição de estrelas ao desenhar céu antes das árvores; animações de olhos e coruja ancoradas em profundidades de floresta; minimapa local sem revelar fase inteira, com jogador central e somente elementos não coletados/vivos.
+- **Resultados:** alterações de `worldAtmosphere.ts`, `render.ts`, novo `minimap.ts` e testes estáticos de regressão em `pixel-quest-atmosphere.test.mjs`. Evidência do commit: ver histórico da branch desta entrada; testes devem ser confirmados pelo CI do HEAD posterior.
+- **Pendências:** CI efetivo, inspeção visual pelo proprietário no Cloudflare Preview e ajuste de posicionamento/velocidade conforme experiência. Não houve merge, deploy manual nem alteração D1 nesta atividade.
+
 ## 23/11/2026 — Ranking inicial, HUD de pontuação dupla e eventos ambientais Pixel Quest
 - **Início/término (Brasília):** não aferidos por cronômetro. **Tempo efetivo comprovado:** não mensurado; **tempo estimado:** não calculado. Intervalos entre mensagens não representam horas trabalhadas.
 - **Solicitações:** manter a lateral e incluir no canvas pontuação atual e acumulada; comemorações de recorde pessoal, 3º, 2º e 1º com fogos, usando classificação capturada no início e aviso após confirmação se outro jogador ultrapassou; enriquecer dia/noite com Via Láctea, estrelas, balões, aeronaves, aves, corujas, animais e meteoros ocasionais; preservar horário entre as três fases, inclusive transição às 12h30 sem reset.

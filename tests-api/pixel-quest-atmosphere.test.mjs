@@ -48,3 +48,17 @@ test('eventos de dia e noite são exclusivos e não interferem no motor',()=>{
   else assert.ok(['owl','eyes','silhouette','shooting-star','meteorite'].includes(event.kind));
  }
 });
+
+test('eventos celestes têm trajetória própria e fauna utiliza âncoras do mundo',()=>{
+ const source=readFileSync(new URL('../src/scripts/pixelQuest/worldAtmosphere.ts',import.meta.url),'utf8');
+ assert.match(source,/camera\*depth/);
+ assert.match(source,/kind==='balloon'/);
+ assert.match(source,/dir===1\?-70/);
+ assert.match(source,/layer==='sky'\)stars/);
+});
+test('minimapa próximo omite cristais coletados e inimigos derrotados',()=>{
+ const src=readFileSync(new URL('../src/scripts/pixelQuest/minimap.ts',import.meta.url),'utf8');
+ assert.match(src,/Math\.abs\(e\.x-center\)>radius/);
+ assert.match(src,/run\.crystals\.has\(id\)/);
+ assert.match(src,/enemy\.alive/);
+});
