@@ -45,6 +45,28 @@ function aircraft(c:CanvasRenderingContext2D,x:number,y:number,jet:boolean,dir:n
  if(jet){pixel(c,-34,0,13,2,'#e4b5a5');pixel(c,-40,1,5,1,'#eecda7')}
  c.restore();
 }
+/** Balão independente da duração do evento: segue visível até sair inteiramente da tela. */
+export type BalloonFlight={x:number;lastMs:number;lastCamera:number;seed:number};
+export const BALLOON_ENTRY_X=660,BALLOON_EXIT_X=-65;
+export function advanceBalloonFlight(flight:BalloonFlight,elapsedMs:number,camera:number):BalloonFlight{
+ const delta=Math.max(0,Math.min(1000,elapsedMs-flight.lastMs))/1000;
+ // O vento muda suavemente, mesmo com o personagem parado.
+ const gust=.5+.5*Math.sin(elapsedMs/4800+flight.seed);
+ const wind=1.8+4.2*gust*gust;
+ // Pequeno parallax apenas para deslocamento normal para frente; não reagir a teleporte de fase.
+ const cameraStep=camera-flight.lastCamera;
+ const parallax=cameraStep>0&&cameraStep<70?cameraStep*.17:0;
+ return {x:flight.x-wind*delta-parallax,lastMs:elapsedMs,lastCamera:camera,seed:flight.seed};
+}
+export function balloonScaleAt(x:number,elapsedMs:number,seed:number):number{
+ const travel=Math.max(0,Math.min(1,(BALLOON_ENTRY_X-x)/(BALLOON_ENTRY_X-BALLOON_EXIT_X)));
+ const smooth=(t:number)=>{const x=Math.max(0,Math.min(1,t));return x*x*(3-2*x)};
+ const base=travel<.38?.42+1.08*smooth(travel/.38):travel<.67?1.5:
+  1.5-1.17*smooth((travel-.67)/.33);
+ // Flutuação discreta de profundidade (vento), sem troca aleatória brusca de escala.
+ return base*(1+.035*Math.sin(elapsedMs/7200+seed));
+}
+let currentBalloon:BalloonFlight|null=null,lastBalloonSlot=-1,lastBalloonElapsed=0;
 function balloon(c:CanvasRenderingContext2D,x:number,y:number){
  // Listras blocadas em uma copa oval de pixel art.
  const stripes=['#f47c76','#f7cb6b','#70d5b0','#77a9e9','#d49ee9'];
@@ -113,17 +135,39 @@ export function drawWorldAtmosphere(
 ):void{
  const event=atmosphereEvent(elapsedMs);
  if(layer==='sky')stars(c,elapsedMs,reducedMotion);
- if(!event)return;
+ if(layer==='sky'){
+  if(elapsedMs<lastBalloonElapsed){currentBalloon=null;lastBalloonSlot=-1}
+  lastBalloonElapsed=elapsedMs;
+  const slot=Math.floor(elapsedMs/21000);
+  if(!currentBalloon&&event?.kind==='balloon'&&lastBalloonSlot!==slot){
+   currentBalloon={x:BALLOON_ENTRY_X,lastMs:elapsedMs,lastCamera:camera,seed:pick(slot+340)*6.28};
+   lastBalloonSlot=slot;
+  }
+  if(currentBalloon){
+   currentBalloon=advanceBalloonFlight(currentBalloon,elapsedMs,camera);
+   if(currentBalloon.x<BALLOON_EXIT_X)currentBalloon=null;
+   else{
+    const flight=currentBalloon;
+    c.save();
+    c.translate(Math.round(flight.x),Math.round(94+Math.sin(elapsedMs/2200+flight.seed)*3));
+    const scale=balloonScaleAt(flight.x,elapsedMs,flight.seed);
+    c.scale(scale,scale);
+    balloon(c,0,0);
+    c.restore();
+    return; // Só termina fora da tela; não é cortado aos 10,5 s do slot.
+   }
+  }
+ }
+ // Durante o voo do balão não concorram outros eventos na camada das árvores.
+ if(layer==='forest'&&currentBalloon)return;
+ if(!event||event.kind==='balloon')return;
  const {kind,progress}=event;
  const isForest=kind==='owl'||kind==='eyes'||kind==='silhouette';
  if(layer==='forest'){if(isForest)forestAnimal(c,kind,elapsedMs,progress,camera,reducedMotion);return}
  if(isForest)return;
  const slot=Math.floor(elapsedMs/21000);
  c.save();
- if(kind==='balloon'){
-  const x=680-progress*310;
-  balloon(c,x,94+Math.sin(elapsedMs/1300)*4);
- }else if(kind==='plane'||kind==='jet'){
+ if(kind==='plane'||kind==='jet'){
   const dir=pick(slot+230)>.5?1:-1;
   const x=dir===1?-70+progress*780:710-progress*780;
   aircraft(c,x,69+pick(slot+19)*52,kind==='jet',dir);

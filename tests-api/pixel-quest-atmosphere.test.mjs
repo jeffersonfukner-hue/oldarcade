@@ -107,3 +107,30 @@ test('terreno não desenha contorno por célula e floresta interpola luz noturna
  assert.match(render,/nightMix=Math\.max/);
  assert.match(render,/blend\('#35636b','#223e50',nightMix\)/);
 });
+
+test('balão não desaparece ao final do slot, reage ao jogador e deriva com vento',()=>{
+ const start={x:atmosphere.BALLOON_ENTRY_X,lastMs:10_000,lastCamera:250,seed:1.2};
+ const stopped=atmosphere.advanceBalloonFlight(start,11_000,250);
+ assert.ok(stopped.x<start.x&&stopped.x>start.x-7,'vento quase imóvel quando jogador para');
+ const walking=atmosphere.advanceBalloonFlight(start,11_000,340);
+ assert.ok(walking.x<stopped.x,'paisagem em avanço desloca o balão um pouco mais rápido');
+ const paused=atmosphere.advanceBalloonFlight(stopped,11_000,250);
+ assert.equal(paused.x,stopped.x,'sem avanço no relógio/câmera, o balão fica parado');
+ const teleported=atmosphere.advanceBalloonFlight(start,11_000,3000);
+ assert.equal(teleported.x,stopped.x,'salto de câmera ao trocar de fase não teleporta o balão');
+});
+test('balão aproxima, permanece grande e se afasta até sair por completo',()=>{
+ const sample=(fraction)=>atmosphere.balloonScaleAt(
+  atmosphere.BALLOON_ENTRY_X+(atmosphere.BALLOON_EXIT_X-atmosphere.BALLOON_ENTRY_X)*fraction,20000,0);
+ assert.ok(sample(0)<.55,'entra pequeno');
+ assert.ok(sample(.38)>1.4,'aproxima-se até cerca de 1,5x');
+ assert.ok(sample(.50)>1.4&&sample(.65)>1.4,'mantém o tamanho antes de afastar');
+ assert.ok(sample(.96)<.6,'afasta-se no horizonte');
+ const source=readFileSync(new URL('../src/scripts/pixelQuest/worldAtmosphere.ts',import.meta.url),'utf8');
+ assert.match(source,/currentBalloon\.x<BALLOON_EXIT_X/,'só retirar depois que ultrapassar a borda');
+ assert.match(source,/if\(!event\|\|event\.kind==='balloon'\)return/,'não reintroduzir o corte antigo por slot');
+});
+test('câmera chega à camada do céu do balão',()=>{
+ const render=readFileSync(new URL('../src/scripts/pixelQuest/render.ts',import.meta.url),'utf8');
+ assert.match(render,/drawWorldAtmosphere\(c,worldElapsedMs,reducedMotion,'sky',camera\)/);
+});

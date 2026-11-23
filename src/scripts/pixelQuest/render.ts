@@ -42,7 +42,7 @@ function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number,vert
  // A luz da floresta acompanha gradualmente o céu, sem alternância brusca de paleta.
  const nightMix=Math.max(0,Math.min(1,sky.moonAlpha));
  const verticalShift=(level.height*level.tileSize-VIEW_HEIGHT-vertical);
- drawWorldAtmosphere(c,worldElapsedMs,reducedMotion,'sky');
+ drawWorldAtmosphere(c,worldElapsedMs,reducedMotion,'sky',camera);
  // Montanhas acompanham a câmera em frações distintas para dar profundidade.
  for(let i=-2;i<9;i++){
   const x=i*170-Math.floor(camera*.10%170);

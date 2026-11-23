@@ -1,3 +1,9 @@
+## 23/11/2026 — Balão do Pixel Quest com voo persistente e profundidade
+- **Início/término (Brasília):** não aferidos por cronômetro; **duração efetiva:** não mensurada; estimativa não calculada.
+- **Atividades executadas:** análise do evento `balloon` que desaparecia aos 10,5 s; criação de estado de voo que não depende da janela de evento, deriva lenta baseada em vento, parallax limitado ao movimento da câmera, escala progressiva de aproximação/afastamento e exclusividade das animações; cobertura de regressão para parada, movimento, troca de fase, escala e saída completa da tela.
+- **Evidência:** código versionado na branch `feat/pixel-quest-mundo1-finalizacao` e verificação pelo CI do commit correspondente. Sem merge, deploy, D1 ou custos adicionais.
+- **Pendências:** resultado do CI e homologação visual no Cloudflare Preview.
+
 ## 23/11/2026 — Terreno sem grid e transição suave do amanhecer (Pixel Quest)
 - **Início/término:** não aferidos; **duração efetiva:** não mensurada; estimativa não calculada.
 - **Atividades executadas:** inspeção do renderizador de tiles, céu e floresta; remoção do contorno individual dos tiles, interpolação das cores noturnas de montanhas/árvores, refinamento dos marcos de cor às 06h/07h30/09h30 e interpolação por tempo contínuo; acréscimo de testes de regressão.

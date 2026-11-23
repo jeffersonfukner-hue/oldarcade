@@ -1,3 +1,9 @@
+## PIXEL QUEST — refinamento homologável do balão multicolorido (23/11/2026)
+- **Preservar o visual aprovado do balão.** O deslocamento foi desvinculado do término de 10,5 s do evento ambiental: ele surge pequeno pela direita, aproxima-se até aproximadamente 1,5×, mantém essa dimensão por um trecho e se afasta gradualmente; só é removido depois de cruzar inteiramente a borda esquerda.
+- **Vento e câmera:** deriva lenta própria, com rajadas suaves e determinísticas; o avanço da câmera acrescenta pequeno efeito de parallax à esquerda. Parado, o jogador observa apenas a deriva pelo vento. Mudanças bruscas de câmera na troca de fase não teletransportam o balão. Pausa congela o relógio simulado e, portanto, o voo.
+- **Exclusividade de eventos:** enquanto um balão estiver visível não mostrar outro evento especial, mantendo as demais animações e o ciclo dia/noite intactos.
+- **Arquivos:** `src/scripts/pixelQuest/worldAtmosphere.ts`, `render.ts` e `tests-api/pixel-quest-atmosphere.test.mjs`. Verificar CI do commit novo; sem merge, deploy ou alterações no D1.
+
 ## PIXEL QUEST — ajuste visual do terreno e amanhecer (23/11/2026)
 - **Solicitação:** remover o aspecto de grade dos blocos de solo e plataformas; suavizar a passagem da penumbra do início da campanha ao dia claro, sem mudança brusca ao primeiro movimento.
 - **Implementação:** retirar exclusivamente o `strokeRect` aplicado a cada tile, preservando colisões, grama, texturas e geografia; substituir o limiar binário de cores de montanhas/árvores por interpolação contínua usando luminosidade da lua; acrescentar paradas intermediárias do céu às 06:00, 07:30 e 09:30, com interpolação suave baseada em tempo fracionário contínuo.
