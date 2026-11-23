@@ -146,7 +146,7 @@ if(stage){
   camera=0;accumulator=0;rankingFx=null;rankingNotice.hidden=true;rankingNotice.textContent='';
   clock.reset();input.reset();updateHud();updateLocalRecords();
   drawPlatformScene(canvas,level,run,camera,worldElapsedMs,levelIndex,reducedMotion,
-   completeScore(),rankingFx,performance.now());
+   completeScore()-(phase==='won'?run.score:0),rankingFx,performance.now());
   bestGeneral.textContent='—';void stageRanks.refresh(level.id);
  }
  function clearIntro(){
