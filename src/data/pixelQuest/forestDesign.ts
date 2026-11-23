@@ -26,7 +26,7 @@ const plans:Record<Plan['id'],Plan>={
    {col:43,kind:'runner'},{col:91,kind:'hopper'},{col:123,kind:'runner'},
    {col:184,kind:'sentry',row:11},{col:201,kind:'sentry',row:8},
    {col:251,kind:'hopper'},{col:280,kind:'runner'}
-  ],powerups:[{col:117,kind:'shield',row:14},{col:205,kind:'frenzy',row:10},{col:269,kind:'heart'}],checkpoint:154
+  ],powerups:[{col:117,kind:'shield',row:14},{col:210,kind:'frenzy',row:10},{col:269,kind:'heart'}],checkpoint:154
  },
  '1-2':{
   id:'1-2',width:366,
@@ -49,7 +49,7 @@ const plans:Record<Plan['id'],Plan>={
    {col:191,row:13},{col:205,row:12},{col:233,row:14},{col:263,row:13},
    {col:280,row:12},{col:215,row:8},{col:307,row:13},{col:334,row:14},{col:351}],
   enemies:[24,77,103,146,172,215,246,292,344],bonusEnemies:[
-   {col:34,kind:'runner'},{col:54,kind:'sentry',row:8},{col:73,kind:'hopper'},
+   {col:39,kind:'runner'},{col:54,kind:'sentry',row:8},{col:73,kind:'hopper'},
    {col:98,kind:'runner'},{col:125,kind:'sentry',row:13},
    {col:156,kind:'hopper'},{col:197,kind:'runner'},
    {col:217,kind:'sentry',row:8},{col:272,kind:'hopper'},{col:307,kind:'sentry',row:13}
@@ -75,12 +75,12 @@ const plans:Record<Plan['id'],Plan>={
    {col:196,row:12},{col:215,row:14},{col:240,row:13},{col:255,row:12},
    {col:277,row:14},{col:301,row:13},{col:315,row:12},{col:269,row:8},{col:350,row:14},{col:362,row:13}],
   enemies:[35,76,96,139,171,210,246,272,304,327,371],bonusEnemies:[
-   {col:48,kind:'runner'},{col:74,kind:'sentry',row:8},{col:90,kind:'hopper'},
-   {col:118,kind:'sentry',row:13},{col:153,kind:'runner'},
-   {col:181,kind:'hopper'},{col:240,kind:'sentry',row:13},
+   {col:48,kind:'runner'},{col:74,kind:'sentry',row:8},{col:94,kind:'hopper'},
+   {col:118,kind:'sentry',row:13},{col:159,kind:'runner'},
+   {col:187,kind:'hopper'},{col:240,kind:'sentry',row:13},
    {col:269,kind:'sentry',row:8},{col:311,kind:'runner'},
    {col:351,kind:'sentry',row:14},{col:382,kind:'hopper'}
-  ],powerups:[{col:131,kind:'shield',row:12},{col:250,kind:'frenzy',row:12},{col:370,kind:'heart'}],checkpoint:293,boss:400
+  ],powerups:[{col:131,kind:'shield',row:12},{col:257,kind:'frenzy',row:12},{col:370,kind:'heart'}],checkpoint:293,boss:400
  }
 };
 const groundRow=15;
