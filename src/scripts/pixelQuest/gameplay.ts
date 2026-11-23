@@ -3,11 +3,13 @@ import type {Level} from './levels';
 
 export type EnemyKind='patroller'|'runner'|'hopper'|'sentry';
 export type Enemy={id:number;kind:EnemyKind;x:number;y:number;origin:number;originY:number;age:number;direction:1|-1;alive:boolean};
+export type DefeatEffect={x:number;y:number;ageMs:number;kind:EnemyKind};
 export type ScoreEvent={amount:number;context:string;x:number;y:number};
 export type Boss={x:number;y:number;origin:number;direction:1|-1;hearts:number;stun:number;age:number;mode:'walk'|'warning'|'charge'|'recover';modeTime:number};
 export type Run={
  player:Player;hearts:number;score:number;crystals:Set<number>;enemies:Enemy[];boss:Boss|null;
  collectedPowerups:Set<number>;shield:number;frenzyTime:number;scoreEvents:ScoreEvent[];
+ bossCelebrationMs:number;defeatEffects:DefeatEffect[];
  cumulativeBeforeLevel:number;
  checkpoint:{x:number;y:number};checkpointActive:boolean;invulnerable:number;
  phase:'playing'|'won'|'lost';elapsedMs:number;
@@ -21,7 +23,7 @@ export function createRun(level:Level,cumulativeBeforeLevel=0):Run {
  const spawn=level.entities.find(entity=>entity.kind==='player');
  if(!spawn)throw Error('Spawn ausente');
  return {
-  player:createPlayer(spawn.x,spawn.y),hearts:3,score:0,crystals:new Set<number>(),collectedPowerups:new Set<number>(),shield:0,frenzyTime:0,scoreEvents:[],cumulativeBeforeLevel,
+  player:createPlayer(spawn.x,spawn.y),hearts:3,score:0,crystals:new Set<number>(),collectedPowerups:new Set<number>(),shield:0,frenzyTime:0,scoreEvents:[],bossCelebrationMs:0,defeatEffects:[],cumulativeBeforeLevel,
   enemies:level.entities.flatMap((entity,id)=>['patroller','runner','hopper','sentry'].includes(entity.kind)?
    [{id,kind:entity.kind as EnemyKind,x:entity.x,y:entity.y,origin:entity.x,originY:entity.y,age:0,direction:1 as const,alive:true}]:[]),
   boss:(()=>{const e=level.entities.find(entity=>entity.kind==='boss');return e?{x:e.x,y:e.y,origin:e.x,direction:-1 as const,hearts:5,stun:0,age:0,mode:'walk' as const,modeTime:0}:null})(),
@@ -60,6 +62,10 @@ export function portalUnlocked(run:Run,level:Level):boolean {
 export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
  if(run.phase!=='playing')return;
  run.elapsedMs+=dt*1000;
+ // A explosão do Guardião suspende movimento/inimigos, sem encerrar a fase automaticamente.
+ if(run.bossCelebrationMs>0){run.bossCelebrationMs+=dt*1000;return}
+ for(const effect of run.defeatEffects)effect.ageMs+=dt*1000;
+ run.defeatEffects=run.defeatEffects.filter(effect=>effect.ageMs<580);
  run.invulnerable=Math.max(0,run.invulnerable-dt);
  run.frenzyTime=Math.max(0,run.frenzyTime-dt);
  // Eventos do passo anterior serão desenhados pelo motor antes do próximo passo.
@@ -107,7 +113,8 @@ export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
   if(!overlaps(p.x,p.y,p.w,p.h,enemy.x,enemy.y,22,24))continue;
   const stomp=oldBottom<=enemy.y+8&&oldVy>=0&&p.vy>=0&&p.y+p.h>=enemy.y;
   if(stomp){
-   enemy.alive=false;p.y=Math.min(p.y,enemy.y-p.h);
+   enemy.alive=false;run.defeatEffects.push({x:enemy.x+11,y:enemy.y+12,ageMs:0,kind:enemy.kind});
+   p.y=Math.min(p.y,enemy.y-p.h);
    p.vy=-285;p.grounded=false;p.coyote=0;
    award(enemy.kind==='runner'?80:enemy.kind==='hopper'?90:enemy.kind==='sentry'?110:50,'Inimigo');
   }else if(run.invulnerable<=0){receiveDamage(run,enemy.x);return}
@@ -143,7 +150,7 @@ export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
     // Vulnerabilidade curta após a investida; não contar múltiplos golpes no stun.
     if(boss.stun<=0&&(boss.mode==='recover'||boss.mode==='walk')){
      boss.hearts--;
-     if(boss.hearts===0)award(250,'Guardião derrotado');
+     if(boss.hearts===0){award(250,'Guardião derrotado');run.bossCelebrationMs=1}
      else award(20,'Acerto no Guardião');
      boss.stun=1.1;boss.mode='warning';boss.modeTime=0;
     }
