@@ -81,3 +81,21 @@ test('Sentinela permanece na plataforma alta, sem cair na área do solo',()=>{
  assert.equal(sentry.y,sentry.originY);
  assert.equal(map.tiles[8][Math.floor((sentry.x+11)/32)],2);
 });
+
+test('Regra homologada: gemas obrigatórias por fase, inimigos opcionais, Guardião obrigatório para trocar de mundo',()=>{
+ for(const [i,map] of maps.entries()){
+  const run=gameplay.createRun(map);
+  assert.equal(gameplay.portalUnlocked(run,map),false,'gemas faltando não podem liberar portal');
+  map.entities.forEach((entity,id)=>{if(entity.kind==='crystal')run.crystals.add(id)});
+  if(i<2){
+   assert.equal(gameplay.portalUnlocked(run,map),true,'fases 1/3 e 2/3 só exigem gemas');
+   assert.equal(gameplay.levelDefeated(run),0,'nenhum inimigo precisa ser derrotado');
+  }else{
+   assert.equal(run.boss?.hearts,5);
+   assert.equal(gameplay.portalUnlocked(run,map),false,'fase 3/3 exige derrotar Guardião');
+   run.boss.hearts=0;
+   assert.equal(gameplay.portalUnlocked(run,map),true,'gemas e Guardião derrotado concluem Mundo 1');
+   assert.equal(gameplay.levelDefeated(run),0,'inimigos comuns continuam opcionais');
+  }
+ }
+});
