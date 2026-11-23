@@ -61,9 +61,13 @@ export function portalUnlocked(run:Run,level:Level):boolean {
 }
 export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
  if(run.phase!=='playing')return;
+ // A explosão do Guardião congela o movimento e o cronômetro da partida.
+ if(run.bossCelebrationMs>0){
+  run.bossCelebrationMs+=dt*1000;
+  if(run.bossCelebrationMs>=2600)run.bossCelebrationMs=0;
+  return;
+ }
  run.elapsedMs+=dt*1000;
- // A explosão do Guardião suspende movimento/inimigos, sem encerrar a fase automaticamente.
- if(run.bossCelebrationMs>0){run.bossCelebrationMs+=dt*1000;return}
  for(const effect of run.defeatEffects)effect.ageMs+=dt*1000;
  run.defeatEffects=run.defeatEffects.filter(effect=>effect.ageMs<580);
  run.invulnerable=Math.max(0,run.invulnerable-dt);
