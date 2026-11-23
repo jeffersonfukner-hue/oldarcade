@@ -74,6 +74,11 @@ if(root){
    const data=await response.json() as Board;
    if(!response.ok||!data.available)throw Error(data.error||'O servidor não confirmou a gravação');
    render(data);
+   if(result.round===round&&game==='pixel-quest'&&data.saved){
+    document.dispatchEvent(new CustomEvent('oldarcade:ranking-confirmed',{
+     detail:{game,scope:'total',score:result.points,mine:data.mine??null}
+    }));
+   }
    if(result.round===round)summary.textContent='Resultado de '+display(result.points)+' enviado. '+announce(data,result.points);
    // A confirmação é automática, sem botões de registro redundantes.
    celebrate(data);
