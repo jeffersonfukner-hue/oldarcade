@@ -40,7 +40,8 @@ test('celebra pódio inicial, mas informa ultrapassagem na confirmação',()=>{
 test('confirma que os dois placares no canvas têm mesma fonte do HUD lateral',()=>{
  const index=readFileSync(new URL('../src/scripts/pixelQuest/index.ts',import.meta.url),'utf8');
  const render=readFileSync(new URL('../src/scripts/pixelQuest/render.ts',import.meta.url),'utf8');
- assert.match(index,/score.textContent=String\(run.score\)/);
+ assert.match(index,/score.textContent=run.score.toLocaleString\('pt-BR'\)/);
+ assert.match(index,/campaignScore.textContent=\(completeScore\(\)\+\(phase==='won'\?0:run.score\)\).toLocaleString\('pt-BR'\)/);
  assert.match(index,/completeScore\(\)-\(phase==='won'\?run.score:0\)/);
  assert.match(render,/FASE '\+run.score.toLocaleString/);
  assert.match(render,/TOTAL '\+\(completedScore\+run.score\).toLocaleString/);
