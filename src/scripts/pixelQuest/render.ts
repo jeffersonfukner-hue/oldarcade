@@ -3,6 +3,7 @@ import {portalUnlocked,type Run} from './gameplay';
 import {worldTimeAt,formatWorldTime,skyColors} from './worldClock';
 import {drawDefeatEffects} from './victoryEffects';
 import {drawRankingCelebration,type RankingCelebration} from './rankingVisuals';
+import {drawWorldAtmosphere} from './worldAtmosphere';
 export const VIEW_WIDTH=640,VIEW_HEIGHT=360;
 /** A câmera sobe quando o personagem escala, mantendo a cabeça visível.
  * De chão: base fixa (mapa atual). Plataformas altas: segue o jogador.
@@ -33,9 +34,11 @@ function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number,vert
  const gradient=c.createLinearGradient(0,0,0,VIEW_HEIGHT);
  gradient.addColorStop(0,sky.top);gradient.addColorStop(1,sky.bottom);
  c.fillStyle=gradient;c.fillRect(0,0,VIEW_WIDTH,VIEW_HEIGHT);
- c.fillStyle=sky.moonVisible?'#eae9da':'#ffdf96';
- c.beginPath();c.arc(sky.orbX,sky.orbY,sky.moonVisible?14:19,0,Math.PI*2);c.fill();
- const night=sky.moonVisible;
+ c.save();c.globalAlpha=sky.sunAlpha;
+ c.fillStyle='#ffdf96';c.beginPath();c.arc(sky.sunX,sky.sunY,19,0,Math.PI*2);c.fill();
+ c.globalAlpha=sky.moonAlpha;c.fillStyle='#eae9da';
+ c.beginPath();c.arc(sky.moonX,sky.moonY,14,0,Math.PI*2);c.fill();c.restore();
+ const night=sky.moonAlpha>.5;
  const verticalShift=(level.height*level.tileSize-VIEW_HEIGHT-vertical);
  // Montanhas acompanham a câmera em frações distintas para dar profundidade.
  for(let i=-2;i<9;i++){
@@ -65,6 +68,7 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
  context.imageSmoothingEnabled=false;
  const vertical=pixelQuestVerticalOffset(level,run.player.y);
  drawLandscape(context,level,camera,vertical,worldElapsedMs);
+ drawWorldAtmosphere(context,worldElapsedMs,reducedMotion);
  // O horizonte fica atrás do terreno; abismos têm profundidade escura.
  const groundY=15*level.tileSize-vertical;
  context.fillStyle='#171a23';context.fillRect(0,groundY,VIEW_WIDTH,VIEW_HEIGHT-groundY);
