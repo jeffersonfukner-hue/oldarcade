@@ -3,7 +3,7 @@ import {entranceForLevel,stageTitle,STAGE_INTRO_MS} from './stageIntro';
 import {validateLevel} from './levels';
 import {cameraX,STEP} from './physics';
 import {createRun,stepRun,levelDefeated,totalDefeated,type Run} from './gameplay';
-import {drawPlatformScene,VIEW_WIDTH} from './render';
+import {drawPlatformScene,VIEW_WIDTH,VIEW_HEIGHT,pixelQuestVerticalOffset} from './render';
 import {setupPlatformInput} from './input';
 import {setCountdownOverlay} from '../gameCountdownOverlay';
 import {centerGameBoard} from '../gameViewport';
@@ -241,7 +241,7 @@ if(stage){
     camera=cameraX(run.player,camera,level,VIEW_WIDTH);
     for(const event of run.scoreEvents.splice(0)){
      showWorldScoreFeedback(screen,canvas,event.amount,event.context,
-      event.x-camera,event.y-(level.height*level.tileSize-360),640,360);
+      event.x-camera,event.y-pixelQuestVerticalOffset(level,run.player.y),VIEW_WIDTH,VIEW_HEIGHT);
     }
     accumulator-=STEP;
     if(run.phase==='playing'&&run.boss&&!bossIntroShown&&run.player.x>run.boss.origin-430){
