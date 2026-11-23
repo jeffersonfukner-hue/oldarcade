@@ -16,7 +16,7 @@ test('Mundo 1 contém 3 fases válidas, final com guardião e progressão conser
   expect(level.entities.filter(e=>e.kind==='exit')).toHaveLength(1);
   expect(level.entities.filter(e=>e.kind==='checkpoint')).toHaveLength(1);
  }
- expect(worldOneLevels[0].entities.filter(e=>e.kind==='crystal')).toHaveLength(14);
+ expect(worldOneLevels[0].entities.filter(e=>e.kind==='crystal')).toHaveLength(16);
  expect(worldOneLevels[1].width).toBeGreaterThan(worldOneLevels[0].width);
  expect(worldOneLevels[2].entities.filter(e=>e.kind==='boss')).toHaveLength(1);
  const bossRun=createRun(worldOneLevels[2]);
@@ -85,7 +85,7 @@ test('Patrulheiros das três fases não ficam sob tetos de plataforma',()=>{
 });
 
 test('Nova floresta: três mapas maiores, sem abismos excessivos nem inimigos encobertos',()=>{
- const counts=[{crystals:14,enemies:6},{crystals:17,enemies:9},{crystals:19,enemies:11}];
+ const counts=[{crystals:16,enemies:6},{crystals:19,enemies:9},{crystals:21,enemies:11}];
  const widths=[300,366,425];
  for(const [i,level] of worldOneLevels.entries()){
   expect(level.width).toBe(widths[i]);
