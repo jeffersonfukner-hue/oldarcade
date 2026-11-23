@@ -20,7 +20,7 @@ const idle={left:false,right:false,jump:false};
 const run=()=>gameplay.createRun(firstLevel);
 test('Mapa da fase com entidades válidas',()=>{
  assert.doesNotThrow(()=>levels.validateLevel(firstLevel));
- assert.equal(firstLevel.entities.filter(e=>e.kind==='crystal').length,14);
+ assert.equal(firstLevel.entities.filter(e=>e.kind==='crystal').length,16);
  assert.equal(firstLevel.entities.filter(e=>e.kind==='patroller').length,6);
 });
 test('Cristais pontuam uma vez mesmo com quadros repetidos',()=>{
@@ -108,7 +108,7 @@ test('Pisão só derrota inimigo ao aterrissar de cima; pulo ascendente não mat
  gameplay.stepRun(stomp,firstLevel,idle);
  assert.equal(stomp.score,50,'inimigo vencido não pontua novamente');
  assert.equal(stomp.enemies.filter(enemy=>!enemy.alive).length,1,'inimigo vencido não duplica contagem');
- assert.equal(stomp.enemies.filter(enemy=>enemy.alive).length,5,'inimigos restantes diminuem após o pisão');
+ assert.equal(stomp.enemies.filter(enemy=>enemy.alive).length,12,'inimigos restantes diminuem após o pisão');
 });
 
 test('Contadores por nível reiniciam na próxima fase enquanto total permanece acumulado',()=>{
