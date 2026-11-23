@@ -1,3 +1,9 @@
+## REGRA HOMOLOGADA — progresso Pixel Quest / Guardião (23/11/2026)
+- **Fases 1/3 e 2/3:** coletar todas as gemas para liberar o portal; matar inimigos comuns é opcional e rende pontuação para rankings por fase e geral.
+- **Fase 3/3:** coletar todas as gemas **e derrotar o Guardião** para concluir Mundo 1 e habilitar passagem para outro mundo (quando implementado). Matar os inimigos comuns não é obrigatório.
+- **Confirmação técnica:** `portalUnlocked()` já usa exatamente esse contrato; não remover a condição do Guardião. Teste de regressão em `tests-api/pixel-quest-combat-v3.test.mjs`.
+- **Estado:** Mundos 2 e 3 ainda não implementados; concluir 3/3 significa concluir o Mundo 1, não afirmar que a transição para Mundo 2 já é jogável.
+
 ## PIXEL QUEST — revisão de dificuldade solicitada após homologação parcial 60% (23/11/2026)
 - Solicitação do proprietário: variar inimigos, acrescentar mais inimigos, efeito de pontuação acima da cabeça do personagem seguindo padrão do OldArcade, power-ups, maior dificuldade, plataformas com rotas de ida e retorno e cristais/inimigos sobre plataformas elevadas. Visuais atuais avaliados como melhora aproximada de 60%, **não homologados definitivamente**.
 - Implementado na branch de desenvolvimento: quatro classes de inimigos (patrulheiro, corredor, saltador e sentinela); proteção de beirada para patrulha, escudo (absorve um ataque), coração (recupera vida) e bônus dobrado por 10 segundos; flutuação da pontuação usando o componente global `score-float`; recompensas de tipos de inimigo por dificuldade. Fases contêm 13, 19 e 22 inimigos e 16, 19 e 21 cristais, respectivamente; desafio de retorno destacado na fase 1-2: patamares nas linhas 13 → 11 → 9 → 8 e retorno até cristal alto à esquerda na linha 8.
