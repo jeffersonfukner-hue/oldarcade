@@ -128,3 +128,25 @@ test('Visitante não requisita salvamento autenticado no D1',async({page})=>{
  await page.waitForTimeout(300);
  expect(requests).toEqual([]);
 });
+
+test('Troca de conta não conserva visualmente a fase salva de outro jogador',async({page})=>{
+ let account='Conta A';
+ await page.route('**/api/auth/me',r=>r.fulfill({
+  status:200,contentType:'application/json',body:JSON.stringify({player:{nickname:account}})
+ }));
+ await page.route('**/api/quest/progress',r=>{
+  const completed=account==='Conta A'?[{levelId:'1-1',score:720,elapsedMs:34000,crystals:14,enemies:6}]:[];
+  return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,completed})});
+ });
+ await page.route('**/api/quest/rankings/*',r=>r.fulfill({
+  status:200,contentType:'application/json',body:'{"available":true,"top":[],"mine":null}'
+ }));
+ await page.goto('/jogos/pixel-quest/');
+ await expect(page.locator('#pq-level-label')).toContainText('Fase 2/3 · 1-2');
+ account='Conta B';
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:account-changed',{
+  detail:{player:{nickname:'Conta B'}}
+ })));
+ await expect(page.locator('#pq-level-label')).toContainText('Fase 1/3 · 1-1');
+ await expect(page.locator('#pq-description')).toContainText('ainda não tem fases concluídas');
+});
