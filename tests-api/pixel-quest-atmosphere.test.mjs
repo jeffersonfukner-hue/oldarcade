@@ -88,3 +88,22 @@ test('radar centra jogador e filtra entidades coletadas, distantes ou derrotadas
  run.player.x+=30;
  assert.equal(minimap.minimapMarkers(level,run).find(m=>m.kind==='crystal').dx,former-30);
 });
+
+test('amanhecer é gradual e céu usa tempo contínuo sem depender do primeiro movimento',()=>{
+ const at=h=>((h-6+24)%24)/24*clock.WORLD_DAY_DURATION_MS;
+ const c0=clock.skyColors(at(6)),c1=clock.skyColors(at(6.25)),c2=clock.skyColors(at(7)),c3=clock.skyColors(at(8.5));
+ assert.notEqual(c0.top,c1.top);
+ assert.notEqual(c1.top,c2.top);
+ assert.notEqual(c2.top,c3.top);
+ const n0=clock.skyColors(0),n1=clock.skyColors(100),n2=clock.skyColors(200);
+ assert.notDeepEqual(n0,n1);
+ assert.notDeepEqual(n1,n2);
+ const hex=s=>parseInt(s.slice(1,3),16);
+ assert.ok(Math.abs(hex(n1.top)-hex(n0.top))<=2,'não clarear de uma vez nos primeiros quadros');
+});
+test('terreno não desenha contorno por célula e floresta interpola luz noturna',()=>{
+ const render=readFileSync(new URL('../src/scripts/pixelQuest/render.ts',import.meta.url),'utf8');
+ assert.doesNotMatch(render,/strokeRect\(x\+\.5,y\+\.5,31,31\)/);
+ assert.match(render,/nightMix=Math\.max/);
+ assert.match(render,/blend\('#35636b','#223e50',nightMix\)/);
+});

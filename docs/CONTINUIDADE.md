@@ -1,3 +1,9 @@
+## PIXEL QUEST — ajuste visual do terreno e amanhecer (23/11/2026)
+- **Solicitação:** remover o aspecto de grade dos blocos de solo e plataformas; suavizar a passagem da penumbra do início da campanha ao dia claro, sem mudança brusca ao primeiro movimento.
+- **Implementação:** retirar exclusivamente o `strokeRect` aplicado a cada tile, preservando colisões, grama, texturas e geografia; substituir o limiar binário de cores de montanhas/árvores por interpolação contínua usando luminosidade da lua; acrescentar paradas intermediárias do céu às 06:00, 07:30 e 09:30, com interpolação suave baseada em tempo fracionário contínuo.
+- **Preservação:** relógio global de 240 segundos por dia, início 06:00, tempo de campanha entre fases, pausas, sol e lua, ranking, D1 e HUD inalterados; nenhum deploy ou merge por esta alteração.
+- **Validação:** testes para gradação do amanhecer e ausência de contornos por tile. Conferir CI do novo commit e depois homologação visual no Preview.
+
 ## PIXEL QUEST — cenário vivo, pontuação dupla e recordes provisórios (23/11/2026)
 - **Feedback do proprietário:** ciclo solar contínuo foi bem recebido. Homologado preservar o HUD lateral direito e espelhar no topo interno do canvas **vida, dia/hora, fase, pontuação atual da fase e total acumulado da campanha**, usando o mesmo estado da partida, sem segunda gravação ou nova tabela.
 - **Regra temporal imprescindível:** o relógio do mundo é único em toda a campanha, independente da posição do player. Uma fase encerrada às 12h30 leva a próxima a iniciar às 12h30, sem reinício; introdução/contagem/pausa não consomem o tempo do mundo. Só uma campanha nova reinicia o relógio. O Guardião pode ser enfrentado de dia ou de noite. Recuperação de progresso registrado soma os tempos das fases concluídas.

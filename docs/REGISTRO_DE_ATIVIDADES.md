@@ -1,3 +1,9 @@
+## 23/11/2026 — Terreno sem grid e transição suave do amanhecer (Pixel Quest)
+- **Início/término:** não aferidos; **duração efetiva:** não mensurada; estimativa não calculada.
+- **Atividades executadas:** inspeção do renderizador de tiles, céu e floresta; remoção do contorno individual dos tiles, interpolação das cores noturnas de montanhas/árvores, refinamento dos marcos de cor às 06h/07h30/09h30 e interpolação por tempo contínuo; acréscimo de testes de regressão.
+- **Resultados:** alterações propostas e versionadas em `render.ts`, `worldClock.ts` e `pixel-quest-atmosphere.test.mjs`. O resultado do CI será avaliado no commit correspondente. Sem alteração da física, D1, merge, deploy ou gastos.
+- **Pendências:** CI do HEAD e validação visual no Cloudflare Preview.
+
 ## 23/11/2026 — Revisão de integração do lote de atmosfera e radar local
 - **Início e término (Brasília):** não aferidos; duração efetiva não mensurada, estimativa não calculada.
 - **Atividades executadas:** revisão dos arquivos recém-versionados, identificação e correção da opção de movimento reduzido na renderização do céu, fixação do ponto de impacto do meteorito durante sua explosão e inclusão de teste funcional de proximidade do radar, coleta, inimigos derrotados e deslocamento relativo.

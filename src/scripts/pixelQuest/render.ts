@@ -39,18 +39,19 @@ function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number,vert
  c.fillStyle='#ffdf96';c.beginPath();c.arc(sky.sunX,sky.sunY,19,0,Math.PI*2);c.fill();
  c.globalAlpha=sky.moonAlpha;c.fillStyle='#eae9da';
  c.beginPath();c.arc(sky.moonX,sky.moonY,14,0,Math.PI*2);c.fill();c.restore();
- const night=sky.moonAlpha>.5;
+ // A luz da floresta acompanha gradualmente o céu, sem alternância brusca de paleta.
+ const nightMix=Math.max(0,Math.min(1,sky.moonAlpha));
  const verticalShift=(level.height*level.tileSize-VIEW_HEIGHT-vertical);
  drawWorldAtmosphere(c,worldElapsedMs,reducedMotion,'sky');
  // Montanhas acompanham a câmera em frações distintas para dar profundidade.
  for(let i=-2;i<9;i++){
   const x=i*170-Math.floor(camera*.10%170);
-  c.fillStyle=night?'#303654':'#547b94';
+  c.fillStyle=blend('#547b94','#303654',nightMix);
   c.beginPath();c.moveTo(x,265+verticalShift*.35);c.lineTo(x+83,104+(i%3)*24+verticalShift*.35);c.lineTo(x+172,265+verticalShift*.35);c.fill();
  }
  for(const [factor,width,height,color] of [
-  [.22,78,80,night?'#223e50':'#35636b'],
-  [.40,58,105,night?'#152d40':'#225b52']
+  [.22,78,80,blend('#35636b','#223e50',nightMix)],
+  [.40,58,105,blend('#225b52','#152d40',nightMix)]
  ] as const){
   const stride=width+19,offset=(camera*factor)%stride;
   for(let i=-1;i<Math.ceil(VIEW_WIDTH/stride)+2;i++){
@@ -89,7 +90,6 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
    context.fillStyle='#97775c';context.fillRect(x,y,32,10);
    context.fillStyle='#74aa71';context.fillRect(x,y,32,4);
   }
-  context.strokeStyle='rgba(10,17,25,.13)';context.strokeRect(x+.5,y+.5,31,31);
  }
  for(const [id,entity] of level.entities.entries()){
   if(entity.kind==='player'||(entity.kind==='crystal'&&run.crystals.has(id))||['patroller','runner','hopper','sentry'].includes(entity.kind)||run.collectedPowerups.has(id))continue;

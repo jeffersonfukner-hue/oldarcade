@@ -13,13 +13,15 @@ export function formatWorldTime(time:WorldTime):string{
 }
 /** Céu suave ao longo do relógio do mundo, inclusive ao retroceder pelo mapa. */
 export function skyColors(elapsedMs:number):{top:string;bottom:string;sunVisible:boolean;moonVisible:boolean;orbX:number;orbY:number;sunX:number;sunY:number;moonX:number;moonY:number;sunAlpha:number;moonAlpha:number}{
- const {hour,minute}=worldTimeAt(elapsedMs);
- const h=hour+minute/60;
+ const {cycle}=worldTimeAt(elapsedMs);
+ // Usar fração contínua do relógio, sem saltos de um minuto na cor do céu.
+ const h=(6+cycle*24)%24;
  const stops=[
   {h:0,top:'#0a1630',bottom:'#232d58'},
   {h:5,top:'#182446',bottom:'#4c4168'},
-  {h:7,top:'#5b6799',bottom:'#f7a879'},
-  {h:10,top:'#3798ce',bottom:'#a7e0e9'},
+  {h:6,top:'#293456',bottom:'#735873'},
+  {h:7.5,top:'#6679a5',bottom:'#d8998b'},
+  {h:9.5,top:'#3798ce',bottom:'#a7e0e9'},
   {h:14,top:'#398fc5',bottom:'#b8d9e7'},
   {h:17,top:'#82659d',bottom:'#ed9b72'},
   {h:19,top:'#242b58',bottom:'#be6973'},
@@ -28,7 +30,9 @@ export function skyColors(elapsedMs:number):{top:string;bottom:string;sunVisible
  ];
  const b=stops.findIndex((s,i)=>i>0&&h<=s.h);
  const i=Math.max(1,b),before=stops[i-1],after=stops[i];
- const t=Math.max(0,Math.min(1,(h-before.h)/(after.h-before.h)));
+ // Suavização das tangentes: sem mudanças abruptas de velocidade na passagem entre faixas.
+ const linear=Math.max(0,Math.min(1,(h-before.h)/(after.h-before.h)));
+ const t=linear*linear*(3-2*linear);
  const color=(a:string,z:string)=>'#'+[1,3,5].map(k=>Math.round(parseInt(a.slice(k,k+2),16)*(1-t)+parseInt(z.slice(k,k+2),16)*t).toString(16).padStart(2,'0')).join('');
  // Trajetórias independentes: Sol 06:00–19:00; Lua 19:00–06:00.
  // Durante o crepúsculo e a aurora as duas luzes transitam gradualmente.
