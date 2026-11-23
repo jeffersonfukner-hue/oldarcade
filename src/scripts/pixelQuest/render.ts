@@ -1,5 +1,7 @@
 import type {Level} from './levels';
 import {portalUnlocked,type Run} from './gameplay';
+import {worldTimeAt,formatWorldTime,skyColors} from './worldClock';
+import {drawDefeatEffects} from './victoryEffects';
 export const VIEW_WIDTH=640,VIEW_HEIGHT=360;
 /** A câmera sobe quando o personagem escala, mantendo a cabeça visível.
  * De chão: base fixa (mapa atual). Plataformas altas: segue o jogador.
@@ -25,27 +27,24 @@ export function worldOneAtmosphere(levelId:string,ratio:number){
  const p=palettes[levelId]??palettes['1-1'];
  return {top:blend(p[0],p[2],t),bottom:blend(p[1],p[3],t)};
 }
-function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number,vertical:number){
- const ratio=camera/Math.max(1,level.width*level.tileSize-VIEW_WIDTH);
- const t=Math.max(0,Math.min(1,ratio));
- const sky=worldOneAtmosphere(level.id,t);
+function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number,vertical:number,worldElapsedMs:number){
+ const sky=skyColors(worldElapsedMs);
  const gradient=c.createLinearGradient(0,0,0,VIEW_HEIGHT);
  gradient.addColorStop(0,sky.top);gradient.addColorStop(1,sky.bottom);
  c.fillStyle=gradient;c.fillRect(0,0,VIEW_WIDTH,VIEW_HEIGHT);
- const phase=level.id==='1-1'?0:level.id==='1-2'?1:2;
- const orbX=Math.round(80+500*t),orbY=Math.round(phase===0?172-105*t:phase===1?48+118*t:155+20*t);
- c.fillStyle=phase===2&&t>.5?'#f7f4d7':'#ffe3a1';
- c.beginPath();c.arc(orbX,orbY,phase===2&&t>.5?15:19,0,Math.PI*2);c.fill();
+ c.fillStyle=sky.moonVisible?'#eae9da':'#ffdf96';
+ c.beginPath();c.arc(sky.orbX,sky.orbY,sky.moonVisible?14:19,0,Math.PI*2);c.fill();
+ const night=sky.moonVisible;
  const verticalShift=(level.height*level.tileSize-VIEW_HEIGHT-vertical);
  // Montanhas acompanham a câmera em frações distintas para dar profundidade.
  for(let i=-2;i<9;i++){
   const x=i*170-Math.floor(camera*.10%170);
-  c.fillStyle=phase===2?'#303654':'#547b94';
+  c.fillStyle=night?'#303654':'#547b94';
   c.beginPath();c.moveTo(x,265+verticalShift*.35);c.lineTo(x+83,104+(i%3)*24+verticalShift*.35);c.lineTo(x+172,265+verticalShift*.35);c.fill();
  }
  for(const [factor,width,height,color] of [
-  [.22,78,80,phase===2?'#223e50':'#35636b'],
-  [.40,58,105,phase===2?'#152d40':'#225b52']
+  [.22,78,80,night?'#223e50':'#35636b'],
+  [.40,58,105,night?'#152d40':'#225b52']
  ] as const){
   const stride=width+19,offset=(camera*factor)%stride;
   for(let i=-1;i<Math.ceil(VIEW_WIDTH/stride)+2;i++){
@@ -60,11 +59,11 @@ function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number,vert
   }
  }
 }
-export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,camera:number){
+export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,camera:number,worldElapsedMs=0,stageIndex=0){
  const context=canvas.getContext('2d');if(!context)return;
  context.imageSmoothingEnabled=false;
  const vertical=pixelQuestVerticalOffset(level,run.player.y);
- drawLandscape(context,level,camera,vertical);
+ drawLandscape(context,level,camera,vertical,worldElapsedMs);
  // O horizonte fica atrás do terreno; abismos têm profundidade escura.
  const groundY=15*level.tileSize-vertical;
  context.fillStyle='#171a23';context.fillRect(0,groundY,VIEW_WIDTH,VIEW_HEIGHT-groundY);
@@ -130,6 +129,7 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
   context.fillStyle='#e7a4c6';context.fillRect(x-4,y-17,56*(boss.hearts/5),7);
   if(boss.mode==='warning'){context.strokeStyle='#ffcf71';context.lineWidth=2;context.strokeRect(x-6,y-6,60,68)}
  }
+ drawDefeatEffects(context,run,camera,vertical,VIEW_WIDTH,VIEW_HEIGHT);
  const p=run.player;
  if(run.invulnerable<=0||Math.floor(run.invulnerable*12)%2===0){
   const x=Math.round(p.x-camera),y=Math.round(p.y-vertical);
@@ -138,4 +138,21 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
   context.fillStyle='#ffd46b';context.fillRect(x,y,p.w,p.h);
   context.fillStyle='#19314c';context.fillRect(x+12,y+7,5,5);
  }
+ // HUD de leitura dentro do jogo, derivado dos mesmos dados usados no placar à direita.
+ const time=worldTimeAt(worldElapsedMs);
+ const width=VIEW_WIDTH;
+ context.save();
+ context.fillStyle='rgba(8,17,35,.82)';
+ context.fillRect(6,6,width-12,32);
+ context.strokeStyle='rgba(160,197,224,.5)';context.lineWidth=1;
+ context.strokeRect(6.5,6.5,width-13,31);
+ context.font='bold 12px system-ui';
+ context.textBaseline='middle';context.fillStyle='#f2f6ff';
+ context.textAlign='left';
+ context.fillText('♥'.repeat(run.hearts)+'♡'.repeat(3-run.hearts),14,22);
+ context.fillText('DIA '+time.day+' · '+formatWorldTime(time),116,22);
+ context.fillText('FASE '+(stageIndex+1)+'/3',292,22);
+ context.textAlign='right';context.fillStyle='#ffe29b';
+ context.fillText('PONTOS '+run.score.toLocaleString('pt-BR'),width-16,22);
+ context.restore();
 }
