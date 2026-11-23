@@ -49,3 +49,32 @@ test('confirma que os dois placares no canvas têm mesma fonte do HUD lateral',(
  assert.match(index,/milestones.end\(/);
  assert.match(index,/milestones.confirm\('total'/);
 });
+
+test('fotografia de ranking total não se renova após cruzar o portal entre fases',async()=>{
+ const history=[],celebrations=[],previous=globalThis.fetch;
+ globalThis.fetch=async url=>{
+  history.push(String(url));
+  return {ok:true,async json(){return {available:true,top:[
+   {nickname:'A',score:1000},{nickname:'B',score:800},{nickname:'C',score:600}
+  ],mine:null}}};
+ };
+ try{
+  const engine=tsLoad('../src/scripts/pixelQuest/questRunRankings.ts',{'./rankingMilestones':rules});
+  const tracker=engine.setupQuestRunRankings(m=>celebrations.push(m),()=>{});
+  tracker.begin('1-1',null,null,false,0);
+  await new Promise(resolve=>setImmediate(resolve));
+  tracker.score(1100,1100);
+  assert.ok(celebrations.some(c=>c.scope==='total'&&c.rank===1));
+  tracker.end('1-1',1100,1100);
+  const generalBefore=history.filter(u=>u.endsWith('/total')).length;
+  const count=celebrations.filter(c=>c.scope==='total'&&c.rank===1).length;
+  tracker.begin('1-2',null,null,true,1100);
+  await new Promise(resolve=>setImmediate(resolve));
+  tracker.score(30,1130);
+  assert.equal(history.filter(u=>u.endsWith('/total')).length,generalBefore,
+    'fase seguinte não consulta nem substitui ranking total da campanha');
+  assert.equal(celebrations.filter(c=>c.scope==='total'&&c.rank===1).length,count,
+    'não disparar fogos do mesmo recorde ao entrar em outra fase');
+  tracker.dispose();
+ }finally{globalThis.fetch=previous}
+});
