@@ -2,6 +2,7 @@ import type {Level} from './levels';
 import {portalUnlocked,type Run} from './gameplay';
 import {worldTimeAt,formatWorldTime,skyColors} from './worldClock';
 import {drawDefeatEffects} from './victoryEffects';
+import {drawRankingCelebration,type RankingCelebration} from './rankingVisuals';
 export const VIEW_WIDTH=640,VIEW_HEIGHT=360;
 /** A câmera sobe quando o personagem escala, mantendo a cabeça visível.
  * De chão: base fixa (mapa atual). Plataformas altas: segue o jogador.
@@ -59,7 +60,7 @@ function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number,vert
   }
  }
 }
-export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,camera:number,worldElapsedMs=0,stageIndex=0,reducedMotion=false){
+export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,camera:number,worldElapsedMs=0,stageIndex=0,reducedMotion=false,completedScore=0,rankingFx:RankingCelebration|null=null,now=0){
  const context=canvas.getContext('2d');if(!context)return;
  context.imageSmoothingEnabled=false;
  const vertical=pixelQuestVerticalOffset(level,run.player.y);
@@ -146,13 +147,15 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
  context.fillRect(6,6,width-12,32);
  context.strokeStyle='rgba(160,197,224,.5)';context.lineWidth=1;
  context.strokeRect(6.5,6.5,width-13,31);
- context.font='bold 12px system-ui';
+ context.font='bold 11px system-ui';
  context.textBaseline='middle';context.fillStyle='#f2f6ff';
  context.textAlign='left';
  context.fillText('♥'.repeat(run.hearts)+'♡'.repeat(3-run.hearts),14,22);
- context.fillText('DIA '+time.day+' · '+formatWorldTime(time),116,22);
- context.fillText('FASE '+(stageIndex+1)+'/3',292,22);
+ context.fillText('DIA '+time.day+' · '+formatWorldTime(time),91,22);
+ context.fillText('FASE '+(stageIndex+1)+'/3',227,22);
  context.textAlign='right';context.fillStyle='#ffe29b';
- context.fillText('PONTOS '+run.score.toLocaleString('pt-BR'),width-16,22);
+ context.fillText('FASE '+run.score.toLocaleString('pt-BR'),455,22);
+ context.fillText('TOTAL '+(completedScore+run.score).toLocaleString('pt-BR'),width-16,22);
  context.restore();
+ drawRankingCelebration(context,rankingFx,now,reducedMotion);
 }
