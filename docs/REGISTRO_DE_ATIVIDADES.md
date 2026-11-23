@@ -1,3 +1,10 @@
+## 23/11/2026 — Ciclo solar independente, dia no canvas e vitória cinematográfica do Guardião
+- **Horários de início/término (Brasília):** não aferidos por cronômetro. **Tempo efetivo comprovado:** não mensurado; **estimativa:** não calculada; não contar diferença entre mensagens.
+- **Atividades efetivamente executadas:** leitura de AGENTS, arquitetura, padrões do HUD, código do motor, renderização e temporização; criação de relógio de mundo local com dia/hora e céu interpolado que independe da posição da câmera; espelhamento de vidas, dias, fase e pontos no próprio canvas sem modificar a lateral; persistência do relógio durante a campanha; efeito de derrota do Guardião (pisca, cresce, explode com fogos/confetes e mostra +250), congelamento temporário da ação; encolhimento visual de inimigos comuns; adição de testes Node sobre tempo, vitória, pausa de cronômetro e HUD sincronizado.
+- **Resultados verificáveis:** commits na branch `feat/pixel-quest-mundo1-finalizacao` e arquivos `worldClock.ts`, `victoryEffects.ts`, `gameplay.ts`, `render.ts`, `index.ts`, `tests-api/pixel-quest-world-time-victory.test.mjs`. Sem novas imagens, D1, merge, deploy ou serviços pagos.
+- **Testes:** aguardam execução do CI final; não afirmar aprovação sem evidência.
+- **Pendências:** verificar regressão no GitHub Actions, corrigir eventuais falhas e depois homologar o visual e o ritmo do dia com o proprietário no Preview Cloudflare via deploy exclusivamente manual.
+
 ## 23/11/2026 — Formalização do requisito de portal e Guardião
 - **Horários de início/término (Brasília):** não aferidos; **duração efetiva comprovada:** não mensurada; **estimada:** não calculada. Sem contar intervalo entre mensagens.
 - **Atividades executadas:** conferido `portalUnlocked` no código; confirmado que gemas desbloqueiam 1-1 e 1-2 sem eliminar inimigos, enquanto 1-3 exige também derrota do Guardião; acrescentado teste de regressão desse contrato e registrado o requisito como homologado.
