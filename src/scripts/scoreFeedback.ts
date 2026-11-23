@@ -27,3 +27,28 @@ export function showScoreFeedback(
  element.addEventListener('animationend',()=>element.remove(),{once:true});
  window.setTimeout(()=>element.remove(),1400);
 }
+
+/** Pontuação flutuante sobre o personagem em jogos de canvas com câmera horizontal.
+ * Reutiliza a animação global .score-float; não duplica estilos por jogo.
+ */
+export function showWorldScoreFeedback(
+ container:HTMLElement,canvas:HTMLCanvasElement,amount:number,context:string,
+ x:number,y:number,viewWidth:number,viewHeight:number
+):void{
+ if(amount<=0)return;
+ const board=canvas.getBoundingClientRect(),host=container.getBoundingClientRect();
+ if(!board.width||!board.height)return;
+ const element=document.createElement('span');
+ element.className='score-float';
+ element.textContent='+'+amount.toLocaleString('pt-BR');
+ element.setAttribute('role','status');
+ element.setAttribute('aria-label',amount+' pontos por '+context);
+ element.title=context;
+ element.style.left=Math.max(24,Math.min(host.width-24,board.left-host.left+x/viewWidth*board.width))+'px';
+ element.style.top=Math.max(20,board.top-host.top+y/viewHeight*board.height)+'px';
+ element.style.zIndex='9';element.style.color='#ffe38d';
+ element.style.textShadow='0 2px 12px #041314,0 0 16px #e8a22e';
+ container.append(element);
+ element.addEventListener('animationend',()=>element.remove(),{once:true});
+ window.setTimeout(()=>element.remove(),1400);
+}
