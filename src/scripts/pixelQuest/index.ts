@@ -58,10 +58,22 @@ if(stage){
   if(board.mine)bestLevel.textContent=String(board.mine.score);
  });
  let phase:'ready'|'countdown'|'intro'|'playing'|'paused'|'won'|'lost'='ready';
+ let restoredFromServer=false;
  const progress=setupQuestProgress(completed=>{
-  if(phase!=='ready'||levelIndex!==0||results.length!==0)return;
-  if(completed.length===0||completed.length>=worldOneTotal)return;
-  results=completed.slice();levelIndex=completed.length;level=worldOneLevels[levelIndex];
+  if(phase!=='ready')return;
+  if(completed.length===0){
+   // Uma segunda conta sem progresso não herda a fase restaurada da conta anterior.
+   if(!restoredFromServer)return;
+   restoredFromServer=false;results=[];levelIndex=0;level=worldOneLevels[0];
+   reset();
+   title.textContent='Preparado para explorar?';
+   description.textContent='Sua conta ainda não tem fases concluídas neste mundo.';
+   return;
+  }
+  if(completed.length>=worldOneTotal)return;
+  // Não descartar uma campanha local já em andamento ao fazer o primeiro login.
+  if(results.length>0&&!restoredFromServer)return;
+  restoredFromServer=true;results=completed.slice();levelIndex=completed.length;level=worldOneLevels[levelIndex];
   reset();
   title.textContent='Continuar aventura salva';
   description.textContent='Sua conta salvou '+completed.length+' fase(s). Continue na fase '+(levelIndex+1)+'/'+worldOneTotal+'.';
