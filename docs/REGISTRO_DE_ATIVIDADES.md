@@ -1,3 +1,10 @@
+## 23/11/2026 — Fechamento técnico do lote Pixel Quest — CI #1239 aprovado
+- **Início/fim (Brasília):** não aferidos por cronômetro; **tempo efetivo comprovado:** não mensurado; **estimativa:** não calculada. Não computar intervalo entre mensagens.
+- **Atividades executadas:** análise de erros reais dos CIs #1237 (expressão de HUD inválida) e #1238 (patrulheiro sob plataforma); correção pontual de sintaxe e reposicionamento de patrulheiro na fase 1-1; repetição de checagens automatizadas; consulta de posicionamento compartilhado do feedback flutuante, confirmando `.screen-wrap{position:relative}`.
+- **Resultados verificáveis:** commit de código `3ab370e849a5f654606609a65815bbb71a287779`, CI GitHub Actions **#1239**, conclusão **success**: verificação de tipos, build estático, testes de API e Playwright desktop/mobile passaram. Evidência: https://github.com/jeffersonfukner-hue/oldarcade/actions/runs/45106423560
+- **Homologação:** ainda falta o proprietário testar dificuldade, rotas de retorno, inimigos e power-ups em Preview real; CI aprovado não equivale à aceitação visual/jogável. **Cloudflare Preview:** nenhuma publicação executada por este agente; deploy manual liberável pelo proprietário exclusivamente do commit validado, sem merge e sem alterar produção.
+- **Pendências:** validar jogabilidade real e persistência já existente no D1 Preview; ajustes somente a partir de evidências da nova rodada de testes. Nenhum novo SQL foi necessário.
+
 ## 23/11/2026 — Pixel Quest Mundo 1: dificuldade, rotas elevadas e power-ups
 - **Início/término em Brasília:** não aferidos com cronômetro. **Tempo efetivo comprovado:** não mensurado; **estimado:** não calculado. Não usar intervalo entre mensagens como trabalho.
 - **Demanda validada pelo proprietário:** após melhora visual avaliada em aproximadamente 60%, pediu variedade e quantidade maior de inimigos, pontuação flutuante sobre o personagem como padrão global, power-ups, dificuldade mais alta, plataformas elevadas com retorno estratégico na fase 2/3 e percursos extras com cristais/inimigos em todas as fases.
