@@ -14,10 +14,11 @@ export function podiumAtStart(score:number,board:RankingSnapshot|null):1|2|3|nul
 }
 export function personalAtStart(score:number,board:RankingSnapshot|null,localBest:number|null):boolean{
  if(!Number.isSafeInteger(score)||score<=0)return false;
+ if(board?.available&&!board.mine)return true;
  if(board?.available&&board.mine&&Number.isFinite(board.mine.score))return score>board.mine.score;
  return localBest!==null&&score>localBest;
 }
-export function verifiedRankMessage(provisional:1|2|3|null,confirmed:number|null,score:number):string{
+export function verifiedRankMessage(provisional:1|2|3|null,confirmed:number|null):string{
  if(confirmed===null)return 'Posição ainda não confirmada no ranking. Consulte a classificação.';
  if(provisional!==null&&confirmed>provisional)
   return 'Você chegou ao '+provisional+'º lugar contra o ranking inicial, mas outro jogador ultrapassou sua marca. Posição atual: '+confirmed+'º.';
