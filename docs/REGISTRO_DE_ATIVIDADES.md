@@ -1,3 +1,10 @@
+## 23/11/2026 — Diagnóstico do CI #1289 e correção do teste de layout Pixel Quest
+- **Horários de início/fim:** não aferidos. **Duração efetiva:** não mensurada; intervalo entre mensagens não contabilizado.
+- **Investigação executada:** consultado GitHub Actions run #1289 (commit `26ae672e782e14284f3060d05d2fe0ade4016050`), concluído em falha. Tipagem, build e testes Node/API aprovados; Playwright registrou 384 aprovados, 50 ignorados e duas falhas no mesmo teste de layout (desktop/mobile): `tests/game-stage-layout.spec.ts:32`.
+- **Causa confirmada:** o teste media `s.querySelector('canvas')`, que passou a selecionar o primeiro ícone de inimigo do HUD, e não o canvas principal do jogo. A asserção de posicionamento comparava o HUD com um de seus próprios ícones.
+- **Correção aplicada:** teste agora busca explicitamente o seletor de canvas principal definido na matriz de jogos, preservando o layout e os ícones aprovados. Commit de correção `300a3449a60b9c504c9908e4b8a79ad08fbb1919`.
+- **Pendências:** confirmar CI integral no novo HEAD e homologar visualmente o Preview. Nenhum merge, deploy manual, alteração D1 nem operação paga realizada.
+
 ## 23/11/2026 — Painel de eliminações por espécie, respawn e aviso de saída do Pixel Quest
 - **Início/término:** não mensurados com cronômetro; duração efetiva não registrada; não estimar intervalo entre mensagens.
 - **Atividades:** leitura das regras/contratos/arquivos de jogo e UI; separação das eliminações únicas persistidas do histórico total por espécie; temporizadores individuais de reaparição, proteção contra spawn junto ao jogador; ícones reutilizando sprites do próprio jogo; alerta animado ao desbloquear portal, graça baseada na distância e penalização progressiva limitada ao placar final; alinhamento de limite de pontos entre ranking e progresso.
