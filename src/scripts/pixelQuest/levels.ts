@@ -1,5 +1,5 @@
 export type Tile=0|1|2;
-export type EntityKind='player'|'crystal'|'patroller'|'checkpoint'|'exit'|'boss';
+export type EntityKind='player'|'crystal'|'patroller'|'checkpoint'|'exit'|'boss'|'runner'|'hopper'|'sentry'|'shield'|'heart'|'frenzy';
 export type Entity={kind:EntityKind;x:number;y:number};
 export type Level={id:string;world:string;width:number;height:number;tileSize:32;tiles:Tile[][];entities:Entity[]};
 export function tileAt(level:Level,col:number,row:number):Tile {
