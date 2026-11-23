@@ -59,7 +59,8 @@ test('integração do HUD no canvas recebe relógio e fase sem alterar HUD later
  const render=readFileSync(new URL('../src/scripts/pixelQuest/render.ts',import.meta.url),'utf8');
  assert.match(index,/if\(!celebrating&&run.phase==='playing'\)worldElapsedMs\+=STEP\*1000/);
  assert.match(index,/drawPlatformScene\(canvas,level,run,camera,worldElapsedMs,levelIndex,reducedMotion\)/);
- assert.match(render,/PONTOS /);
+ assert.match(render,/FASE '\+run.score.toLocaleString/);
+ assert.match(render,/TOTAL '\+\(completedScore\+run.score\).toLocaleString/);
  assert.match(render,/DIA /);
  assert.match(render,/FASE /);
  assert.match(render,/run.score.toLocaleString\('pt-BR'\)/);
@@ -91,4 +92,25 @@ test('efeitos de vitória: zoom inicial, banner de 250 pontos e movimento reduzi
  calls.length=0;
  effects.drawDefeatEffects(context,run,run.boss.x-300,0,640,360,true);
  assert.ok(calls.filter(c=>c[0]==='rect').length<normalCount,'reduzir partículas com movimento reduzido');
+});
+
+test('relógio não reinicia na troca de fase: 12:30 permanece 12:30 até voltar a jogar',()=>{
+ const atTransition=65_000;
+ assert.equal(world.formatWorldTime(world.worldTimeAt(atTransition)),'12:30');
+ assert.equal(world.formatWorldTime(world.worldTimeAt(atTransition)),'12:30');
+ assert.equal(world.formatWorldTime(world.worldTimeAt(atTransition+1_000)),'12:36');
+ const code=readFileSync(new URL('../src/scripts/pixelQuest/index.ts',import.meta.url),'utf8');
+ assert.match(code,/let worldElapsedMs=0;/);
+ assert.match(code,/worldElapsedMs=results.reduce\(\(sum,stage\)=>sum\+stage.elapsedMs,0\)/);
+ assert.match(code,/if\(!celebrating&&run.phase==='playing'\)worldElapsedMs\+=STEP\*1000/);
+ assert.match(code,/else\{levelIndex=0;results=\[\];worldElapsedMs=0\}/,'somente nova campanha zera relógio');
+});
+test('sol e lua se deslocam em direções contínuas e cruzam suavemente',()=>{
+ const sunset=world.skyColors(130_000);
+ const later=world.skyColors(140_000);
+ assert.ok(sunset.sunX<=later.sunX);
+ assert.ok(sunset.moonX<=later.moonX||later.moonX<sunset.moonX,'trajeto lunar é cíclico');
+ const dawn=world.skyColors(239_000),next=world.skyColors(240_000);
+ assert.equal(dawn.moonVisible,true);
+ assert.ok(Math.abs(dawn.sunX-next.sunX)<100);
 });
