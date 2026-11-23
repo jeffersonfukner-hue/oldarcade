@@ -62,7 +62,11 @@ if(stage){
  let rankingFx:RankingCelebration|null=null;
  const completeScore=()=>results.reduce((sum,item)=>sum+item.score,0);
  const milestones=setupQuestRunRankings(milestone=>{
-  rankingFx={rank:milestone.rank,message:milestone.message,detail:milestone.detail,startedAt:performance.now()};
+  const now=performance.now();
+  const priority=(rank:1|2|3|null,scope:string)=>rank===1?40+(scope==='total'?1:0):rank===2?30+(scope==='total'?1:0):rank===3?20+(scope==='total'?1:0):10;
+  if(rankingFx&&now-rankingFx.startedAt<2300&&
+     priority(rankingFx.rank,rankingFx.detail.includes('total')?'total':'fase')>priority(milestone.rank,milestone.scope))return;
+  rankingFx={rank:milestone.rank,message:milestone.message,detail:milestone.detail,startedAt:now};
  },message=>{
   // Mensagem oficial de reconciliação, após o POST no D1.
   rankingNotice.textContent=message;rankingNotice.hidden=false;
