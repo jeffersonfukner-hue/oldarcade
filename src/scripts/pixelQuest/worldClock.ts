@@ -12,7 +12,7 @@ export function formatWorldTime(time:WorldTime):string{
  return String(time.hour).padStart(2,'0')+':'+String(time.minute).padStart(2,'0');
 }
 /** Céu suave ao longo do relógio do mundo, inclusive ao retroceder pelo mapa. */
-export function skyColors(elapsedMs:number):{top:string;bottom:string;sunVisible:boolean;moonVisible:boolean;orbX:number;orbY:number}{
+export function skyColors(elapsedMs:number):{top:string;bottom:string;sunVisible:boolean;moonVisible:boolean;orbX:number;orbY:number;sunX:number;sunY:number;moonX:number;moonY:number;sunAlpha:number;moonAlpha:number}{
  const {hour,minute}=worldTimeAt(elapsedMs);
  const h=hour+minute/60;
  const stops=[
@@ -30,9 +30,19 @@ export function skyColors(elapsedMs:number):{top:string;bottom:string;sunVisible
  const i=Math.max(1,b),before=stops[i-1],after=stops[i];
  const t=Math.max(0,Math.min(1,(h-before.h)/(after.h-before.h)));
  const color=(a:string,z:string)=>'#'+[1,3,5].map(k=>Math.round(parseInt(a.slice(k,k+2),16)*(1-t)+parseInt(z.slice(k,k+2),16)*t).toString(16).padStart(2,'0')).join('');
- const sunVisible=h>=6&&h<19;
- const progress=sunVisible?(h-6)/13:(h>=19?(h-19)/11:(h+5)/11);
+ // Trajetórias independentes: Sol 06:00–19:00; Lua 19:00–06:00.
+ // Durante o crepúsculo e a aurora as duas luzes transitam gradualmente.
+ const limit=(x:number)=>Math.max(0,Math.min(1,x));
+ const smooth=(x:number)=>{const t=limit(x);return t*t*(3-2*t)};
+ const sunProgress=limit((h-6)/13);
+ const moonProgress=h>=19?(h-19)/11:(h+5)/11;
+ const sunAlpha=smooth((h-5.5)/1.3)*(1-smooth((h-18.3)/1.3));
+ const moonAlpha=h>=12?smooth((h-18.3)/1.3):1-smooth((h-5.5)/1.3);
+ const sunX=40+560*sunProgress,moonX=40+560*moonProgress;
+ const sunY=175-Math.sin(Math.PI*sunProgress)*137;
+ const moonY=177-Math.sin(Math.PI*moonProgress)*128;
  return {top:color(before.top,after.top),bottom:color(before.bottom,after.bottom),
-  sunVisible,moonVisible:!sunVisible,orbX:75+500*progress,
-  orbY:sunVisible?165-Math.sin(Math.PI*progress)*128:56+Math.sin(Math.PI*progress)*45};
+  sunVisible:sunAlpha>0,moonVisible:moonAlpha>0,
+  sunX,sunY,moonX,moonY,sunAlpha,moonAlpha,
+  orbX:sunAlpha>=moonAlpha?sunX:moonX,orbY:sunAlpha>=moonAlpha?sunY:moonY};
 }
