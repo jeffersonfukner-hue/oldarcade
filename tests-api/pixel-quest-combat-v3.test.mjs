@@ -119,3 +119,43 @@ test('combo é integrado ao pisão e termina ao pousar, cair ou sofrer dano',()=
  assert.match(source,/function fallIntoPit[\s\S]*?run\.airComboCount=0/);
  assert.match(feedback,/element\.textContent=combo\?context/);
 });
+ 
+test('respawn é individual, mantém contagem de únicos e premia novas eliminações',()=>{
+ const run=gameplay.createRun(maps[0]);
+ const enemy=run.enemies[0];
+ assert.equal(gameplay.RESPAWN_SECONDS.patroller,20);
+ assert.equal(gameplay.RESPAWN_SECONDS.hopper,18);
+ assert.equal(gameplay.RESPAWN_SECONDS.runner,24);
+ assert.equal(gameplay.RESPAWN_SECONDS.sentry,30);
+ enemy.alive=false;enemy.respawnIn=.03;run.killsByKind[enemy.kind]=1;run.defeatedUniqueIds.add(enemy.id);
+ assert.equal(gameplay.levelDefeated(run),1);
+ const oldX=enemy.origin;run.player.x=oldX+500;
+ gameplay.stepRun(run,maps[0],idle);
+ assert.equal(enemy.alive,false);
+ gameplay.stepRun(run,maps[0],idle);
+ assert.equal(enemy.alive,true);
+ assert.equal(enemy.x,oldX);
+ assert.equal(gameplay.levelDefeated(run),1,'não dobrar a contagem de inimigos únicos persistida');
+ run.killsByKind[enemy.kind]++;
+ assert.equal(run.killsByKind[enemy.kind],2,'total de eliminações por espécie inclui reaparição');
+});
+test('portal concede janela proporcional à distância, depois desconto apenas por segundo completo',()=>{
+ const run=gameplay.createRun(maps[0]);
+ const portal=maps[0].entities.find(e=>e.kind==='exit');
+ run.portalOpenedAtMs=1000;run.portalGraceMs=Math.max(18000,Math.abs(portal.x-run.player.x)/160*1000+8000);
+ run.elapsedMs=1000+run.portalGraceMs-100;
+ assert.equal(gameplay.portalDelayPenalty(run),0);
+ assert.equal(gameplay.portalGraceRemainingSeconds(run),1);
+ run.elapsedMs=1000+run.portalGraceMs+2500;
+ assert.equal(gameplay.portalDelayPenalty(run),24);
+ assert.equal(gameplay.portalGraceRemainingSeconds(run),0);
+});
+test('ícones laterais reutilizam desenho do jogo e portal tem alerta animado',()=>{
+ const ui=readFileSync(new URL('../src/components/PixelQuestGame.astro',import.meta.url),'utf8');
+ const render=readFileSync(new URL('../src/scripts/pixelQuest/render.ts',import.meta.url),'utf8');
+ const sprite=readFileSync(new URL('../src/scripts/pixelQuest/enemySprite.ts',import.meta.url),'utf8');
+ assert.match(ui,/pq-enemy-kills/);assert.match(ui,/pq-enemy-'\+kind\+'-icon/);
+ assert.match(render,/drawEnemySprite\(context,enemy.kind,x,y\)/);
+ assert.match(render,/PORTAL ABERTO!/);
+ assert.match(sprite,/kind==='hopper'/);
+});

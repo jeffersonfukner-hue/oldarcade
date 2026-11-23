@@ -5,6 +5,8 @@ import {drawDefeatEffects} from './victoryEffects';
 import {drawRankingCelebration,type RankingCelebration} from './rankingVisuals';
 import {drawWorldAtmosphere} from './worldAtmosphere';
 import {drawQuestMinimap} from './minimap';
+import {drawEnemySprite} from './enemySprite';
+import {portalGraceRemainingSeconds,portalDelayPenalty} from './gameplay';
 export const VIEW_WIDTH=640,VIEW_HEIGHT=360;
 /** A câmera sobe quando o personagem escala, mantendo a cabeça visível.
  * De chão: base fixa (mapa atual). Plataformas altas: segue o jogador.
@@ -117,12 +119,7 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
  for(const enemy of run.enemies){
   if(!enemy.alive)continue;
   const x=Math.round(enemy.x-camera),y=Math.round(enemy.y-vertical);
-  const colors={patroller:'#fa8a91',runner:'#ffae64',hopper:'#a98bff',sentry:'#74dbd1'};
-  context.fillStyle=colors[enemy.kind];context.fillRect(x,y,22,24);
-  if(enemy.kind==='runner'){context.fillRect(x-3,y+19,7,5);context.fillRect(x+17,y+19,7,5)}
-  if(enemy.kind==='hopper'){context.fillRect(x+3,y-5,6,6);context.fillRect(x+13,y-5,6,6)}
-  if(enemy.kind==='sentry'){context.fillRect(x+7,y-6,8,6)}
-  context.fillStyle='#172c52';context.fillRect(x+5,y+7,4,4);context.fillRect(x+14,y+7,4,4);
+  drawEnemySprite(context,enemy.kind,x,y);
  }
  const boss=run.boss;
  if(boss&&boss.hearts>0){
@@ -164,5 +161,22 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
  context.fillText('TOTAL '+(completedScore+run.score).toLocaleString('pt-BR'),width-16,22);
  context.restore();
  drawQuestMinimap(context,level,run);
+ if(run.portalOpenedAtMs!==null){
+  const age=run.elapsedMs-run.portalOpenedAtMs;
+  if(age<4200){
+   const right=(level.entities.find(e=>e.kind==='exit')?.x??p.x)>=p.x;
+   context.save();context.globalAlpha=Math.min(1,age/350,Math.max(0,(4200-age)/450));
+   context.fillStyle='rgba(10,30,43,.92)';context.fillRect(145,91,350,51);
+   context.strokeStyle='#b6f1c8';context.lineWidth=2;context.strokeRect(146,92,348,49);
+   context.fillStyle='#c7ffdc';context.font='bold 17px system-ui';context.textAlign='center';
+   context.fillText('PORTAL ABERTO! '+(right?'→':'←')+' CORRA!',320,112);
+   context.font='bold 11px system-ui';context.fillText('Saída rápida preserva seus pontos',320,130);
+   context.restore();
+  }
+  context.save();context.fillStyle='#c2ffdf';context.font='bold 10px system-ui';context.textAlign='right';
+  const remaining=portalGraceRemainingSeconds(run);
+  context.fillText(remaining>0?'SAÍDA: '+remaining+'s sem multa':'SAÍDA: -'+portalDelayPenalty(run)+' pts',628,155);
+  context.restore();
+ }
  drawRankingCelebration(context,rankingFx,now,reducedMotion);
 }

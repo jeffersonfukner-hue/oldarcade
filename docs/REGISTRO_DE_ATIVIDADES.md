@@ -1,3 +1,9 @@
+## 23/11/2026 — Painel de eliminações por espécie, respawn e aviso de saída do Pixel Quest
+- **Início/término:** não mensurados com cronômetro; duração efetiva não registrada; não estimar intervalo entre mensagens.
+- **Atividades:** leitura das regras/contratos/arquivos de jogo e UI; separação das eliminações únicas persistidas do histórico total por espécie; temporizadores individuais de reaparição, proteção contra spawn junto ao jogador; ícones reutilizando sprites do próprio jogo; alerta animado ao desbloquear portal, graça baseada na distância e penalização progressiva limitada ao placar final; alinhamento de limite de pontos entre ranking e progresso.
+- **Resultados/evidências:** alterações nos arquivos de gameplay/render/index/PixelQuestGame, `enemySprite.ts`, contrato e endpoint de progresso, testes de combate, este registro e continuidade. CI do novo HEAD precisa ser confirmado.
+- **Pendências:** CI e homologação do Preview. Sem merge, deploy, mudança D1, créditos ou serviços pagos.
+
 ## 23/11/2026 — Reconhecimento e recompensa de combos aéreos Pixel Quest
 - **Horários e duração:** não aferidos por cronômetro; tempo efetivo não mensurado nem estimado.
 - **Atividades executadas:** conferência da física e contabilização das eliminações por pisão; implementação de contador de sequência aérea com bônus progressivo limitado, reset por pouso/dano/queda e indicação visual no feedback compartilhado; inclusão de testes de regressão para progressão, teto e integração.

@@ -2,7 +2,7 @@ import {worldOneLevels,worldOneTotal} from '../../data/pixelQuest/world-1';
 import {entranceForLevel,stageTitle,STAGE_INTRO_MS} from './stageIntro';
 import {validateLevel} from './levels';
 import {cameraX,STEP} from './physics';
-import {createRun,stepRun,levelDefeated,totalDefeated,type Run} from './gameplay';
+import {createRun,stepRun,levelDefeated,totalDefeated,emptyEnemyKills,ENEMY_KINDS,portalGraceRemainingSeconds,portalDelayPenalty,type EnemyKills,type Run} from './gameplay';
 import {drawPlatformScene,VIEW_WIDTH,VIEW_HEIGHT,pixelQuestVerticalOffset} from './render';
 import {setupPlatformInput} from './input';
 import {setCountdownOverlay} from '../gameCountdownOverlay';
@@ -10,6 +10,7 @@ import {centerGameBoard} from '../gameViewport';
 import {setupGameClock} from '../gameClock';
 import {timeBonus,type LevelResult} from './scoring';
 import {showWorldScoreFeedback} from '../scoreFeedback';
+import {drawEnemySprite} from './enemySprite';
 import {readLocalRecord,updateLocalRecord} from './records';
 import {campaignSnapshot} from './campaignLedger';
 import {setupQuestStageRecords} from './questStageRecords';
@@ -55,6 +56,12 @@ if(stage){
  // O HUD exibe recorde da fase atual; o ranking geral permanece na página.
  let levelIndex=0,level=worldOneLevels[levelIndex];
  let results:LevelResult[]=[];
+ const completedKillsByKind:EnemyKills=emptyEnemyKills();
+ const enemyBadges=Object.fromEntries(ENEMY_KINDS.map(kind=>[kind,{
+  canvas:stage.querySelector<HTMLCanvasElement>('#pq-enemy-'+kind+'-icon'),
+  count:stage.querySelector<HTMLElement>('#pq-enemy-'+kind+'-count')
+ }])) as Record<(typeof ENEMY_KINDS)[number],{canvas:HTMLCanvasElement|null;count:HTMLElement|null}>;
+ for(const kind of ENEMY_KINDS){const ctx=enemyBadges[kind].canvas?.getContext('2d');if(ctx)drawEnemySprite(ctx,kind,4,3)}
  let bossIntroShown=false;
  let run:Run=createRun(level),camera=0;
  // Relógio de mundo independente da câmera: pode avançar mesmo quando o jogador retorna.
@@ -94,6 +101,7 @@ if(stage){
    // Uma segunda conta sem progresso não herda a fase restaurada da conta anterior.
    if(!restoredFromServer)return;
    restoredFromServer=false;results=[];worldElapsedMs=0;levelIndex=0;level=worldOneLevels[0];
+   for(const kind of ENEMY_KINDS)completedKillsByKind[kind]=0;
    reset();
    title.textContent='Preparado para explorar?';
    description.textContent='Sua conta ainda não tem fases concluídas neste mundo.';
@@ -126,15 +134,22 @@ if(stage){
   powerStatus.textContent='Poderes: '+(activePowers.join(' · ')||'nenhum');
   const defeatedCount=levelDefeated(run);
   defeated.textContent=String(totalDefeated(run));
+  for(const kind of ENEMY_KINDS){
+   const count=enemyBadges[kind].count;
+   if(count)count.textContent=String(completedKillsByKind[kind]+run.killsByKind[kind]);
+  }
   levelKills.textContent=String(defeatedCount);
   levelEnemies.textContent=(run.enemies.length-defeatedCount)+'/'+run.enemies.length;
   crystalsProgress.max=Math.max(1,totalCrystals());
   crystalsProgress.value=run.crystals.size;
   enemiesProgress.max=Math.max(1,run.enemies.length);
-  enemiesProgress.value=defeatedCount;
+  enemiesProgress.value=run.enemies.filter(enemy=>!enemy.alive).length;
   crystalsRemaining.textContent=String(totalCrystals()-run.crystals.size);
-  enemiesRemaining.textContent=String(run.enemies.length-defeatedCount);
-  portalStatus.textContent=run.crystals.size===totalCrystals() && (!run.boss||run.boss.hearts<=0)?'Portal liberado · todos os cristais coletados':run.boss?.hearts?'Derrote o Guardião para abrir o portal':`Portal bloqueado · ${run.crystals.size}/${totalCrystals()} cristais`;
+  enemiesRemaining.textContent=String(run.enemies.filter(enemy=>enemy.alive).length);
+  portalStatus.textContent=run.portalOpenedAtMs!==null?
+    (portalGraceRemainingSeconds(run)>0?'PORTAL ABERTO · CORRA! '+portalGraceRemainingSeconds(run)+'s sem penalidade extra':
+     'PORTAL ABERTO · CORRA! Atraso -'+portalDelayPenalty(run)+' pontos'):
+    run.boss?.hearts?'Derrote o Guardião para abrir o portal':`Portal bloqueado · ${run.crystals.size}/${totalCrystals()} cristais`;
   levelLabel.textContent=`Mundo 1 · Fase ${levelIndex+1}/${worldOneTotal} · ${level.id}`;
  }
  function setPhase(next:typeof phase){
@@ -203,12 +218,13 @@ if(stage){
   clearCountdown();clearIntro();setPhase(won?'won':'lost');overlay.hidden=false;title.hidden=false;description.hidden=false;
   title.textContent=won?(levelIndex===worldOneTotal-1?'Mundo 1 concluído!':'Portal alcançado!'):'Fim de jogo';
   if(won){
-   const result:LevelResult={levelId:level.id,score:run.score+timeBonus(run.elapsedMs),
+   const result:LevelResult={levelId:level.id,score:Math.max(0,run.score+timeBonus(run.elapsedMs)-portalDelayPenalty(run)),
     elapsedMs:run.elapsedMs,crystals:run.crystals.size,enemies:levelDefeated(run)};
    // Pontuação de eventos + bônus de conclusão e tempo é reconciliada na vitória.
    run.score=result.score;
    milestones.score(result.score,completeScore()+result.score);
    results.push(result);
+   for(const kind of ENEMY_KINDS)completedKillsByKind[kind]+=run.killsByKind[kind];
    milestones.end(level.id,result.score,completeScore());
    progress.record(results);
    updateLocalRecord('level-v2-'+level.id,{score:result.score,elapsedMs:result.elapsedMs});
@@ -217,7 +233,7 @@ if(stage){
    stageRanks.record({levelId:level.id,score:result.score,durationMs:Math.round(result.elapsedMs)});
    updateLocalRecords();
    document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'pixel-quest',score:snapshot.score,durationMs:Math.round(snapshot.elapsedMs)}}));
-   description.textContent=`Fase ${levelIndex+1}/${worldOneTotal} (${level.id}): ${result.score} pontos · ${result.crystals} cristais · ${result.enemies} inimigos · Power-ups e combos incluídos · Tempo +${timeBonus(result.elapsedMs)}.`+(levelIndex===worldOneTotal-1?' Mundo 2: Cavernas de Cristal, em desenvolvimento. Mundo 3: Fortaleza do Portal, em breve.':' A próxima fase está disponível.');
+   description.textContent=`Fase ${levelIndex+1}/${worldOneTotal} (${level.id}): ${result.score} pontos · ${result.crystals} cristais · ${result.enemies} inimigos · Power-ups e combos incluídos · Tempo +${timeBonus(result.elapsedMs)} · Atraso no portal -${portalDelayPenalty(run)}.`+(levelIndex===worldOneTotal-1?' Mundo 2: Cavernas de Cristal, em desenvolvimento. Mundo 3: Fortaleza do Portal, em breve.':' A próxima fase está disponível.');
   }else{
    const snapshot=campaignSnapshot(results,{score:run.score,elapsedMs:run.elapsedMs},false);
    milestones.end(level.id,run.score,snapshot.score);
@@ -235,7 +251,7 @@ if(stage){
   }
   if(phase==='won'){
    if(levelIndex<worldOneTotal-1)levelIndex++;
-   else{levelIndex=0;results=[];worldElapsedMs=0}
+   else{levelIndex=0;results=[];worldElapsedMs=0;for(const kind of ENEMY_KINDS)completedKillsByKind[kind]=0}
    level=worldOneLevels[levelIndex];
   }
   if(phase==='ready'||phase==='won'||phase==='lost')reset();

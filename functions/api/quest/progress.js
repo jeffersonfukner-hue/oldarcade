@@ -6,7 +6,7 @@ const ids=['1-1','1-2','1-3'];
 function validCompleted(completed){
  if(!Array.isArray(completed)||completed.length>3)return false;
  return completed.every((r,i)=>r&&typeof r==='object'&&r.levelId===ids[i]
-  &&Number.isSafeInteger(r.score)&&r.score>=0&&r.score<=10000
+  &&Number.isSafeInteger(r.score)&&r.score>=0&&r.score<=1000000
   &&Number.isFinite(r.elapsedMs)&&r.elapsedMs>=0&&r.elapsedMs<=86400000
   &&Number.isSafeInteger(r.crystals)&&r.crystals>=0&&r.crystals<=40
   &&Number.isSafeInteger(r.enemies)&&r.enemies>=0&&r.enemies<=30);

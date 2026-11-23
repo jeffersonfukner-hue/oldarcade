@@ -2,14 +2,18 @@ import {createPlayer,stepPlayer,STEP,type Player,type InputFrame} from './physic
 import type {Level} from './levels';
 
 export type EnemyKind='patroller'|'runner'|'hopper'|'sentry';
-export type Enemy={id:number;kind:EnemyKind;x:number;y:number;origin:number;originY:number;age:number;direction:1|-1;alive:boolean};
+export const ENEMY_KINDS=['patroller','runner','hopper','sentry'] as const;
+export type EnemyKills=Record<EnemyKind,number>;
+export const emptyEnemyKills=():EnemyKills=>({patroller:0,runner:0,hopper:0,sentry:0});
+export const RESPAWN_SECONDS:EnemyKills={patroller:20,runner:24,hopper:18,sentry:30};
+export type Enemy={id:number;kind:EnemyKind;x:number;y:number;origin:number;originY:number;age:number;direction:1|-1;alive:boolean;respawnIn:number};
 export type DefeatEffect={x:number;y:number;ageMs:number;kind:EnemyKind};
 export type ScoreEvent={amount:number;context:string;x:number;y:number};
 export type Boss={x:number;y:number;origin:number;direction:1|-1;hearts:number;stun:number;age:number;mode:'walk'|'warning'|'charge'|'recover';modeTime:number};
 export type Run={
  player:Player;hearts:number;score:number;crystals:Set<number>;enemies:Enemy[];boss:Boss|null;
  collectedPowerups:Set<number>;shield:number;frenzyTime:number;scoreEvents:ScoreEvent[];
- bossCelebrationMs:number;defeatEffects:DefeatEffect[];airComboCount:number;
+ bossCelebrationMs:number;defeatEffects:DefeatEffect[];airComboCount:number;killsByKind:EnemyKills;defeatedUniqueIds:Set<number>;portalOpenedAtMs:number|null;portalGraceMs:number;
  cumulativeBeforeLevel:number;
  checkpoint:{x:number;y:number};checkpointActive:boolean;invulnerable:number;
  phase:'playing'|'won'|'lost';elapsedMs:number;
@@ -23,9 +27,9 @@ export function createRun(level:Level,cumulativeBeforeLevel=0):Run {
  const spawn=level.entities.find(entity=>entity.kind==='player');
  if(!spawn)throw Error('Spawn ausente');
  return {
-  player:createPlayer(spawn.x,spawn.y),hearts:3,score:0,crystals:new Set<number>(),collectedPowerups:new Set<number>(),shield:0,frenzyTime:0,scoreEvents:[],bossCelebrationMs:0,defeatEffects:[],airComboCount:0,cumulativeBeforeLevel,
+  player:createPlayer(spawn.x,spawn.y),hearts:3,score:0,crystals:new Set<number>(),collectedPowerups:new Set<number>(),shield:0,frenzyTime:0,scoreEvents:[],bossCelebrationMs:0,defeatEffects:[],airComboCount:0,killsByKind:emptyEnemyKills(),defeatedUniqueIds:new Set<number>(),portalOpenedAtMs:null,portalGraceMs:0,cumulativeBeforeLevel,
   enemies:level.entities.flatMap((entity,id)=>['patroller','runner','hopper','sentry'].includes(entity.kind)?
-   [{id,kind:entity.kind as EnemyKind,x:entity.x,y:entity.y,origin:entity.x,originY:entity.y,age:0,direction:1 as const,alive:true}]:[]),
+   [{id,kind:entity.kind as EnemyKind,x:entity.x,y:entity.y,origin:entity.x,originY:entity.y,age:0,direction:1 as const,alive:true,respawnIn:0}]:[]),
   boss:(()=>{const e=level.entities.find(entity=>entity.kind==='boss');return e?{x:e.x,y:e.y,origin:e.x,direction:-1 as const,hearts:5,stun:0,age:0,mode:'walk' as const,modeTime:0}:null})(),
   checkpoint:{x:spawn.x,y:spawn.y},checkpointActive:false,invulnerable:0,phase:'playing',elapsedMs:0
  };
@@ -36,7 +40,18 @@ export function registerAirStomp(run:Run):number{
  // Bônus incremental e limitado, além da pontuação normal de cada inimigo.
  return run.airComboCount>=2?Math.min(150,(run.airComboCount-1)*30):0;
 }
-export function levelDefeated(run:Run):number {return run.enemies.filter(enemy=>!enemy.alive).length}
+/** O campo persistido mantém o significado antigo: inimigos únicos, não reconta respawns. */
+export function levelDefeated(run:Run):number {return run.defeatedUniqueIds.size}
+export const PORTAL_GRACE_MIN_SECONDS=18;
+export const PORTAL_DELAY_COST_PER_SECOND=12;
+export function portalGraceRemainingSeconds(run:Run):number{
+ if(run.portalOpenedAtMs===null)return 0;
+ return Math.max(0,Math.ceil((run.portalGraceMs-(run.elapsedMs-run.portalOpenedAtMs))/1000));
+}
+export function portalDelayPenalty(run:Run):number{
+ if(run.portalOpenedAtMs===null)return 0;
+ return Math.floor(Math.max(0,run.elapsedMs-run.portalOpenedAtMs-run.portalGraceMs)/1000)*PORTAL_DELAY_COST_PER_SECOND;
+}
 export function totalDefeated(run:Run):number {return run.cumulativeBeforeLevel+levelDefeated(run)}
 /** Encostar em inimigo: perde um coração, recua e permanece na mesma área. */
 export function receiveDamage(run:Run,enemyX?:number):void {
@@ -108,7 +123,14 @@ export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
   }
  }
  for(const enemy of run.enemies){
-  if(!enemy.alive)continue;
+  if(!enemy.alive){
+   enemy.respawnIn=Math.max(0,enemy.respawnIn-dt);
+   // Não fazer spawn dentro da área imediata do jogador; relógio pausa com a partida.
+   if(enemy.respawnIn===0&&Math.abs(enemy.origin-p.x)>110){
+    enemy.alive=true;enemy.x=enemy.origin;enemy.y=enemy.originY;enemy.direction=1;enemy.age=0;
+   }
+   continue;
+  }
   enemy.age+=dt;
   const speed=enemy.kind==='runner'?90:enemy.kind==='sentry'?24:enemy.kind==='hopper'?48:36;
   const range=enemy.kind==='runner'?64:enemy.kind==='sentry'?12:enemy.kind==='hopper'?28:32;
@@ -126,7 +148,9 @@ export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
   if(!overlaps(p.x,p.y,p.w,p.h,enemy.x,enemy.y,22,24))continue;
   const stomp=oldBottom<=enemy.y+8&&oldVy>=0&&p.vy>=0&&p.y+p.h>=enemy.y;
   if(stomp){
-   enemy.alive=false;run.defeatEffects.push({x:enemy.x+11,y:enemy.y+12,ageMs:0,kind:enemy.kind});
+   enemy.alive=false;enemy.respawnIn=RESPAWN_SECONDS[enemy.kind];
+   run.killsByKind[enemy.kind]++;run.defeatedUniqueIds.add(enemy.id);
+   run.defeatEffects.push({x:enemy.x+11,y:enemy.y+12,ageMs:0,kind:enemy.kind});
    p.y=Math.min(p.y,enemy.y-p.h);
    p.vy=-285;p.grounded=false;p.coyote=0;
    award(enemy.kind==='runner'?80:enemy.kind==='hopper'?90:enemy.kind==='sentry'?110:50,'Inimigo');
@@ -175,6 +199,12 @@ export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
   }
  }
  const portal=level.entities.find(entity=>entity.kind==='exit');
+ if(run.portalOpenedAtMs===null&&portalUnlocked(run,level)){
+  run.portalOpenedAtMs=run.elapsedMs;
+  // Distância no instante do desbloqueio: nunca diminuir prazo ao se aproximar.
+  run.portalGraceMs=Math.ceil(Math.max(PORTAL_GRACE_MIN_SECONDS,
+   Math.abs((portal?.x??p.x)-p.x)/160+8)*1000);
+ }
  if(portal&&portalUnlocked(run,level)&&overlaps(p.x,p.y,p.w,p.h,portal.x,portal.y,32,64)){
   run.phase='won';award(100,'Portal');
  }
