@@ -5,9 +5,10 @@ export const BOSS_CELEBRATION_MS=2600;
 /** Efeito determinístico no canvas: sem áudio, imagem, rede ou custo adicional. */
 export function drawDefeatEffects(
  c:CanvasRenderingContext2D,run:Run,camera:number,vertical:number,
- width:number,height:number
+ width:number,height:number,reducedMotion=false
 ):void{
  for(const e of run.defeatEffects){
+  if(reducedMotion)continue;
   const t=Math.min(1,e.ageMs/580);
   const scale=Math.max(0,1-t);
   const size=22*scale;
@@ -21,7 +22,9 @@ export function drawDefeatEffects(
  if(!boss||run.bossCelebrationMs<=0)return;
  const t=run.bossCelebrationMs,centerX=boss.x+24-camera,centerY=boss.y+28-vertical;
  c.save();
- if(t<650){
+ if(reducedMotion){
+  c.fillStyle='#e9a5e3';c.fillRect(centerX-24,centerY-28,48,56);
+ }else if(t<650){
   const scale=1+t/650*1.85;
   const widthPx=48*scale,heightPx=56*scale;
   if(Math.floor(t/95)%2===0){
