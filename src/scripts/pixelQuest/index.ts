@@ -233,14 +233,14 @@ if(stage){
    updateLocalRecord('campaign-total-v2',{score:snapshot.score,elapsedMs:snapshot.elapsedMs});
    stageRanks.record({levelId:level.id,score:result.score,durationMs:Math.round(result.elapsedMs)});
    updateLocalRecords();
-   document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'pixel-quest',score:snapshot.score,durationMs:Math.round(snapshot.elapsedMs)}}));
+   document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'pixel-quest',score:snapshot.score,durationMs:Math.round(snapshot.elapsedMs),eligible:true}}));
    description.textContent=`Fase ${levelIndex+1}/${worldOneTotal} (${level.id}): ${result.score} pontos · ${result.crystals} cristais · ${result.enemies} inimigos · Power-ups e combos incluídos · Tempo +${timeBonus(result.elapsedMs)} · Atraso no portal -${portalDelayPenalty(run)}.`+(levelIndex===worldOneTotal-1?' Mundo 2: Cavernas de Cristal, em desenvolvimento. Mundo 3: Fortaleza do Portal, em breve.':' A próxima fase está disponível.');
   }else{
    const snapshot=campaignSnapshot(results,{score:run.score,elapsedMs:run.elapsedMs},false);
    // Derrota não é fase concluída: nunca enviar ranking, atualizar recordes ou confirmar pódio.
    milestones.dispose();
    rankingNotice.hidden=true;rankingNotice.textContent='';
-   document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'pixel-quest',score:snapshot.score,durationMs:Math.round(snapshot.elapsedMs)}}));
+   document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'pixel-quest',score:snapshot.score,durationMs:Math.round(snapshot.elapsedMs),eligible:false}}));
    description.textContent='Seus corações acabaram. Fase atual: '+run.score.toLocaleString('pt-BR')+
     ' pontos. Total da campanha nesta tentativa: '+snapshot.score.toLocaleString('pt-BR')+
     ' pontos (inclui as fases anteriores). Esta fase não foi concluída; nenhum recorde foi enviado. Você pode tentar novamente.';

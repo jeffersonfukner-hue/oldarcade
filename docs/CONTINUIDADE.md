@@ -1,3 +1,8 @@
+## PIXEL QUEST — bloqueio de registro público após derrota (23/11/2026)
+- Detectado durante auditoria do placar: apesar da remoção do `stageRanks.record` no ramo de derrota, o evento global `oldarcade:game-finished` continuava acionando `modeRanking.ts` e `gameEndAccountInvite.ts`, possibilitando POST indevido do total parcial e convite falso para salvar marca.
+- A conclusão de fase agora envia evento com `eligible:true`; derrota envia `eligible:false`, que o ranking compartilhado descarta e informa "Fase não concluída". Convite de registro é suprimido para derrota, sem remover o evento global de encerramento utilizado pelas demais integrações. Jogos não Quest preservam contrato antigo.
+- Teste de regressão adicionado. Nenhum D1, merge, deploy, créditos pagos ou mudança de classificação em produção.
+
 ## PIXEL QUEST — HUD e placar coerentes com respawn (23/11/2026)
 - Captura de homologação 1-2: HUD da fase 770, overlay campanha 2488, topo do canvas mostrava total 770; erro confirmado: chamada periódica a `drawPlatformScene` omitira o valor acumulado. Corrigida passagem explícita do total de fases anteriores e preservada a regra de não duplicar pontos da fase já concluída.
 - Remover progresso de "Inimigos restantes" porque reaparecem; substituir por número informativo "Inimigos ativos agora" sem barra ou promessa de esgotamento. Manter barra de cristais obrigatórios.

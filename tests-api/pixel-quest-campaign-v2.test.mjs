@@ -68,3 +68,14 @@ test('derrota não registra recorde da fase nem confirma classificação',()=>{
  assert.match(lost,/milestones\.dispose\(\)/);
  assert.match(lost,/nenhum recorde foi enviado/);
 });
+
+test('derrota no Pixel Quest não é elegível ao ranking global nem convite de salvar',()=>{
+ const index=readFileSync(new URL('../src/scripts/pixelQuest/index.ts',import.meta.url),'utf8');
+ const ranking=readFileSync(new URL('../src/scripts/modeRanking.ts',import.meta.url),'utf8');
+ const invite=readFileSync(new URL('../src/scripts/gameEndAccountInvite.ts',import.meta.url),'utf8');
+ assert.match(index,/eligible:true/);
+ assert.match(index,/eligible:false/);
+ assert.match(ranking,/if\(game==='pixel-quest'&&d.eligible===false\)/);
+ assert.match(ranking,/pending=null;[\s\S]*?Fase não concluída: resultado parcial não enviado ao ranking/);
+ assert.match(invite,/detail.game==='pixel-quest'&&detail.eligible===false/);
+});

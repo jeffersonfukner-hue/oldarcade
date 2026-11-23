@@ -1,3 +1,9 @@
+## 23/11/2026 — Fechamento de elegibilidade do ranking na derrota Pixel Quest
+- **Início/término:** não medidos; **duração efetiva:** não registrada.
+- **Diagnóstico:** evento de fim de jogo parcial era emitido mesmo na derrota e consumido pelo ranking global, apesar do bloqueio no ranking específico por fase.
+- **Alterações executadas:** sinalização explícita `eligible` nas vitórias/derrotas, filtro no ranking global e convite de conta, com teste de regressão. Contrato de outros jogos mantido. CI do novo HEAD necessita confirmação.
+- **Pendências:** testes finais e homologação visual. Sem alterações D1, merge ou deploy.
+
 ## 23/11/2026 — Auditoria do placar e retirada de barra incompatível com respawn
 - **Início/término:** não aferidos por cronômetro; **duração efetiva:** não registrada; estimativa não calculada.
 - **Evidência de entrada:** captura de fim de jogo fase 1-2, 770 pontos da fase, 2488 no resultado da campanha, soma por espécie 21 e barra de inimigos restantes 13; no código, HUD superior omitia pontos de fases anteriores, contador geral usava IDs únicos enquanto ícones usavam eliminações efetivas, fase perdida chamava registro de ranking.

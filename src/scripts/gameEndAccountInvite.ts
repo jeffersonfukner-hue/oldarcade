@@ -31,8 +31,9 @@ if(box){
   if(activeAccount)hide();
  });
  document.addEventListener('oldarcade:game-finished',async event=>{
-  const detail=(event as CustomEvent<{game:string;score:number;recordDelayMs?:number}>).detail;
+  const detail=(event as CustomEvent<{game:string;score:number;recordDelayMs?:number;eligible?:boolean}>).detail;
   if(!detail||!gameMode(detail.game)||!Number.isFinite(detail.score))return;
+  if(detail.game==='pixel-quest'&&detail.eligible===false){hide();return}
   const current=++sequence;
   // Não disputar espaço visual com a animação de Game Over.
   const delay=Math.min(Math.max(detail.recordDelayMs??1000,800),7000);

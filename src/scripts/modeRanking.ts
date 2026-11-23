@@ -2,7 +2,7 @@ import {isTimeRanking,formatRankingValue} from '../data/rankingRules.js';
 import {renderRankingPodium} from './rankingPresentation';
 type Entry={nickname:string;score:number;rank?:number;achievedAt?:string;durationMs?:number|null};
 type Board={available:boolean;top?:Entry[];mine?:Entry|null;error?:string;saved?:boolean;code?:string};
-type Result={game:string;score:number;durationMs?:number;recordDelayMs?:number};
+type Result={game:string;score:number;durationMs?:number;recordDelayMs?:number;eligible?:boolean};
 const root=document.querySelector<HTMLElement>('[data-mode-ranking]');
 if(root){
  const game=root.dataset.game||'',endpoint=game==='pixel-quest'?'/api/quest/rankings/total':'/api/games/'+encodeURIComponent(game)+'/leaderboard';
@@ -107,6 +107,12 @@ if(root){
  document.addEventListener('oldarcade:game-finished',e=>{
   const d=(e as CustomEvent<Result>).detail;
   if(d?.game!==game||!Number.isFinite(d.score))return;
+  if(game==='pixel-quest'&&d.eligible===false){
+   pending=null;
+   provisional.hidden=true;
+   summary.textContent='Fase não concluída: resultado parcial não enviado ao ranking.';
+   return;
+  }
   const result={points:d.score,durationMs:d.durationMs??0,round,sent:false};
   pending=result;
   if(account)void submit(result);
