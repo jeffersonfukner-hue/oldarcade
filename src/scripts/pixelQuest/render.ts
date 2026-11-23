@@ -1,6 +1,13 @@
 import type {Level} from './levels';
 import {portalUnlocked,type Run} from './gameplay';
 export const VIEW_WIDTH=640,VIEW_HEIGHT=360;
+/** A câmera sobe quando o personagem escala, mantendo a cabeça visível.
+ * De chão: base fixa (mapa atual). Plataformas altas: segue o jogador.
+ */
+export function pixelQuestVerticalOffset(level:Level,playerY:number):number{
+ const base=Math.max(0,level.height*level.tileSize-VIEW_HEIGHT);
+ return Math.max(0,Math.min(base,playerY-70));
+}
 
 // Camadas autorais desenhadas no canvas: sem assets externos e sem afetar colisões.
 function blend(a:string,b:string,t:number){
@@ -56,7 +63,7 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
  const context=canvas.getContext('2d');if(!context)return;
  context.imageSmoothingEnabled=false;
  drawLandscape(context,level,camera);
- const vertical=level.height*level.tileSize-VIEW_HEIGHT;
+ const vertical=pixelQuestVerticalOffset(level,run.player.y);
  // O horizonte fica atrás do terreno; abismos têm profundidade escura.
  const groundY=15*level.tileSize-vertical;
  context.fillStyle='#171a23';context.fillRect(0,groundY,VIEW_WIDTH,VIEW_HEIGHT-groundY);
