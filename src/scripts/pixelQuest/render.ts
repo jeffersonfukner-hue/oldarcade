@@ -25,7 +25,7 @@ export function worldOneAtmosphere(levelId:string,ratio:number){
  const p=palettes[levelId]??palettes['1-1'];
  return {top:blend(p[0],p[2],t),bottom:blend(p[1],p[3],t)};
 }
-function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number){
+function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number,vertical:number){
  const ratio=camera/Math.max(1,level.width*level.tileSize-VIEW_WIDTH);
  const t=Math.max(0,Math.min(1,ratio));
  const sky=worldOneAtmosphere(level.id,t);
@@ -36,11 +36,12 @@ function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number){
  const orbX=Math.round(80+500*t),orbY=Math.round(phase===0?172-105*t:phase===1?48+118*t:155+20*t);
  c.fillStyle=phase===2&&t>.5?'#f7f4d7':'#ffe3a1';
  c.beginPath();c.arc(orbX,orbY,phase===2&&t>.5?15:19,0,Math.PI*2);c.fill();
- // Montanhas mais distantes acompanham somente 10% da câmera.
+ const verticalShift=(level.height*level.tileSize-VIEW_HEIGHT-vertical);
+ // Montanhas acompanham a câmera em frações distintas para dar profundidade.
  for(let i=-2;i<9;i++){
   const x=i*170-Math.floor(camera*.10%170);
   c.fillStyle=phase===2?'#303654':'#547b94';
-  c.beginPath();c.moveTo(x,265);c.lineTo(x+83,104+(i%3)*24);c.lineTo(x+172,265);c.fill();
+  c.beginPath();c.moveTo(x,265+verticalShift*.35);c.lineTo(x+83,104+(i%3)*24+verticalShift*.35);c.lineTo(x+172,265+verticalShift*.35);c.fill();
  }
  for(const [factor,width,height,color] of [
   [.22,78,80,phase===2?'#223e50':'#35636b'],
@@ -48,7 +49,7 @@ function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number){
  ] as const){
   const stride=width+19,offset=(camera*factor)%stride;
   for(let i=-1;i<Math.ceil(VIEW_WIDTH/stride)+2;i++){
-   const x=Math.round(i*stride-offset),base=268;
+   const x=Math.round(i*stride-offset),base=268+verticalShift*factor;
    c.fillStyle=color;
    c.fillRect(x+width*.45,base-height*.25,Math.max(4,width*.1),height*.30);
    for(let layer=0;layer<3;layer++){
@@ -62,8 +63,8 @@ function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number){
 export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,camera:number){
  const context=canvas.getContext('2d');if(!context)return;
  context.imageSmoothingEnabled=false;
- drawLandscape(context,level,camera);
  const vertical=pixelQuestVerticalOffset(level,run.player.y);
+ drawLandscape(context,level,camera,vertical);
  // O horizonte fica atrás do terreno; abismos têm profundidade escura.
  const groundY=15*level.tileSize-vertical;
  context.fillStyle='#171a23';context.fillRect(0,groundY,VIEW_WIDTH,VIEW_HEIGHT-groundY);
