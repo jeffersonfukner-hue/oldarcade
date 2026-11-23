@@ -241,7 +241,7 @@ if(stage){
   if(phase==='ready'||phase==='won'||phase==='lost')reset();
   if(phase==='ready'||phase==='won'||phase==='lost'){
    milestones.begin(level.id,readLocalRecord('level-v2-'+level.id)?.score??null,
-    readLocalRecord('campaign-total-v2')?.score??null);
+    readLocalRecord('campaign-total-v2')?.score??null,results.length>0,completeScore());
   }
   if(phase==='ready'||phase==='won'||phase==='lost'||phase==='paused')beginCountdown();
  }
