@@ -22,7 +22,7 @@ const plans:Record<Plan['id'],Plan>={
   crystals:[{col:8},{col:22,row:14},{col:30,row:13},{col:61,row:13},{col:72,row:12},
    {col:91},{col:112,row:14},{col:132,row:12},{col:151},{col:185,row:13},
    {col:213},{col:201,row:8},{col:230,row:14},{col:260,row:13},{col:285},{col:183,row:11}],
-  enemies:[38,82,143,192,221,274],bonusEnemies:[
+  enemies:[38,82,143,192,235,274],bonusEnemies:[
    {col:43,kind:'runner'},{col:91,kind:'hopper'},{col:123,kind:'runner'},
    {col:184,kind:'sentry',row:11},{col:201,kind:'sentry',row:8},
    {col:251,kind:'hopper'},{col:280,kind:'runner'}
