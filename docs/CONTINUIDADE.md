@@ -1,3 +1,8 @@
+## PIXEL QUEST — COMBO AÉREO (23/11/2026)
+- O proprietário identificou duas eliminações de inimigos sem tocar o chão como combo legítimo. Regra implementada: contar pisões consecutivos até pouso; a primeira eliminação recebe apenas pontos normais, a segunda inicia COMBO x2 com bônus +30, terceira x3 com +60, crescendo +30 por eliminação até teto +150 por pisão. O power-up de pontos dobrados multiplica o bônus pela mesma função de pontuação existente.
+- Contador reinicia no chão, em dano/escudo consumido, queda, morte e criação de fase. Não contabilizar cristais nem golpes no Guardião como eliminações de combo. Exibir texto de combo acima do personagem com o mesmo feedback global, preservando rankings/persistência.
+- **Evidências:** `src/scripts/pixelQuest/gameplay.ts`, `src/scripts/scoreFeedback.ts`, `tests-api/pixel-quest-combat-v3.test.mjs`; validar CI do commit da entrega e testar no Preview sem merge/deploy pelo agente.
+
 ## PIXEL QUEST — refinamento homologável do balão multicolorido (23/11/2026)
 - **Preservar o visual aprovado do balão.** O deslocamento foi desvinculado do término de 10,5 s do evento ambiental: ele surge pequeno pela direita, aproxima-se até aproximadamente 1,5×, mantém essa dimensão por um trecho e se afasta gradualmente; só é removido depois de cruzar inteiramente a borda esquerda.
 - **Vento e câmera:** deriva lenta própria, com rajadas suaves e determinísticas; o avanço da câmera acrescenta pequeno efeito de parallax à esquerda. Parado, o jogador observa apenas a deriva pelo vento. Mudanças bruscas de câmera na troca de fase não teletransportam o balão. Pausa congela o relógio simulado e, portanto, o voo.

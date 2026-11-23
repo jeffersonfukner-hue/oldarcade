@@ -1,3 +1,9 @@
+## 23/11/2026 — Reconhecimento e recompensa de combos aéreos Pixel Quest
+- **Horários e duração:** não aferidos por cronômetro; tempo efetivo não mensurado nem estimado.
+- **Atividades executadas:** conferência da física e contabilização das eliminações por pisão; implementação de contador de sequência aérea com bônus progressivo limitado, reset por pouso/dano/queda e indicação visual no feedback compartilhado; inclusão de testes de regressão para progressão, teto e integração.
+- **Evidências:** `gameplay.ts`, `scoreFeedback.ts`, `pixel-quest-combat-v3.test.mjs`, commit da branch de desenvolvimento. CI final ainda requer confirmação.
+- **Pendências:** aprovação do CI e homologação jogável. Nenhuma alteração no D1, merge, deploy ou despesa.
+
 ## 23/11/2026 — Balão do Pixel Quest com voo persistente e profundidade
 - **Início/término (Brasília):** não aferidos por cronômetro; **duração efetiva:** não mensurada; estimativa não calculada.
 - **Atividades executadas:** análise do evento `balloon` que desaparecia aos 10,5 s; criação de estado de voo que não depende da janela de evento, deriva lenta baseada em vento, parallax limitado ao movimento da câmera, escala progressiva de aproximação/afastamento e exclusividade das animações; cobertura de regressão para parada, movimento, troca de fase, escala e saída completa da tela.

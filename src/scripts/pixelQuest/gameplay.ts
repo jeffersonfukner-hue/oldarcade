@@ -9,7 +9,7 @@ export type Boss={x:number;y:number;origin:number;direction:1|-1;hearts:number;s
 export type Run={
  player:Player;hearts:number;score:number;crystals:Set<number>;enemies:Enemy[];boss:Boss|null;
  collectedPowerups:Set<number>;shield:number;frenzyTime:number;scoreEvents:ScoreEvent[];
- bossCelebrationMs:number;defeatEffects:DefeatEffect[];
+ bossCelebrationMs:number;defeatEffects:DefeatEffect[];airComboCount:number;
  cumulativeBeforeLevel:number;
  checkpoint:{x:number;y:number};checkpointActive:boolean;invulnerable:number;
  phase:'playing'|'won'|'lost';elapsedMs:number;
@@ -23,18 +23,25 @@ export function createRun(level:Level,cumulativeBeforeLevel=0):Run {
  const spawn=level.entities.find(entity=>entity.kind==='player');
  if(!spawn)throw Error('Spawn ausente');
  return {
-  player:createPlayer(spawn.x,spawn.y),hearts:3,score:0,crystals:new Set<number>(),collectedPowerups:new Set<number>(),shield:0,frenzyTime:0,scoreEvents:[],bossCelebrationMs:0,defeatEffects:[],cumulativeBeforeLevel,
+  player:createPlayer(spawn.x,spawn.y),hearts:3,score:0,crystals:new Set<number>(),collectedPowerups:new Set<number>(),shield:0,frenzyTime:0,scoreEvents:[],bossCelebrationMs:0,defeatEffects:[],airComboCount:0,cumulativeBeforeLevel,
   enemies:level.entities.flatMap((entity,id)=>['patroller','runner','hopper','sentry'].includes(entity.kind)?
    [{id,kind:entity.kind as EnemyKind,x:entity.x,y:entity.y,origin:entity.x,originY:entity.y,age:0,direction:1 as const,alive:true}]:[]),
   boss:(()=>{const e=level.entities.find(entity=>entity.kind==='boss');return e?{x:e.x,y:e.y,origin:e.x,direction:-1 as const,hearts:5,stun:0,age:0,mode:'walk' as const,modeTime:0}:null})(),
   checkpoint:{x:spawn.x,y:spawn.y},checkpointActive:false,invulnerable:0,phase:'playing',elapsedMs:0
  };
 }
+/** Um combo nasce da segunda eliminação por pisão sem contato intermediário com o solo. */
+export function registerAirStomp(run:Run):number{
+ run.airComboCount++;
+ // Bônus incremental e limitado, além da pontuação normal de cada inimigo.
+ return run.airComboCount>=2?Math.min(150,(run.airComboCount-1)*30):0;
+}
 export function levelDefeated(run:Run):number {return run.enemies.filter(enemy=>!enemy.alive).length}
 export function totalDefeated(run:Run):number {return run.cumulativeBeforeLevel+levelDefeated(run)}
 /** Encostar em inimigo: perde um coração, recua e permanece na mesma área. */
 export function receiveDamage(run:Run,enemyX?:number):void {
  if(run.phase!=='playing'||run.invulnerable>0)return;
+ run.airComboCount=0;
  if(run.shield>0){run.shield--;run.invulnerable=.8;return}
  run.hearts--;
  if(run.hearts<=0){run.hearts=0;run.phase='lost';return}
@@ -50,6 +57,7 @@ export function receiveDamage(run:Run,enemyX?:number):void {
 /** Queda em abismo: é diferente de colisão com inimigo e retorna ao checkpoint. */
 export function fallIntoPit(run:Run):void {
  if(run.phase!=='playing')return;
+ run.airComboCount=0;
  run.hearts--;
  if(run.hearts<=0){run.hearts=0;run.phase='lost';return}
  run.player=createPlayer(run.checkpoint.x,run.checkpoint.y);
@@ -80,6 +88,7 @@ export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
  const oldBottom=run.player.y+run.player.h;
  const oldVy=run.player.vy;
  stepPlayer(run.player,input,level,dt);
+ if(run.player.grounded)run.airComboCount=0;
  const p=run.player;
  if(p.y>level.height*level.tileSize+24){fallIntoPit(run);return}
  for(const [id,entity] of level.entities.entries()){
@@ -121,6 +130,8 @@ export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
    p.y=Math.min(p.y,enemy.y-p.h);
    p.vy=-285;p.grounded=false;p.coyote=0;
    award(enemy.kind==='runner'?80:enemy.kind==='hopper'?90:enemy.kind==='sentry'?110:50,'Inimigo');
+   const comboBonus=registerAirStomp(run);
+   if(comboBonus)award(comboBonus,'COMBO x'+run.airComboCount);
   }else if(run.invulnerable<=0){receiveDamage(run,enemy.x);return}
  }
  // Guardião: cinco acertos, patrulha -> aviso -> investida -> recuperação.

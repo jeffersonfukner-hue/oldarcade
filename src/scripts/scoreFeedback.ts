@@ -40,13 +40,14 @@ export function showWorldScoreFeedback(
  if(!board.width||!board.height)return;
  const element=document.createElement('span');
  element.className='score-float';
- element.textContent='+'+amount.toLocaleString('pt-BR');
+ const combo=context.startsWith('COMBO x');
+ element.textContent=combo?context+'  +'+amount.toLocaleString('pt-BR'):'+'+amount.toLocaleString('pt-BR');
  element.setAttribute('role','status');
  element.setAttribute('aria-label',amount+' pontos por '+context);
  element.title=context;
  element.style.left=Math.max(24,Math.min(host.width-24,board.left-host.left+x/viewWidth*board.width))+'px';
  element.style.top=Math.max(20,board.top-host.top+y/viewHeight*board.height)+'px';
- element.style.zIndex='9';element.style.color='#ffe38d';
+ element.style.zIndex='9';element.style.color=combo?'#8dffc0':'#ffe38d';
  element.style.textShadow='0 2px 12px #041314,0 0 16px #e8a22e';
  container.append(element);
  element.addEventListener('animationend',()=>element.remove(),{once:true});

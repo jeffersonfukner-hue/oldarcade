@@ -99,3 +99,23 @@ test('Regra homologada: gemas obrigatórias por fase, inimigos opcionais, Guardi
   }
  }
 });
+
+test('combo aéreo conta a partir do segundo inimigo e soma bônus progressivo',()=>{
+ const run=gameplay.createRun(maps[0]);
+ assert.equal(gameplay.registerAirStomp(run),0);
+ assert.equal(run.airComboCount,1);
+ assert.equal(gameplay.registerAirStomp(run),30);
+ assert.equal(gameplay.registerAirStomp(run),60);
+ for(let i=0;i<5;i++)gameplay.registerAirStomp(run);
+ assert.equal(gameplay.registerAirStomp(run),150,'bônus tem teto');
+});
+test('combo é integrado ao pisão e termina ao pousar, cair ou sofrer dano',()=>{
+ const source=readFileSync(new URL('../src/scripts/pixelQuest/gameplay.ts',import.meta.url),'utf8');
+ const feedback=readFileSync(new URL('../src/scripts/scoreFeedback.ts',import.meta.url),'utf8');
+ assert.match(source,/if\(run\.player\.grounded\)run\.airComboCount=0/);
+ assert.match(source,/const comboBonus=registerAirStomp\(run\)/);
+ assert.match(source,/award\(comboBonus,'COMBO x'\+run\.airComboCount\)/);
+ assert.match(source,/run\.airComboCount=0;\s*if\(run\.shield>0\)/);
+ assert.match(source,/function fallIntoPit[\s\S]*?run\.airComboCount=0/);
+ assert.match(feedback,/element\.textContent=combo\?context/);
+});
