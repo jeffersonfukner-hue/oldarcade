@@ -49,6 +49,7 @@ if(stage){
  const introCode=stage.querySelector<HTMLElement>('#pq-intro-code')!;
  const levelLabel=stage.querySelector<HTMLElement>('#pq-level-label')!;
  const input=setupPlatformInput(stage);
+ const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  // O HUD exibe recorde da fase atual; o ranking geral permanece na página.
  let levelIndex=0,level=worldOneLevels[levelIndex];
  let results:LevelResult[]=[];
@@ -123,7 +124,7 @@ if(stage){
   clearIntro();bossIntroShown=false;
   run=createRun(level,results.reduce((sum,item)=>sum+item.enemies,0));
   camera=0;accumulator=0;clock.reset();input.reset();updateHud();updateLocalRecords();
-  drawPlatformScene(canvas,level,run,camera,worldElapsedMs,levelIndex);
+  drawPlatformScene(canvas,level,run,camera,worldElapsedMs,levelIndex,reducedMotion);
   bestGeneral.textContent='—';void stageRanks.refresh(level.id);
  }
  function clearIntro(){
@@ -259,10 +260,10 @@ if(stage){
    }
    updateHud();
   }
-  drawPlatformScene(canvas,level,run,camera,worldElapsedMs,levelIndex);
+  drawPlatformScene(canvas,level,run,camera,worldElapsedMs,levelIndex,reducedMotion);
   requestAnimationFrame(frame);
  }
- setPhase('ready');updateHud();updateLocalRecords();drawPlatformScene(canvas,level,run,camera,worldElapsedMs,levelIndex);void stageRanks.refresh(level.id);
+ setPhase('ready');updateHud();updateLocalRecords();drawPlatformScene(canvas,level,run,camera,worldElapsedMs,levelIndex,reducedMotion);void stageRanks.refresh(level.id);
  document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-request',{detail:{game:'pixel-quest'}}));
  requestAnimationFrame(frame);
 }
