@@ -65,7 +65,7 @@ export function setupQuestRunRankings(onCelebrate:(milestone:QuestMilestone)=>vo
    onResult('Resultado consultado, mas sua posição para esta tentativa não pôde ser confirmada.');
    return;
   }
-  onResult((scope==='fase'?'Ranking da fase: ':'Ranking geral: ')+verifiedRankMessage(state.rank,rank,score));
+  onResult((scope==='fase'?'Ranking da fase: ':'Ranking geral: ')+verifiedRankMessage(state.rank,rank));
  }
  function dispose(){token++;finished=true}
  return {begin,score,end,confirm,dispose};
