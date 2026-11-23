@@ -103,7 +103,7 @@ test('relógio não reinicia na troca de fase: 12:30 permanece 12:30 até voltar
  assert.match(code,/let worldElapsedMs=0;/);
  assert.match(code,/worldElapsedMs=results.reduce\(\(sum,stage\)=>sum\+stage.elapsedMs,0\)/);
  assert.match(code,/if\(!celebrating&&run.phase==='playing'\)worldElapsedMs\+=STEP\*1000/);
- assert.match(code,/else\{levelIndex=0;results=\[\];worldElapsedMs=0\}/,'somente nova campanha zera relógio');
+ assert.match(code,/else\{levelIndex=0;results=\[\];worldElapsedMs=0;/,'somente nova campanha zera relógio');
 });
 test('sol e lua se deslocam em direções contínuas e cruzam suavemente',()=>{
  const sunset=world.skyColors(130_000);
