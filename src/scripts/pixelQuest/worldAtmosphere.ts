@@ -63,7 +63,7 @@ export function drawWorldAtmosphere(
   c.fillRect(x-17,y-6,7,4);
   if(kind==='jet'){c.fillStyle='rgba(244,239,220,.55)';c.fillRect(x-35,y,20,2)}
  }else if(kind==='shooting-star'||kind==='meteorite'){
-  const fromRight=620-progress*700;
+  const fromRight=620-progress*460;
   const h=kind==='meteorite'?18+progress*275:44+progress*90;
   c.strokeStyle=kind==='meteorite'?'#ffa86e':'#f1f9ff';c.lineWidth=2.5;
   c.beginPath();c.moveTo(fromRight+55,h-39);c.lineTo(fromRight,h);c.stroke();
