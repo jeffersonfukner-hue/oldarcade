@@ -1,3 +1,10 @@
+## 23/11/2026 — Formalização do requisito de portal e Guardião
+- **Horários de início/término (Brasília):** não aferidos; **duração efetiva comprovada:** não mensurada; **estimada:** não calculada. Sem contar intervalo entre mensagens.
+- **Atividades executadas:** conferido `portalUnlocked` no código; confirmado que gemas desbloqueiam 1-1 e 1-2 sem eliminar inimigos, enquanto 1-3 exige também derrota do Guardião; acrescentado teste de regressão desse contrato e registrado o requisito como homologado.
+- **Resultado:** regra preservada; nenhuma alteração de mecânica, banco, D1, merge ou deploy Cloudflare.
+- **Pendências:** confirmação do CI do novo teste e futura implementação de Mundo 2 para viabilizar a transição real entre mundos.
+- **Evidências:** `src/scripts/pixelQuest/gameplay.ts`, `tests-api/pixel-quest-combat-v3.test.mjs`, commit `3fcd77f6fd80208e92885f9d99c17d2d894cd30e`.
+
 ## 23/11/2026 — Fechamento técnico do lote Pixel Quest — CI #1239 aprovado
 - **Início/fim (Brasília):** não aferidos por cronômetro; **tempo efetivo comprovado:** não mensurado; **estimativa:** não calculada. Não computar intervalo entre mensagens.
 - **Atividades executadas:** análise de erros reais dos CIs #1237 (expressão de HUD inválida) e #1238 (patrulheiro sob plataforma); correção pontual de sintaxe e reposicionamento de patrulheiro na fase 1-1; repetição de checagens automatizadas; consulta de posicionamento compartilhado do feedback flutuante, confirmando `.screen-wrap{position:relative}`.
