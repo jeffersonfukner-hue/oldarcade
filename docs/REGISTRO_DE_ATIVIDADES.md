@@ -1,3 +1,9 @@
+## 23/11/2026 — Revisão de integração do lote de atmosfera e radar local
+- **Início e término (Brasília):** não aferidos; duração efetiva não mensurada, estimativa não calculada.
+- **Atividades executadas:** revisão dos arquivos recém-versionados, identificação e correção da opção de movimento reduzido na renderização do céu, fixação do ponto de impacto do meteorito durante sua explosão e inclusão de teste funcional de proximidade do radar, coleta, inimigos derrotados e deslocamento relativo.
+- **Evidências:** alterações em `src/scripts/pixelQuest/render.ts`, `worldAtmosphere.ts`, `tests-api/pixel-quest-atmosphere.test.mjs`; conferir a execução do workflow CI sobre o commit de fechamento.
+- **Pendências:** CI e homologação do Preview. Sem alterações em D1, merge ou deploy manual.
+
 ## 23/11/2026 — Pixel Quest Mundo 1: atmosfera pixelada e minimapa de proximidade
 - **Horário de início/fim (Brasília):** não aferidos com cronômetro; **tempo efetivo:** não mensurado; **estimativa:** não calculada. Nenhum intervalo entre mensagens foi considerado tempo trabalhado.
 - **Atividades executadas:** consulta da documentação e dos arquivos reais da branch; reformulação de meteorito, balão multicolorido, aeronaves e aves com trajetória ligada ao relógio mundial e sem dependência do player; correção da sobreposição de estrelas ao desenhar céu antes das árvores; animações de olhos e coruja ancoradas em profundidades de floresta; minimapa local sem revelar fase inteira, com jogador central e somente elementos não coletados/vivos.

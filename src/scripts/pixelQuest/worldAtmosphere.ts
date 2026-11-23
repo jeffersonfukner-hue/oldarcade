@@ -137,8 +137,9 @@ export function drawWorldAtmosphere(
  }else if(kind==='shooting-star'||kind==='meteorite'){
   const meteorite=kind==='meteorite';
   const fast=Math.min(1,progress*(meteorite?3.2:1.8));
-  const x=650-fast*(meteorite?430:350);
-  const y=meteorite?38+fast*234:35+fast*110;
+  const flight=meteorite?Math.min(1,fast/.82):fast;
+  const x=650-flight*(meteorite?430:350);
+  const y=meteorite?38+flight*234:35+fast*110;
   meteor(c,x,y,fast,meteorite);
  }
  c.restore();

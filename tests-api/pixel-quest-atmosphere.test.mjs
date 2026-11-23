@@ -62,3 +62,29 @@ test('minimapa próximo omite cristais coletados e inimigos derrotados',()=>{
  assert.match(src,/run\.crystals\.has\(id\)/);
  assert.match(src,/enemy\.alive/);
 });
+
+test('radar centra jogador e filtra entidades coletadas, distantes ou derrotadas',()=>{
+ const minimap=loadTs('../src/scripts/pixelQuest/minimap.ts');
+ const level={entities:[
+  {kind:'player',x:1000,y:100},
+  {kind:'crystal',x:1030,y:90},
+  {kind:'crystal',x:1060,y:90},
+  {kind:'crystal',x:1950,y:90},
+  {kind:'checkpoint',x:1010,y:90},
+  {kind:'shield',x:1080,y:90},
+  {kind:'exit',x:1300,y:80}
+ ]};
+ const run={player:{x:1000,y:100,w:22},crystals:new Set([1]),collectedPowerups:new Set([5]),checkpointActive:true,
+  enemies:[{x:1100,y:100,alive:true},{x:1040,y:100,alive:false}],
+  boss:null};
+ const marks=minimap.minimapMarkers(level,run);
+ assert.equal(marks.filter(m=>m.kind==='crystal').length,1);
+ assert.equal(marks.filter(m=>m.kind==='enemy').length,1);
+ assert.equal(marks.filter(m=>m.kind==='checkpoint').length,0);
+ assert.equal(marks.filter(m=>m.kind==='shield').length,0);
+ assert.equal(marks.filter(m=>m.kind==='exit').length,1);
+ assert.equal(marks.some(m=>Math.abs(m.dx)>560),false);
+ const former=marks.find(m=>m.kind==='crystal').dx;
+ run.player.x+=30;
+ assert.equal(minimap.minimapMarkers(level,run).find(m=>m.kind==='crystal').dx,former-30);
+});

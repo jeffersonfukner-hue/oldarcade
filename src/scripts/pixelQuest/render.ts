@@ -30,7 +30,7 @@ export function worldOneAtmosphere(levelId:string,ratio:number){
  const p=palettes[levelId]??palettes['1-1'];
  return {top:blend(p[0],p[2],t),bottom:blend(p[1],p[3],t)};
 }
-function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number,vertical:number,worldElapsedMs:number){
+function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number,vertical:number,worldElapsedMs:number,reducedMotion:boolean){
  const sky=skyColors(worldElapsedMs);
  const gradient=c.createLinearGradient(0,0,0,VIEW_HEIGHT);
  gradient.addColorStop(0,sky.top);gradient.addColorStop(1,sky.bottom);
@@ -41,7 +41,7 @@ function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number,vert
  c.beginPath();c.arc(sky.moonX,sky.moonY,14,0,Math.PI*2);c.fill();c.restore();
  const night=sky.moonAlpha>.5;
  const verticalShift=(level.height*level.tileSize-VIEW_HEIGHT-vertical);
- drawWorldAtmosphere(c,worldElapsedMs,false,'sky');
+ drawWorldAtmosphere(c,worldElapsedMs,reducedMotion,'sky');
  // Montanhas acompanham a câmera em frações distintas para dar profundidade.
  for(let i=-2;i<9;i++){
   const x=i*170-Math.floor(camera*.10%170);
@@ -69,7 +69,7 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
  const context=canvas.getContext('2d');if(!context)return;
  context.imageSmoothingEnabled=false;
  const vertical=pixelQuestVerticalOffset(level,run.player.y);
- drawLandscape(context,level,camera,vertical,worldElapsedMs);
+ drawLandscape(context,level,camera,vertical,worldElapsedMs,reducedMotion);
  drawWorldAtmosphere(context,worldElapsedMs,reducedMotion,'forest',camera);
  // O horizonte fica atrás do terreno; abismos têm profundidade escura.
  const groundY=15*level.tileSize-vertical;
