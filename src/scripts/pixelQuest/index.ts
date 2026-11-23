@@ -92,7 +92,10 @@ if(stage){
   hearts.textContent='♥'.repeat(run.hearts)+'♡'.repeat(3-run.hearts);
   crystals.textContent=run.crystals.size+'/'+totalCrystals();
   checkpoint.textContent=run.checkpointActive?'Ativado':'Não';
-  powerStatus.textContent='Poderes: '+([...(run.shield>0?['Escudo '+run.shield]:[]),...(run.frenzyTime>0?['2× '+Math.ceil(run.frenzyTime)+'s':[])] .join(' · ')||'nenhum');
+  const activePowers:string[]=[];
+  if(run.shield>0)activePowers.push('Escudo '+run.shield);
+  if(run.frenzyTime>0)activePowers.push('2× '+Math.ceil(run.frenzyTime)+'s');
+  powerStatus.textContent='Poderes: '+(activePowers.join(' · ')||'nenhum');
   const defeatedCount=levelDefeated(run);
   defeated.textContent=String(totalDefeated(run));
   levelKills.textContent=String(defeatedCount);
