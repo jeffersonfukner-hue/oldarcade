@@ -35,7 +35,7 @@ export function skyColors(elapsedMs:number):{top:string;bottom:string;sunVisible
  const limit=(x:number)=>Math.max(0,Math.min(1,x));
  const smooth=(x:number)=>{const t=limit(x);return t*t*(3-2*t)};
  const sunProgress=limit((h-6)/13);
- const moonProgress=h>=19?(h-19)/11:(h+5)/11;
+ const moonProgress=limit(h>=19?(h-19)/11:h<7?(h+5)/11:0);
  const sunAlpha=smooth((h-5.5)/1.3)*(1-smooth((h-18.3)/1.3));
  const moonAlpha=h>=12?smooth((h-18.3)/1.3):1-smooth((h-5.5)/1.3);
  const sunX=40+560*sunProgress,moonX=40+560*moonProgress;
