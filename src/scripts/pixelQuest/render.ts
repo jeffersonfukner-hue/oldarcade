@@ -78,10 +78,17 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
   context.strokeStyle='rgba(10,17,25,.13)';context.strokeRect(x+.5,y+.5,31,31);
  }
  for(const [id,entity] of level.entities.entries()){
-  if(entity.kind==='player'||(entity.kind==='crystal'&&run.crystals.has(id))||entity.kind==='patroller')continue;
+  if(entity.kind==='player'||(entity.kind==='crystal'&&run.crystals.has(id))||['patroller','runner','hopper','sentry'].includes(entity.kind)||run.collectedPowerups.has(id))continue;
   const x=Math.round(entity.x-camera),y=Math.round(entity.y-vertical);
   if(entity.kind==='crystal'){
    context.fillStyle='#83f4ff';context.beginPath();context.moveTo(x+9,y);context.lineTo(x+18,y+10);context.lineTo(x+9,y+20);context.lineTo(x,y+10);context.fill();
+  }else if(['shield','heart','frenzy'].includes(entity.kind)){
+   context.fillStyle=entity.kind==='shield'?'#6de1ff':entity.kind==='heart'?'#ff7197':'#ffe17b';
+   context.fillRect(x+1,y+2,22,22);
+   context.fillStyle='#202b46';
+   if(entity.kind==='shield'){context.fillRect(x+6,y+6,12,4);context.fillRect(x+8,y+10,8,8)}
+   if(entity.kind==='heart'){context.fillRect(x+6,y+7,4,4);context.fillRect(x+13,y+7,4,4);context.fillRect(x+9,y+12,6,6)}
+   if(entity.kind==='frenzy'){context.fillRect(x+12,y+6,4,6);context.fillRect(x+8,y+12,5,7)}
   }else if(entity.kind==='checkpoint'){
    context.fillStyle=run.checkpointActive?'#8dffc0':'#ffdc83';context.fillRect(x,y,6,48);
    context.fillRect(x+6,y,17,15);
@@ -96,7 +103,11 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
  for(const enemy of run.enemies){
   if(!enemy.alive)continue;
   const x=Math.round(enemy.x-camera),y=Math.round(enemy.y-vertical);
-  context.fillStyle='#fa8a91';context.fillRect(x,y,22,24);
+  const colors={patroller:'#fa8a91',runner:'#ffae64',hopper:'#a98bff',sentry:'#74dbd1'};
+  context.fillStyle=colors[enemy.kind];context.fillRect(x,y,22,24);
+  if(enemy.kind==='runner'){context.fillRect(x-3,y+19,7,5);context.fillRect(x+17,y+19,7,5)}
+  if(enemy.kind==='hopper'){context.fillRect(x+3,y-5,6,6);context.fillRect(x+13,y-5,6,6)}
+  if(enemy.kind==='sentry'){context.fillRect(x+7,y-6,8,6)}
   context.fillStyle='#172c52';context.fillRect(x+5,y+7,4,4);context.fillRect(x+14,y+7,4,4);
  }
  const boss=run.boss;
@@ -114,6 +125,8 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
  const p=run.player;
  if(run.invulnerable<=0||Math.floor(run.invulnerable*12)%2===0){
   const x=Math.round(p.x-camera),y=Math.round(p.y-vertical);
+  if(run.shield>0){context.strokeStyle='#85ebff';context.lineWidth=2;context.strokeRect(x-4,y-4,p.w+8,p.h+8)}
+  if(run.frenzyTime>0){context.fillStyle='#ffe288';context.fillRect(x-4,y-11,Math.round((p.w+8)*run.frenzyTime/10),3)}
   context.fillStyle='#ffd46b';context.fillRect(x,y,p.w,p.h);
   context.fillStyle='#19314c';context.fillRect(x+12,y+7,5,5);
  }
