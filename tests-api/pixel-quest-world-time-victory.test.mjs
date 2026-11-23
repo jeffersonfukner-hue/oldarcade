@@ -67,3 +67,28 @@ test('integração do HUD no canvas recebe relógio e fase sem alterar HUD later
  assert.match(render,/skyColors\(worldElapsedMs\)/);
  assert.doesNotMatch(render,/const ratio=camera\//,'sol não pode depender da posição horizontal');
 });
+
+test('efeitos de vitória: zoom inicial, banner de 250 pontos e movimento reduzido',()=>{
+ const effects=loadTs('../src/scripts/pixelQuest/victoryEffects.ts');
+ const level=forest.createForestLevel('1-3'),run=gameplay.createRun(level);
+ run.boss.hearts=0;run.bossCelebrationMs=220;
+ const calls=[];
+ const context={
+  save(){},restore(){},beginPath(){},arc(){},fill(){},
+  fillRect(...args){calls.push(['rect',...args])},
+  strokeRect(...args){calls.push(['stroke',...args])},
+  fillText(...args){calls.push(['text',...args])},
+  set globalAlpha(v){},set fillStyle(v){},set strokeStyle(v){},
+  set lineWidth(v){},set font(v){},set textAlign(v){}
+ };
+ effects.drawDefeatEffects(context,run,run.boss.x-300,0,640,360);
+ assert.ok(calls.some(c=>c[0]==='rect'),'Guardião deve crescer e piscar antes de explodir');
+ run.bossCelebrationMs=1100;calls.length=0;
+ effects.drawDefeatEffects(context,run,run.boss.x-300,0,640,360);
+ assert.ok(calls.some(c=>c[0]==='text'&&c[1]==='GUARDIÃO DERROTADO!'));
+ assert.ok(calls.some(c=>c[0]==='text'&&c[1]==='+250 PONTOS'));
+ const normalCount=calls.filter(c=>c[0]==='rect').length;
+ calls.length=0;
+ effects.drawDefeatEffects(context,run,run.boss.x-300,0,640,360,true);
+ assert.ok(calls.filter(c=>c[0]==='rect').length<normalCount,'reduzir partículas com movimento reduzido');
+});
