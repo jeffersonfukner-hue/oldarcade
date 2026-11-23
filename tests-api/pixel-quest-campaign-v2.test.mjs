@@ -16,7 +16,7 @@ const forest=loadTs('../src/data/pixelQuest/forestDesign.ts');
 const ledger=loadTs('../src/scripts/pixelQuest/campaignLedger.ts');
 const progress=loadTs('../src/scripts/pixelQuest/progressContract.ts');
 test('Mundo 1: três mapas válidos, com cristais, patrulheiros, chefão e rotas auditadas',()=>{
- const ids=['1-1','1-2','1-3'],widths=[300,366,425],crystals=[14,17,19],enemies=[6,9,11];
+ const ids=['1-1','1-2','1-3'],widths=[300,366,425],crystals=[16,19,21],enemies=[6,9,11];
  for(let i=0;i<ids.length;i++){
   const map=forest.createForestLevel(ids[i]);
   assert.doesNotThrow(()=>levels.validateLevel(map));
