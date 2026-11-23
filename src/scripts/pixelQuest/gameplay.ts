@@ -97,7 +97,9 @@ export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
   const supportRow=Math.floor((enemy.originY+24)/level.tileSize);
   const nextCol=Math.floor((nextX+11)/level.tileSize);
   const support=level.tiles[supportRow]?.[nextCol]??0;
-  if(support===0)enemy.direction=enemy.direction===1?-1:1;
+  // Quem anda no chão não deve entrar sob uma plataforma baixa que impediria pisão.
+  const trapped=supportRow===15&&[12,13,14].some(row=>level.tiles[row]?.[nextCol]===2);
+  if(support===0||trapped)enemy.direction=enemy.direction===1?-1:1;
   else enemy.x=nextX;
   if(enemy.x>enemy.origin+range){enemy.x=enemy.origin+range;enemy.direction=-1}
   else if(enemy.x<enemy.origin-range){enemy.x=enemy.origin-range;enemy.direction=1}
