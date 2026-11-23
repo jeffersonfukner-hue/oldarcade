@@ -115,12 +115,13 @@ test('Contadores por nível reiniciam na próxima fase enquanto total permanece 
  const first=run();
  first.enemies[0].alive=false;
  first.enemies[1].alive=false;
+ first.defeatedUniqueIds.add(first.enemies[0].id);first.defeatedUniqueIds.add(first.enemies[1].id);
  assert.equal(gameplay.levelDefeated(first),2);
  assert.equal(gameplay.totalDefeated(first),2);
  const next=gameplay.createRun(firstLevel,gameplay.totalDefeated(first));
  assert.equal(gameplay.levelDefeated(next),0);
  assert.equal(gameplay.totalDefeated(next),2);
- next.enemies[0].alive=false;
+ next.enemies[0].alive=false;next.defeatedUniqueIds.add(next.enemies[0].id);
  assert.equal(gameplay.levelDefeated(next),1);
  assert.equal(gameplay.totalDefeated(next),3);
  assert.equal(gameplay.createRun(firstLevel).cumulativeBeforeLevel,0,'nova campanha começa em zero');
