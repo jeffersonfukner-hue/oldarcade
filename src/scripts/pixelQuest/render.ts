@@ -59,7 +59,7 @@ function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number,vert
   }
  }
 }
-export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,camera:number,worldElapsedMs=0,stageIndex=0){
+export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,camera:number,worldElapsedMs=0,stageIndex=0,reducedMotion=false){
  const context=canvas.getContext('2d');if(!context)return;
  context.imageSmoothingEnabled=false;
  const vertical=pixelQuestVerticalOffset(level,run.player.y);
@@ -129,7 +129,7 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
   context.fillStyle='#e7a4c6';context.fillRect(x-4,y-17,56*(boss.hearts/5),7);
   if(boss.mode==='warning'){context.strokeStyle='#ffcf71';context.lineWidth=2;context.strokeRect(x-6,y-6,60,68)}
  }
- drawDefeatEffects(context,run,camera,vertical,VIEW_WIDTH,VIEW_HEIGHT);
+ drawDefeatEffects(context,run,camera,vertical,VIEW_WIDTH,VIEW_HEIGHT,reducedMotion);
  const p=run.player;
  if(run.invulnerable<=0||Math.floor(run.invulnerable*12)%2===0){
   const x=Math.round(p.x-camera),y=Math.round(p.y-vertical);
