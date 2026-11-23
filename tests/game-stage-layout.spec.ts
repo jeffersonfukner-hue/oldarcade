@@ -23,12 +23,12 @@ for(const sample of [
    expect(measure.width).toBeLessThanOrEqual(measure.viewport+1);
    if(width===1440){
     await expect(page.locator(`${sample.stage} .oa-hud-label`).first()).toBeVisible();
-    const bounds=await page.evaluate((stage)=>{
+    const bounds=await page.evaluate(({stage,canvasSelector})=>{
      const s=document.querySelector(stage)!;
-     const canvas=s.querySelector('canvas')!.getBoundingClientRect();
+     const canvas=s.querySelector(canvasSelector)!.getBoundingClientRect();
      const hud=s.querySelector('.oa-hud-compact')!.getBoundingClientRect();
      return {canvasRight:canvas.right,hudLeft:hud.left};
-    },sample.stage);
+    },{stage:sample.stage,canvasSelector:sample.canvas});
     expect(bounds.hudLeft).toBeGreaterThanOrEqual(bounds.canvasRight-1);
    }
   }
