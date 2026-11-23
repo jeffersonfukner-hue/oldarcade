@@ -112,7 +112,7 @@ test('balão não desaparece ao final do slot, reage ao jogador e deriva com ven
  const start={x:atmosphere.BALLOON_ENTRY_X,lastMs:10_000,lastCamera:250,seed:1.2};
  const stopped=atmosphere.advanceBalloonFlight(start,11_000,250);
  assert.ok(stopped.x<start.x&&stopped.x>start.x-7,'vento quase imóvel quando jogador para');
- const walking=atmosphere.advanceBalloonFlight(start,11_000,340);
+ const walking=atmosphere.advanceBalloonFlight(start,11_000,295);
  assert.ok(walking.x<stopped.x,'paisagem em avanço desloca o balão um pouco mais rápido');
  const paused=atmosphere.advanceBalloonFlight(stopped,11_000,250);
  assert.equal(paused.x,stopped.x,'sem avanço no relógio/câmera, o balão fica parado');
