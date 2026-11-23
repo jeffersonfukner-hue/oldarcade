@@ -5,7 +5,7 @@ import {validateForestProgress} from './progressContract';
  */
 export function setupQuestProgress(onRestore:(completed:CompletedForestStage[])=>void){
  let account:string|null=null;
- let ready=false,lastSavedCount=0,sessionVersion=0,saving=false;
+ let ready=false,lastSavedCount=0,sessionVersion=0,saving=false,everAuthenticated=false;
  let pending:CompletedForestStage[]=[];
  const endpoint='/api/quest/progress';
  async function load(version:number){
@@ -48,8 +48,10 @@ export function setupQuestProgress(onRestore:(completed:CompletedForestStage[])=
   account=next;ready=false;lastSavedCount=0;saving=false;
   const version=++sessionVersion;
   if(next){
-   // Recomeçar pendências ao trocar contas: não transportar a campanha do login anterior.
-   pending=[];
+   // Visitante pode salvar a campanha ao criar a primeira conta.
+   // Em trocas posteriores, nunca transportar dados entre contas.
+   if(everAuthenticated)pending=[];
+   everAuthenticated=true;
    void load(version).finally(()=>{
     if(version!==sessionVersion)return;
     ready=true;void save();
