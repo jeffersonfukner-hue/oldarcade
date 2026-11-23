@@ -259,10 +259,10 @@ if(stage){
    }
    updateHud();
   }
-  drawPlatformScene(canvas,level,run,camera);
+  drawPlatformScene(canvas,level,run,camera,worldElapsedMs,levelIndex);
   requestAnimationFrame(frame);
  }
- setPhase('ready');updateHud();updateLocalRecords();drawPlatformScene(canvas,level,run,camera);void stageRanks.refresh(level.id);
+ setPhase('ready');updateHud();updateLocalRecords();drawPlatformScene(canvas,level,run,camera,worldElapsedMs,levelIndex);void stageRanks.refresh(level.id);
  document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-request',{detail:{game:'pixel-quest'}}));
  requestAnimationFrame(frame);
 }
