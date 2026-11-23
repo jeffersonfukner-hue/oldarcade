@@ -1,23 +1,41 @@
 import type {CompletedForestStage} from './progressContract';
 import {validateForestProgress} from './progressContract';
-/** Visita sem conta: apenas memória; conta: próxima fase recuperada do servidor. */
+/** Sem login: progresso apenas nesta aba. Com login: recupera etapas concluídas do servidor.
+ * Evita envio de progresso de uma conta para outra após troca de sessão.
+ */
 export function setupQuestProgress(onRestore:(completed:CompletedForestStage[])=>void){
- let account=false,ready=false,lastSavedCount=0;
+ let account:string|null=null;
+ let ready=false,lastSavedCount=0,sessionVersion=0,saving=false;
  let pending:CompletedForestStage[]=[];
  const endpoint='/api/quest/progress';
- async function load(){
-  try{const res=await fetch(endpoint,{cache:'no-store'});if(!res.ok)return;
+ async function load(version:number){
+  try{
+   const res=await fetch(endpoint,{cache:'no-store'});
+   if(!res.ok)return;
    const data=await res.json() as {completed?:CompletedForestStage[]};
-   if(!validateForestProgress(data))return;
-   lastSavedCount=data.completed.length;onRestore(data.completed);
-  }catch{/* erro não equivale a progresso zerado */}
+   if(version!==sessionVersion||!validateForestProgress(data))return;
+   lastSavedCount=data.completed.length;
+   onRestore(data.completed);
+  }catch{/* Falha de leitura não equivale a progresso vazio */}
  }
  async function save(){
-  if(!account||!ready||pending.length===0||pending.length<=lastSavedCount)return;
-  const completed=pending.slice();
-  try{const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({completed})});
-   const data=await res.json() as {saved?:boolean};if(res.ok&&data.saved)lastSavedCount=Math.max(lastSavedCount,completed.length);
-  }catch{/* nunca afirmar salvamento que falhou */}
+  if(!account||!ready||saving||pending.length===0||pending.length<=lastSavedCount)return;
+  const version=sessionVersion,completed=pending.slice();
+  saving=true;
+  try{
+   const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({completed})});
+   const data=await res.json() as {saved?:boolean;completedCount?:number};
+   if(version!==sessionVersion)return;
+   if(res.ok&&data.saved&&data.completedCount===completed.length){
+    lastSavedCount=Math.max(lastSavedCount,completed.length);
+   }
+  }catch{/* Nunca anunciar salvamento sem resposta positiva */}
+  finally{
+   if(version===sessionVersion){
+    saving=false;
+    if(pending.length>lastSavedCount&&pending.length>completed.length)void save();
+   }
+  }
  }
  function record(completed:CompletedForestStage[]){
   if(!validateForestProgress({completed}))return;
@@ -25,11 +43,23 @@ export function setupQuestProgress(onRestore:(completed:CompletedForestStage[])=
   void save();
  }
  function connect(player:{nickname:string}|null){
-  if(player&&!account){account=true;void load().finally(()=>{ready=true;void save()})}
-  else if(!player){account=false;ready=false;lastSavedCount=0}
+  const next=player?.nickname??null;
+  if(next===account)return;
+  account=next;ready=false;lastSavedCount=0;saving=false;
+  const version=++sessionVersion;
+  if(next){
+   // Recomeçar pendências ao trocar contas: não transportar a campanha do login anterior.
+   pending=[];
+   void load(version).finally(()=>{
+    if(version!==sessionVersion)return;
+    ready=true;void save();
+   });
+  }else pending=[];
  }
  const changed=(event:Event)=>connect((event as CustomEvent<{player?:{nickname:string}|null}>).detail?.player??null);
  document.addEventListener('oldarcade:account-changed',changed);
- void fetch('/api/auth/me',{cache:'no-store'}).then(async res=>{if(res.ok){const d=await res.json() as {player?:{nickname:string}|null};connect(d.player??null)}}).catch(()=>{});
- return {record,dispose(){document.removeEventListener('oldarcade:account-changed',changed)}};
+ void fetch('/api/auth/me',{cache:'no-store'}).then(async res=>{
+  if(res.ok){const d=await res.json() as {player?:{nickname:string}|null};connect(d.player??null)}
+ }).catch(()=>{});
+ return {record,dispose(){++sessionVersion;document.removeEventListener('oldarcade:account-changed',changed)}};
 }
