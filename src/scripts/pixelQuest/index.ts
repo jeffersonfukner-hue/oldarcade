@@ -8,7 +8,8 @@ import {setupPlatformInput} from './input';
 import {setCountdownOverlay} from '../gameCountdownOverlay';
 import {centerGameBoard} from '../gameViewport';
 import {setupGameClock} from '../gameClock';
-import {calculateCompletedLevel,timeBonus,type LevelResult} from './scoring';
+import {timeBonus,type LevelResult} from './scoring';
+import {showWorldScoreFeedback} from '../scoreFeedback';
 import {readLocalRecord,updateLocalRecord} from './records';
 import {campaignSnapshot} from './campaignLedger';
 import {setupQuestStageRecords} from './questStageRecords';
@@ -167,7 +168,8 @@ if(stage){
   clearCountdown();clearIntro();setPhase(won?'won':'lost');overlay.hidden=false;title.hidden=false;description.hidden=false;
   title.textContent=won?(levelIndex===worldOneTotal-1?'Mundo 1 concluído!':'Portal alcançado!'):'Fim de jogo';
   if(won){
-   const result:LevelResult=calculateCompletedLevel(level.id,run.crystals.size,levelDefeated(run),run.elapsedMs,Boolean(run.boss&&run.boss.hearts<=0));
+   const result:LevelResult={levelId:level.id,score:run.score+timeBonus(run.elapsedMs),
+    elapsedMs:run.elapsedMs,crystals:run.crystals.size,enemies:levelDefeated(run)};
    // Pontuação de eventos + bônus de conclusão e tempo é reconciliada na vitória.
    run.score=result.score;
    results.push(result);
@@ -178,7 +180,7 @@ if(stage){
    stageRanks.record({levelId:level.id,score:result.score,durationMs:Math.round(result.elapsedMs)});
    updateLocalRecords();
    document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'pixel-quest',score:snapshot.score,durationMs:Math.round(snapshot.elapsedMs)}}));
-   description.textContent=`Fase ${levelIndex+1}/${worldOneTotal} (${level.id}): ${result.score} pontos · Cristais ${result.crystals*10} · Inimigos ${result.enemies*50} · Portal 100 · Tempo +${timeBonus(result.elapsedMs)}.`+(levelIndex===worldOneTotal-1?' Mundo 2: Cavernas de Cristal, em desenvolvimento. Mundo 3: Fortaleza do Portal, em breve.':' A próxima fase está disponível.');
+   description.textContent=`Fase ${levelIndex+1}/${worldOneTotal} (${level.id}): ${result.score} pontos · ${result.crystals} cristais · ${result.enemies} inimigos · Power-ups e combos incluídos · Tempo +${timeBonus(result.elapsedMs)}.`+(levelIndex===worldOneTotal-1?' Mundo 2: Cavernas de Cristal, em desenvolvimento. Mundo 3: Fortaleza do Portal, em breve.':' A próxima fase está disponível.');
   }else{
    const snapshot=campaignSnapshot(results,{score:run.score,elapsedMs:run.elapsedMs},false);
    updateLocalRecord('level-v2-'+level.id,{score:run.score,elapsedMs:run.elapsedMs});
@@ -235,6 +237,10 @@ if(stage){
    while(accumulator>=STEP){
     stepRun(run,level,input.read(),STEP);
     camera=cameraX(run.player,camera,level,VIEW_WIDTH);
+    for(const event of run.scoreEvents.splice(0)){
+     showWorldScoreFeedback(screen,canvas,event.amount,event.context,
+      event.x-camera,event.y-(level.height*level.tileSize-360),640,360);
+    }
     accumulator-=STEP;
     if(run.phase==='playing'&&run.boss&&!bossIntroShown&&run.player.x>run.boss.origin-430){
      bossIntroShown=true;beginBossIntro();break;
