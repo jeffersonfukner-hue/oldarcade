@@ -32,6 +32,7 @@ if(stage){
  const hearts=stage.querySelector<HTMLElement>('#pq-hearts')!;
  const crystals=stage.querySelector<HTMLElement>('#pq-crystals')!;
  const checkpoint=stage.querySelector<HTMLElement>('#pq-checkpoint')!;
+ const powerStatus=stage.querySelector<HTMLElement>('#pq-powerup-status')!;
  const defeated=stage.querySelector<HTMLElement>('#pq-defeated')!;
  const levelEnemies=stage.querySelector<HTMLElement>('#pq-level-enemies')!;
  const levelKills=stage.querySelector<HTMLElement>('#pq-level-defeated')!;
@@ -91,6 +92,7 @@ if(stage){
   hearts.textContent='♥'.repeat(run.hearts)+'♡'.repeat(3-run.hearts);
   crystals.textContent=run.crystals.size+'/'+totalCrystals();
   checkpoint.textContent=run.checkpointActive?'Ativado':'Não';
+  powerStatus.textContent='Poderes: '+([...(run.shield>0?['Escudo '+run.shield]:[]),...(run.frenzyTime>0?['2× '+Math.ceil(run.frenzyTime)+'s':[])] .join(' · ')||'nenhum');
   const defeatedCount=levelDefeated(run);
   defeated.textContent=String(totalDefeated(run));
   levelKills.textContent=String(defeatedCount);
