@@ -1,3 +1,10 @@
+## PIXEL QUEST — HUD e placar coerentes com respawn (23/11/2026)
+- Captura de homologação 1-2: HUD da fase 770, overlay campanha 2488, topo do canvas mostrava total 770; erro confirmado: chamada periódica a `drawPlatformScene` omitira o valor acumulado. Corrigida passagem explícita do total de fases anteriores e preservada a regra de não duplicar pontos da fase já concluída.
+- Remover progresso de "Inimigos restantes" porque reaparecem; substituir por número informativo "Inimigos ativos agora" sem barra ou promessa de esgotamento. Manter barra de cristais obrigatórios.
+- Total de eliminações exibido no HUD deve ser a soma dos quatro tipos na sessão atual, incluindo respawns; não misturar com a contagem de IDs únicos persistida no progresso salvo. A contagem por tipo não é reconstruída para sessões restauradas: tela identifica explicitamente o escopo de sessão.
+- Exibir "Pontos da fase" e "Total da campanha" separadamente, com os mesmos dados da renderização. Tela de derrota discrimina a fase e o total parcial; **não registra marca pública ou recorde local para fase perdida**, nem confirma posição de ranking. Recordes da fase só são enviados após vitória, conforme `AGENTS.md`.
+- Testes atualizados para layout e contratos do placar; conferir CI integral. Sem merge, deploy, D1 ou custos.
+
 ## PIXEL QUEST — respawn, contadores e corrida ao portal (23/11/2026)
 - **Painel direito:** quatro ícones desenhados com os MESMOS sprites do jogo e quantidade de eliminações por espécie; contador contabiliza respawns e acumula somente enquanto a campanha está em andamento nesta sessão. Progresso restaurado do servidor não inclui breakdown histórico, que não deve ser inventado.
 - **Respawn:** por espécie, patrulheiro 20s, corredor 24s, saltador 18s, sentinela 30s de tempo de partida ativo. Reaparecem na posição original, quando o jogador não está muito próximo; não entram em ciclos de pontuação automática. Cada eliminação concede pontos normais + possível combo. Campo `enemies` persistido preserva a contagem de IDs únicos derrotados por fase (até 30), sem quebrar a semântica legada; o contador visual registra todas as eliminações.

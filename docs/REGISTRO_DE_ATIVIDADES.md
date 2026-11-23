@@ -1,3 +1,9 @@
+## 23/11/2026 — Auditoria do placar e retirada de barra incompatível com respawn
+- **Início/término:** não aferidos por cronômetro; **duração efetiva:** não registrada; estimativa não calculada.
+- **Evidência de entrada:** captura de fim de jogo fase 1-2, 770 pontos da fase, 2488 no resultado da campanha, soma por espécie 21 e barra de inimigos restantes 13; no código, HUD superior omitia pontos de fases anteriores, contador geral usava IDs únicos enquanto ícones usavam eliminações efetivas, fase perdida chamava registro de ranking.
+- **Atividades executadas:** revisão de documentação e código, correção da pontuação acumulada no canvas, adição do total da campanha no HUD lateral, alinhamento do contador geral com a soma por espécies da sessão, substituição da barra de inimigos por indicador numérico de inimigos ativos e correção de fluxo de derrota para não registrar recordes de fase não concluída. Testes de regressão de layout/contratos atualizados.
+- **Pendências:** CI do commit desta entrega e homologação visual/função pelo usuário no Preview. Sem merge, deploy, alterações D1 ou gasto.
+
 ## 23/11/2026 — Diagnóstico do CI #1289 e correção do teste de layout Pixel Quest
 - **Horários de início/fim:** não aferidos. **Duração efetiva:** não mensurada; intervalo entre mensagens não contabilizado.
 - **Investigação executada:** consultado GitHub Actions run #1289 (commit `26ae672e782e14284f3060d05d2fe0ade4016050`), concluído em falha. Tipagem, build e testes Node/API aprovados; Playwright registrou 384 aprovados, 50 ignorados e duas falhas no mesmo teste de layout (desktop/mobile): `tests/game-stage-layout.spec.ts:32`.

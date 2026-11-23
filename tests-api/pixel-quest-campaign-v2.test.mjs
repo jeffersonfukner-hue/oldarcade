@@ -46,3 +46,25 @@ test('Progresso só aceita sequência de fases completas e bem formada',()=>{
  assert.equal(progress.validateForestProgress({completed:[stages[1]]}),false);
  assert.equal(progress.validateForestProgress({completed:[...stages,stages[0]]}),false);
 });
+
+test('placar distingue fase e campanha e não usa barra de inimigos que reaparecem',()=>{
+ const ui=readFileSync(new URL('../src/components/PixelQuestGame.astro',import.meta.url),'utf8');
+ const code=readFileSync(new URL('../src/scripts/pixelQuest/index.ts',import.meta.url),'utf8');
+ assert.match(ui,/scoreLabel="Pontos da fase"/);
+ assert.match(ui,/id="pq-campaign-score"/);
+ assert.match(ui,/id="pq-enemies-active"/);
+ assert.doesNotMatch(ui,/id="pq-enemies-remaining"/);
+ assert.match(code,/killsInSession=ENEMY_KINDS.reduce/);
+ assert.match(code,/campaignScore\.textContent=/);
+ assert.match(code,/const previousScore=completeScore\(\)-\(phase==='won'\?run.score:0\)/);
+ assert.match(code,/drawPlatformScene\(canvas,level,run,camera,worldElapsedMs,levelIndex,reducedMotion,previousScore,rankingFx,now\)/);
+});
+test('derrota não registra recorde da fase nem confirma classificação',()=>{
+ const code=readFileSync(new URL('../src/scripts/pixelQuest/index.ts',import.meta.url),'utf8');
+ const lost=code.slice(code.indexOf('  }else{\n   const snapshot=campaignSnapshot(results,{score:run.score'),code.indexOf("  start.textContent=won?"));
+ assert.ok(lost.length>0);
+ assert.doesNotMatch(lost,/stageRanks\.record/);
+ assert.doesNotMatch(lost,/updateLocalRecord/);
+ assert.match(lost,/milestones\.dispose\(\)/);
+ assert.match(lost,/nenhum recorde foi enviado/);
+});

@@ -26,16 +26,17 @@ import PixelQuestEditorialArt from './PixelQuestEditorialArt.astro';
    <div class="panel game-stage" id="pq-stage" data-arcade-viewport data-board-shape="landscape">
     <GameStageHeader title="◈ PIXEL QUEST" subtitle="Trilha Esmeralda" pauseId="pq-pause" fullscreenId="pq-fullscreen" fullscreenLabel="Alternar tela cheia do Pixel Quest"></GameStageHeader>
     <div class="arcade-game-layout">
-     <GameHud compact statusId="pq-status" scoreId="pq-score" bestId="pq-best" globalId="pq-global" bestLabel="Seu recorde na fase" globalLabel="Líder da fase" scoreLabel="Pontos" statId="pq-defeated" statLabel="Total de inimigos derrotados" secondStatId="pq-level-defeated" secondStatLabel="Derrotados neste nível" hideSecondStat hint="A/D ou ←/→ mover · Espaço/↑ duas vezes para salto duplo · P pausar">
+     <GameHud compact statusId="pq-status" scoreId="pq-score" bestId="pq-best" globalId="pq-global" bestLabel="Seu recorde na fase" globalLabel="Líder da fase" scoreLabel="Pontos da fase" statId="pq-defeated" statLabel="Eliminações nesta sessão" secondStatId="pq-level-defeated" secondStatLabel="Derrotados neste nível" hideSecondStat hint="A/D ou ←/→ mover · Espaço/↑ duas vezes para salto duplo · P pausar">
+      <div class="pq-campaign-total" aria-label="Total de pontos obtidos na campanha, incluindo a fase atual"><span>Total da campanha</span><strong id="pq-campaign-score">0</strong></div>
       <div class="pq-enemy-kills" aria-label="Eliminações por tipo na campanha atual">
        <span class="pq-enemy-kills-heading">Eliminações por tipo</span>
        <div class="pq-enemy-kills-grid">
         {(['patroller','runner','hopper','sentry'] as const).map(kind=><div class="pq-enemy-kill" title={{patroller:'Patrulheiro',runner:'Corredor',hopper:'Saltador',sentry:'Sentinela'}[kind]}><canvas id={'pq-enemy-'+kind+'-icon'} width="31" height="33" aria-hidden="true"></canvas><strong id={'pq-enemy-'+kind+'-count'}>0</strong></div>)}
        </div>
-       <small>Campanha ativa · inclui reaparições</small>
+       <small>Esta sessão · inclui reaparições</small>
       </div>
       <GameProgressBar id="pq-crystals-remaining" label="Cristais restantes" total={crystalsInLevel} color="crystal"/>
-      <GameProgressBar id="pq-enemies-remaining" label="Inimigos restantes" total={enemiesInLevel} color="enemy"/>
+      <div class="pq-active-enemies" aria-label="Quantidade de inimigos atualmente vivos; podem reaparecer"><span>Inimigos ativos agora</span><strong id="pq-enemies-active">{enemiesInLevel}</strong></div>
      </GameHud>
      <div class="pq-board-column oa-board-slot"><div id="pq-screen" class="screen-wrap oa-board-surface"><canvas id="pq-canvas" width="640" height="360" aria-label="Mapa interativo da fase 1-1, com cristais, inimigos e portal"></canvas>
       <div id="pq-overlay" class="game-overlay"><h2 id="pq-title">Preparado para explorar?</h2><p id="pq-description">Use as setas ou A/D para mover; pressione Espaço, W ou ↑, solte e pressione novamente para um salto duplo. No celular, toque em Pular duas vezes. Colete todos os cristais para liberar o portal!</p><strong id="pq-countdown" class="countdown-value" hidden></strong><button id="pq-start" type="button" class="btn">▶ Começar fase</button></div>
@@ -63,6 +64,10 @@ import PixelQuestEditorialArt from './PixelQuestEditorialArt.astro';
  </div>
  <script>import '../scripts/pixelQuest/index.ts';</script>
  <style>
+  .pq-campaign-total{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid #35435d;padding:7px 0;color:#d8e4fb;font-size:.79rem}
+  .pq-campaign-total strong{font-variant-numeric:tabular-nums;color:#ffe29b;font-size:1.1rem}
+  .pq-active-enemies{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#afbdd5;font-size:.74rem}
+  .pq-active-enemies strong{color:#fff;font-variant-numeric:tabular-nums;font-size:.95rem}
   .pq-enemy-kills{display:grid;gap:5px;min-width:0;color:#d9e7f5}
   .pq-enemy-kills-heading{font-size:.72rem}
   .pq-enemy-kills-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}

@@ -2,7 +2,7 @@ import {worldOneLevels,worldOneTotal} from '../../data/pixelQuest/world-1';
 import {entranceForLevel,stageTitle,STAGE_INTRO_MS} from './stageIntro';
 import {validateLevel} from './levels';
 import {cameraX,STEP} from './physics';
-import {createRun,stepRun,levelDefeated,totalDefeated,emptyEnemyKills,ENEMY_KINDS,portalGraceRemainingSeconds,portalDelayPenalty,type EnemyKills,type Run} from './gameplay';
+import {createRun,stepRun,levelDefeated,emptyEnemyKills,ENEMY_KINDS,portalGraceRemainingSeconds,portalDelayPenalty,type EnemyKills,type Run} from './gameplay';
 import {drawPlatformScene,VIEW_WIDTH,VIEW_HEIGHT,pixelQuestVerticalOffset} from './render';
 import {setupPlatformInput} from './input';
 import {setCountdownOverlay} from '../gameCountdownOverlay';
@@ -37,13 +37,13 @@ if(stage){
  const checkpoint=stage.querySelector<HTMLElement>('#pq-checkpoint')!;
  const powerStatus=stage.querySelector<HTMLElement>('#pq-powerup-status')!;
  const defeated=stage.querySelector<HTMLElement>('#pq-defeated')!;
+ const campaignScore=stage.querySelector<HTMLElement>('#pq-campaign-score')!;
  const levelEnemies=stage.querySelector<HTMLElement>('#pq-level-enemies')!;
  const levelKills=stage.querySelector<HTMLElement>('#pq-level-defeated')!;
  const portalStatus=stage.querySelector<HTMLElement>('#pq-portal-status')!;
  const crystalsRemaining=stage.querySelector<HTMLElement>('#pq-crystals-remaining')!;
- const enemiesRemaining=stage.querySelector<HTMLElement>('#pq-enemies-remaining')!;
+ const activeEnemies=stage.querySelector<HTMLElement>('#pq-enemies-active')!;
  const crystalsProgress=stage.querySelector<HTMLProgressElement>('#pq-crystals-remaining-bar')!;
- const enemiesProgress=stage.querySelector<HTMLProgressElement>('#pq-enemies-remaining-bar')!;
  const bestLevel=stage.querySelector<HTMLElement>('#pq-best')!;
  const bestGeneral=stage.querySelector<HTMLElement>('#pq-global')!;
  const intro=stage.querySelector<HTMLElement>('#pq-stage-intro')!;
@@ -124,7 +124,8 @@ if(stage){
   // HUD global pertence ao leaderboard, enquanto a campanha local mantém sua chave própria.
  }
  function updateHud(){
-  score.textContent=String(run.score);
+  score.textContent=run.score.toLocaleString('pt-BR');
+  campaignScore.textContent=(completeScore()+(phase==='won'?0:run.score)).toLocaleString('pt-BR');
   hearts.textContent='♥'.repeat(run.hearts)+'♡'.repeat(3-run.hearts);
   crystals.textContent=run.crystals.size+'/'+totalCrystals();
   checkpoint.textContent=run.checkpointActive?'Ativado':'Não';
@@ -133,19 +134,19 @@ if(stage){
   if(run.frenzyTime>0)activePowers.push('2× '+Math.ceil(run.frenzyTime)+'s');
   powerStatus.textContent='Poderes: '+(activePowers.join(' · ')||'nenhum');
   const defeatedCount=levelDefeated(run);
-  defeated.textContent=String(totalDefeated(run));
+  const killsInSession=ENEMY_KINDS.reduce((sum,kind)=>sum+completedKillsByKind[kind]+run.killsByKind[kind],0);
+  defeated.textContent=killsInSession.toLocaleString('pt-BR');
   for(const kind of ENEMY_KINDS){
    const count=enemyBadges[kind].count;
    if(count)count.textContent=String(completedKillsByKind[kind]+run.killsByKind[kind]);
   }
   levelKills.textContent=String(defeatedCount);
-  levelEnemies.textContent=(run.enemies.length-defeatedCount)+'/'+run.enemies.length;
+  const activeCount=run.enemies.filter(enemy=>enemy.alive).length;
+  levelEnemies.textContent=activeCount+'/'+run.enemies.length;
   crystalsProgress.max=Math.max(1,totalCrystals());
   crystalsProgress.value=run.crystals.size;
-  enemiesProgress.max=Math.max(1,run.enemies.length);
-  enemiesProgress.value=run.enemies.filter(enemy=>!enemy.alive).length;
   crystalsRemaining.textContent=String(totalCrystals()-run.crystals.size);
-  enemiesRemaining.textContent=String(run.enemies.filter(enemy=>enemy.alive).length);
+  activeEnemies.textContent=String(activeCount);
   portalStatus.textContent=run.portalOpenedAtMs!==null?
     (portalGraceRemainingSeconds(run)>0?'PORTAL ABERTO · CORRA! '+portalGraceRemainingSeconds(run)+'s sem penalidade extra':
      'PORTAL ABERTO · CORRA! Atraso -'+portalDelayPenalty(run)+' pontos'):
@@ -236,12 +237,13 @@ if(stage){
    description.textContent=`Fase ${levelIndex+1}/${worldOneTotal} (${level.id}): ${result.score} pontos · ${result.crystals} cristais · ${result.enemies} inimigos · Power-ups e combos incluídos · Tempo +${timeBonus(result.elapsedMs)} · Atraso no portal -${portalDelayPenalty(run)}.`+(levelIndex===worldOneTotal-1?' Mundo 2: Cavernas de Cristal, em desenvolvimento. Mundo 3: Fortaleza do Portal, em breve.':' A próxima fase está disponível.');
   }else{
    const snapshot=campaignSnapshot(results,{score:run.score,elapsedMs:run.elapsedMs},false);
-   milestones.end(level.id,run.score,snapshot.score);
-   updateLocalRecord('level-v2-'+level.id,{score:run.score,elapsedMs:run.elapsedMs});
-   updateLocalRecord('campaign-total-v2',{score:snapshot.score,elapsedMs:snapshot.elapsedMs});
-   stageRanks.record({levelId:level.id,score:run.score,durationMs:Math.round(run.elapsedMs)});
+   // Derrota não é fase concluída: nunca enviar ranking, atualizar recordes ou confirmar pódio.
+   milestones.dispose();
+   rankingNotice.hidden=true;rankingNotice.textContent='';
    document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'pixel-quest',score:snapshot.score,durationMs:Math.round(snapshot.elapsedMs)}}));
-   description.textContent='Seus corações acabaram. Pontos conquistados nesta campanha: '+snapshot.score+'. Você pode tentar esta fase novamente.';
+   description.textContent='Seus corações acabaram. Fase atual: '+run.score.toLocaleString('pt-BR')+
+    ' pontos. Total da campanha nesta tentativa: '+snapshot.score.toLocaleString('pt-BR')+
+    ' pontos (inclui as fases anteriores). Esta fase não foi concluída; nenhum recorde foi enviado. Você pode tentar novamente.';
   }
   start.textContent=won?(levelIndex===worldOneTotal-1?'↻ Recomeçar aventura':'▶ Próxima fase'):'↻ Tentar novamente';start.hidden=false;input.reset();updateHud();
  }
@@ -310,7 +312,9 @@ if(stage){
    }
    updateHud();
   }
-  drawPlatformScene(canvas,level,run,camera,worldElapsedMs,levelIndex,reducedMotion);
+  // Ao vencer, o resultado já entra em results; não contabilizar a última fase duas vezes.
+  const previousScore=completeScore()-(phase==='won'?run.score:0);
+  drawPlatformScene(canvas,level,run,camera,worldElapsedMs,levelIndex,reducedMotion,previousScore,rankingFx,now);
   requestAnimationFrame(frame);
  }
  setPhase('ready');updateHud();updateLocalRecords();drawPlatformScene(canvas,level,run,camera,worldElapsedMs,levelIndex,reducedMotion);void stageRanks.refresh(level.id);
