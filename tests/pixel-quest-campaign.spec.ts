@@ -94,3 +94,37 @@ test('Nova floresta: três mapas maiores, sem abismos excessivos nem inimigos en
   expect(forestLayoutAudit(level)).toEqual([]);
  }
 });
+
+test('Conta autenticada retoma a fase 2/3 por progresso consultado no servidor',async({page})=>{
+ await page.route('**/api/auth/me',r=>r.fulfill({
+  status:200,contentType:'application/json',body:JSON.stringify({player:{nickname:'Jogador Teste'}})
+ }));
+ const recorded={
+  levelId:'1-1',score:920,elapsedMs:45000,crystals:14,enemies:6
+ };
+ let gets=0;
+ await page.route('**/api/quest/progress',r=>{
+  if(r.request().method()==='GET'){
+   gets++;
+   return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,completed:[recorded]})});
+  }
+  return r.fulfill({status:200,contentType:'application/json',body:'{"saved":true,"completedCount":1}'});
+ });
+ await page.route('**/api/quest/rankings/*',r=>r.fulfill({
+  status:200,contentType:'application/json',body:'{"available":true,"top":[],"mine":null}'
+ }));
+ await page.goto('/jogos/pixel-quest/');
+ await expect(page.locator('#pq-level-label')).toContainText('Fase 2/3 · 1-2');
+ await expect(page.locator('#pq-description')).toContainText('Sua conta salvou 1 fase(s)');
+ expect(gets).toBeGreaterThanOrEqual(1);
+});
+
+test('Visitante não requisita salvamento autenticado no D1',async({page})=>{
+ await page.route('**/api/auth/me',r=>r.fulfill({status:200,contentType:'application/json',body:'{"player":null}'}));
+ const requests:string[]=[];
+ await page.route('**/api/quest/progress',r=>{requests.push(r.request().method());return r.fulfill({status:401,body:'{"error":"login necessário"}'})});
+ await page.goto('/jogos/pixel-quest/');
+ await expect(page.locator('#pq-level-label')).toContainText('Fase 1/3 · 1-1');
+ await page.waitForTimeout(300);
+ expect(requests).toEqual([]);
+});
