@@ -10,9 +10,14 @@ test('Protótipo Pixel Quest tem fase, controles e contagem regressiva',async({p
  await expect(page.locator('#pq-crystals')).toHaveText('0/16');
  await expect(page.locator('#pq-level-enemies')).toHaveText('13/13');
  await expect(page.locator('#pq-crystals-remaining')).toHaveText('16');
- await expect(page.locator('#pq-enemies-remaining')).toHaveText('13');
+ await expect(page.locator('#pq-enemies-active')).toHaveText('13');
+ await expect(page.locator('#pq-enemies-remaining')).toHaveCount(0);
  await expect(page.locator('#pq-crystals-remaining-bar')).toHaveAttribute('value','0');
- await expect(page.locator('#pq-enemies-remaining-bar')).toHaveAttribute('value','0');
+ await expect(page.locator('#pq-enemies-remaining-bar')).toHaveCount(0);
+ await expect(page.locator('#pq-campaign-score')).toHaveText('0');
+ for(const kind of ['patroller','runner','hopper','sentry']){
+  await expect(page.locator('#pq-enemy-'+kind+'-count')).toHaveText('0');
+ }
  await expect(page.locator('#pq-best')).not.toHaveText('0');
  await expect(page.locator('#pq-portal-status')).toContainText('Portal bloqueado');
  await page.locator('#pq-start').click();

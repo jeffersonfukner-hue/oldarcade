@@ -1,3 +1,10 @@
+## 23/11/2026 — Atualização do teste Playwright após substituição da barra de inimigos
+- **Início/término:** não aferidos; **duração efetiva:** não mensurada.
+- **Diagnóstico comprovado:** CI #1293 falhou em desktop e mobile porque `tests/pixel-quest.spec.ts` ainda exigia `#pq-enemies-remaining` e a antiga barra de progresso, removidos deliberadamente quando inimigos passaram a reaparecer.
+- **Alteração executada:** teste atualizado para exigir indicador `#pq-enemies-active`, inexistência da barra removida, total da campanha no HUD e quatro contadores por tipo, mantendo a verificação da barra de cristais obrigatórios.
+- **Evidência:** `tests/pixel-quest.spec.ts`; novo CI deve validar a mesma branch. Nenhuma mudança adicional no layout, pontuação ou dinâmica do jogo.
+- **Pendências:** aprovação integral do CI do novo HEAD e homologação visual pelo proprietário. Sem merge, deploy, D1 ou operações pagas.
+
 ## 23/11/2026 — Fechamento de elegibilidade do ranking na derrota Pixel Quest
 - **Início/término:** não medidos; **duração efetiva:** não registrada.
 - **Diagnóstico:** evento de fim de jogo parcial era emitido mesmo na derrota e consumido pelo ranking global, apesar do bloqueio no ranking específico por fase.
