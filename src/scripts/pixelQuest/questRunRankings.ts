@@ -17,13 +17,15 @@ export function setupQuestRunRankings(onCelebrate:(milestone:QuestMilestone)=>vo
  let latestPhaseScore=0,latestTotalScore=0;
  const baselines:Record<QuestRankingScope,Baseline>={fase:empty(),total:empty()};
  const get=(scope:QuestRankingScope)=>baselines[scope];
- function begin(id:string,localPhase:number|null,localTotal:number|null){
+ function begin(id:string,localPhase:number|null,localTotal:number|null,preserveCampaignBaseline=false,alreadyScored=0){
   token++;phaseId=id;finished=false;completedPhaseScore=null;completedTotalScore=null;
-  latestPhaseScore=0;latestTotalScore=0;
+  latestPhaseScore=0;latestTotalScore=alreadyScored;
   baselines.fase={...empty(),local:localPhase};
-  baselines.total={...empty(),local:localTotal};
+  // O total mantém o ranking do início da campanha, mesmo ao trocar de fase.
+  if(!preserveCampaignBaseline)baselines.total={...empty(),local:localTotal};
   const current=token;
   for(const scope of ['fase','total'] as const){
+   if(scope==='total'&&preserveCampaignBaseline&&baselines.total.board)continue;
    const endpoint='/api/quest/rankings/'+encodeURIComponent(scope==='fase'?id:'total');
    void fetch(endpoint,{cache:'no-store'}).then(async response=>{
     if(!response.ok)return;
