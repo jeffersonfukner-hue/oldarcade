@@ -14,10 +14,12 @@ function validBoard(raw:unknown):RankingSnapshot|null{
 /** Uma fotografia por rodada; nunca substitui o referencial por resultados mais recentes durante o jogo. */
 export function setupQuestRunRankings(onCelebrate:(milestone:QuestMilestone)=>void,onResult:(message:string)=>void){
  let token=0,phaseId='',finished=false,completedPhaseScore:number|null=null,completedTotalScore:number|null=null;
+ let latestPhaseScore=0,latestTotalScore=0;
  const baselines:Record<QuestRankingScope,Baseline>={fase:empty(),total:empty()};
  const get=(scope:QuestRankingScope)=>baselines[scope];
  function begin(id:string,localPhase:number|null,localTotal:number|null){
   token++;phaseId=id;finished=false;completedPhaseScore=null;completedTotalScore=null;
+  latestPhaseScore=0;latestTotalScore=0;
   baselines.fase={...empty(),local:localPhase};
   baselines.total={...empty(),local:localTotal};
   const current=token;
@@ -26,12 +28,13 @@ export function setupQuestRunRankings(onCelebrate:(milestone:QuestMilestone)=>vo
    void fetch(endpoint,{cache:'no-store'}).then(async response=>{
     if(!response.ok)return;
     const board=validBoard(await response.json());
-    if(current===token&&!finished)baselines[scope].board=board;
+    if(current===token&&!finished){baselines[scope].board=board;score(latestPhaseScore,latestTotalScore)}
    }).catch(()=>{/* Sem dados não há promessa de pódio */});
   }
  }
  function score(currentPhase:number,currentTotal:number){
   if(finished)return;
+  latestPhaseScore=currentPhase;latestTotalScore=currentTotal;
   for(const scope of ['total','fase'] as const){
    const state=get(scope),points=scope==='fase'?currentPhase:currentTotal;
    if(!Number.isSafeInteger(points)||points<=0)continue;
