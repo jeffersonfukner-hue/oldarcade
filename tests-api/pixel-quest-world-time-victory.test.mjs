@@ -58,7 +58,7 @@ test('integração do HUD no canvas recebe relógio e fase sem alterar HUD later
  const index=readFileSync(new URL('../src/scripts/pixelQuest/index.ts',import.meta.url),'utf8');
  const render=readFileSync(new URL('../src/scripts/pixelQuest/render.ts',import.meta.url),'utf8');
  assert.match(index,/if\(!celebrating&&run.phase==='playing'\)worldElapsedMs\+=STEP\*1000/);
- assert.match(index,/drawPlatformScene\(canvas,level,run,camera,worldElapsedMs,levelIndex\)/);
+ assert.match(index,/drawPlatformScene\(canvas,level,run,camera,worldElapsedMs,levelIndex,reducedMotion\)/);
  assert.match(render,/PONTOS /);
  assert.match(render,/DIA /);
  assert.match(render,/FASE /);
