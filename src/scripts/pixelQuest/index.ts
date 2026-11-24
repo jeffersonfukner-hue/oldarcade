@@ -1,4 +1,5 @@
 import {worldOneLevels,worldOneTotal} from '../../data/pixelQuest/world-1';
+import {worldTwoLevels,worldTwoTotal} from '../../data/pixelQuest/world-2';
 import {entranceForLevel,stageTitle,STAGE_INTRO_MS} from './stageIntro';
 import {validateLevel} from './levels';
 import {cameraX,STEP} from './physics';
@@ -20,7 +21,10 @@ import type {RankingCelebration} from './rankingVisuals';
 
 const stage=document.querySelector<HTMLElement>('#pq-stage')!;
 if(stage){
- for(const level of worldOneLevels)validateLevel(level);
+ const campaignLevels=[...worldOneLevels,...worldTwoLevels] as const;
+ const campaignTotal=campaignLevels.length;
+ const worldFor=(index:number)=>index<worldOneTotal?{number:1,index,total:worldOneTotal}:{number:2,index:index-worldOneTotal,total:worldTwoTotal};
+ for(const level of campaignLevels)validateLevel(level);
  const screen=stage.querySelector<HTMLElement>('#pq-screen')!;
  const canvas=stage.querySelector<HTMLCanvasElement>('#pq-canvas')!;
  const overlay=stage.querySelector<HTMLElement>('#pq-overlay')!;
@@ -54,7 +58,7 @@ if(stage){
  const input=setupPlatformInput(stage);
  const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  // O HUD exibe recorde da fase atual; o ranking geral permanece na página.
- let levelIndex=0,level=worldOneLevels[levelIndex];
+ let levelIndex=0,level=campaignLevels[levelIndex];
  let results:LevelResult[]=[];
  const completedKillsByKind:EnemyKills=emptyEnemyKills();
  const enemyBadges=Object.fromEntries(ENEMY_KINDS.map(kind=>[kind,{
@@ -100,21 +104,21 @@ if(stage){
   if(completed.length===0){
    // Uma segunda conta sem progresso não herda a fase restaurada da conta anterior.
    if(!restoredFromServer)return;
-   restoredFromServer=false;results=[];worldElapsedMs=0;levelIndex=0;level=worldOneLevels[0];
+   restoredFromServer=false;results=[];worldElapsedMs=0;levelIndex=0;level=campaignLevels[0];
    for(const kind of ENEMY_KINDS)completedKillsByKind[kind]=0;
    reset();
    title.textContent='Preparado para explorar?';
    description.textContent='Sua conta ainda não tem fases concluídas neste mundo.';
    return;
   }
-  if(completed.length>=worldOneTotal)return;
+  if(completed.length>=campaignTotal)return;
   // Não descartar uma campanha local já em andamento ao fazer o primeiro login.
   if(results.length>0&&!restoredFromServer)return;
   restoredFromServer=true;results=completed.slice();worldElapsedMs=results.reduce((sum,stage)=>sum+stage.elapsedMs,0);
-  levelIndex=completed.length;level=worldOneLevels[levelIndex];
+  levelIndex=completed.length;level=campaignLevels[levelIndex];
   reset();
   title.textContent='Continuar aventura salva';
-  description.textContent='Sua conta salvou '+completed.length+' fase(s). Continue na fase '+(levelIndex+1)+'/'+worldOneTotal+'.';
+  description.textContent='Sua conta salvou '+completed.length+' fase(s). Continue no Mundo '+worldFor(levelIndex).number+', fase '+(worldFor(levelIndex).index+1)+'/'+worldFor(levelIndex).total+'.';
  });
  let countdownTimer:number|undefined,introTimer:number|undefined,seconds=3,previous=0,accumulator=0;
  const clock=setupGameClock(screen,()=>phase==='playing');
@@ -151,7 +155,8 @@ if(stage){
     (portalGraceRemainingSeconds(run)>0?'PORTAL ABERTO · CORRA! '+portalGraceRemainingSeconds(run)+'s sem penalidade extra':
      'PORTAL ABERTO · CORRA! Atraso -'+portalDelayPenalty(run)+' pontos'):
     run.boss?.hearts?'Derrote o Guardião para abrir o portal':`Portal bloqueado · ${run.crystals.size}/${totalCrystals()} cristais`;
-  levelLabel.textContent=`Mundo 1 · Fase ${levelIndex+1}/${worldOneTotal} · ${level.id}`;
+  const world=worldFor(levelIndex);
+  levelLabel.textContent=`Mundo ${world.number} · Fase ${world.index+1}/${world.total} · ${level.id}`;
  }
  function setPhase(next:typeof phase){
   phase=next;
@@ -175,7 +180,8 @@ if(stage){
  }
  function beginIntro(){
   setPhase('intro');overlay.hidden=true;
-  const label=stageTitle(level.id,levelIndex+1,worldOneTotal,level.world);
+  const world=worldFor(levelIndex);
+  const label=stageTitle(level.id,world.index+1,world.total,level.world);
   introWorld.textContent=label.world;introProgress.textContent=label.progress;introCode.textContent=label.code;
   intro.dataset.entrance=entranceForLevel(levelIndex);
   intro.hidden=false;
@@ -187,9 +193,10 @@ if(stage){
  }
  function beginBossIntro(){
   setPhase('intro');overlay.hidden=true;
-  introWorld.textContent='CHEFÃO DO MUNDO 1';
-  introProgress.textContent='GUARDIÃO DA FLORESTA';
-  introCode.textContent='Fase 3/3 · 1-3';
+  const world=worldFor(levelIndex);
+  introWorld.textContent='CHEFÃO DO MUNDO '+world.number;
+  introProgress.textContent=level.bossName??'GUARDIÃO';
+  introCode.textContent='Fase '+(world.index+1)+'/'+world.total+' · '+level.id;
   intro.dataset.entrance='boss';intro.hidden=false;
   input.reset();
   introTimer=window.setTimeout(()=>{
@@ -217,7 +224,9 @@ if(stage){
  }
  function finish(won:boolean){
   clearCountdown();clearIntro();setPhase(won?'won':'lost');overlay.hidden=false;title.hidden=false;description.hidden=false;
-  title.textContent=won?(levelIndex===worldOneTotal-1?'Mundo 1 concluído!':'Portal alcançado!'):'Fim de jogo';
+  const world=worldFor(levelIndex);
+  const finalStage=levelIndex===campaignTotal-1;
+  title.textContent=won?(finalStage?'Pixel Quest concluído!':world.index===world.total-1?'Mundo '+world.number+' concluído!':'Portal alcançado!'):'Fim de jogo';
   if(won){
    const result:LevelResult={levelId:level.id,score:Math.max(0,run.score+timeBonus(run.elapsedMs)-portalDelayPenalty(run)),
     elapsedMs:run.elapsedMs,crystals:run.crystals.size,enemies:levelDefeated(run)};
@@ -229,12 +238,12 @@ if(stage){
    milestones.end(level.id,result.score,completeScore());
    progress.record(results);
    updateLocalRecord('level-v2-'+level.id,{score:result.score,elapsedMs:result.elapsedMs});
-   const snapshot=campaignSnapshot(results,null,levelIndex===worldOneTotal-1);
+   const snapshot=campaignSnapshot(results,null,finalStage);
    updateLocalRecord('campaign-total-v2',{score:snapshot.score,elapsedMs:snapshot.elapsedMs});
    stageRanks.record({levelId:level.id,score:result.score,durationMs:Math.round(result.elapsedMs)});
    updateLocalRecords();
    document.dispatchEvent(new CustomEvent('oldarcade:game-finished',{detail:{game:'pixel-quest',score:snapshot.score,durationMs:Math.round(snapshot.elapsedMs),eligible:true}}));
-   description.textContent=`Fase ${levelIndex+1}/${worldOneTotal} (${level.id}): ${result.score} pontos · ${result.crystals} cristais · ${result.enemies} inimigos · Power-ups e combos incluídos · Tempo +${timeBonus(result.elapsedMs)} · Atraso no portal -${portalDelayPenalty(run)}.`+(levelIndex===worldOneTotal-1?' Mundo 2: Cavernas de Cristal, em desenvolvimento. Mundo 3: Fortaleza do Portal, em breve.':' A próxima fase está disponível.');
+   description.textContent=`Mundo ${world.number}, fase ${world.index+1}/${world.total} (${level.id}): ${result.score} pontos · ${result.crystals} cristais · ${result.enemies} inimigos · Power-ups e combos incluídos · Tempo +${timeBonus(result.elapsedMs)} · Atraso no portal -${portalDelayPenalty(run)}.`+(finalStage?' Você concluiu a campanha atual.':' A próxima fase está disponível.');
   }else{
    const snapshot=campaignSnapshot(results,{score:run.score,elapsedMs:run.elapsedMs},false);
    // Derrota não é fase concluída: nunca enviar ranking, atualizar recordes ou confirmar pódio.
@@ -245,16 +254,16 @@ if(stage){
     ' pontos. Total da campanha nesta tentativa: '+snapshot.score.toLocaleString('pt-BR')+
     ' pontos (inclui as fases anteriores). Esta fase não foi concluída; nenhum recorde foi enviado. Você pode tentar novamente.';
   }
-  start.textContent=won?(levelIndex===worldOneTotal-1?'↻ Recomeçar aventura':'▶ Próxima fase'):'↻ Tentar novamente';start.hidden=false;input.reset();updateHud();
+  start.textContent=won?(finalStage?'↻ Recomeçar aventura':'▶ Próxima fase'):'↻ Tentar novamente';start.hidden=false;input.reset();updateHud();
  }
  function startGame(){
   if(phase==='ready'||phase==='won'||phase==='lost'){
    document.dispatchEvent(new CustomEvent('oldarcade:game-started',{detail:{game:'pixel-quest'}}));
   }
   if(phase==='won'){
-   if(levelIndex<worldOneTotal-1)levelIndex++;
+   if(levelIndex<campaignTotal-1)levelIndex++;
    else{levelIndex=0;results=[];worldElapsedMs=0;for(const kind of ENEMY_KINDS)completedKillsByKind[kind]=0}
-   level=worldOneLevels[levelIndex];
+   level=campaignLevels[levelIndex];
   }
   if(phase==='ready'||phase==='won'||phase==='lost')reset();
   if(phase==='ready'||phase==='won'||phase==='lost'){

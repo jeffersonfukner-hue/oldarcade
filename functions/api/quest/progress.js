@@ -2,9 +2,9 @@
  * Requer migração 0011 antes da publicação desta funcionalidade.
  */
 import {currentPlayer,reply,sameOrigin,parseBody} from '../_lib/auth.js';
-const ids=['1-1','1-2','1-3'];
+const ids=['1-1','1-2','1-3','2-1','2-2','2-3'];
 function validCompleted(completed){
- if(!Array.isArray(completed)||completed.length>3)return false;
+ if(!Array.isArray(completed)||completed.length>ids.length)return false;
  return completed.every((r,i)=>r&&typeof r==='object'&&r.levelId===ids[i]
   &&Number.isSafeInteger(r.score)&&r.score>=0&&r.score<=1000000
   &&Number.isFinite(r.elapsedMs)&&r.elapsedMs>=0&&r.elapsedMs<=86400000

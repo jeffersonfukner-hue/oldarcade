@@ -1,19 +1,19 @@
-import type {CompletedForestStage} from './progressContract';
-import {validateForestProgress} from './progressContract';
+import type {CompletedQuestStage} from './progressContract';
+import {validateQuestProgress} from './progressContract';
 /** Sem login: progresso apenas nesta aba. Com login: recupera etapas concluídas do servidor.
  * Evita envio de progresso de uma conta para outra após troca de sessão.
  */
-export function setupQuestProgress(onRestore:(completed:CompletedForestStage[])=>void){
+export function setupQuestProgress(onRestore:(completed:CompletedQuestStage[])=>void){
  let account:string|null=null;
  let ready=false,lastSavedCount=0,sessionVersion=0,saving=false,everAuthenticated=false;
- let pending:CompletedForestStage[]=[];
+ let pending:CompletedQuestStage[]=[];
  const endpoint='/api/quest/progress';
  async function load(version:number){
   try{
    const res=await fetch(endpoint,{cache:'no-store'});
    if(!res.ok)return;
-   const data=await res.json() as {completed?:CompletedForestStage[]};
-   if(version!==sessionVersion||!validateForestProgress(data))return;
+   const data=await res.json() as {completed?:CompletedQuestStage[]};
+   if(version!==sessionVersion||!validateQuestProgress(data))return;
    lastSavedCount=data.completed.length;
    onRestore(data.completed);
   }catch{/* Falha de leitura não equivale a progresso vazio */}
@@ -37,8 +37,8 @@ export function setupQuestProgress(onRestore:(completed:CompletedForestStage[])=
    }
   }
  }
- function record(completed:CompletedForestStage[]){
-  if(!validateForestProgress({completed}))return;
+ function record(completed:CompletedQuestStage[]){
+  if(!validateQuestProgress({completed}))return;
   if(completed.length>=pending.length)pending=completed.slice();
   void save();
  }

@@ -5,5 +5,6 @@ export function entranceForLevel(index:number):Entrance {
  return (['zoom','horizontal','vertical'] as const)[index]??'zoom';
 }
 export function stageTitle(levelId:string,levelNumber:number,total:number,world:string){
- return {world:`MUNDO 1 · ${world.toUpperCase()}`,progress:`Fase ${levelNumber}/${total}`,code:levelId};
+ const worldNumber=levelId.split('-')[0]??'1';
+ return {world:`MUNDO ${worldNumber} · ${world.toUpperCase()}`,progress:`Fase ${levelNumber}/${total}`,code:levelId};
 }

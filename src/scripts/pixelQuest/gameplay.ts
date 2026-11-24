@@ -102,6 +102,12 @@ export function stepRun(run:Run,level:Level,input:InputFrame,dt=STEP):void {
  };
  const oldBottom=run.player.y+run.player.h;
  const oldVy=run.player.vy;
+  // Correntes prismáticas são zonas legíveis: ajudam a alcançar rotas altas, mas não
+  // removem o controle lateral nem substituem o salto. A força é aplicada antes da física.
+  for(const entity of level.entities)if(entity.kind==='updraft'&&overlaps(run.player.x,run.player.y,run.player.w,run.player.h,entity.x,entity.y,entity.width??0,entity.height??0)){
+   run.player.vx=Math.max(-220,Math.min(220,run.player.vx+(entity.forceX??0)*dt));
+   run.player.vy=Math.min(run.player.vy,(entity.forceY??-700));
+  }
  stepPlayer(run.player,input,level,dt);
  if(run.player.grounded)run.airComboCount=0;
  const p=run.player;

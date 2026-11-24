@@ -32,6 +32,7 @@ export function worldOneAtmosphere(levelId:string,ratio:number){
  const p=palettes[levelId]??palettes['1-1'];
  return {top:blend(p[0],p[2],t),bottom:blend(p[1],p[3],t)};
 }
+function isCrystalCavern(level:Level){return level.id.startsWith('2-')}
 function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number,vertical:number,worldElapsedMs:number,reducedMotion:boolean){
  const sky=skyColors(worldElapsedMs);
  const gradient=c.createLinearGradient(0,0,0,VIEW_HEIGHT);
@@ -68,7 +69,7 @@ function drawLandscape(c:CanvasRenderingContext2D,level:Level,camera:number,vert
   }
  }
 }
-export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,camera:number,worldElapsedMs=0,stageIndex=0,reducedMotion=false,completedScore=0,rankingFx:RankingCelebration|null=null,now=0){
+export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,camera:number,worldElapsedMs=0,_stageIndex=0,reducedMotion=false,completedScore=0,rankingFx:RankingCelebration|null=null,now=0){
  const context=canvas.getContext('2d');if(!context)return;
  context.imageSmoothingEnabled=false;
  const vertical=pixelQuestVerticalOffset(level,run.player.y);
@@ -81,17 +82,28 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
  for(let row=0;row<level.height;row++)for(let col=first;col<=last;col++){
   const tile=level.tiles[row][col];if(!tile)continue;
   const x=Math.round(col*32-camera),y=row*32-vertical;
-  if(tile===1){
+   if(tile===1){
    const surface=row===15;
-   context.fillStyle=surface?'#6a4537':row===16?'#584038':'#443333';
+   context.fillStyle=isCrystalCavern(level)?(surface?'#39416e':row===16?'#2c3158':'#202847'):(surface?'#6a4537':row===16?'#584038':'#443333');
    context.fillRect(x,y,32,32);
-   if(surface){context.fillStyle='#468a55';context.fillRect(x,y,32,7)}
-   context.fillStyle='#80624f';
+   if(surface){context.fillStyle=isCrystalCavern(level)?'#8a70d8':'#468a55';context.fillRect(x,y,32,7)}
+   context.fillStyle=isCrystalCavern(level)?'#6673bb':'#80624f';
    if((row+col)%3===0)context.fillRect(x+8,y+18,9,4);
   }else{
    context.fillStyle='#97775c';context.fillRect(x,y,32,10);
    context.fillStyle='#74aa71';context.fillRect(x,y,32,4);
   }
+ }
+ // A nova mecânica é visível antes de ser exigida: partículas sobem dentro da coluna.
+ for(const entity of level.entities)if(entity.kind==='updraft'){
+  const x=Math.round(entity.x-camera),y=Math.round(entity.y-vertical),w=entity.width??0,h=entity.height??0;
+  context.save();context.globalAlpha=.3;context.fillStyle='#9eeeff';context.fillRect(x,y,w,h);context.globalAlpha=.8;
+  context.strokeStyle='#c3b4ff';context.lineWidth=2;context.strokeRect(x+.5,y+.5,w-1,h-1);
+  for(let particle=0;particle<4;particle++){
+   const rise=(worldElapsedMs/18+particle*35)%h;
+   context.fillStyle='#e3dcff';context.fillRect(x+10+particle*12,y+h-rise,3,9);
+  }
+  context.restore();
  }
  for(const [id,entity] of level.entities.entries()){
   if(entity.kind==='player'||(entity.kind==='crystal'&&run.crystals.has(id))||['patroller','runner','hopper','sentry'].includes(entity.kind)||run.collectedPowerups.has(id))continue;
@@ -125,7 +137,7 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
  if(boss&&boss.hearts>0){
   const x=Math.round(boss.x-camera),y=Math.round(boss.y-vertical);
   const alert=boss.mode==='warning'||boss.mode==='charge';
-  context.fillStyle=boss.stun>0?'#b5b7e2':boss.mode==='charge'?'#ed637e':alert?'#eaa57b':'#8f6ca8';
+  context.fillStyle=boss.stun>0?'#b5b7e2':boss.mode==='charge'?'#ed637e':alert?'#eaa57b':isCrystalCavern(level)?'#78b6e8':'#8f6ca8';
   context.fillRect(x,y,48,56);
   context.fillStyle='#f8da80';context.fillRect(x+9,y+16,9,9);context.fillRect(x+30,y+16,9,9);
   context.fillStyle='#1c203c';context.fillRect(x+12,y+19,4,4);context.fillRect(x+33,y+19,4,4);
@@ -155,7 +167,7 @@ export function drawPlatformScene(canvas:HTMLCanvasElement,level:Level,run:Run,c
  context.textAlign='left';
  context.fillText('♥'.repeat(run.hearts)+'♡'.repeat(3-run.hearts),14,22);
  context.fillText('DIA '+time.day+' · '+formatWorldTime(time),91,22);
- context.fillText('FASE '+(stageIndex+1)+'/3',227,22);
+ context.fillText('FASE '+level.id,227,22);
  context.textAlign='right';context.fillStyle='#ffe29b';
  context.fillText('FASE '+run.score.toLocaleString('pt-BR'),455,22);
  context.fillText('TOTAL '+(completedScore+run.score).toLocaleString('pt-BR'),width-16,22);
