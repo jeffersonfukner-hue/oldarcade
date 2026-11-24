@@ -1,3 +1,5 @@
+> Contrato global de trabalho para Mac/iPad remoto e navegador: [CONTRATO_GLOBAL.md](CONTRATO_GLOBAL.md). As regras atuais do proprietário sobre CI econômico e testes prevalecem sobre referências históricas de CI obrigatório em cada commit.
+
 > **Contrato obrigatório para todo jogo/modo:** [docs/PADROES_GLOBAIS_DOS_JOGOS.md](docs/PADROES_GLOBAIS_DOS_JOGOS.md). Reutilize componentes e integrações existentes sem exigir repetição de requisitos aprovados.
 
 # OldArcade — regras permanentes para agentes
