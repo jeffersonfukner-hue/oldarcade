@@ -656,9 +656,11 @@ body.oa-auth-open{overflow:hidden}
 @media(max-width:900px){
  .oa-game-layout [data-board-shape="portrait"] .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:10px}
  .oa-game-layout [data-board-shape="portrait"] .arcade-game-layout>.game-hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+ .oa-game-layout [data-board-shape="landscape"] .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"board" "stats";gap:10px}
+ .oa-game-layout [data-board-shape="landscape"] .arcade-game-layout>.game-hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%;max-width:var(--oa-slot-max);justify-self:center}
 }
 @media(max-width:840px){.oa-game-layout{gap:12px}.oa-game-page{width:min(var(--oa-content-width),calc(100% - 40px))}}
-@media(max-width:650px){.oa-game-layout .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:9px}.oa-game-layout .arcade-game-layout>.game-hud{min-width:0;max-width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}.oa-game-layout>.panel{min-width:0}.oa-game-page>.hero{padding:20px 0 12px}}
+@media(max-width:650px){.oa-game-layout .arcade-game-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"stats" "board";gap:9px}.oa-game-layout .arcade-game-layout>.game-hud{min-width:0;max-width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}.oa-game-layout [data-board-shape="landscape"] .arcade-game-layout{grid-template-areas:"board" "stats"}.oa-game-layout>.panel{min-width:0}.oa-game-page>.hero{padding:20px 0 12px}}
 
 /* O teclado substitui os controles desenhados no desktop em qualquer jogo. */
 @media(hover:hover) and (pointer:fine){
@@ -903,6 +905,17 @@ body.oa-auth-open{overflow:hidden}
  }
  .oa-game-layout.oa-stage-unified .arcade-game-layout>.game-hud.oa-hud-compact>span:not(.oa-hud-status):not(.oa-hud-metric):not(.hud-hint){
   font-size:.7rem;
+ }
+}
+
+/* Canvas horizontal preserva a prioridade da partida quando o HUD deixa a lateral.
+   A regra vive no contrato comum e alcança qualquer jogo landscape futuro. */
+@media(max-width:900px){
+ .oa-game-layout.oa-stage-unified [data-board-shape="landscape"] .arcade-game-layout{
+  grid-template-columns:minmax(0,1fr);grid-template-areas:"board" "stats";gap:10px;width:100%;
+ }
+ .oa-game-layout.oa-stage-unified [data-board-shape="landscape"] .arcade-game-layout>.game-hud.oa-hud-compact{
+  grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%;max-width:var(--oa-slot-max);justify-self:center;
  }
 }
 

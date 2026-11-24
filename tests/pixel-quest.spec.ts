@@ -31,15 +31,22 @@ test('Protótipo Pixel Quest tem fase, controles e contagem regressiva',async({p
  await page.locator('#pq-start').click();
  await expect(page.locator('#pq-countdown')).toHaveText('3');
 });
-test('Controles touch aparecem em dispositivos touch sem overflow',async({page,isMobile})=>{
+test('Controles touch distribuem direção e salto sem overflow',async({page,isMobile})=>{
  await page.setViewportSize({width:320,height:700});
  await page.goto('/jogos/pixel-quest/');
- const jump=page.getByRole('button',{name:'Saltar',includeHidden:true});
- await expect(jump).toHaveCount(1);
- if(isMobile)await expect(jump).toBeVisible();
- else await expect(jump).toBeHidden();
+ const jump=page.getByRole('button',{name:/Saltar pelo lado/,includeHidden:true});
+ await expect(jump).toHaveCount(2);
+ if(isMobile)await expect(jump.first()).toBeVisible();
+ else await expect(jump.first()).toBeHidden();
+ await expect(page.locator('.pq-touch-controls button').first()).toHaveCSS('user-select','none');
  const widths=await page.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:window.innerWidth}));
  expect(widths.document).toBeLessThanOrEqual(widths.viewport+1);
+});
+
+test('Pixel Quest coloca o HUD abaixo do canvas no retrato de tablet',async({page})=>{
+ await page.setViewportSize({width:768,height:1024});
+ await page.goto('/jogos/pixel-quest/');
+ await expect(page.locator('.arcade-game-layout')).toHaveCSS('grid-template-areas','"board" "stats"');
 });
 
 test('Home abre Pixel Quest pelo card, preservando 3 jogos',async({page})=>{

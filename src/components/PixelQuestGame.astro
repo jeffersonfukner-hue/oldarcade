@@ -47,7 +47,7 @@ import PixelQuestEditorialArt from './PixelQuestEditorialArt.astro';
      <div class="pq-statusline" aria-label="Estado da fase"><span id="pq-level-label">Mundo 1 · Fase 1/3 · 1-1</span><span>Vidas: <strong id="pq-hearts" aria-label="Corações">♥♥♥</strong></span><span>Checkpoint: <strong id="pq-checkpoint">Não</strong></span><span id="pq-powerup-status" aria-live="off">Poderes: nenhum</span><span id="pq-portal-status" role="status">Portal bloqueado · 0/{crystalsInLevel} cristais</span><span class="oa-metric-bridge" hidden aria-hidden="true">Inimigos no nível: <strong id="pq-level-enemies">{enemiesInLevel}/{enemiesInLevel}</strong></span><span class="oa-metric-bridge" hidden aria-hidden="true">Cristais no nível: <strong id="pq-crystals">0/{crystalsInLevel}</strong></span></div>
     </div>
     </div>
-    <div class="pq-touch-controls" aria-label="Controles de toque"><button type="button" data-pq-control="left" aria-label="Mover para esquerda">←</button><button type="button" data-pq-control="right" aria-label="Mover para direita">→</button><button type="button" data-pq-control="jump" aria-label="Saltar">↑ Pular</button></div>
+    <div class="pq-touch-controls" aria-label="Controles de toque"><div class="pq-touch-cluster"><button type="button" data-pq-control="left" aria-label="Mover para esquerda">←</button><button type="button" data-pq-control="jump" aria-label="Saltar pelo lado esquerdo">↑ Pular</button></div><div class="pq-touch-cluster"><button type="button" data-pq-control="jump" aria-label="Saltar pelo lado direito">↑ Pular</button><button type="button" data-pq-control="right" aria-label="Mover para direita">→</button></div></div>
    </div>
    <aside class="panel oa-level-summary" aria-label="Informações da fase"><h2>2 mundos · 6 fases</h2><p>Após a Floresta Esmeralda, as Cavernas de Cristal ensinam a usar correntes prismáticas para alcançar rotas verticais. Cada mundo termina com seu próprio Guardião.</p><p class="small muted">Regras, controles e pontuação detalhados abaixo.</p></aside>
   </GameLayout>
@@ -103,9 +103,10 @@ import PixelQuestEditorialArt from './PixelQuestEditorialArt.astro';
   .pq-statusline{display:flex;justify-content:flex-start;align-items:center;gap:8px 18px;flex-wrap:wrap;min-width:0;color:#dbe6ff;font-size:.8rem;line-height:1.4}
   .pq-statusline>span[role=status]{flex:1 1 200px;overflow-wrap:anywhere}
   #pq-hearts{color:#ff929f;letter-spacing:.1em}
-  .pq-touch-controls{display:flex;justify-content:center;gap:12px;margin-top:12px;touch-action:manipulation}
-  .pq-touch-controls button{min-width:70px;min-height:52px;border-radius:10px;border:1px solid #5471a8;background:#1b3557;color:#fff;font-weight:750;touch-action:none}
+  .pq-touch-controls{display:flex;justify-content:space-between;gap:20px;width:min(100%,640px);margin:12px auto 0;touch-action:manipulation}
+  .pq-touch-cluster{display:flex;gap:10px}
+  .pq-touch-controls button{min-width:70px;min-height:52px;border-radius:10px;border:1px solid #5471a8;background:#1b3557;color:#fff;font-weight:750;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
   @media(hover:hover) and (pointer:fine){.pq-touch-controls{display:none}}
-  @media(max-width:650px){.pq-touch-controls button{min-width:64px}.pq-statusline{overflow-wrap:anywhere}}
+  @media(max-width:650px){.pq-touch-controls{gap:8px}.pq-touch-cluster{gap:6px}.pq-touch-controls button{min-width:58px}.pq-statusline{overflow-wrap:anywhere}}
  </style>
 </GamePage>
