@@ -1,3 +1,9 @@
+## TET-01 a TET-03 — 25/11/2026
+- Progressão híbrida homologada: campanha sequencial e extras livres; primeira missão 40 linhas com limite de tempo; metas e limites ajustáveis. Preservar desafio diário suspenso.
+- Código preparado: motor único de estatísticas por eliminação simultânea (100/200/400/800), contadores reiniciados por partida e painel compartilhado pelos três modos. Pontos de combo são paralelos ao placar legado, sem mudar ranking, recordes locais, eventos ou D1. No mobile estreito, painel abaixo do tabuleiro.
+- TET-04 a TET-08 pendentes: motor de missões, persistência, ranking versionado, integração de tempo e testes. Não mesclar pontuações incompatíveis. Testes unitários adicionados, ainda não executados no repositório; build e QA pendentes. CI-ECONOMY-01: não atualizar PR aberto sem confirmar orçamento e gatilhos; nenhum deploy.
+- Base: `851b20180a727841290c440f10e494cff5ec8a76`. Tempo de trabalho não registrado.
+
 ## PIXEL QUEST — bloqueio de registro público após derrota (23/11/2026)
 - Detectado durante auditoria do placar: apesar da remoção do `stageRanks.record` no ramo de derrota, o evento global `oldarcade:game-finished` continuava acionando `modeRanking.ts` e `gameEndAccountInvite.ts`, possibilitando POST indevido do total parcial e convite falso para salvar marca.
 - A conclusão de fase agora envia evento com `eligible:true`; derrota envia `eligible:false`, que o ranking compartilhado descarta e informa "Fase não concluída". Convite de registro é suprimido para derrota, sem remover o evento global de encerramento utilizado pelas demais integrações. Jogos não Quest preservam contrato antigo.

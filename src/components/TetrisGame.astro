@@ -3,6 +3,7 @@ import GamePageSections from './GamePageSections.astro';
 import GameRelatedGames from './GameRelatedGames.astro';
 import GamePage from './GamePage.astro';
 import GameHud from './GameHud.astro';
+import {TETRIS_CLEAR_MULTIPLIERS,TETRIS_CLEAR_BASE} from '../data/tetrisClearStats.js';
 import GameStageHeader from './GameStageHeader.astro';
 import GameRanking from './GameRanking.astro';
 import GameShare from './GameShare.astro';
@@ -55,7 +56,14 @@ import TetrisEditorialArt from './TetrisEditorialArt.astro';
       <aside class="tetris-preview-column" aria-label="Próximas peças e reserva">
        <div class="tetris-mini"><span class="eyebrow">Próxima</span><canvas id="tetris-next" width="120" height="120" aria-label="Prévia da próxima peça"></canvas></div>
        <div class="tetris-mini"><span class="eyebrow">Reserva · C</span><canvas id="tetris-hold" width="120" height="120" aria-label="Peça reservada"></canvas></div>
-       <div class="tetris-mini tetris-line-stat"><span class="eyebrow">Linhas</span><strong id="tetris-lines">{sprint?`0/${goal}`:"0"}</strong></div>
+       <div class="tetris-mini tetris-line-stat"><span class="eyebrow">Linhas eliminadas</span><strong id="tetris-lines">{sprint?`0/${goal}`:"0"}</strong></div>
+       <section class="tetris-mini tetris-clear-stats" aria-label="Pontos por combo e eliminações simultâneas">
+        <span class="eyebrow">Pontos por combo</span><strong id="tetris-combo-points">0</strong>
+        <div class="tetris-clear-grid">
+         {[1,2,3,4].map(count=><div class="tetris-clear-row"><span title={`${TETRIS_CLEAR_BASE*TETRIS_CLEAR_MULTIPLIERS[count]} pontos por eliminação`}>{count}L · {TETRIS_CLEAR_MULTIPLIERS[count]}×</span><strong id={`tetris-clear-${count}`}>0</strong></div>)}
+        </div>
+        <small>Contagem de jogadas · ranking atual preservado</small>
+       </section>
        <div class="tetris-mission-slot" data-daily-mission-sidebar data-daily-mission-inline hidden aria-label="Missão diária ao lado das linhas"></div>
         <GameHud compact statusId="tetris-status" scoreId="tetris-score" bestId="tetris-best" globalId="tetris-global" levelId={timed?undefined:"tetris-level"} scoreLabel={survival?"Tempo sobrevivido":sprint?"Linhas":"Pontos"} bestLabel={timed?"Melhor tempo da conta":"Recorde da conta"} globalLabel={timed?"Tempo líder":"Recorde global"} provisionalId="tetris-provisional" hint="F: tela cheia · Espaço: queda · P: pausa" />
       </aside>
@@ -122,6 +130,12 @@ import TetrisEditorialArt from './TetrisEditorialArt.astro';
   .tetris-mini{border:1px solid #394c71;border-radius:12px;background:#101c32;padding:8px;text-align:center;display:grid;gap:4px}
   .tetris-mini .eyebrow{font-size:.6rem;letter-spacing:.08em}
   .tetris-mini canvas{width:100%;height:auto;aspect-ratio:1;background:#0a1729;border-radius:7px}
+  .tetris-clear-stats{grid-column:1/-1;min-width:0;gap:6px}
+  .tetris-clear-stats>strong{font-size:1.25rem;color:#ffe278;font-variant-numeric:tabular-nums}
+  .tetris-clear-grid{display:grid;gap:3px}
+  .tetris-clear-row{display:flex;justify-content:space-between;gap:4px;font-size:.82rem;font-variant-numeric:tabular-nums}
+  .tetris-clear-stats small{font-size:.65rem;line-height:1.3}
+  @media(max-width:620px){.tetris-main-layout .tetris-clear-stats{grid-column:1/-1;grid-row:4}.tetris-clear-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 12px}.tetris-main-layout .tetris-mission-slot{grid-row:5!important}}
   .tetris-line-stat strong{font-size:1.65rem;color:#ffe278}
   .tetris-mission-slot[hidden]{display:none!important}
   .tetris-mission-slot{min-width:0}

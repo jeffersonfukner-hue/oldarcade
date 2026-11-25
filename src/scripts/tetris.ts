@@ -7,6 +7,7 @@ import {setCountdownOverlay} from './gameCountdownOverlay';
 import {formatRankingValue} from '../data/rankingRules.js';
 import {gameModes} from '../data/gameModes.js';
 import {tetrisLevel,tetrisGravityMs} from '../data/tetrisRules.js';
+import {createTetrisClearStats,registerTetrisClear} from '../data/tetrisClearStats.js';
 import {seededRandom,dailyMissionWon} from '../data/dailyChallenges.js';
 import {initialMissionState,advanceDailyMission} from '../data/dailyMissionEngine.js';
 import {setupDailyMissionReplay} from './dailyMissionReplay';
@@ -56,6 +57,7 @@ let dailyClears:number[]=[];
 let missionState=initialMissionState();
 let board:Cell[][]=[],piece:Falling|null=null,bag:PieceName[]=[],queue:PieceName[]=[];
 let reserve:PieceName|null=null,reserveUsed=false,score=0,lines=0,level=1,state:State='ready';
+let clearStats=createTetrisClearStats();
 let globalTarget:number|null=null,personalTarget:number|null=null,globalProvisional=false;
 let fallTimer=0,countTimer=0,finishSequence=0,fullscreenChanging=false;
 let dropFrame=0,dropAnimating=false,dropVisualY:number|null=null;
@@ -117,6 +119,8 @@ function update(){
  node('tetris-score').textContent=survival?formatRankingValue(modeId,clock.milliseconds()):sprint?lines+'/'+TARGET_LINES:String(score);
  node('tetris-best').textContent=personalTarget===null?'—':timed?formatRankingValue(modeId,personalTarget):String(personalTarget);
  node('tetris-lines').textContent=sprint?Math.min(lines,TARGET_LINES)+'/'+TARGET_LINES:String(lines);
+ node('tetris-combo-points').textContent=String(clearStats.points);
+ for(let count=1;count<=4;count++)node('tetris-clear-'+count).textContent=String(clearStats.counts[count]);
  if(!timed)node('tetris-level').textContent=String(level);
  node('tetris-plays').textContent=String(plays);
  node('tetris-local-best').textContent=displayBest();node('tetris-sidebar-level').textContent=sprint?lines+'/'+TARGET_LINES:survival?'Onda '+level:String(level);
@@ -144,6 +148,7 @@ function land(){
  if(cleared){
   board=[...Array.from({length:cleared},()=>Array<Cell>(COLS).fill(0)),...remaining];
   lines+=cleared;
+  registerTetrisClear(clearStats,cleared);
   const oldLevel=level;level=tetrisLevel(modeId,lines,clock.milliseconds());
   const points=[0,100,300,500,800][cleared]*oldLevel;
    const mission=dailyAttempt?.mission;
@@ -283,7 +288,7 @@ function start(daily:DailyAttempt|null=null){
  dailyRandom=daily?seededRandom(daily.seed):Math.random;
  finishSequence++;stopDropAnimation();window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  clock.reset();board=empty();bag=[];queue=[];reserve=null;reserveUsed=false;
- piece=null;score=0;lines=0;level=1;globalProvisional=false;screen.removeAttribute('data-survival-danger');drawNext();
+ piece=null;score=0;lines=0;clearStats=createTetrisClearStats();level=1;globalProvisional=false;screen.removeAttribute('data-survival-danger');drawNext();
  if(!daily?.practice){const event=recordGameStart(modeId);counters.recordPlay(event)}
  if(!dailyAttempt){plays++;save()}
  spawn();update();centerGameBoard(screen,stage);countdownStart(true);
