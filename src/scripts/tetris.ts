@@ -10,6 +10,7 @@ import {tetrisLevel,tetrisGravityMs} from '../data/tetrisRules.js';
 import {createTetrisClearStats,registerTetrisClear} from '../data/tetrisClearStats.js';
 import {seededRandom,dailyMissionWon} from '../data/dailyChallenges.js';
 import {initialMissionState,advanceDailyMission} from '../data/dailyMissionEngine.js';
+import {campaign,missions,missionUnlocked,newMissionState,advanceMission} from '../data/tetrisMissions.js';
 import {setupDailyMissionReplay} from './dailyMissionReplay';
 
 type PieceName='I'|'O'|'T'|'S'|'Z'|'J'|'L';
@@ -58,6 +59,30 @@ let missionState=initialMissionState();
 let board:Cell[][]=[],piece:Falling|null=null,bag:PieceName[]=[],queue:PieceName[]=[];
 let reserve:PieceName|null=null,reserveUsed=false,score=0,lines=0,level=1,state:State='ready';
 let clearStats=createTetrisClearStats();
+type Mission=typeof missions[number];
+let selectedMission:Mission|null=null,activeMission:Mission|null=null;
+let campaignCompleted:string[]=[];
+let campaignState=newMissionState();
+const missionSelect=document.querySelector<HTMLSelectElement>('#tetris-campaign-select');
+const missionInfo=document.getElementById('tetris-campaign-info');
+function refreshMissionPicker(){
+ if(!missionSelect)return;
+ for(const option of Array.from(missionSelect.options)){
+  if(option.value)option.disabled=!missionUnlocked(option.value,campaignCompleted);
+ }
+ missionSelect.disabled=state==='playing'||state==='countdown'||state==='paused';
+ if(missionInfo){
+  const m=activeMission??selectedMission;
+  missionInfo.textContent=m?m.description+' · '+(m.kind==='survive'||m.kind==='endurance'?Math.floor(campaignState.progress/1000)+' s':campaignState.progress+'/'+m.target)+(m.limit?' · '+Math.max(0,Math.ceil((m.limit-campaignState.elapsed)/1000))+' s restantes':''):'Sprint original: 40 linhas, ranking por tempo.';
+ }
+}
+function missionEvent(type:'lock'|'tick'|'end',count=0){
+ if(!activeMission)return false;
+ campaignState=advanceMission(activeMission,campaignState,{type,count,elapsed:clock.milliseconds()});
+ if(campaignState.status!=='playing'){finish(campaignState.status==='won');return true;}
+ return false;
+}
+
 let globalTarget:number|null=null,personalTarget:number|null=null,globalProvisional=false;
 let fallTimer=0,countTimer=0,finishSequence=0,fullscreenChanging=false;
 let dropFrame=0,dropAnimating=false,dropVisualY:number|null=null;
@@ -116,15 +141,16 @@ function dailyProgress(){
 }
 function update(){
  node('tetris-status').textContent=state==='playing'?'● Jogando':state==='paused'?'● Pausado':state==='countdown'?'● Preparando':state==='over'?'● Fim de jogo':'● Pronto';
- node('tetris-score').textContent=survival?formatRankingValue(modeId,clock.milliseconds()):sprint?lines+'/'+TARGET_LINES:String(score);
+ node('tetris-score').textContent=survival?formatRankingValue(modeId,clock.milliseconds()):sprint?(activeMission?String(lines):lines+'/'+TARGET_LINES):String(score);
  node('tetris-best').textContent=personalTarget===null?'—':timed?formatRankingValue(modeId,personalTarget):String(personalTarget);
- node('tetris-lines').textContent=sprint?Math.min(lines,TARGET_LINES)+'/'+TARGET_LINES:String(lines);
+ node('tetris-lines').textContent=sprint&&!activeMission?Math.min(lines,TARGET_LINES)+'/'+TARGET_LINES:String(lines);
  node('tetris-combo-points').textContent=String(clearStats.points);
  for(let count=1;count<=4;count++)node('tetris-clear-'+count).textContent=String(clearStats.counts[count]);
  if(!timed)node('tetris-level').textContent=String(level);
  node('tetris-plays').textContent=String(plays);
  node('tetris-local-best').textContent=displayBest();node('tetris-sidebar-level').textContent=sprint?lines+'/'+TARGET_LINES:survival?'Onda '+level:String(level);
  node('tetris-global').textContent=timed?formatRankingValue(modeId,globalTarget):String(globalProvisional?score:globalTarget??'—');node('tetris-provisional').hidden=timed||!globalProvisional;
+ refreshMissionPicker();
  dailyProgress();
 }
 function award(points:number){
@@ -165,8 +191,10 @@ function land(){
    if(mission&&mission.version>=2&&missionState.status==='won'){finish(true);return}
   showScoreFeedback(screen,canvas,timed?cleared:points,timed?(cleared===1?'linha eliminada':'linhas eliminadas'):cleared===4?'TETRIS! 4 linhas':cleared===1?'1 linha':cleared+' linhas',completed[0],ROWS);
   // Clássico pontua linhas; Sprint utiliza somente tempo de conclusão.
-  if(sprint&&lines>=TARGET_LINES){finish(true);return}
+  if(sprint&&!activeMission&&lines>=TARGET_LINES){finish(true);return}
  }else update();
+ if(missionEvent('lock',cleared))return;
+ refreshMissionPicker();
  reserveUsed=false;
  if(spawn())schedule();
 }
@@ -214,7 +242,7 @@ function hold(){
  else{reserve=old;if(!spawn())return}
  draw();
 }
-function speed(){return tetrisGravityMs(modeId,lines,clock.milliseconds())}
+function speed(){return tetrisGravityMs(activeMission?.kind==='survive'||activeMission?.kind==='endurance'?'tetris-survival':modeId,lines,clock.milliseconds())}
 function schedule(){
  window.clearTimeout(fallTimer);
  if(state!=='playing')return;
@@ -280,6 +308,8 @@ function countdownStart(first:boolean){
 function start(daily:DailyAttempt|null=null){
  if(dailyRequestPending)return;
  dailyAttempt=daily;
+ activeMission=!daily&&sprint?selectedMission:null;
+ campaignState=newMissionState();
  dailyReplay.clear();
  dailyClears=[];
  missionState=initialMissionState();
@@ -289,8 +319,8 @@ function start(daily:DailyAttempt|null=null){
  finishSequence++;stopDropAnimation();window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  clock.reset();board=empty();bag=[];queue=[];reserve=null;reserveUsed=false;
  piece=null;score=0;lines=0;clearStats=createTetrisClearStats();level=1;globalProvisional=false;screen.removeAttribute('data-survival-danger');drawNext();
- if(!daily?.practice){const event=recordGameStart(modeId);counters.recordPlay(event)}
- if(!dailyAttempt){plays++;save()}
+ if(!activeMission&&!daily?.practice){const event=recordGameStart(modeId);counters.recordPlay(event)}
+ if(!activeMission&&!dailyAttempt){plays++;save()}
  spawn();update();centerGameBoard(screen,stage);countdownStart(true);
 }
 function finish(completed=false){
@@ -299,6 +329,17 @@ function finish(completed=false){
  // Amostrar o relógio antes de deixar playing, inclusive no último encaixe.
  const duration=clock.milliseconds();
  state='over';stopDropAnimation();globalProvisional=false;window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
+ if(activeMission){
+  const mission=activeMission;
+  if(campaignState.status==='playing')campaignState=advanceMission(mission,campaignState,{type:'end',count:0,elapsed:duration});
+  const won=campaignState.status==='won';
+  if(won&&campaign.some(m=>m.id===mission.id)&&!campaignCompleted.includes(mission.id))campaignCompleted.push(mission.id);
+  update();draw();
+  show(won?'Missão cumprida!':campaignState.status==='finished'?'Desafio encerrado':'Missão não cumprida',mission.title+' · '+clearStats.points+' pontos · '+lines+' linhas · '+Math.floor(duration/1000)+' s',won?'▶ Jogar próxima missão ou repetir':'▶ Tentar novamente');
+  activeMission=null;
+  refreshMissionPicker();
+  return;
+ }
  if(dailyAttempt?.practice){
   const attempt=dailyAttempt;
   const mission=attempt.mission;
@@ -449,6 +490,12 @@ try{
   startButton.textContent='↻ Reenviar resultado diário';
  }
 }catch{}
+missionSelect?.addEventListener('change',()=>{
+ if(state==='playing'||state==='paused'||state==='countdown')return;
+ const id=missionSelect.value;
+ selectedMission=missions.find(m=>m.id===id&&missionUnlocked(id,campaignCompleted))??null;
+ campaignState=newMissionState();refreshMissionPicker();
+});
 startButton.addEventListener('click',()=>{
  if(startButton.dataset.dailyRetry==='true'){void submitDailyFinish();return}
  if(dailyReplay.retry())return;
@@ -513,6 +560,7 @@ board=empty();drawNext();draw();update();
 if(survival)window.setInterval(()=>{if(state==='playing')update()},250);
 // A missão cronometrada encerra no prazo mesmo se o jogador não posicionar nenhuma peça.
 window.setInterval(()=>{
+ if(state==='playing'&&activeMission){missionEvent('tick');refreshMissionPicker();return;}
  if(state!=='playing'||!dailyAttempt?.mission||dailyAttempt.mission.version<2)return;
  const limit=dailyAttempt.mission.timeLimitMs;
  if(limit!==null&&clock.milliseconds()>=limit){

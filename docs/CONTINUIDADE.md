@@ -1,3 +1,7 @@
+## TET-04/05 — 25/11/2026
+- Motor paramétrico de missões, oito missões de campanha sequencial e quatro extras livres integrados ao motor de Tetris. Seletor na rota Sprint existente; Sprint original permanece disponível com ranking legado. Missões não submetem resultados ao ranking Sprint. Progresso apenas em memória da sessão até TET-06; sem D1. Metas/limites são parâmetros iniciais para calibração.
+- Testes unitários adicionados (ainda sem execução integral). CI não disparado; commit preparado sem mover PR ativo. TET-06/07/08 pendentes: persistência, ranking versionado, testes completos, revisão de layout e Preview. Tempo não registrado.
+
 ## TET-01 a TET-03 — 25/11/2026
 - Progressão híbrida homologada: campanha sequencial e extras livres; primeira missão 40 linhas com limite de tempo; metas e limites ajustáveis. Preservar desafio diário suspenso.
 - Código preparado: motor único de estatísticas por eliminação simultânea (100/200/400/800), contadores reiniciados por partida e painel compartilhado pelos três modos. Pontos de combo são paralelos ao placar legado, sem mudar ranking, recordes locais, eventos ou D1. No mobile estreito, painel abaixo do tabuleiro.
