@@ -11,6 +11,8 @@ import {createTetrisClearStats,registerTetrisClear} from '../data/tetrisClearSta
 import {seededRandom,dailyMissionWon} from '../data/dailyChallenges.js';
 import {initialMissionState,advanceDailyMission} from '../data/dailyMissionEngine.js';
 import {campaign,missions,missionUnlocked,newMissionState,advanceMission} from '../data/tetrisMissions.js';
+import {completedCampaign} from '../data/tetrisRanking.js';
+import {setupTetrisVersionedRanking} from './tetrisVersionedRanking';
 import {setupDailyMissionReplay} from './dailyMissionReplay';
 
 type PieceName='I'|'O'|'T'|'S'|'Z'|'J'|'L';
@@ -61,7 +63,15 @@ let reserve:PieceName|null=null,reserveUsed=false,score=0,lines=0,level=1,state:
 let clearStats=createTetrisClearStats();
 type Mission=typeof missions[number];
 let selectedMission:Mission|null=null,activeMission:Mission|null=null;
+const progressKey='oldarcade:tetris:campaign:v1';
 let campaignCompleted:string[]=[];
+if(sprint){try{campaignCompleted=completedCampaign(JSON.parse(localStorage.getItem(progressKey)||'[]'));}catch{}}
+const legacyScope=sprint?'sprint':survival?'survival':'classic';
+const versionedRanking=setupTetrisVersionedRanking(legacyScope);
+function saveCampaign(){try{localStorage.setItem(progressKey,JSON.stringify(campaignCompleted));return true;}catch{return false;}}
+function submitVersioned(scope:string,duration:number){
+ versionedRanking.finish(scope,{points:clearStats.points,durationMs:Math.max(1,duration),counts:clearStats.counts.slice(1)});
+}
 let campaignState=newMissionState();
 const missionSelect=document.querySelector<HTMLSelectElement>('#tetris-campaign-select');
 const missionInfo=document.getElementById('tetris-campaign-info');
@@ -333,7 +343,10 @@ function finish(completed=false){
   const mission=activeMission;
   if(campaignState.status==='playing')campaignState=advanceMission(mission,campaignState,{type:'end',count:0,elapsed:duration});
   const won=campaignState.status==='won';
-  if(won&&campaign.some(m=>m.id===mission.id)&&!campaignCompleted.includes(mission.id))campaignCompleted.push(mission.id);
+  let persisted=true;
+  if(won&&campaign.some(m=>m.id===mission.id)&&!campaignCompleted.includes(mission.id)){campaignCompleted.push(mission.id);persisted=saveCampaign();}
+  if(won||campaignState.status==='finished')submitVersioned(mission.id,duration);
+  if(!persisted&&missionInfo)missionInfo.textContent='Progresso desbloqueado nesta sessão; armazenamento local indisponível.';
   update();draw();
   show(won?'Missão cumprida!':campaignState.status==='finished'?'Desafio encerrado':'Missão não cumprida',mission.title+' · '+clearStats.points+' pontos · '+lines+' linhas · '+Math.floor(duration/1000)+' s',won?'▶ Jogar próxima missão ou repetir':'▶ Tentar novamente');
   activeMission=null;
@@ -371,6 +384,7 @@ function finish(completed=false){
   update();draw();
   recordGameScore(modeId,elapsed);
   recordGameFinish(modeId,elapsed,elapsed,{recordDelayMs:6500});
+  submitVersioned(legacyScope,duration);
   celebrate('defeat','Você resistiu por '+formatRankingValue(modeId,elapsed)+' e eliminou '+lines+' linhas.',true);
   window.setTimeout(()=>{if(sequence===finishSequence&&state==='over')show('Sobrevivência encerrada','Você resistiu por '+formatRankingValue(modeId,elapsed)+' · '+lines+' linhas.','▶ Sobreviver novamente')},4000);
   return;
@@ -382,6 +396,7 @@ function finish(completed=false){
    update();draw();
    recordGameScore(modeId,elapsed);
    recordGameFinish(modeId,elapsed,elapsed,{recordDelayMs:6500});
+   submitVersioned(legacyScope,duration);
    celebrate('mission','40 linhas eliminadas em '+formatRankingValue(modeId,elapsed)+'! Sprint concluído.',true);
    window.setTimeout(()=>{if(sequence===finishSequence&&state==='over')show('Sprint concluído','40 linhas em '+formatRankingValue(modeId,elapsed)+'.','▶ Correr novamente')},4000);
   }else{
@@ -394,6 +409,7 @@ function finish(completed=false){
  }
  save();update();draw();
  recordGameFinish(modeId,score,duration,{recordDelayMs:6500});
+ submitVersioned(legacyScope,duration);
  celebrate('defeat','Você fez '+score+' pontos e eliminou '+lines+' linhas. Pronto para a revanche?',true);
  window.setTimeout(()=>{if(sequence===finishSequence&&state==='over')show('Fim de jogo','Você marcou '+score+' pontos e eliminou '+lines+' linhas.','▶ Jogar novamente')},4000);
 }
@@ -494,7 +510,7 @@ missionSelect?.addEventListener('change',()=>{
  if(state==='playing'||state==='paused'||state==='countdown')return;
  const id=missionSelect.value;
  selectedMission=missions.find(m=>m.id===id&&missionUnlocked(id,campaignCompleted))??null;
- campaignState=newMissionState();refreshMissionPicker();
+ campaignState=newMissionState();versionedRanking.select(selectedMission?.id??legacyScope);refreshMissionPicker();
 });
 startButton.addEventListener('click',()=>{
  if(startButton.dataset.dailyRetry==='true'){void submitDailyFinish();return}

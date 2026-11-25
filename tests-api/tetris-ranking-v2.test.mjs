@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {completedCampaign,tetrisRankOrder,validTetrisResult} from '../src/data/tetrisRanking.js';
+test('progresso válido é prefixo da campanha',()=>{assert.deepEqual(completedCampaign(['c1','c3']),['c1']);assert.deepEqual(completedCampaign(null),[]);assert.deepEqual(completedCampaign(['c2']),[]);});
+test('ordem versionada por objetivo',()=>{assert.deepEqual(tetrisRankOrder('classic'),['points DESC','duration_ms ASC']);assert.equal(tetrisRankOrder('sprint')[0],'duration_ms ASC');assert.equal(tetrisRankOrder('e4')[0],'duration_ms DESC');assert.equal(tetrisRankOrder('legacy'),null);});
+test('validação de pontos, linhas e meta',()=>{const r={points:8000,durationMs:100000,counts:[0,0,0,10]};assert.equal(validTetrisResult('c1',r),true);assert.equal(validTetrisResult('c1',{...r,points:1}),false);assert.equal(validTetrisResult('c1',{...r,durationMs:300000}),false);assert.equal(validTetrisResult('sprint',{points:100,durationMs:5000,counts:[1,0,0,0]}),false);});

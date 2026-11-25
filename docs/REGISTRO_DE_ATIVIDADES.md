@@ -1,3 +1,7 @@
+## TET-06/07 — 25/11/2026
+- Campanha salva localmente com chave versionada e validação de prefixo; não sincroniza entre contas/dispositivos. Ranking v2 independente, por modo/missão, com GET público, POST autenticado e same-origin; pontuação por combos e tempo em colunas próprias. Sprint/C1/C7 menor tempo; sobrevivência/extras maior tempo; demais maior pontuação; desempates pelo outro indicador e data. Resultados autorrelatados (sem antifraude/replay), sem alterar registros antigos.
+- Migração 0012 preparada, NÃO aplicada; ranking v2 indisponível até autorização e aplicação no Preview. Interface v2 nas páginas dos jogos; agregação na página global/perfil e convite integrado pós-missão ainda pendentes. Testes unitários criados; build/E2E/CI não executados. Commit preparado sem mover branch ativa. Sem deploy/merge/D1/gastos. Tempo não registrado.
+
 ## TET-04/05 — 25/11/2026
 - Motor paramétrico de missões, oito missões de campanha sequencial e quatro extras livres integrados ao motor de Tetris. Seletor na rota Sprint existente; Sprint original permanece disponível com ranking legado. Missões não submetem resultados ao ranking Sprint. Progresso apenas em memória da sessão até TET-06; sem D1. Metas/limites são parâmetros iniciais para calibração.
 - Testes unitários adicionados (ainda sem execução integral). CI não disparado; commit preparado sem mover PR ativo. TET-06/07/08 pendentes: persistência, ranking versionado, testes completos, revisão de layout e Preview. Tempo não registrado.

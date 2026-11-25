@@ -73,7 +73,7 @@ import TetrisEditorialArt from './TetrisEditorialArt.astro';
          <optgroup label="Desafios extras">{extras.map(m=><option value={m.id}>{m.title}</option>)}</optgroup>
         </select>
         <p id="tetris-campaign-info" class="small">Sprint original: 40 linhas, ranking por tempo.</p>
-        <small>Progresso da campanha nesta sessão. Missões ainda sem ranking global.</small>
+        <small>Progresso salvo neste navegador. Classificação v2 independente do Sprint original.</small>
        </section>}
        <div class="tetris-mission-slot" data-daily-mission-sidebar data-daily-mission-inline hidden aria-label="Missão diária ao lado das linhas"></div>
         <GameHud compact statusId="tetris-status" scoreId="tetris-score" bestId="tetris-best" globalId="tetris-global" levelId={timed?undefined:"tetris-level"} scoreLabel={survival?"Tempo sobrevivido":sprint?"Linhas":"Pontos"} bestLabel={timed?"Melhor tempo da conta":"Recorde da conta"} globalLabel={timed?"Tempo líder":"Recorde global"} provisionalId="tetris-provisional" hint="F: tela cheia · Espaço: queda · P: pausa" />
@@ -102,6 +102,11 @@ import TetrisEditorialArt from './TetrisEditorialArt.astro';
   </GameLayout>
 
   <GamePageSections>
+   <section slot="rankings" class="panel" data-tetris-v2-ranking aria-label="Classificação Tetris v2">
+    <h2>Ranking v2 · pontos e tempo</h2><p class="small" data-tetris-v2-status role="status">Consultando ranking v2…</p>
+    <ol></ol><p data-tetris-v2-mine></p>
+    <p class="small">Resultados competitivos somente com conta. Os recordes antigos continuam no ranking original.</p>
+   </section>
    <GameRanking slot="rankings" game={modeId} name={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris Clássico"} />
    <GameShare slot="share" gameSlug={modeId} gameName={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris"} gamePath={survival?"/jogos/tetris/sobrevivencia/":sprint?"/jogos/tetris/sprint/":"/jogos/tetris/"} />
    <GameGuide slot="guide">
