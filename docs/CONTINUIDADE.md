@@ -1,3 +1,6 @@
+## TET-08 — correções de integração (25/11/2026)
+- Limpeza proibida na resistência encerra antes de creditar linhas/pontos; envio v2 tem trava de concorrência, reinício descarta pendência e troca de identidade invalida resultado da rodada. Botão de vitória seleciona próxima missão se desbloqueada. Revisão estática, testes ainda pendentes; os oito resultados relatados anteriormente não possuem evidência de execução recuperada e não são certificados. Sem CI, merge, deploy, D1 ou gastos. Tempo não registrado.
+
 ## TET-06/07 integração — 25/11/2026
 - Progresso da conta derivado de recordes de missões v2 confirmados, sequência validada no POST; visitantes mantêm progresso local separado, sem importação automática de vitórias antigas. GET de progresso autenticado. Ranking global e perfil recebem seletor compartilhado v2 dentro do card Tetris. Convite pós-missão reutiliza modal global sem evento de resultado Sprint legado. Corrigida validação das eliminações de resistência.
 - Testes adicionais criados; validação integral pendente. Migração 0012 ainda não aplicada. Sem merge, deploy, D1 ou CI disparado. Tempo não registrado.

@@ -65,7 +65,8 @@ type Mission=typeof missions[number];
 let selectedMission:Mission|null=null,activeMission:Mission|null=null;
 const progressKey='oldarcade:tetris:campaign:v1';
 let campaignCompleted:string[]=[];
-let accountCampaign=false,progressRevision=0;
+let accountCampaign=false,progressRevision=0,identityRevision=0,roundIdentity=0;
+let nextMissionId:string|null=null;
 const guestProgress=()=>{try{return completedCampaign(JSON.parse(localStorage.getItem(progressKey)||'[]'));}catch{return [];}};
 async function refreshAccountCampaign(){
  if(!sprint)return;
@@ -90,6 +91,7 @@ const legacyScope=sprint?'sprint':survival?'survival':'classic';
 const versionedRanking=setupTetrisVersionedRanking(legacyScope);
 function saveCampaign(){if(accountCampaign)return true;try{localStorage.setItem(progressKey,JSON.stringify(campaignCompleted));return true;}catch{return false;}}
 function submitVersioned(scope:string,duration:number){
+ if(roundIdentity!==identityRevision)return;
  versionedRanking.finish(scope,{points:clearStats.points,durationMs:Math.max(1,duration),counts:clearStats.counts.slice(1)});
 }
 let campaignState=newMissionState();
@@ -203,8 +205,10 @@ function land(){
  const cleared=ROWS-remaining.length;
  if(cleared){
   board=[...Array.from({length:cleared},()=>Array<Cell>(COLS).fill(0)),...remaining];
+  // Uma limpeza proibida encerra a resistência antes de creditar linhas ou pontos.
+  if(activeMission?.kind==='endurance'&&cleared!==activeMission.count){missionEvent('lock',cleared);return;}
   lines+=cleared;
-  if(activeMission?.kind!=='endurance'||cleared===activeMission.count)registerTetrisClear(clearStats,cleared);
+  registerTetrisClear(clearStats,cleared);
   const oldLevel=level;level=tetrisLevel(modeId,lines,clock.milliseconds());
   const points=[0,100,300,500,800][cleared]*oldLevel;
    const mission=dailyAttempt?.mission;
@@ -340,6 +344,8 @@ function start(daily:DailyAttempt|null=null){
  dailyAttempt=daily;
  if(selectedMission&&!missionUnlocked(selectedMission.id,campaignCompleted))return;
  activeMission=!daily&&sprint?selectedMission:null;
+ roundIdentity=identityRevision;nextMissionId=null;
+ versionedRanking.begin();
  campaignState=newMissionState();
  dailyReplay.clear();
  dailyClears=[];
@@ -366,8 +372,10 @@ function finish(completed=false){
   if(campaignState.status==='playing')campaignState=advanceMission(mission,campaignState,{type:'end',count:0,elapsed:duration});
   const won=campaignState.status==='won';
   let persisted=true;
-  if(won&&!accountCampaign&&campaign.some(m=>m.id===mission.id)&&!campaignCompleted.includes(mission.id)){campaignCompleted.push(mission.id);persisted=saveCampaign();}
-  if(won||campaignState.status==='finished'){
+  const sameIdentity=roundIdentity===identityRevision;
+  if(won&&sameIdentity&&!accountCampaign&&campaign.some(m=>m.id===mission.id)&&!campaignCompleted.includes(mission.id)){campaignCompleted.push(mission.id);persisted=saveCampaign();}
+  if(won&&sameIdentity){const index=campaign.findIndex(m=>m.id===mission.id);nextMissionId=index>=0?campaign[index+1]?.id??null:null;}
+  if(sameIdentity&&(won||campaignState.status==='finished')){
    submitVersioned(mission.id,duration);
    document.dispatchEvent(new CustomEvent('oldarcade:tetris-mission-finished',{detail:{scope:mission.id,score:clearStats.points,recordDelayMs:1000}}));
   }
@@ -532,7 +540,7 @@ try{
  }
 }catch{}
 if(sprint){
- document.addEventListener('oldarcade:account-changed',()=>{++progressRevision;accountCampaign=true;campaignCompleted=[];refreshMissionPicker();void refreshAccountCampaign();});
+ document.addEventListener('oldarcade:account-changed',()=>{++identityRevision;++progressRevision;accountCampaign=true;campaignCompleted=[];nextMissionId=null;refreshMissionPicker();void refreshAccountCampaign();});
  document.addEventListener('oldarcade:tetris-v2-saved',()=>{void refreshAccountCampaign();});
  void refreshAccountCampaign();
 }
@@ -540,12 +548,18 @@ missionSelect?.addEventListener('change',()=>{
  if(state==='playing'||state==='paused'||state==='countdown')return;
  const id=missionSelect.value;
  selectedMission=missions.find(m=>m.id===id&&missionUnlocked(id,campaignCompleted))??null;
- campaignState=newMissionState();versionedRanking.select(selectedMission?.id??legacyScope);refreshMissionPicker();
+ nextMissionId=null;campaignState=newMissionState();versionedRanking.select(selectedMission?.id??legacyScope);refreshMissionPicker();
 });
 startButton.addEventListener('click',()=>{
  if(startButton.dataset.dailyRetry==='true'){void submitDailyFinish();return}
  if(dailyReplay.retry())return;
- if(state==='paused')pause();else start();
+ if(state==='paused'){pause();return;}
+ if(nextMissionId&&missionUnlocked(nextMissionId,campaignCompleted)){
+  selectedMission=missions.find(m=>m.id===nextMissionId)??selectedMission;
+  if(missionSelect&&selectedMission)missionSelect.value=selectedMission.id;
+  versionedRanking.select(selectedMission?.id??legacyScope);
+ }
+ start();
 });
 pauseButton.addEventListener('click',pause);
 fullscreenButton.addEventListener('click',()=>{void toggleFullscreen()});

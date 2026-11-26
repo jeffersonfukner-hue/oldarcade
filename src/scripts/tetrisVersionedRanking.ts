@@ -4,11 +4,12 @@ type Entry={nickname:string;points:number;durationMs:number;rank:number};
 type Board={available:boolean;top?:Entry[];mine?:{points:number;durationMs:number}|null;saved?:boolean};
 export function setupTetrisVersionedRanking(defaultScope:string){
  const root=document.querySelector<HTMLElement>('[data-tetris-v2-ranking]');
- if(!root)return {select:(_scope:string)=>{},finish:(_scope:string,_result:Result)=>{}};
+ if(!root)return {begin:()=>{},select:(_scope:string)=>{},finish:(_scope:string,_result:Result)=>{}};
  const status=root.querySelector<HTMLElement>('[data-tetris-v2-status]')!;
  const list=root.querySelector<HTMLOListElement>('ol')!;
  const own=root.querySelector<HTMLElement>('[data-tetris-v2-mine]')!;
- let scope=defaultScope,revision=0,pending:{scope:string;result:Result}|null=null;
+ let scope=defaultScope,revision=0,pending:{scope:string;result:Result;busy:boolean}|null=null;
+ let identity:string|null|undefined=undefined;
  const endpoint=(s:string)=>'/api/tetris/rankings/'+encodeURIComponent(s);
  const format=(r:{points:number;durationMs:number})=>r.points+' pts · '+(r.durationMs/1000).toFixed(3)+' s';
  function render(data:Board){
@@ -23,12 +24,12 @@ export function setupTetrisVersionedRanking(defaultScope:string){
   try{const response=await fetch(endpoint(scope),{cache:'no-store'});const data=await response.json() as Board;if(v===revision)render(data);}catch{if(v===revision)render({available:false});}
  }
  async function submit(){
-  if(!pending)return;
-  const item=pending;
+  if(!pending||pending.busy)return;
+  const item=pending;item.busy=true;const submittedIdentity=identity;
   try{
    const response=await fetch(endpoint(item.scope),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(item.result)});
    if(pending!==item)return;
-   if(response.status===401){status.textContent='Entre na sua conta para registrar o resultado v2.';return;}
+   if(response.status===401){item.busy=false;status.textContent='Entre na sua conta para registrar o resultado v2.';if(identity&&identity!==submittedIdentity)void submit();return;}
    const data=await response.json() as Board;
    pending=null;
    if(response.ok&&data.saved)document.dispatchEvent(new CustomEvent('oldarcade:tetris-v2-saved'));
@@ -36,9 +37,12 @@ export function setupTetrisVersionedRanking(defaultScope:string){
   }catch{if(pending===item){pending=null;status.textContent='Registro v2 não confirmado.';}}
  }
  document.addEventListener('oldarcade:account-changed',e=>{
-  const player=(e as CustomEvent<{player?:unknown}>).detail?.player;
-  own.textContent='';void refresh();if(player)void submit();else pending=null;
+  const player=(e as CustomEvent<{player?:{id?:string;nickname?:string}|null}>).detail?.player;
+  const next=player?.id??player?.nickname??null;
+  if(identity&&identity!==next)pending=null;
+  identity=next;
+  own.textContent='';void refresh();if(player)void submit();
  });
  void refresh();
- return {select(next:string){if(!tetrisScopes.includes(next)||next===scope)return;scope=next;pending=null;void refresh();},finish(next:string,result:Result){if(next!==scope)return;pending={scope:next,result};void submit();}};
+ return {begin(){pending=null;},select(next:string){if(!tetrisScopes.includes(next)||next===scope)return;scope=next;pending=null;void refresh();},finish(next:string,result:Result){if(next!==scope)return;pending={scope:next,result,busy:false};void submit();}};
 }
