@@ -67,6 +67,7 @@ const progressKey='oldarcade:tetris:campaign:v1';
 let campaignCompleted:string[]=[];
 let accountCampaign=false,progressRevision=0,identityRevision=0,roundIdentity=0;
 let nextMissionId:string|null=null;
+let checkingNextMission=false;
 const guestProgress=()=>{try{return completedCampaign(JSON.parse(localStorage.getItem(progressKey)||'[]'));}catch{return [];}};
 async function refreshAccountCampaign(){
  if(!sprint)return;
@@ -83,6 +84,7 @@ async function refreshAccountCampaign(){
   if(state==='ready'||state==='over'){
    if(selectedMission&&!missionUnlocked(selectedMission.id,campaignCompleted)){selectedMission=campaign[0];if(missionSelect)missionSelect.value=selectedMission.id;campaignState=newMissionState();versionedRanking.select(selectedMission.id);update();}
    refreshMissionPicker();
+   refreshNextMissionAction();
   }
  }catch{}
 }
@@ -108,6 +110,20 @@ function refreshMissionPicker(){
   const m=activeMission??selectedMission;
   missionInfo.textContent=m?m.description+' · '+(m.kind==='survive'||m.kind==='endurance'?Math.floor(campaignState.progress/1000)+' s':campaignState.progress+'/'+m.target)+(m.limit?' · '+Math.max(0,Math.ceil((m.limit-campaignState.elapsed)/1000))+' s restantes':''):'Selecione uma missão.';
  }
+}
+function refreshNextMissionAction(){
+ if(state!=='over'||!nextMissionId)return;
+ const next=campaign.find(m=>m.id===nextMissionId);
+ if(!next)return;
+ if(!missionUnlocked(next.id,campaignCompleted)){
+  startButton.textContent='↻ Verificar liberação da próxima missão';
+  return;
+ }
+ // A seleção padrão passa à próxima missão; voltar à anterior é escolha explícita.
+ selectedMission=next;
+ if(missionSelect)missionSelect.value=next.id;
+ startButton.textContent='▶ Jogar próxima missão';
+ description.textContent='Próxima missão: '+next.title+'. Para repetir, selecione a missão anterior na lista.';
 }
 function missionEvent(type:'lock'|'tick'|'end',count=0){
  if(!activeMission)return false;
@@ -384,9 +400,10 @@ function finish(completed=false){
   }
   if(!persisted&&missionInfo)missionInfo.textContent='Progresso desbloqueado nesta sessão; armazenamento local indisponível.';
   update();draw();
-  show(won?'Missão cumprida!':campaignState.status==='finished'?'Desafio encerrado':'Missão não cumprida',mission.title+' · '+clearStats.points+' pontos · '+lines+' linhas · '+Math.floor(duration/1000)+' s',won?'▶ Jogar próxima missão ou repetir':'▶ Tentar novamente');
+  show(won?'Missão cumprida!':campaignState.status==='finished'?'Desafio encerrado':'Missão não cumprida',mission.title+' · '+clearStats.points+' pontos · '+lines+' linhas · '+Math.floor(duration/1000)+' s',won?(nextMissionId?'▶ Jogar próxima missão':'▶ Escolher missão'):'▶ Tentar novamente');
   activeMission=null;
   refreshMissionPicker();
+  refreshNextMissionAction();
   return;
  }
  if(dailyAttempt?.practice){
@@ -552,13 +569,26 @@ missionSelect?.addEventListener('change',()=>{
  const id=missionSelect.value;
  selectedMission=missions.find(m=>m.id===id&&missionUnlocked(id,campaignCompleted))??campaign[0];
  missionSelect.value=selectedMission.id;nextMissionId=null;campaignState=newMissionState();versionedRanking.select(selectedMission.id);update();
+ if(state==='over'&&!pendingDailyFinish)show('Missão selecionada',selectedMission.title+' · '+selectedMission.description,'▶ Jogar missão selecionada');
 });
-startButton.addEventListener('click',()=>{
+startButton.addEventListener('click',async()=>{
  if(startButton.dataset.dailyRetry==='true'){void submitDailyFinish();return}
  if(dailyReplay.retry())return;
  if(state==='paused'){pause();return;}
- if(nextMissionId&&missionUnlocked(nextMissionId,campaignCompleted)){
-  selectedMission=missions.find(m=>m.id===nextMissionId)??selectedMission;
+ if(nextMissionId){
+  if(checkingNextMission)return;
+  const requested=nextMissionId;
+  if(!missionUnlocked(requested,campaignCompleted)){
+   checkingNextMission=true;
+   startButton.disabled=true;
+   try{await refreshAccountCampaign();}finally{checkingNextMission=false;startButton.disabled=false;}
+   if(state!=='over'||nextMissionId!==requested)return;
+   if(!missionUnlocked(requested,campaignCompleted)){
+    description.textContent='A próxima missão ainda não foi confirmada pela conta. Verifique a liberação ou selecione outra missão disponível.';
+    refreshNextMissionAction();return;
+   }
+  }
+  selectedMission=missions.find(m=>m.id===requested)??selectedMission;
   if(missionSelect&&selectedMission)missionSelect.value=selectedMission.id;
   versionedRanking.select(selectedMission?.id??legacyScope);
  }

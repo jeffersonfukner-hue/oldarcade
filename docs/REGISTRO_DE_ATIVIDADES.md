@@ -1,3 +1,6 @@
+## ESTADO ATUAL PARA NOVO CHAT — progressão Tetris (26/11/2026)
+- CI #1303 aprovado (126 API + 390 E2E, 52 skipped, zero falhas). Proprietário relatou repetição indesejada após vitória. Causa: conta espera confirmação assíncrona de progresso, e botão caía em start() da missão anterior se próxima bloqueada. Corrigido: ação principal explícita, bloqueio de repetição silenciosa durante confirmação, seleção automática da próxima após desbloqueio, repetir por seleção manual. Testes Playwright com relógio virtual para visitante e conta, confirmação retardada. Novo CI pendente. Sem D1, merge ou deploy. Tempo não registrado.
+
 ## ESTADO ATUAL PARA NOVO CHAT — CI faixa compacta (25/11/2026)
 - CI #1302 (45741008785), commit 07c42b5: check/build/API aprovados; duas falhas desktop/mobile no teste global do Snake, que exigia classes do painel removido. Atualizado contrato do teste para faixa única visível, IDs legados únicos e ocultos, sem painel antigo; teste cruzado nos seis modos e limite de altura. Novo CI pendente. Sem D1, merge ou deploy. Tempo não registrado.
 
