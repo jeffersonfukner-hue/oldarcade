@@ -6,8 +6,9 @@ type Result={points:number;durationMs:number;counts:number[]};
 type Entry={nickname:string;points:number;durationMs:number;rank:number};
 type Board={available:boolean;top?:Entry[];mine?:{points:number;durationMs:number}|null;saved?:boolean};
 export function setupTetrisVersionedRanking(defaultScope:string){
- const root=document.querySelector<HTMLElement>('[data-tetris-unified=true]');
- if(!root)return {begin:()=>{},select:(_scope:string)=>{},finish:(_scope:string,_result:Result)=>{}};
+ const element=document.querySelector<HTMLElement>('[data-tetris-unified=true]');
+ if(!element)return {begin:()=>{},select:(_scope:string)=>{},finish:(_scope:string,_result:Result)=>{}};
+ const root:HTMLElement=element;
  const get=<T extends HTMLElement>(name:string)=>root.querySelector<T>('[data-rank-'+name+']')!;
  const status=get('status'),body=get('body'),podium=get('podium'),own=get('mine');
  const heading=get('heading'),description=get('description'),primary=get('primary'),secondary=get('secondary');

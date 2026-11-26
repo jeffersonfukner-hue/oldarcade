@@ -1,3 +1,6 @@
+## ESTADO ATUAL PARA NOVO CHAT — correção CI ranking Tetris (25/11/2026)
+- CI 1298 (45734211171), commit 57c7107: falha única TS18047 em tetrisVersionedRanking.ts:59 (root possivelmente nulo dentro de função). Corrigida referência tipada após guarda de existência; comportamento preservado. Build/API/E2E não executados nessa revisão. Novo CI pendente. D1 0012 Preview confirmado; sem nova migração, merge ou deploy. Tempo de trabalho não registrado.
+
 ## ESTADO ATUAL PARA NOVO CHAT — ranking Tetris (25/11/2026)
 - CI 1297 aprovado: TypeScript 0 erros, API 126 aprovados, Playwright 386 aprovados; 52 não executados. Preview homologação apontou dois rankings concorrentes e estatísticas Sprint em missão. Correção: um GameRanking compartilhado, pódio padrão, tabela pontos/tempo, seletor histórico, contexto da missão e recorde pessoal, sem alteração D1. Ranking legado permanece padrão inicial nos modos antigos para preservar contrato existente; usuário pode alternar para pontuação e tempo. Teste Playwright adicionado, novo CI pendente. Sem merge ou deploy. Tempo não registrado.
 
