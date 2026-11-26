@@ -122,6 +122,7 @@ function refreshNextMissionAction(){
  // A seleção padrão passa à próxima missão; voltar à anterior é escolha explícita.
  selectedMission=next;
  if(missionSelect)missionSelect.value=next.id;
+ versionedRanking.select(next.id);
  startButton.textContent='▶ Jogar próxima missão';
  description.textContent='Próxima missão: '+next.title+'. Para repetir, selecione a missão anterior na lista.';
 }

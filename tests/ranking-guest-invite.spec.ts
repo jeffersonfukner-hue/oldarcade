@@ -121,3 +121,14 @@ for(const [mode,path] of modes){
   expect(page.url()).toBe(originalUrl);
  });
 }
+
+test('Convite de missão não aparece se sessão se tornou autenticada',async({page})=>{
+ let logged=false;
+ await page.route('**/api/auth/me',r=>r.fulfill({json:{player:logged?{nickname:'Ratz'}:null}}));
+ await page.goto('/jogos/tetris/sprint/');
+ await page.waitForTimeout(300);
+ logged=true;
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:tetris-mission-finished',{detail:{scope:'c1',score:5600,recordDelayMs:100}})));
+ await page.waitForTimeout(1200);
+ await expect(page.locator('[data-end-account-invite]')).toBeHidden();
+});

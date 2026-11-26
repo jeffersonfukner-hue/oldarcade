@@ -1,3 +1,6 @@
+## ESTADO ATUAL PARA NOVO CHAT — consulta independente Tetris (26/11/2026)
+- CI #1304 aprovado (520 testes, 52 skipped). D1 Preview: consulta do proprietário confirmou c1/c2/c3 de Ratz (5600/5000/1900), sem c4; classic/e1/sprint/survival também preservados. Ranking vazio correspondia à c4. Seletor independente consulta campanha/extras sem mudar missão jogável, HUD ou destino do envio; opção inicial acompanha missão. Convite global exige confirmação de visitante antes de exibir, falhas de sessão não implicam visitante. Testes de independência e sessão alterada adicionados. Novo CI pendente; sem D1, merge ou deploy. Tempo não registrado.
+
 ## ESTADO ATUAL PARA NOVO CHAT — progressão Tetris (26/11/2026)
 - CI #1303 aprovado (126 API + 390 E2E, 52 skipped, zero falhas). Proprietário relatou repetição indesejada após vitória. Causa: conta espera confirmação assíncrona de progresso, e botão caía em start() da missão anterior se próxima bloqueada. Corrigido: ação principal explícita, bloqueio de repetição silenciosa durante confirmação, seleção automática da próxima após desbloqueio, repetir por seleção manual. Testes Playwright com relógio virtual para visitante e conta, confirmação retardada. Novo CI pendente. Sem D1, merge ou deploy. Tempo não registrado.
 

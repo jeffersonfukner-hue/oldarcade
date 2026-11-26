@@ -1,4 +1,5 @@
 ---
+import {campaign,extras} from '../data/tetrisMissions.js';
 import {isTimeRanking,isLowerBetter} from '../data/rankingRules.js';
 interface Props {game:string;name:string;slot?:string;tetrisUnified?:boolean}
 const {game,name,tetrisUnified=false}=Astro.props;
@@ -8,6 +9,7 @@ const lowerBetter=isLowerBetter(game);
 <section class="section panel mode-ranking" id={"ranking-"+game} data-mode-ranking data-tetris-unified={tetrisUnified?'true':undefined} data-game={game} data-ranking-metric={timed?"time":"points"} aria-label={`Ranking global do ${name}`}>
  <div class="section-head"><div><span class="eyebrow">Desafio Old Arcade</span><h2 data-rank-heading>Ranking global — {name}</h2></div><span class="pill">Contas cadastradas</span></div>
  <p class="small muted" data-rank-description>{timed?(lowerBetter?'Vence quem completa 40 linhas no menor tempo.':'Vence quem sobrevive pelo maior tempo.'):'Vence a maior pontuação.'} Empates seguem os critérios do modo. Qualquer pessoa pode consultar a classificação; somente contas registram resultados.</p>
+ {tetrisUnified&&game==='tetris-sprint'&&<label class="oa-ranking-mission-filter">Consultar ranking <select data-tetris-rank-scope><option value="follow">Missão selecionada para jogar</option><optgroup label="Campanha">{campaign.map((m,i)=><option value={m.id}>{i+1}. {m.title}</option>)}</optgroup><optgroup label="Desafios extras">{extras.map(m=><option value={m.id}>{m.title}</option>)}</optgroup></select></label>}
  {tetrisUnified&&<label class="small" data-tetris-ranking-choice>Classificação <select data-tetris-rank-view><option value="current">Pontuação e tempo</option><option value="legacy">Recordes históricos</option></select></label>}
  <p class="mode-ranking-provisional small" data-rank-provisional hidden aria-live="polite">Marca provisória — só será confirmada no final da partida e com conta autenticada.</p>
  <h3 class="oa-ranking-podium-title">Pódio — Top 3</h3>

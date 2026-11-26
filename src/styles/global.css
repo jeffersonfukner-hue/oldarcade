@@ -1082,3 +1082,5 @@ body.oa-auth-open{overflow:hidden}
 .oa-activity-status{grid-column:1/-1;font-size:.7rem;color:#9aa8c6}.oa-activity-status:empty{display:none}
 .oa-activity-details{margin-top:8px;font-size:.85rem;color:#bac5db}.oa-activity-details summary{cursor:pointer}
 @media(max-width:580px){.oa-activity-strip>div{flex-direction:column;align-items:flex-start;gap:2px}.oa-activity-strip{padding:8px 10px;gap:4px 8px}}
+
+.oa-ranking-mission-filter{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:.85rem;margin:12px 0 18px}.oa-ranking-mission-filter select{min-width:0;max-width:100%;background:#18213b;color:inherit;border:1px solid #56719c;border-radius:8px;padding:8px}.mode-ranking [data-tetris-ranking-choice][hidden]{display:none!important}
