@@ -1,3 +1,6 @@
+## ESTADO ATUAL PARA NOVO CHAT — CI faixa compacta (25/11/2026)
+- CI #1302 (45741008785), commit 07c42b5: check/build/API aprovados; duas falhas desktop/mobile no teste global do Snake, que exigia classes do painel removido. Atualizado contrato do teste para faixa única visível, IDs legados únicos e ocultos, sem painel antigo; teste cruzado nos seis modos e limite de altura. Novo CI pendente. Sem D1, merge ou deploy. Tempo não registrado.
+
 ## ESTADO ATUAL PARA NOVO CHAT — atividade compacta (25/11/2026)
 - CI #1301 falhou em 6 testes E2E: fixtures ainda consultavam Sprint legado; check/build/API aprovados. Atualizadas fixtures de c1 e cache de recordes da missão. Faixa compartilhada GameActivityStrip integrada aos três Snake e três Tetris, sem repetir recordes; IDs antigos mantidos ocultos para compatibilidade. Aventura mantém guia expansível; Pixel Quest mantém informação de fase, não usa o painel antigo. Contagem Tetris Missões passa a agregar partidas da campanha/extras na rota existente (histórico Sprint anterior preservado). Novo CI pendente. Sem D1, merge ou deploy. Tempo não registrado.
 

@@ -89,8 +89,10 @@ test('Snake mantém IDs de integração sem repetir placar fora do HUD',async({p
   for(const id of ['score','best','global-best','plays','visits','nickname','global-rank-body']){
    await expect(page.locator('#'+id)).toHaveCount(1);
   }
-  await expect(page.locator('.oa-metric-bridge')).toHaveCount(2);
-  await expect(page.locator('.oa-performance-panel')).toBeVisible();
+  await expect(page.locator('.oa-activity-strip')).toHaveCount(1);
+  await expect(page.locator('.oa-activity-strip')).toBeVisible();
+  for(const id of ['score','best','global-best','visits','nickname'])await expect(page.locator('#'+id)).toBeHidden();
+  await expect(page.locator('.oa-performance-panel')).toHaveCount(0);
   await expect(page.locator('.oa-ranking-panel')).toBeVisible();
  }
 });
@@ -170,4 +172,15 @@ test('Tetris mantém comandos e HUD agrupados ao alternar tela cheia',async({pag
  expect(positions.aligned).toBe(true);
  expect(positions.side).toBe(true);
  await button.click();
+});
+
+test('Faixa compacta é compartilhada entre os seis modos Snake e Tetris',async({page})=>{
+ for(const route of ['/jogos/snake/','/jogos/snake/evolution/','/jogos/snake/aventura/','/jogos/tetris/','/jogos/tetris/sprint/','/jogos/tetris/sobrevivencia/']){
+  await page.goto(route);
+  const strip=page.locator('.oa-activity-strip');
+  await expect(strip).toHaveCount(1);
+  await expect(strip).toBeVisible();
+  await expect(strip.locator(':scope > div')).toHaveCount(3);
+  expect((await strip.boundingBox())!.height).toBeLessThan(140);
+ }
 });
