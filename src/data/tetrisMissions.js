@@ -8,7 +8,7 @@ export const campaign=Object.freeze([
  {id:'c6',title:'Caçador de triplas',kind:'exact',count:3,target:6,limit:420000,description:'Faça 6 eliminações triplas.'},
  {id:'c7',title:'Maratona 100',kind:'lines',target:100,limit:720000,description:'Elimine 100 linhas em 12 minutos.'},
  {id:'c8',title:'Quatro ou nada',kind:'strict',count:4,target:4,limit:420000,description:'Faça 4 eliminações quádruplas sem limpar outras quantidades.'}
-].map(Object.freeze));
+].map(mission=>Object.freeze(mission)));
 export const extras=Object.freeze([1,2,3,4].map(count=>Object.freeze({id:'e'+count,title:'Resistência '+count+'L',kind:'endurance',count,target:0,limit:0,description:'Resista o máximo possível eliminando somente '+count+' linha(s) de cada vez.'})));
 export const missions=Object.freeze([...campaign,...extras]);
 export function missionUnlocked(id,completed){
