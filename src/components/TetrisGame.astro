@@ -63,17 +63,17 @@ import TetrisEditorialArt from './TetrisEditorialArt.astro';
         <div class="tetris-clear-grid">
          {[1,2,3,4].map(count=><div class="tetris-clear-row"><span title={`${TETRIS_CLEAR_BASE*TETRIS_CLEAR_MULTIPLIERS[count]} pontos por eliminação`}>{count}L · {TETRIS_CLEAR_MULTIPLIERS[count]}×</span><strong id={`tetris-clear-${count}`}>0</strong></div>)}
         </div>
-        <small>Contagem de jogadas · ranking atual preservado</small>
+        <small>Eliminações simultâneas por partida</small>
        </section>
        {sprint&&<section class="tetris-mini tetris-campaign-picker" aria-label="Campanha e desafios extras">
         <label for="tetris-campaign-select">Missões</label>
         <select id="tetris-campaign-select">
-         <option value="">Sprint original · ranking por tempo</option>
+         <option value="">Sprint · 40 linhas</option>
          <optgroup label="Campanha">{campaign.map((m,i)=><option value={m.id} disabled={i>0}>{i+1}. {m.title}</option>)}</optgroup>
          <optgroup label="Desafios extras">{extras.map(m=><option value={m.id}>{m.title}</option>)}</optgroup>
         </select>
         <p id="tetris-campaign-info" class="small">Sprint original: 40 linhas, ranking por tempo.</p>
-        <small>Progresso local para visitantes; por conta após registro confirmado. Classificação v2 independente do Sprint original.</small>
+        <small>Progresso local para visitantes; por conta após registro confirmado.</small>
        </section>}
        <div class="tetris-mission-slot" data-daily-mission-sidebar data-daily-mission-inline hidden aria-label="Missão diária ao lado das linhas"></div>
         <GameHud compact statusId="tetris-status" scoreId="tetris-score" bestId="tetris-best" globalId="tetris-global" levelId={timed?undefined:"tetris-level"} scoreLabel={survival?"Tempo sobrevivido":sprint?"Linhas":"Pontos"} bestLabel={timed?"Melhor tempo da conta":"Recorde da conta"} globalLabel={timed?"Tempo líder":"Recorde global"} provisionalId="tetris-provisional" hint="F: tela cheia · Espaço: queda · P: pausa" />
@@ -90,24 +90,20 @@ import TetrisEditorialArt from './TetrisEditorialArt.astro';
     </div>
    </div>
    <aside class="panel tetris-sidebar oa-performance-panel" aria-label="Progresso do jogador">
-    <span class="eyebrow">Seu desempenho</span><h2>Resumo de partidas locais</h2>
-    <div class="stats-list">
+    <span class="eyebrow">Seu desempenho</span><h2 id="tetris-performance-heading">Resumo de partidas locais</h2>
+    <div id="tetris-mission-performance" hidden><div class="stat-row"><span>Recorde pessoal</span><strong id="tetris-mission-best">—</strong></div><div class="stat-row"><span>Tempo do recorde</span><strong id="tetris-mission-time">—</strong></div></div>
+    <div class="stats-list" id="tetris-legacy-performance">
      <div class="stat-row"><span>{timed?"Melhor tempo local":"Melhor pontuação local"}</span><strong id="tetris-local-best">{timed?"—":"0"}</strong></div>
      <div class="stat-row"><span>Partidas neste navegador</span><strong id="tetris-plays">0</strong></div>
      <div class="oa-metric-bridge" hidden aria-hidden="true"><strong id="tetris-sidebar-level">{survival?'Onda 1':sprint?`0/${goal}`:"1"}</strong></div>
     </div>
-    <div class="global-stats"><h3>Comunidade · {survival?"Sobrevivência":sprint?"Sprint":"Tetris"}</h3><div class="stats-list"><div class="stat-row"><span>Visitas globais</span><strong id="tetris-global-visits">—</strong></div><div class="stat-row"><span>Partidas globais</span><strong id="tetris-global-plays">—</strong></div></div><p id="tetris-global-stats-status" class="small muted" role="status">Consultando Cloudflare…</p></div>
+    <div class="global-stats" id="tetris-legacy-community"><h3>Comunidade · {survival?"Sobrevivência":sprint?"Sprint":"Tetris"}</h3><div class="stats-list"><div class="stat-row"><span>Visitas globais</span><strong id="tetris-global-visits">—</strong></div><div class="stat-row"><span>Partidas globais</span><strong id="tetris-global-plays">—</strong></div></div><p id="tetris-global-stats-status" class="small muted" role="status">Consultando Cloudflare…</p></div>
 
    </aside>
   </GameLayout>
 
   <GamePageSections>
-   <section slot="rankings" class="panel" data-tetris-v2-ranking aria-label="Classificação Tetris v2">
-    <h2>Ranking v2 · pontos e tempo</h2><p class="small" data-tetris-v2-status role="status">Consultando ranking v2…</p>
-    <ol></ol><p data-tetris-v2-mine></p>
-    <p class="small">Resultados competitivos somente com conta. Os recordes antigos continuam no ranking original.</p>
-   </section>
-   <GameRanking slot="rankings" game={modeId} name={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris Clássico"} />
+   <GameRanking slot="rankings" game={modeId} name={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris Clássico"} tetrisUnified />
    <GameShare slot="share" gameSlug={modeId} gameName={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris"} gamePath={survival?"/jogos/tetris/sobrevivencia/":sprint?"/jogos/tetris/sprint/":"/jogos/tetris/"} />
    <GameGuide slot="guide">
    <h2>{survival?"Como jogar Sobrevivência":sprint?"Como jogar o Sprint":"Como jogar"}</h2>

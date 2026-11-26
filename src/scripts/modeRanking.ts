@@ -33,6 +33,7 @@ if(root){
   document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-updated',{detail:{game,global:leader,personal:personalScore}}));
  }
  function render(data:Board){
+  if(root?.dataset.tetrisView==='current')return;
   if(!data.available){status.textContent='Ranking indisponível neste ambiente.';podium.textContent='Classificação indisponível.';return}
   leader=data.top?.[0]?.score??null;
   const score=data.mine?.score??null;personalScore=score;
@@ -62,7 +63,7 @@ if(root){
    if(version!==requestVersion)return null;
    render(data);return data;
   }catch{
-   if(version===requestVersion)status.textContent='Não foi possível consultar o ranking no momento.';
+   if(version===requestVersion&&root?.dataset.tetrisView!=='current')status.textContent='Não foi possível consultar o ranking no momento.';
    return null;
   }
  }
@@ -79,7 +80,7 @@ if(root){
      detail:{game,scope:'total',score:result.points,mine:data.mine??null}
     }));
    }
-   if(result.round===round)summary.textContent='Resultado de '+display(result.points)+' enviado. '+announce(data,result.points);
+   if(result.round===round&&root?.dataset.tetrisView!=='current')summary.textContent='Resultado de '+display(result.points)+' enviado. '+announce(data,result.points);
    // A confirmação é automática, sem botões de registro redundantes.
    celebrate(data);
   }catch(error){
@@ -100,7 +101,7 @@ if(root){
  });
  document.addEventListener('oldarcade:game-score',e=>{
   const d=(e as CustomEvent<Result>).detail;
-  if(d?.game!==game||!Number.isFinite(d.score))return;
+  if(d?.game!==game||!Number.isFinite(d.score)||root?.dataset.tetrisView==='current')return;
   if(leader!==null&&!timed&&d.score>leader){global.textContent=String(d.score);provisional.hidden=false;provisional.textContent='Marca provisória: '+display(d.score)+' (líder oficial: '+display(leader)+'). Confirmação só ao finalizar com conta.'}
   else{global.textContent=leader===null?'—':timed?display(leader):String(leader);provisional.hidden=true}
  });
@@ -129,5 +130,6 @@ if(root){
    connect(data.player??null);
   }catch{}
  }
+ document.addEventListener('oldarcade:tetris-history-view',()=>{void refresh();});
  void checkSession();void refresh();
 }

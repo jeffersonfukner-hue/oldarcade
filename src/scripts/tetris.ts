@@ -174,14 +174,16 @@ function dailyProgress(){
 function update(){
  node('tetris-status').textContent=state==='playing'?'● Jogando':state==='paused'?'● Pausado':state==='countdown'?'● Preparando':state==='over'?'● Fim de jogo':'● Pronto';
  node('tetris-score').textContent=survival?formatRankingValue(modeId,clock.milliseconds()):sprint?(activeMission?String(lines):lines+'/'+TARGET_LINES):String(score);
- node('tetris-best').textContent=personalTarget===null?'—':timed?formatRankingValue(modeId,personalTarget):String(personalTarget);
+ if(!selectedMission)node('tetris-best').textContent=personalTarget===null?'—':timed?formatRankingValue(modeId,personalTarget):String(personalTarget);
  node('tetris-lines').textContent=sprint&&!activeMission?Math.min(lines,TARGET_LINES)+'/'+TARGET_LINES:String(lines);
  node('tetris-combo-points').textContent=String(clearStats.points);
  for(let count=1;count<=4;count++)node('tetris-clear-'+count).textContent=String(clearStats.counts[count]);
  if(!timed)node('tetris-level').textContent=String(level);
  node('tetris-plays').textContent=String(plays);
  node('tetris-local-best').textContent=displayBest();node('tetris-sidebar-level').textContent=sprint?lines+'/'+TARGET_LINES:survival?'Onda '+level:String(level);
- node('tetris-global').textContent=timed?formatRankingValue(modeId,globalTarget):String(globalProvisional?score:globalTarget??'—');node('tetris-provisional').hidden=timed||!globalProvisional;
+ if(!selectedMission)node('tetris-global').textContent=timed?formatRankingValue(modeId,globalTarget):String(globalProvisional?score:globalTarget??'—');node('tetris-provisional').hidden=!!selectedMission||timed||!globalProvisional;
+ const mission=selectedMission;
+ node('tetris-mission-performance').hidden=!mission;node('tetris-legacy-performance').hidden=!!mission;node('tetris-legacy-community').hidden=!!mission;node('tetris-performance-heading').textContent=mission?mission.title:'Resumo de partidas locais';
  refreshMissionPicker();
  dailyProgress();
 }
@@ -548,7 +550,7 @@ missionSelect?.addEventListener('change',()=>{
  if(state==='playing'||state==='paused'||state==='countdown')return;
  const id=missionSelect.value;
  selectedMission=missions.find(m=>m.id===id&&missionUnlocked(id,campaignCompleted))??null;
- nextMissionId=null;campaignState=newMissionState();versionedRanking.select(selectedMission?.id??legacyScope);refreshMissionPicker();
+ nextMissionId=null;campaignState=newMissionState();versionedRanking.select(selectedMission?.id??legacyScope);update();
 });
 startButton.addEventListener('click',()=>{
  if(startButton.dataset.dailyRetry==='true'){void submitDailyFinish();return}

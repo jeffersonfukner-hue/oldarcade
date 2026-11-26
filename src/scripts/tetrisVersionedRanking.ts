@@ -1,40 +1,79 @@
-import {tetrisScopes} from '../data/tetrisRanking.js';
+import {tetrisScopes,tetrisRankOrder} from '../data/tetrisRanking.js';
+import {missions} from '../data/tetrisMissions.js';
+import {renderRankingPodium} from './rankingPresentation';
+import {formatRankingValue} from '../data/rankingRules.js';
 type Result={points:number;durationMs:number;counts:number[]};
 type Entry={nickname:string;points:number;durationMs:number;rank:number};
 type Board={available:boolean;top?:Entry[];mine?:{points:number;durationMs:number}|null;saved?:boolean};
 export function setupTetrisVersionedRanking(defaultScope:string){
- const root=document.querySelector<HTMLElement>('[data-tetris-v2-ranking]');
+ const root=document.querySelector<HTMLElement>('[data-tetris-unified=true]');
  if(!root)return {begin:()=>{},select:(_scope:string)=>{},finish:(_scope:string,_result:Result)=>{}};
- const status=root.querySelector<HTMLElement>('[data-tetris-v2-status]')!;
- const list=root.querySelector<HTMLOListElement>('ol')!;
- const own=root.querySelector<HTMLElement>('[data-tetris-v2-mine]')!;
+ const get=<T extends HTMLElement>(name:string)=>root.querySelector<T>('[data-rank-'+name+']')!;
+ const status=get('status'),body=get('body'),podium=get('podium'),own=get('mine');
+ const heading=get('heading'),description=get('description'),primary=get('primary'),secondary=get('secondary');
+ const choice=root.querySelector<HTMLSelectElement>('[data-tetris-rank-view]')!;
+ const original={heading:heading.textContent!,description:description.textContent!,primary:primary.textContent!,secondary:secondary.textContent!};
+ const isCurrent=()=>root.dataset.tetrisView==='current';
+ const time=(ms:number)=>formatRankingValue('tetris-sprint',ms);
+ const missionBest=document.getElementById('tetris-mission-best'),missionTime=document.getElementById('tetris-mission-time');
+ const hudBest=document.getElementById('tetris-best'),hudGlobal=document.getElementById('tetris-global');
+ const label=(element:HTMLElement|null,value:string)=>{const metric=element?.closest('.oa-hud-metric');if(metric){metric.setAttribute('title',value);metric.setAttribute('aria-label',value);const label=metric.querySelector('.oa-hud-label');if(label)label.textContent=value;}};
+
  let scope=defaultScope,revision=0,pending:{scope:string;result:Result;busy:boolean}|null=null;
  let identity:string|null|undefined=undefined;
  const endpoint=(s:string)=>'/api/tetris/rankings/'+encodeURIComponent(s);
- const format=(r:{points:number;durationMs:number})=>r.points+' pts · '+(r.durationMs/1000).toFixed(3)+' s';
+ const format=(r:{points:number;durationMs:number})=>r.points+' pts · '+time(r.durationMs);
+ const timeFirst=()=>tetrisRankOrder(scope)?.[0].startsWith('duration_ms')??false;
+ function headings(){
+  heading.textContent='Ranking global — '+(missions.find(m=>m.id===scope)?.title??original.heading.replace('Ranking global — ',''));
+  description.textContent=(timeFirst()?(tetrisRankOrder(scope)?.[0].endsWith('ASC')?'Vence o menor tempo.':'Vence o maior tempo.'):'Vence a maior pontuação.')+' Desempate pelo segundo indicador. Somente contas registram resultados.';
+  primary.textContent=timeFirst()?'Tempo':'Pontos';secondary.textContent=timeFirst()?'Pontos':'Tempo';
+ }
+ function clear(){
+  body.replaceChildren();podium.replaceChildren();own.hidden=true;own.textContent='';
+  if(missionBest)missionBest.textContent='—';if(missionTime)missionTime.textContent='—';
+  if(scope!==defaultScope){if(hudBest)hudBest.textContent='—';if(hudGlobal)hudGlobal.textContent='—';}
+ }
+
  function render(data:Board){
-  list.replaceChildren();own.textContent='';
-  if(!data.available){status.textContent='Ranking v2 indisponível neste ambiente.';return;}
-  status.textContent=data.top?.length?'Classificação v2 · resultados não verificados contra a partida.':'Ainda não há resultados v2.';
-  for(const row of data.top??[]){const li=document.createElement('li');li.textContent=row.rank+'º · '+row.nickname+' · '+format(row);list.append(li);}
-  if(data.mine)own.textContent='Seu recorde: '+format(data.mine);
+  if(!isCurrent())return;
+  clear();headings();
+  if(!data.available){status.textContent='Ranking indisponível neste ambiente.';podium.textContent='Classificação indisponível.';return;}
+  status.textContent=data.top?.length?'Classificação pública por contas cadastradas. Resultados não verificados contra a partida.':'Ainda não há resultados.';
+  renderRankingPodium(podium,(data.top??[]).map((row,i)=>({nickname:row.nickname,score:i})),i=>format(data.top![i]));
+  for(const row of data.top??[]){const tr=document.createElement('tr');tr.className=row.rank<=3?'leaderboard-podium podium-'+row.rank:'';for(const value of [row.rank+'º',row.nickname,timeFirst()?time(row.durationMs):String(row.points),timeFirst()?String(row.points):time(row.durationMs)]){const td=document.createElement('td');td.textContent=value;tr.append(td);}body.append(tr);}
+  if(data.mine){own.hidden=false;own.textContent='Seu recorde: '+format(data.mine);}
+  if(missionBest)missionBest.textContent=data.mine?data.mine.points+' pts':'—';
+  if(missionTime)missionTime.textContent=data.mine?time(data.mine.durationMs):'—';
+  if(scope!==defaultScope){
+   label(hudBest,'Recorde da missão');label(hudGlobal,'Líder da missão');
+   const metric=(r:{points:number;durationMs:number}|null|undefined)=>r?(timeFirst()?time(r.durationMs):String(r.points)):'—';
+   if(hudBest)hudBest.textContent=metric(data.mine);if(hudGlobal)hudGlobal.textContent=metric(data.top?.[0]);
+  }
  }
  async function refresh(){
-  const v=++revision;list.replaceChildren();own.textContent='';status.textContent='Consultando ranking v2…';
-  try{const response=await fetch(endpoint(scope),{cache:'no-store'});const data=await response.json() as Board;if(v===revision)render(data);}catch{if(v===revision)render({available:false});}
+  const rev=++revision;if(isCurrent()){clear();headings();status.textContent='Consultando classificação…';}
+  try{const response=await fetch(endpoint(scope),{cache:'no-store'});const data=await response.json() as Board;if(rev===revision)render(data);}catch{if(rev===revision)render({available:false});}
  }
+ function showView(current:boolean){
+  root.dataset.tetrisView=current?'current':'legacy';
+  choice.value=current?'current':'legacy';
+  if(current){headings();void refresh();}
+  else{++revision;heading.textContent=original.heading;description.textContent=original.description;primary.textContent=original.primary;secondary.textContent=original.secondary;clear();document.dispatchEvent(new CustomEvent('oldarcade:tetris-history-view'));}
+ }
+ choice.addEventListener('change',()=>showView(choice.value==='current'));
  async function submit(){
   if(!pending||pending.busy)return;
   const item=pending;item.busy=true;const submittedIdentity=identity;
   try{
    const response=await fetch(endpoint(item.scope),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(item.result)});
    if(pending!==item)return;
-   if(response.status===401){item.busy=false;status.textContent='Entre na sua conta para registrar o resultado v2.';if(identity&&identity!==submittedIdentity)void submit();return;}
+   if(response.status===401){item.busy=false;status.textContent='Entre na sua conta para registrar o resultado.';if(identity&&identity!==submittedIdentity)void submit();return;}
    const data=await response.json() as Board;
    pending=null;
    if(response.ok&&data.saved)document.dispatchEvent(new CustomEvent('oldarcade:tetris-v2-saved'));
-   if(scope===item.scope){if(response.ok&&data.saved){++revision;render(data);}else status.textContent='Registro v2 não confirmado.';}
-  }catch{if(pending===item){pending=null;status.textContent='Registro v2 não confirmado.';}}
+   if(scope===item.scope){if(response.ok&&data.saved){++revision;render(data);}else status.textContent='Registro não confirmado.';}
+  }catch{if(pending===item){pending=null;status.textContent='Registro não confirmado.';}}
  }
  document.addEventListener('oldarcade:account-changed',e=>{
   const player=(e as CustomEvent<{player?:{id?:string;nickname?:string}|null}>).detail?.player;
@@ -43,6 +82,6 @@ export function setupTetrisVersionedRanking(defaultScope:string){
   identity=next;
   own.textContent='';void refresh();if(player)void submit();
  });
- void refresh();
- return {begin(){pending=null;},select(next:string){if(!tetrisScopes.includes(next)||next===scope)return;scope=next;pending=null;void refresh();},finish(next:string,result:Result){if(next!==scope)return;pending={scope:next,result,busy:false};void submit();}};
+ showView(false);void refresh();
+ return {begin(){pending=null;},select(next:string){if(!tetrisScopes.includes(next)||next===scope)return;scope=next;pending=null;choice.disabled=scope!==defaultScope;showView(scope!==defaultScope||choice.value==='current');},finish(next:string,result:Result){if(next!==scope)return;pending={scope:next,result,busy:false};void submit();}};
 }

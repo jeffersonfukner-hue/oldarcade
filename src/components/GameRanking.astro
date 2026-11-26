@@ -1,18 +1,19 @@
 ---
 import {isTimeRanking,isLowerBetter} from '../data/rankingRules.js';
-interface Props {game:string;name:string;slot?:string}
-const {game,name}=Astro.props;
+interface Props {game:string;name:string;slot?:string;tetrisUnified?:boolean}
+const {game,name,tetrisUnified=false}=Astro.props;
 const timed=isTimeRanking(game);
 const lowerBetter=isLowerBetter(game);
 ---
-<section class="section panel mode-ranking" id={"ranking-"+game} data-mode-ranking data-game={game} data-ranking-metric={timed?"time":"points"} aria-label={`Ranking global do ${name}`}>
- <div class="section-head"><div><span class="eyebrow">Desafio Old Arcade</span><h2>Ranking global — {name}</h2></div><span class="pill">Contas cadastradas</span></div>
- <p class="small muted">{timed?(lowerBetter?'Vence quem completa 40 linhas no menor tempo.':'Vence quem sobrevive pelo maior tempo.'):'Vence a maior pontuação.'} Empates seguem os critérios do modo. Qualquer pessoa pode consultar a classificação; somente contas registram resultados.</p>
+<section class="section panel mode-ranking" id={"ranking-"+game} data-mode-ranking data-tetris-unified={tetrisUnified?'true':undefined} data-game={game} data-ranking-metric={timed?"time":"points"} aria-label={`Ranking global do ${name}`}>
+ <div class="section-head"><div><span class="eyebrow">Desafio Old Arcade</span><h2 data-rank-heading>Ranking global — {name}</h2></div><span class="pill">Contas cadastradas</span></div>
+ <p class="small muted" data-rank-description>{timed?(lowerBetter?'Vence quem completa 40 linhas no menor tempo.':'Vence quem sobrevive pelo maior tempo.'):'Vence a maior pontuação.'} Empates seguem os critérios do modo. Qualquer pessoa pode consultar a classificação; somente contas registram resultados.</p>
+ {tetrisUnified&&<label class="small" data-tetris-ranking-choice>Classificação <select data-tetris-rank-view><option value="current">Pontuação e tempo</option><option value="legacy">Recordes históricos</option></select></label>}
  <p class="mode-ranking-provisional small" data-rank-provisional hidden aria-live="polite">Marca provisória — só será confirmada no final da partida e com conta autenticada.</p>
  <h3 class="oa-ranking-podium-title">Pódio — Top 3</h3>
  <div class="rankings-podium" data-rank-podium><p class="small muted">Consultando classificação…</p></div>
  <details class="rankings-top10"><summary>Ver classificação completa (Top 10)</summary>
-  <div class="ranking-overflow"><table class="ranking"><thead><tr><th>Posição</th><th>Nickname</th><th>{timed?"Tempo":"Pontos"}</th><th>Registrado em</th></tr></thead><tbody data-rank-body><tr><td colspan="4">Carregando…</td></tr></tbody></table></div>
+  <div class="ranking-overflow"><table class="ranking"><thead><tr><th>Posição</th><th>Nickname</th><th data-rank-primary>{timed?"Tempo":"Pontos"}</th><th data-rank-secondary>Registrado em</th></tr></thead><tbody data-rank-body><tr><td colspan="4">Carregando…</td></tr></tbody></table></div>
  </details>
  <p data-rank-mine class="small" hidden></p>
  <p data-rank-status class="small muted" role="status">Consultando classificação…</p>

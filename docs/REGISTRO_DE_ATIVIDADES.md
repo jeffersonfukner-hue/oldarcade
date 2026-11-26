@@ -1,3 +1,6 @@
+## ESTADO ATUAL PARA NOVO CHAT — ranking Tetris (25/11/2026)
+- CI 1297 aprovado: TypeScript 0 erros, API 126 aprovados, Playwright 386 aprovados; 52 não executados. Preview homologação apontou dois rankings concorrentes e estatísticas Sprint em missão. Correção: um GameRanking compartilhado, pódio padrão, tabela pontos/tempo, seletor histórico, contexto da missão e recorde pessoal, sem alteração D1. Ranking legado permanece padrão inicial nos modos antigos para preservar contrato existente; usuário pode alternar para pontuação e tempo. Teste Playwright adicionado, novo CI pendente. Sem merge ou deploy. Tempo não registrado.
+
 ## ESTADO ATUAL PARA NOVO CHAT — correção CI Tetris (25/11/2026)
 - CI 45729355446, job 139607190979, commit fa3d3cdb: falhou no check com 31 erros TS2339 decorrentes de inferência Readonly<unknown> em campaign.map(Object.freeze). Corrigida chamada genérica com callback explícito, preservando freeze e regras. Novo CI pendente. Build/API/E2E anteriores não executados. D1 0012 Preview confirmado, não repetir. Novo acordo: Actions ativo até bloqueio de franquia, commits continuam, sem excedentes. Tempo não registrado.
 
