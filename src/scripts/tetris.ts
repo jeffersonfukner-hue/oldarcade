@@ -184,7 +184,7 @@ function update(){
  node('tetris-local-best').textContent=displayBest();node('tetris-sidebar-level').textContent=sprint?lines+'/'+TARGET_LINES:survival?'Onda '+level:String(level);
  if(!selectedMission)node('tetris-global').textContent=timed?formatRankingValue(modeId,globalTarget):String(globalProvisional?score:globalTarget??'—');node('tetris-provisional').hidden=!!selectedMission||timed||!globalProvisional;
  const mission=selectedMission;
- node('tetris-mission-performance').hidden=!mission;node('tetris-legacy-performance').hidden=!!mission;node('tetris-legacy-community').hidden=!!mission;node('tetris-performance-heading').textContent=mission?mission.title:'Resumo de partidas locais';
+ node('tetris-performance-heading').textContent=mission?mission.title:'Resumo de partidas locais';
  refreshMissionPicker();
  dailyProgress();
 }
@@ -360,8 +360,8 @@ function start(daily:DailyAttempt|null=null){
  clock.reset();board=empty();bag=[];queue=[];reserve=null;reserveUsed=false;
  piece=null;score=0;lines=0;clearStats=createTetrisClearStats();level=1;globalProvisional=false;screen.removeAttribute('data-survival-danger');drawNext();
  if(activeMission){document.dispatchEvent(new CustomEvent('oldarcade:tetris-mission-start'));}
- if(!activeMission&&!daily?.practice){const event=recordGameStart(modeId);counters.recordPlay(event)}
- if(!activeMission&&!dailyAttempt){plays++;save()}
+ if(!daily?.practice){const event=recordGameStart(modeId);counters.recordPlay(event)}
+ if(!dailyAttempt){plays++;save()}
  spawn();update();centerGameBoard(screen,stage);countdownStart(true);
 }
 function finish(completed=false){

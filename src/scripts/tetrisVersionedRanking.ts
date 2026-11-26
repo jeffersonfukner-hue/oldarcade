@@ -50,6 +50,7 @@ export function setupTetrisVersionedRanking(defaultScope:string){
    label(hudBest,'Recorde da missão');label(hudGlobal,'Líder da missão');
    const metric=(r:{points:number;durationMs:number}|null|undefined)=>r?(timeFirst()?time(r.durationMs):String(r.points)):'—';
    if(hudBest)hudBest.textContent=metric(data.mine);if(hudGlobal)hudGlobal.textContent=metric(data.top?.[0]);
+   get('personal').textContent=metric(data.mine);get('global').textContent=metric(data.top?.[0]);
   }
  }
  async function refresh(){

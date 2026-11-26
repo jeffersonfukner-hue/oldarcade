@@ -59,6 +59,7 @@ test('Top 3 é acessível nas páginas Snake e Tetris; Top 10 sob demanda',async
   {nickname:'Primeiro',score:150,rank:1,achievedAt:'2026-11-18T20:00:00.000Z'},
   {nickname:'Segundo',score:100,rank:2,achievedAt:'2026-11-18T20:00:00.000Z'}
  ]})}));
+ await page.route('**/api/tetris/rankings/c1',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Primeiro',points:4000,durationMs:45000,rank:1},{nickname:'Segundo',points:4000,durationMs:60000,rank:2}],mine:null})}));
  for(const url of ['/jogos/snake/','/jogos/snake/evolution/','/jogos/tetris/','/jogos/tetris/sprint/','/jogos/pixel-quest/']){
   await page.goto(url);
   const ranking=page.locator(url.includes('tetris')||url.includes('pixel-quest')?'[data-mode-ranking]':'.oa-ranking-panel');

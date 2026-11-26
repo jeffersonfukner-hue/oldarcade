@@ -10,6 +10,7 @@ for(const [mode,path] of modes){
   await page.route('**/api/games/*/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
    available:true,top:[{nickname:'Líder Teste',score:850,rank:1,achievedAt:'2026-11-19T12:00:00Z'}],mine:null
   })}));
+  if(mode==='tetris-sprint')await page.route('**/api/tetris/rankings/c1',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Líder Teste',points:4000,durationMs:85000,rank:1}],mine:null})}));
   if(mode==='pixel-quest')await page.route('**/api/quest/rankings/*',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
    available:true,top:[{nickname:'Líder Teste',score:850,rank:1,achievedAt:'2026-11-19T12:00:00Z'}],mine:null
   })}));

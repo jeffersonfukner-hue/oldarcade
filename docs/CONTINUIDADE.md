@@ -1,3 +1,6 @@
+## ESTADO ATUAL PARA NOVO CHAT — atividade compacta (25/11/2026)
+- CI #1301 falhou em 6 testes E2E: fixtures ainda consultavam Sprint legado; check/build/API aprovados. Atualizadas fixtures de c1 e cache de recordes da missão. Faixa compartilhada GameActivityStrip integrada aos três Snake e três Tetris, sem repetir recordes; IDs antigos mantidos ocultos para compatibilidade. Aventura mantém guia expansível; Pixel Quest mantém informação de fase, não usa o painel antigo. Contagem Tetris Missões passa a agregar partidas da campanha/extras na rota existente (histórico Sprint anterior preservado). Novo CI pendente. Sem D1, merge ou deploy. Tempo não registrado.
+
 ## ESTADO ATUAL PARA NOVO CHAT — seletor Missões (25/11/2026)
 - CI #1300 aprovado, 514 testes aprovados, 52 ignorados, zero falhas. Proprietário pediu remover Sprint avulso do seletor. Somente grupos Campanha (8) e Desafios extras (4), c1 inicial e fallback após troca de conta, sem exclusão de históricos. Rota /jogos/tetris/sprint/ preservada por compatibilidade. Título/guia contextualizados e testes adaptados. Novo CI pendente. Sem D1, merge ou deploy. Tempo não registrado.
 

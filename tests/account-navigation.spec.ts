@@ -7,9 +7,9 @@ test('Voltar ao Sprint consulta sessão atual e não restaura usuário anterior'
   checks++;
   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({player:{nickname}})});
  });
- await page.route('**/api/games/tetris-sprint/leaderboard',route=>route.fulfill({
+ await page.route('**/api/tetris/rankings/c1',route=>route.fulfill({
   status:200,contentType:'application/json',
-  body:JSON.stringify({available:true,top:[],mine:nickname==='Conta A'?{nickname:'Conta A',score:95000,rank:1}:{nickname:'Conta B',score:76000,rank:1}})
+  body:JSON.stringify({available:true,top:[],mine:nickname==='Conta A'?{nickname:'Conta A',points:4000,durationMs:95000,rank:1}:{nickname:'Conta B',points:4000,durationMs:76000,rank:1}})
  }));
  await page.goto('/jogos/tetris/sprint/');
  await expect(page.locator('[data-player-name]')).toHaveText('Conta A');
