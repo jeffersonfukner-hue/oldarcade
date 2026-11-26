@@ -1,3 +1,7 @@
+## TET-08 — evidência local reproduzida (25/11/2026)
+- Node v22.16.0: `node --test tests-api/*.test.mjs` em cópia parcial de nove arquivos com Git blob SHA idêntico ao commit 8b6d1ad699a1d7f524fe3543988d9753c2692530. Primeira execução 8/8; ampliada com tetris-progress.test.mjs, 11/11, zero falhas, TAP duration_ms 152.557344 (tempo do executor, não duração de trabalho). Cobertura de regras, contadores, desbloqueio, limite, resistência, ranking, HTTP 503 sem banco e 401 sem sessão. Não é teste de integração D1 nem de navegador; correções TS ainda não verificadas em execução.
+- Clone HTTPS local falhou por DNS (Could not resolve host: github.com); check/build/E2E completos pendentes. Não liberar Preview. Nenhum CI remoto, D1, merge ou deploy. Migração 0012 aditiva ainda não aplicada. Tempo de trabalho não registrado.
+
 ## TET-08 — correções de integração (25/11/2026)
 - Limpeza proibida na resistência encerra antes de creditar linhas/pontos; envio v2 tem trava de concorrência, reinício descarta pendência e troca de identidade invalida resultado da rodada. Botão de vitória seleciona próxima missão se desbloqueada. Revisão estática, testes ainda pendentes; os oito resultados relatados anteriormente não possuem evidência de execução recuperada e não são certificados. Sem CI, merge, deploy, D1 ou gastos. Tempo não registrado.
 
