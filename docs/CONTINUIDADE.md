@@ -1,3 +1,7 @@
+## TET-06/07 integração — 25/11/2026
+- Progresso da conta derivado de recordes de missões v2 confirmados, sequência validada no POST; visitantes mantêm progresso local separado, sem importação automática de vitórias antigas. GET de progresso autenticado. Ranking global e perfil recebem seletor compartilhado v2 dentro do card Tetris. Convite pós-missão reutiliza modal global sem evento de resultado Sprint legado. Corrigida validação das eliminações de resistência.
+- Testes adicionais criados; validação integral pendente. Migração 0012 ainda não aplicada. Sem merge, deploy, D1 ou CI disparado. Tempo não registrado.
+
 ## TET-06/07 — 25/11/2026
 - Campanha salva localmente com chave versionada e validação de prefixo; não sincroniza entre contas/dispositivos. Ranking v2 independente, por modo/missão, com GET público, POST autenticado e same-origin; pontuação por combos e tempo em colunas próprias. Sprint/C1/C7 menor tempo; sobrevivência/extras maior tempo; demais maior pontuação; desempates pelo outro indicador e data. Resultados autorrelatados (sem antifraude/replay), sem alterar registros antigos.
 - Migração 0012 preparada, NÃO aplicada; ranking v2 indisponível até autorização e aplicação no Preview. Interface v2 nas páginas dos jogos; agregação na página global/perfil e convite integrado pós-missão ainda pendentes. Testes unitários criados; build/E2E/CI não executados. Commit preparado sem mover branch ativa. Sem deploy/merge/D1/gastos. Tempo não registrado.

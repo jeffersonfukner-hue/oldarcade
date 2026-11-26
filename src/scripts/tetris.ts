@@ -65,10 +65,30 @@ type Mission=typeof missions[number];
 let selectedMission:Mission|null=null,activeMission:Mission|null=null;
 const progressKey='oldarcade:tetris:campaign:v1';
 let campaignCompleted:string[]=[];
+let accountCampaign=false,progressRevision=0;
+const guestProgress=()=>{try{return completedCampaign(JSON.parse(localStorage.getItem(progressKey)||'[]'));}catch{return [];}};
+async function refreshAccountCampaign(){
+ if(!sprint)return;
+ const rev=++progressRevision;
+ try{
+  const response=await fetch('/api/tetris/progress',{cache:'no-store'});
+  if(rev!==progressRevision)return;
+  if(response.status===401){accountCampaign=false;campaignCompleted=guestProgress();}
+  else if(response.ok){
+   const data=await response.json() as {available:boolean;completed:string[]};
+   if(rev!==progressRevision)return;
+   accountCampaign=true;campaignCompleted=completedCampaign(data.completed);
+  }else return;
+  if(state==='ready'||state==='over'){
+   if(selectedMission&&!missionUnlocked(selectedMission.id,campaignCompleted)){selectedMission=null;if(missionSelect)missionSelect.value='';versionedRanking.select(legacyScope);}
+   refreshMissionPicker();
+  }
+ }catch{}
+}
 if(sprint){try{campaignCompleted=completedCampaign(JSON.parse(localStorage.getItem(progressKey)||'[]'));}catch{}}
 const legacyScope=sprint?'sprint':survival?'survival':'classic';
 const versionedRanking=setupTetrisVersionedRanking(legacyScope);
-function saveCampaign(){try{localStorage.setItem(progressKey,JSON.stringify(campaignCompleted));return true;}catch{return false;}}
+function saveCampaign(){if(accountCampaign)return true;try{localStorage.setItem(progressKey,JSON.stringify(campaignCompleted));return true;}catch{return false;}}
 function submitVersioned(scope:string,duration:number){
  versionedRanking.finish(scope,{points:clearStats.points,durationMs:Math.max(1,duration),counts:clearStats.counts.slice(1)});
 }
@@ -184,7 +204,7 @@ function land(){
  if(cleared){
   board=[...Array.from({length:cleared},()=>Array<Cell>(COLS).fill(0)),...remaining];
   lines+=cleared;
-  registerTetrisClear(clearStats,cleared);
+  if(activeMission?.kind!=='endurance'||cleared===activeMission.count)registerTetrisClear(clearStats,cleared);
   const oldLevel=level;level=tetrisLevel(modeId,lines,clock.milliseconds());
   const points=[0,100,300,500,800][cleared]*oldLevel;
    const mission=dailyAttempt?.mission;
@@ -318,6 +338,7 @@ function countdownStart(first:boolean){
 function start(daily:DailyAttempt|null=null){
  if(dailyRequestPending)return;
  dailyAttempt=daily;
+ if(selectedMission&&!missionUnlocked(selectedMission.id,campaignCompleted))return;
  activeMission=!daily&&sprint?selectedMission:null;
  campaignState=newMissionState();
  dailyReplay.clear();
@@ -329,6 +350,7 @@ function start(daily:DailyAttempt|null=null){
  finishSequence++;stopDropAnimation();window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  clock.reset();board=empty();bag=[];queue=[];reserve=null;reserveUsed=false;
  piece=null;score=0;lines=0;clearStats=createTetrisClearStats();level=1;globalProvisional=false;screen.removeAttribute('data-survival-danger');drawNext();
+ if(activeMission){document.dispatchEvent(new CustomEvent('oldarcade:tetris-mission-start'));}
  if(!activeMission&&!daily?.practice){const event=recordGameStart(modeId);counters.recordPlay(event)}
  if(!activeMission&&!dailyAttempt){plays++;save()}
  spawn();update();centerGameBoard(screen,stage);countdownStart(true);
@@ -344,8 +366,11 @@ function finish(completed=false){
   if(campaignState.status==='playing')campaignState=advanceMission(mission,campaignState,{type:'end',count:0,elapsed:duration});
   const won=campaignState.status==='won';
   let persisted=true;
-  if(won&&campaign.some(m=>m.id===mission.id)&&!campaignCompleted.includes(mission.id)){campaignCompleted.push(mission.id);persisted=saveCampaign();}
-  if(won||campaignState.status==='finished')submitVersioned(mission.id,duration);
+  if(won&&!accountCampaign&&campaign.some(m=>m.id===mission.id)&&!campaignCompleted.includes(mission.id)){campaignCompleted.push(mission.id);persisted=saveCampaign();}
+  if(won||campaignState.status==='finished'){
+   submitVersioned(mission.id,duration);
+   document.dispatchEvent(new CustomEvent('oldarcade:tetris-mission-finished',{detail:{scope:mission.id,score:clearStats.points,recordDelayMs:1000}}));
+  }
   if(!persisted&&missionInfo)missionInfo.textContent='Progresso desbloqueado nesta sessão; armazenamento local indisponível.';
   update();draw();
   show(won?'Missão cumprida!':campaignState.status==='finished'?'Desafio encerrado':'Missão não cumprida',mission.title+' · '+clearStats.points+' pontos · '+lines+' linhas · '+Math.floor(duration/1000)+' s',won?'▶ Jogar próxima missão ou repetir':'▶ Tentar novamente');
@@ -506,6 +531,11 @@ try{
   startButton.textContent='↻ Reenviar resultado diário';
  }
 }catch{}
+if(sprint){
+ document.addEventListener('oldarcade:account-changed',()=>{++progressRevision;accountCampaign=true;campaignCompleted=[];refreshMissionPicker();void refreshAccountCampaign();});
+ document.addEventListener('oldarcade:tetris-v2-saved',()=>{void refreshAccountCampaign();});
+ void refreshAccountCampaign();
+}
 missionSelect?.addEventListener('change',()=>{
  if(state==='playing'||state==='paused'||state==='countdown')return;
  const id=missionSelect.value;

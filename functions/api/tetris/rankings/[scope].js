@@ -1,5 +1,5 @@
 import {currentPlayer,reply,sameOrigin,parseBody} from '../../_lib/auth.js';
-import {TETRIS_RANK_VERSION,tetrisRankOrder,validTetrisResult} from '../../../../src/data/tetrisRanking.js';
+import {TETRIS_RANK_VERSION,tetrisRankOrder,validTetrisResult,completedCampaign} from '../../../../src/data/tetrisRanking.js';
 function order(scope){return tetrisRankOrder(scope);}
 async function standings(db,request,scope){
  const sort=order(scope).join(',');
@@ -23,6 +23,11 @@ export async function onRequestPost(ctx){
  if(!validTetrisResult(scope,data))return reply({error:'Resultado inválido'},400);
  try{
   const player=await currentPlayer(db,ctx.request);if(!player)return reply({error:'Entre para registrar'},401);
+  if(/^c[1-8]$/.test(scope)){
+   const rows=await db.prepare("SELECT scope FROM tetris_rank_records WHERE version=? AND player_id=? AND scope LIKE 'c%'").bind(TETRIS_RANK_VERSION,player.id).all();
+   const completed=completedCampaign((rows.results||[]).map(r=>r.scope));
+   if(Number(scope.slice(1))>completed.length+1)return reply({error:'Missão ainda bloqueada nesta conta'},409);
+  }
   const [primary,secondary]=order(scope).map(x=>x.split(' '));
   const cmp=([column,direction])=>`excluded.${column}${direction==='ASC'?'<':'>'}tetris_rank_records.${column}`;
   const better=`${cmp(primary)} OR (excluded.${primary[0]}=tetris_rank_records.${primary[0]} AND ${cmp(secondary)})`;

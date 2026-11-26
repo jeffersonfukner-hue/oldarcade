@@ -30,6 +30,17 @@ if(box){
   activeAccount=Boolean(player);
   if(activeAccount)hide();
  });
+ document.addEventListener('oldarcade:tetris-mission-start',hide);
+ document.addEventListener('oldarcade:tetris-mission-finished',async event=>{
+  const detail=(event as CustomEvent<{scope:string;score:number;recordDelayMs:number}>).detail;
+  const current=++sequence;
+  await session;
+  await new Promise<void>(resolve=>window.setTimeout(resolve,detail.recordDelayMs));
+  if(current!==sequence||activeAccount)return;
+  copy.textContent='Você marcou '+detail.score+' pontos nesta missão. Entre ou crie uma conta para registrar o resultado.';
+  link.href='/rankings/#tetris-v2';
+  box.hidden=false;dismiss.focus({preventScroll:true});
+ });
  document.addEventListener('oldarcade:game-finished',async event=>{
   const detail=(event as CustomEvent<{game:string;score:number;recordDelayMs?:number;eligible?:boolean}>).detail;
   if(!detail||!gameMode(detail.game)||!Number.isFinite(detail.score))return;

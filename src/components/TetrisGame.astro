@@ -73,7 +73,7 @@ import TetrisEditorialArt from './TetrisEditorialArt.astro';
          <optgroup label="Desafios extras">{extras.map(m=><option value={m.id}>{m.title}</option>)}</optgroup>
         </select>
         <p id="tetris-campaign-info" class="small">Sprint original: 40 linhas, ranking por tempo.</p>
-        <small>Progresso salvo neste navegador. Classificação v2 independente do Sprint original.</small>
+        <small>Progresso local para visitantes; por conta após registro confirmado. Classificação v2 independente do Sprint original.</small>
        </section>}
        <div class="tetris-mission-slot" data-daily-mission-sidebar data-daily-mission-inline hidden aria-label="Missão diária ao lado das linhas"></div>
         <GameHud compact statusId="tetris-status" scoreId="tetris-score" bestId="tetris-best" globalId="tetris-global" levelId={timed?undefined:"tetris-level"} scoreLabel={survival?"Tempo sobrevivido":sprint?"Linhas":"Pontos"} bestLabel={timed?"Melhor tempo da conta":"Recorde da conta"} globalLabel={timed?"Tempo líder":"Recorde global"} provisionalId="tetris-provisional" hint="F: tela cheia · Espaço: queda · P: pausa" />

@@ -1,4 +1,4 @@
-import {tetrisScopes,tetrisRankOrder} from '../data/tetrisRanking.js';
+import {tetrisScopes} from '../data/tetrisRanking.js';
 type Result={points:number;durationMs:number;counts:number[]};
 type Entry={nickname:string;points:number;durationMs:number;rank:number};
 type Board={available:boolean;top?:Entry[];mine?:{points:number;durationMs:number}|null;saved?:boolean};
@@ -31,6 +31,7 @@ export function setupTetrisVersionedRanking(defaultScope:string){
    if(response.status===401){status.textContent='Entre na sua conta para registrar o resultado v2.';return;}
    const data=await response.json() as Board;
    pending=null;
+   if(response.ok&&data.saved)document.dispatchEvent(new CustomEvent('oldarcade:tetris-v2-saved'));
    if(scope===item.scope){if(response.ok&&data.saved){++revision;render(data);}else status.textContent='Registro v2 não confirmado.';}
   }catch{if(pending===item){pending=null;status.textContent='Registro v2 não confirmado.';}}
  }

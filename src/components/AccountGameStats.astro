@@ -1,5 +1,6 @@
 ---
 /** Um único card por título. Cada modalidade mantém seus próprios atributos de consulta. */
+import TetrisRankBrowser from './TetrisRankBrowser.astro';
 import {isTimeRanking} from '../data/rankingRules.js';
 import {gameModes} from '../data/gameModes.js';
 interface Props{
@@ -32,4 +33,5 @@ const competitive=modes.filter(([,mode])=>mode.competitive);
   <p>Este jogo ainda não possui ranking global por conta. Os resultados locais provisórios não são apresentados como recordes da sua conta.</p>
   <a class="btn secondary" href={modes[0]?.[1]?.url??`/jogos/${titleId}/`}>Jogar {title.name} →</a>
  </div>}
+ {titleId==='tetris'&&<TetrisRankBrowser personal />}
 </section>

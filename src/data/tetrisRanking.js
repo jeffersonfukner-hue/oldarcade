@@ -12,6 +12,8 @@ export function validTetrisResult(scope,data){
  const lines=data.counts.reduce((sum,n,i)=>sum+n*(i+1),0);
  if(data.points!==data.counts.reduce((sum,n,i)=>sum+n*[100,200,400,800][i],0))return false;
  if(scope==='sprint'&&lines<40)return false;
+ const extra=extras.find(m=>m.id===scope);
+ if(extra&&data.counts.some((n,i)=>i!==extra.count-1&&n>0))return false;
  const m=campaign.find(m=>m.id===scope);
  if(m){
   if(m.limit&&data.durationMs>=m.limit)return false;
