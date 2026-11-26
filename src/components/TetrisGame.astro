@@ -167,6 +167,9 @@ import TetrisEditorialArt from './TetrisEditorialArt.astro';
   .tetris-touch-controls button{min-width:0;padding:11px 2px;min-height:46px;background:#223554;color:#fff;border:1px solid #56719c;border-radius:9px;font-weight:800;touch-action:manipulation}
   .tetris-touch-controls button:active{background:#7655fa}
   .tetris-sidebar h2{font-size:1.45rem}
+  /* O display definido pelo grid/flex global não pode reexibir estatísticas ocultas. */
+  .tetris-sidebar #tetris-legacy-performance[hidden],.tetris-sidebar #tetris-legacy-community[hidden],.tetris-sidebar #tetris-mission-performance[hidden]{display:none!important}
+  .tetris-sidebar #tetris-mission-performance{grid-column:1/-1;min-width:0}
   @media(max-width:580px){.tetris-playfield{gap:8px}.tetris-preview-column{width:116px;min-width:116px}.tetris-board-shell{width:min(300px,calc(100% - 124px))}.tetris-mini{padding:5px}.tetris-touch-controls button{font-size:.86rem}.tetris-sidebar{margin-top:6px}.tetris-mission-slot .daily-live-tracker{padding:8px 6px}.tetris-mission-slot .daily-live-tracker>strong{font-size:.88rem}.tetris-mission-slot .daily-live-sequence span{width:22px;height:27px;font-size:.74rem}}
   @media(max-width:370px){.tetris-preview-column{width:102px;min-width:102px}.tetris-board-shell{width:min(300px,calc(100% - 110px))}}
 

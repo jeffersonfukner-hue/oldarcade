@@ -11,4 +11,9 @@ test('Missão troca o ranking único e oculta estatísticas Sprint',async({page}
  await expect(page.locator('#tetris-legacy-community')).toBeHidden();
  await expect(page.locator('#tetris-legacy-performance')).toBeHidden();
  await expect(page.locator('[data-tetris-rank-view]')).toBeDisabled();
+ await expect(page.locator('#tetris-mission-performance')).toBeVisible();
+ await page.locator('#tetris-campaign-select').selectOption('');
+ await expect(page.locator('#tetris-mission-performance')).toBeHidden();
+ await expect(page.locator('#tetris-legacy-performance')).toBeVisible();
+ await expect(page.locator('#tetris-legacy-community')).toBeVisible();
 });

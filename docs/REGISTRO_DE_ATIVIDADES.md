@@ -1,3 +1,6 @@
+## ESTADO ATUAL PARA NOVO CHAT — correção visual ranking Tetris (25/11/2026)
+- CI #1299 (45735177687), commit f4ca5b7: check, build e API aprovados; Playwright 386 aprovados, 50 skipped, duas falhas desktop/mobile do novo teste. CSS de stats-list sobrepunha atributo hidden. Regra explícita de ocultação contextual nos três blocos e largura de desempenho de missão; teste ampliado para volta ao Sprint. Novo CI pendente. D1 0012 confirmado; sem nova migração, merge ou deploy. Tempo não registrado.
+
 ## ESTADO ATUAL PARA NOVO CHAT — correção CI ranking Tetris (25/11/2026)
 - CI 1298 (45734211171), commit 57c7107: falha única TS18047 em tetrisVersionedRanking.ts:59 (root possivelmente nulo dentro de função). Corrigida referência tipada após guarda de existência; comportamento preservado. Build/API/E2E não executados nessa revisão. Novo CI pendente. D1 0012 Preview confirmado; sem nova migração, merge ou deploy. Tempo de trabalho não registrado.
 
