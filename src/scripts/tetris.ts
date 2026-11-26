@@ -7,8 +7,12 @@ import {setCountdownOverlay} from './gameCountdownOverlay';
 import {formatRankingValue} from '../data/rankingRules.js';
 import {gameModes} from '../data/gameModes.js';
 import {tetrisLevel,tetrisGravityMs} from '../data/tetrisRules.js';
+import {createTetrisClearStats,registerTetrisClear} from '../data/tetrisClearStats.js';
 import {seededRandom,dailyMissionWon} from '../data/dailyChallenges.js';
 import {initialMissionState,advanceDailyMission} from '../data/dailyMissionEngine.js';
+import {campaign,missions,missionUnlocked,newMissionState,advanceMission} from '../data/tetrisMissions.js';
+import {completedCampaign} from '../data/tetrisRanking.js';
+import {setupTetrisVersionedRanking} from './tetrisVersionedRanking';
 import {setupDailyMissionReplay} from './dailyMissionReplay';
 
 type PieceName='I'|'O'|'T'|'S'|'Z'|'J'|'L';
@@ -56,6 +60,79 @@ let dailyClears:number[]=[];
 let missionState=initialMissionState();
 let board:Cell[][]=[],piece:Falling|null=null,bag:PieceName[]=[],queue:PieceName[]=[];
 let reserve:PieceName|null=null,reserveUsed=false,score=0,lines=0,level=1,state:State='ready';
+let clearStats=createTetrisClearStats();
+type Mission=typeof missions[number];
+let selectedMission:Mission|null=sprint?campaign[0]:null,activeMission:Mission|null=null;
+const progressKey='oldarcade:tetris:campaign:v1';
+let campaignCompleted:string[]=[];
+let accountCampaign=false,progressRevision=0,identityRevision=0,roundIdentity=0;
+let nextMissionId:string|null=null;
+let checkingNextMission=false;
+const guestProgress=()=>{try{return completedCampaign(JSON.parse(localStorage.getItem(progressKey)||'[]'));}catch{return [];}};
+async function refreshAccountCampaign(){
+ if(!sprint)return;
+ const rev=++progressRevision;
+ try{
+  const response=await fetch('/api/tetris/progress',{cache:'no-store'});
+  if(rev!==progressRevision)return;
+  if(response.status===401){accountCampaign=false;campaignCompleted=guestProgress();}
+  else if(response.ok){
+   const data=await response.json() as {available:boolean;completed:string[]};
+   if(rev!==progressRevision)return;
+   accountCampaign=true;campaignCompleted=completedCampaign(data.completed);
+  }else return;
+  if(state==='ready'||state==='over'){
+   if(selectedMission&&!missionUnlocked(selectedMission.id,campaignCompleted)){selectedMission=campaign[0];if(missionSelect)missionSelect.value=selectedMission.id;campaignState=newMissionState();versionedRanking.select(selectedMission.id);update();}
+   refreshMissionPicker();
+   refreshNextMissionAction();
+  }
+ }catch{}
+}
+if(sprint){try{campaignCompleted=completedCampaign(JSON.parse(localStorage.getItem(progressKey)||'[]'));}catch{}}
+const legacyScope=sprint?'sprint':survival?'survival':'classic';
+const versionedRanking=setupTetrisVersionedRanking(legacyScope);
+function saveCampaign(){if(accountCampaign)return true;try{localStorage.setItem(progressKey,JSON.stringify(campaignCompleted));return true;}catch{return false;}}
+function submitVersioned(scope:string,duration:number){
+ if(roundIdentity!==identityRevision)return;
+ versionedRanking.finish(scope,{points:clearStats.points,durationMs:Math.max(1,duration),counts:clearStats.counts.slice(1)});
+}
+let campaignState=newMissionState();
+const missionSelect=document.querySelector<HTMLSelectElement>('#tetris-campaign-select');
+const missionInfo=document.getElementById('tetris-campaign-info');
+if(missionSelect&&selectedMission){missionSelect.value=selectedMission.id;versionedRanking.select(selectedMission.id);}
+function refreshMissionPicker(){
+ if(!missionSelect)return;
+ for(const option of Array.from(missionSelect.options)){
+  if(option.value)option.disabled=!missionUnlocked(option.value,campaignCompleted);
+ }
+ missionSelect.disabled=state==='playing'||state==='countdown'||state==='paused';
+ if(missionInfo){
+  const m=activeMission??selectedMission;
+  missionInfo.textContent=m?m.description+' · '+(m.kind==='survive'||m.kind==='endurance'?Math.floor(campaignState.progress/1000)+' s':campaignState.progress+'/'+m.target)+(m.limit?' · '+Math.max(0,Math.ceil((m.limit-campaignState.elapsed)/1000))+' s restantes':''):'Selecione uma missão.';
+ }
+}
+function refreshNextMissionAction(){
+ if(state!=='over'||!nextMissionId)return;
+ const next=campaign.find(m=>m.id===nextMissionId);
+ if(!next)return;
+ if(!missionUnlocked(next.id,campaignCompleted)){
+  startButton.textContent='↻ Verificar liberação da próxima missão';
+  return;
+ }
+ // A seleção padrão passa à próxima missão; voltar à anterior é escolha explícita.
+ selectedMission=next;
+ if(missionSelect)missionSelect.value=next.id;
+ versionedRanking.select(next.id);
+ startButton.textContent='▶ Jogar próxima missão';
+ description.textContent='Próxima missão: '+next.title+'. Para repetir, selecione a missão anterior na lista.';
+}
+function missionEvent(type:'lock'|'tick'|'end',count=0){
+ if(!activeMission)return false;
+ campaignState=advanceMission(activeMission,campaignState,{type,count,elapsed:clock.milliseconds()});
+ if(campaignState.status!=='playing'){finish(campaignState.status==='won');return true;}
+ return false;
+}
+
 let globalTarget:number|null=null,personalTarget:number|null=null,globalProvisional=false;
 let fallTimer=0,countTimer=0,finishSequence=0,fullscreenChanging=false;
 let dropFrame=0,dropAnimating=false,dropVisualY:number|null=null;
@@ -114,13 +191,18 @@ function dailyProgress(){
 }
 function update(){
  node('tetris-status').textContent=state==='playing'?'● Jogando':state==='paused'?'● Pausado':state==='countdown'?'● Preparando':state==='over'?'● Fim de jogo':'● Pronto';
- node('tetris-score').textContent=survival?formatRankingValue(modeId,clock.milliseconds()):sprint?lines+'/'+TARGET_LINES:String(score);
- node('tetris-best').textContent=personalTarget===null?'—':timed?formatRankingValue(modeId,personalTarget):String(personalTarget);
- node('tetris-lines').textContent=sprint?Math.min(lines,TARGET_LINES)+'/'+TARGET_LINES:String(lines);
+ node('tetris-score').textContent=survival?formatRankingValue(modeId,clock.milliseconds()):sprint?((activeMission??selectedMission)?.kind==='lines'?lines+'/'+(activeMission??selectedMission)!.target:String(lines)):String(score);
+ if(!selectedMission)node('tetris-best').textContent=personalTarget===null?'—':timed?formatRankingValue(modeId,personalTarget):String(personalTarget);
+ node('tetris-lines').textContent=sprint&&(activeMission??selectedMission)?.kind==='lines'?lines+'/'+(activeMission??selectedMission)!.target:String(lines);
+ node('tetris-combo-points').textContent=String(clearStats.points);
+ for(let count=1;count<=4;count++)node('tetris-clear-'+count).textContent=String(clearStats.counts[count]);
  if(!timed)node('tetris-level').textContent=String(level);
  node('tetris-plays').textContent=String(plays);
  node('tetris-local-best').textContent=displayBest();node('tetris-sidebar-level').textContent=sprint?lines+'/'+TARGET_LINES:survival?'Onda '+level:String(level);
- node('tetris-global').textContent=timed?formatRankingValue(modeId,globalTarget):String(globalProvisional?score:globalTarget??'—');node('tetris-provisional').hidden=timed||!globalProvisional;
+ if(!selectedMission)node('tetris-global').textContent=timed?formatRankingValue(modeId,globalTarget):String(globalProvisional?score:globalTarget??'—');node('tetris-provisional').hidden=!!selectedMission||timed||!globalProvisional;
+ const mission=selectedMission;
+ node('tetris-performance-heading').textContent=mission?mission.title:'Resumo de partidas locais';
+ refreshMissionPicker();
  dailyProgress();
 }
 function award(points:number){
@@ -143,7 +225,10 @@ function land(){
  const cleared=ROWS-remaining.length;
  if(cleared){
   board=[...Array.from({length:cleared},()=>Array<Cell>(COLS).fill(0)),...remaining];
+  // Uma limpeza proibida encerra a resistência antes de creditar linhas ou pontos.
+  if(activeMission?.kind==='endurance'&&cleared!==activeMission.count){missionEvent('lock',cleared);return;}
   lines+=cleared;
+  registerTetrisClear(clearStats,cleared);
   const oldLevel=level;level=tetrisLevel(modeId,lines,clock.milliseconds());
   const points=[0,100,300,500,800][cleared]*oldLevel;
    const mission=dailyAttempt?.mission;
@@ -160,8 +245,10 @@ function land(){
    if(mission&&mission.version>=2&&missionState.status==='won'){finish(true);return}
   showScoreFeedback(screen,canvas,timed?cleared:points,timed?(cleared===1?'linha eliminada':'linhas eliminadas'):cleared===4?'TETRIS! 4 linhas':cleared===1?'1 linha':cleared+' linhas',completed[0],ROWS);
   // Clássico pontua linhas; Sprint utiliza somente tempo de conclusão.
-  if(sprint&&lines>=TARGET_LINES){finish(true);return}
+  if(sprint&&!activeMission&&lines>=TARGET_LINES){finish(true);return}
  }else update();
+ if(missionEvent('lock',cleared))return;
+ refreshMissionPicker();
  reserveUsed=false;
  if(spawn())schedule();
 }
@@ -209,7 +296,7 @@ function hold(){
  else{reserve=old;if(!spawn())return}
  draw();
 }
-function speed(){return tetrisGravityMs(modeId,lines,clock.milliseconds())}
+function speed(){return tetrisGravityMs(activeMission?.kind==='survive'||activeMission?.kind==='endurance'?'tetris-survival':modeId,lines,clock.milliseconds())}
 function schedule(){
  window.clearTimeout(fallTimer);
  if(state!=='playing')return;
@@ -275,6 +362,11 @@ function countdownStart(first:boolean){
 function start(daily:DailyAttempt|null=null){
  if(dailyRequestPending)return;
  dailyAttempt=daily;
+ if(selectedMission&&!missionUnlocked(selectedMission.id,campaignCompleted))return;
+ activeMission=!daily&&sprint?selectedMission:null;
+ roundIdentity=identityRevision;nextMissionId=null;
+ versionedRanking.begin();
+ campaignState=newMissionState();
  dailyReplay.clear();
  dailyClears=[];
  missionState=initialMissionState();
@@ -283,7 +375,8 @@ function start(daily:DailyAttempt|null=null){
  dailyRandom=daily?seededRandom(daily.seed):Math.random;
  finishSequence++;stopDropAnimation();window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
  clock.reset();board=empty();bag=[];queue=[];reserve=null;reserveUsed=false;
- piece=null;score=0;lines=0;level=1;globalProvisional=false;screen.removeAttribute('data-survival-danger');drawNext();
+ piece=null;score=0;lines=0;clearStats=createTetrisClearStats();level=1;globalProvisional=false;screen.removeAttribute('data-survival-danger');drawNext();
+ if(activeMission){document.dispatchEvent(new CustomEvent('oldarcade:tetris-mission-start'));}
  if(!daily?.practice){const event=recordGameStart(modeId);counters.recordPlay(event)}
  if(!dailyAttempt){plays++;save()}
  spawn();update();centerGameBoard(screen,stage);countdownStart(true);
@@ -294,6 +387,26 @@ function finish(completed=false){
  // Amostrar o relógio antes de deixar playing, inclusive no último encaixe.
  const duration=clock.milliseconds();
  state='over';stopDropAnimation();globalProvisional=false;window.clearTimeout(fallTimer);window.clearTimeout(countTimer);
+ if(activeMission){
+  const mission=activeMission;
+  if(campaignState.status==='playing')campaignState=advanceMission(mission,campaignState,{type:'end',count:0,elapsed:duration});
+  const won=campaignState.status==='won';
+  let persisted=true;
+  const sameIdentity=roundIdentity===identityRevision;
+  if(won&&sameIdentity&&!accountCampaign&&campaign.some(m=>m.id===mission.id)&&!campaignCompleted.includes(mission.id)){campaignCompleted.push(mission.id);persisted=saveCampaign();}
+  if(won&&sameIdentity){const index=campaign.findIndex(m=>m.id===mission.id);nextMissionId=index>=0?campaign[index+1]?.id??null:null;}
+  if(sameIdentity&&(won||campaignState.status==='finished')){
+   submitVersioned(mission.id,duration);
+   document.dispatchEvent(new CustomEvent('oldarcade:tetris-mission-finished',{detail:{scope:mission.id,score:clearStats.points,recordDelayMs:1000}}));
+  }
+  if(!persisted&&missionInfo)missionInfo.textContent='Progresso desbloqueado nesta sessão; armazenamento local indisponível.';
+  update();draw();
+  show(won?'Missão cumprida!':campaignState.status==='finished'?'Desafio encerrado':'Missão não cumprida',mission.title+' · '+clearStats.points+' pontos · '+lines+' linhas · '+Math.floor(duration/1000)+' s',won?(nextMissionId?'▶ Jogar próxima missão':'▶ Escolher missão'):'▶ Tentar novamente');
+  activeMission=null;
+  refreshMissionPicker();
+  refreshNextMissionAction();
+  return;
+ }
  if(dailyAttempt?.practice){
   const attempt=dailyAttempt;
   const mission=attempt.mission;
@@ -325,6 +438,7 @@ function finish(completed=false){
   update();draw();
   recordGameScore(modeId,elapsed);
   recordGameFinish(modeId,elapsed,elapsed,{recordDelayMs:6500});
+  submitVersioned(legacyScope,duration);
   celebrate('defeat','Você resistiu por '+formatRankingValue(modeId,elapsed)+' e eliminou '+lines+' linhas.',true);
   window.setTimeout(()=>{if(sequence===finishSequence&&state==='over')show('Sobrevivência encerrada','Você resistiu por '+formatRankingValue(modeId,elapsed)+' · '+lines+' linhas.','▶ Sobreviver novamente')},4000);
   return;
@@ -336,6 +450,7 @@ function finish(completed=false){
    update();draw();
    recordGameScore(modeId,elapsed);
    recordGameFinish(modeId,elapsed,elapsed,{recordDelayMs:6500});
+   submitVersioned(legacyScope,duration);
    celebrate('mission','40 linhas eliminadas em '+formatRankingValue(modeId,elapsed)+'! Sprint concluído.',true);
    window.setTimeout(()=>{if(sequence===finishSequence&&state==='over')show('Sprint concluído','40 linhas em '+formatRankingValue(modeId,elapsed)+'.','▶ Correr novamente')},4000);
   }else{
@@ -348,6 +463,7 @@ function finish(completed=false){
  }
  save();update();draw();
  recordGameFinish(modeId,score,duration,{recordDelayMs:6500});
+ submitVersioned(legacyScope,duration);
  celebrate('defeat','Você fez '+score+' pontos e eliminou '+lines+' linhas. Pronto para a revanche?',true);
  window.setTimeout(()=>{if(sequence===finishSequence&&state==='over')show('Fim de jogo','Você marcou '+score+' pontos e eliminou '+lines+' linhas.','▶ Jogar novamente')},4000);
 }
@@ -444,10 +560,40 @@ try{
   startButton.textContent='↻ Reenviar resultado diário';
  }
 }catch{}
-startButton.addEventListener('click',()=>{
+if(sprint){
+ document.addEventListener('oldarcade:account-changed',()=>{++identityRevision;++progressRevision;accountCampaign=true;campaignCompleted=[];nextMissionId=null;refreshMissionPicker();void refreshAccountCampaign();});
+ document.addEventListener('oldarcade:tetris-v2-saved',()=>{void refreshAccountCampaign();});
+ void refreshAccountCampaign();
+}
+missionSelect?.addEventListener('change',()=>{
+ if(state==='playing'||state==='paused'||state==='countdown')return;
+ const id=missionSelect.value;
+ selectedMission=missions.find(m=>m.id===id&&missionUnlocked(id,campaignCompleted))??campaign[0];
+ missionSelect.value=selectedMission.id;nextMissionId=null;campaignState=newMissionState();versionedRanking.select(selectedMission.id);update();
+ if(state==='over'&&!pendingDailyFinish)show('Missão selecionada',selectedMission.title+' · '+selectedMission.description,'▶ Jogar missão selecionada');
+});
+startButton.addEventListener('click',async()=>{
  if(startButton.dataset.dailyRetry==='true'){void submitDailyFinish();return}
  if(dailyReplay.retry())return;
- if(state==='paused')pause();else start();
+ if(state==='paused'){pause();return;}
+ if(nextMissionId){
+  if(checkingNextMission)return;
+  const requested=nextMissionId;
+  if(!missionUnlocked(requested,campaignCompleted)){
+   checkingNextMission=true;
+   startButton.disabled=true;
+   try{await refreshAccountCampaign();}finally{checkingNextMission=false;startButton.disabled=false;}
+   if(state!=='over'||nextMissionId!==requested)return;
+   if(!missionUnlocked(requested,campaignCompleted)){
+    description.textContent='A próxima missão ainda não foi confirmada pela conta. Verifique a liberação ou selecione outra missão disponível.';
+    refreshNextMissionAction();return;
+   }
+  }
+  selectedMission=missions.find(m=>m.id===requested)??selectedMission;
+  if(missionSelect&&selectedMission)missionSelect.value=selectedMission.id;
+  versionedRanking.select(selectedMission?.id??legacyScope);
+ }
+ start();
 });
 pauseButton.addEventListener('click',pause);
 fullscreenButton.addEventListener('click',()=>{void toggleFullscreen()});
@@ -508,6 +654,7 @@ board=empty();drawNext();draw();update();
 if(survival)window.setInterval(()=>{if(state==='playing')update()},250);
 // A missão cronometrada encerra no prazo mesmo se o jogador não posicionar nenhuma peça.
 window.setInterval(()=>{
+ if(state==='playing'&&activeMission){missionEvent('tick');refreshMissionPicker();return;}
  if(state!=='playing'||!dailyAttempt?.mission||dailyAttempt.mission.version<2)return;
  const limit=dailyAttempt.mission.timeLimitMs;
  if(limit!==null&&clock.milliseconds()>=limit){

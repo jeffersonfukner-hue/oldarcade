@@ -23,12 +23,12 @@ for(const sample of [
    expect(measure.width).toBeLessThanOrEqual(measure.viewport+1);
    if(width===1440){
     await expect(page.locator(`${sample.stage} .oa-hud-label`).first()).toBeVisible();
-    const bounds=await page.evaluate((stage)=>{
+    const bounds=await page.evaluate(({stage,canvasSelector})=>{
      const s=document.querySelector(stage)!;
-     const canvas=s.querySelector('canvas')!.getBoundingClientRect();
+     const canvas=s.querySelector(canvasSelector)!.getBoundingClientRect();
      const hud=s.querySelector('.oa-hud-compact')!.getBoundingClientRect();
      return {canvasRight:canvas.right,hudLeft:hud.left};
-    },sample.stage);
+    },{stage:sample.stage,canvasSelector:sample.canvas});
     expect(bounds.hudLeft).toBeGreaterThanOrEqual(bounds.canvasRight-1);
    }
   }
@@ -44,11 +44,14 @@ test('Pixel Quest mostra vidas/checkpoint/portal junto ao canvas sem duplicar co
  await expect(stage.locator('#pq-checkpoint')).toBeVisible();
  await expect(stage.locator('#pq-portal-status')).toBeVisible();
  await expect(stage.locator('#pq-crystals-remaining')).toBeVisible();
- await expect(stage.locator('#pq-enemies-remaining')).toBeVisible();
+ await expect(stage.locator('#pq-enemies-active')).toBeVisible();
+ await expect(stage.locator('#pq-campaign-score')).toBeVisible();
+ await expect(stage.locator('#pq-enemies-remaining')).toHaveCount(0);
  for(const id of ['#pq-crystals','#pq-level-enemies','#pq-level-defeated']){
   await expect(stage.locator(id)).toHaveCount(1);
   await expect(stage.locator(id)).toBeHidden();
  }
  await expect(stage.locator('#pq-crystals-remaining-bar')).toHaveCount(1);
- await expect(stage.locator('#pq-enemies-remaining-bar')).toHaveCount(1);
+ await expect(stage.locator('#pq-enemies-remaining-bar')).toHaveCount(0);
+ await expect(stage.locator('#pq-enemy-patroller-count')).toBeVisible();
 });

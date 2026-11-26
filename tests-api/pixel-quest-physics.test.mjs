@@ -13,13 +13,14 @@ function loadTs(relativePath,dependencies={}){
  return module.exports;
 }
 const levels=loadTs('../src/scripts/pixelQuest/levels.ts');
-const {firstLevel}=loadTs('../src/data/pixelQuest/level-1-1.ts');
+const forest=loadTs('../src/data/pixelQuest/forestDesign.ts');
+const {firstLevel}=loadTs('../src/data/pixelQuest/level-1-1.ts',{'./forestDesign':forest});
 const physics=loadTs('../src/scripts/pixelQuest/physics.ts',{'./levels':levels});
 const blank={left:false,right:false,jump:false},right={left:false,right:true,jump:false};
 const run=(p,controls,ticks)=>{for(let i=0;i<ticks;i++)physics.stepPlayer(p,controls,firstLevel,physics.STEP)};
 test('Fase 1-1 valida dimensões, spawn e saída',()=>{
  assert.doesNotThrow(()=>levels.validateLevel(firstLevel));
- assert.equal(firstLevel.width,96);assert.equal(firstLevel.height,18);
+ assert.equal(firstLevel.width,300);assert.equal(firstLevel.height,18);
 });
 test('Jogador pousa no chão, corre e pode saltar novamente',()=>{
  const p=physics.createPlayer(64,451);
@@ -30,11 +31,11 @@ test('Jogador pousa no chão, corre e pode saltar novamente',()=>{
  run(p,blank,100);assert.equal(p.grounded,true);
 });
 test('Abismos realmente permitem queda e plataformas impedem atravessamento lateral',()=>{
- const gap=physics.createPlayer(36*32+10,451);
+ const gap=physics.createPlayer(49*32+10,451);
  run(gap,blank,100);assert.ok(gap.y>500);
  const wall=physics.createPlayer(64,451);
  run(wall,blank,12);run(wall,right,300);
- assert.ok(wall.x<=18*32-wall.w+1);
+ assert.ok(wall.x>18*32,'plataformas unidirecionais permitem passagem por baixo');
 });
 test('Câmera respeita limites do mapa',()=>{
  assert.equal(physics.cameraX({x:0},0,firstLevel,640),0);

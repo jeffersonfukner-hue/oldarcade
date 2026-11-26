@@ -1,0 +1,10 @@
+---
+interface Props {playsId:string;prefix:string;label?:string;hidden?:boolean}
+const {playsId,prefix,label='Atividade do jogo',hidden=false}=Astro.props;
+---
+<div class="oa-activity-strip" aria-label={label} hidden={hidden}>
+ <div><span>Partidas neste navegador</span><strong id={playsId}>0</strong></div>
+ <div><span>Visitas globais</span><strong id={prefix+'-visits'}>—</strong></div>
+ <div><span>Partidas globais</span><strong id={prefix+'-plays'}>—</strong></div>
+ <span id={prefix+'-stats-status'} class="oa-activity-status" role="status"></span>
+</div>

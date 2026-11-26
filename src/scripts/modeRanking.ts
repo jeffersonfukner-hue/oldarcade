@@ -2,10 +2,10 @@ import {isTimeRanking,formatRankingValue} from '../data/rankingRules.js';
 import {renderRankingPodium} from './rankingPresentation';
 type Entry={nickname:string;score:number;rank?:number;achievedAt?:string;durationMs?:number|null};
 type Board={available:boolean;top?:Entry[];mine?:Entry|null;error?:string;saved?:boolean;code?:string};
-type Result={game:string;score:number;durationMs?:number;recordDelayMs?:number};
+type Result={game:string;score:number;durationMs?:number;recordDelayMs?:number;eligible?:boolean};
 const root=document.querySelector<HTMLElement>('[data-mode-ranking]');
 if(root){
- const game=root.dataset.game||'',endpoint='/api/games/'+encodeURIComponent(game)+'/leaderboard';
+ const game=root.dataset.game||'',endpoint=game==='pixel-quest'?'/api/quest/rankings/total':'/api/games/'+encodeURIComponent(game)+'/leaderboard';
  const timed=isTimeRanking(game),display=(n:number|null|undefined)=>formatRankingValue(game,n);
  const get=<T extends Element>(name:string)=>root.querySelector<T>('[data-rank-'+name+']')!;
  const body=get<HTMLTableSectionElement>('body'),podium=get<HTMLElement>('podium');
@@ -33,6 +33,7 @@ if(root){
   document.dispatchEvent(new CustomEvent('oldarcade:mode-ranking-updated',{detail:{game,global:leader,personal:personalScore}}));
  }
  function render(data:Board){
+  if(root?.dataset.tetrisView==='current')return;
   if(!data.available){status.textContent='Ranking indisponível neste ambiente.';podium.textContent='Classificação indisponível.';return}
   leader=data.top?.[0]?.score??null;
   const score=data.mine?.score??null;personalScore=score;
@@ -62,7 +63,7 @@ if(root){
    if(version!==requestVersion)return null;
    render(data);return data;
   }catch{
-   if(version===requestVersion)status.textContent='Não foi possível consultar o ranking no momento.';
+   if(version===requestVersion&&root?.dataset.tetrisView!=='current')status.textContent='Não foi possível consultar o ranking no momento.';
    return null;
   }
  }
@@ -74,7 +75,12 @@ if(root){
    const data=await response.json() as Board;
    if(!response.ok||!data.available)throw Error(data.error||'O servidor não confirmou a gravação');
    render(data);
-   if(result.round===round)summary.textContent='Resultado de '+display(result.points)+' enviado. '+announce(data,result.points);
+   if(result.round===round&&game==='pixel-quest'&&data.saved){
+    document.dispatchEvent(new CustomEvent('oldarcade:ranking-confirmed',{
+     detail:{game,scope:'total',score:result.points,mine:data.mine??null}
+    }));
+   }
+   if(result.round===round&&root?.dataset.tetrisView!=='current')summary.textContent='Resultado de '+display(result.points)+' enviado. '+announce(data,result.points);
    // A confirmação é automática, sem botões de registro redundantes.
    celebrate(data);
   }catch(error){
@@ -95,13 +101,19 @@ if(root){
  });
  document.addEventListener('oldarcade:game-score',e=>{
   const d=(e as CustomEvent<Result>).detail;
-  if(d?.game!==game||!Number.isFinite(d.score))return;
+  if(d?.game!==game||!Number.isFinite(d.score)||root?.dataset.tetrisView==='current')return;
   if(leader!==null&&!timed&&d.score>leader){global.textContent=String(d.score);provisional.hidden=false;provisional.textContent='Marca provisória: '+display(d.score)+' (líder oficial: '+display(leader)+'). Confirmação só ao finalizar com conta.'}
   else{global.textContent=leader===null?'—':timed?display(leader):String(leader);provisional.hidden=true}
  });
  document.addEventListener('oldarcade:game-finished',e=>{
   const d=(e as CustomEvent<Result>).detail;
   if(d?.game!==game||!Number.isFinite(d.score))return;
+  if(game==='pixel-quest'&&d.eligible===false){
+   pending=null;
+   provisional.hidden=true;
+   summary.textContent='Fase não concluída: resultado parcial não enviado ao ranking.';
+   return;
+  }
   const result={points:d.score,durationMs:d.durationMs??0,round,sent:false};
   pending=result;
   if(account)void submit(result);
@@ -118,5 +130,6 @@ if(root){
    connect(data.player??null);
   }catch{}
  }
+ document.addEventListener('oldarcade:tetris-history-view',()=>{void refresh();});
  void checkSession();void refresh();
 }

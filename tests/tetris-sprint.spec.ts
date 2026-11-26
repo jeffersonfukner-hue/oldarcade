@@ -1,20 +1,20 @@
 import {test,expect} from '@playwright/test';
 
 test('Sprint usa motor compartilhado, 40 linhas e classificação por menor tempo',async({page})=>{
- await page.route('**/api/games/tetris-sprint/leaderboard',route=>route.fulfill({
+ await page.route('**/api/tetris/rankings/c1',route=>route.fulfill({
   status:200,contentType:'application/json',
-  body:JSON.stringify({available:true,top:[{nickname:'Velocista',score:62540,rank:1,achievedAt:'2026-11-17T20:00:00Z'}],mine:null})
+  body:JSON.stringify({available:true,top:[{nickname:'Velocista',points:4000,durationMs:62540,rank:1,achievedAt:'2026-11-17T20:00:00Z'}],mine:null})
  }));
  await page.goto('/jogos/tetris/sprint/');
- await expect(page).toHaveTitle(/Tetris Sprint/);
- await expect(page.getByRole('heading',{level:1})).toContainText('40 linhas');
+ await expect(page).toHaveTitle(/Tetris Missões/);
+ await expect(page.getByRole('heading',{level:1})).toContainText('Campanha');
  await expect(page.locator('#tetris-stage')).toHaveAttribute('data-game-mode','tetris-sprint');
  await expect(page.locator('#tetris-stage')).toHaveAttribute('data-board-shape','portrait');
  await expect(page.locator('#tetris-lines')).toHaveText('0/40');
  await expect(page.locator('#tetris-score')).toHaveText('0/40');
  await expect(page.locator('#tetris-local-best')).toHaveText('—');
  await expect(page.locator('#tetris-global')).toHaveText('1:02.540');
- await expect(page.locator('[data-rank-global]')).toHaveText('1:02.540');
+ await expect(page.locator('[data-rank-podium]')).toContainText('1:02.540');
  await expect(page.locator('[data-mode-ranking]')).toHaveAttribute('data-game','tetris-sprint');
  await expect(page.locator('#tetris-screen canvas')).toHaveAttribute('width','300');
  await expect(page.getByRole('link',{name:'Clássico'})).toHaveAttribute('href','/jogos/tetris/');
@@ -53,7 +53,7 @@ test('Tentativa Sprint sem 40 linhas não envia recorde nem altera o recorde do 
  await expect(page.locator('#tetris-score')).not.toHaveText('40/40');
  await expect(page.locator('#tetris-local-best')).toHaveText('—');
  expect(submissions).toBe(0);
- await expect(page.locator('[data-rank-global]')).toHaveText('—');
+ await expect(page.locator('#tetris-global')).toHaveText('—');
 });
 
 test('Sprint em monitor ultrawide preserva tela cheia 1:2 sem esticar o tabuleiro',async({page,isMobile})=>{

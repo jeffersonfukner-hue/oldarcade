@@ -34,7 +34,8 @@ document.querySelectorAll<HTMLElement>('[data-rank-page-mode]').forEach(section=
  }
  void(async()=>{
   try{
-   const res=await fetch('/api/games/'+encodeURIComponent(game)+'/leaderboard',{cache:'no-store'});
+   const endpoint=game==='pixel-quest'?'/api/quest/rankings/total':'/api/games/'+encodeURIComponent(game)+'/leaderboard';
+   const res=await fetch(endpoint,{cache:'no-store'});
    if(!res.ok)throw Error('Indisponível');
    render(await res.json() as RankData);
   }catch{render({available:false})}

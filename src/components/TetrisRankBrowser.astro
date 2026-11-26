@@ -1,0 +1,15 @@
+---
+import {missions} from '../data/tetrisMissions.js';
+interface Props{personal?:boolean}
+const {personal=false}=Astro.props;
+---
+<details class="panel" data-tetris-v2-browser data-personal={personal?'true':'false'} id={personal?'tetris-v2-personal':'tetris-v2'}>
+ <summary>{personal?'Meus recordes Tetris v2':'Tetris v2 · modos e missões'}</summary>
+ <label>Modalidade ou missão <select data-tetris-v2-scope>
+  <option value="classic">Clássico</option><option value="sprint">Sprint</option><option value="survival">Sobrevivência</option>
+  {missions.map(m=><option value={m.id}>{m.title}</option>)}
+ </select></label>
+ <p data-tetris-v2-browser-status role="status">Selecione uma modalidade.</p>
+ <ol data-tetris-v2-browser-top></ol><p data-tetris-v2-browser-own></p>
+</details>
+<script>import '../scripts/tetrisRankBrowser';</script>

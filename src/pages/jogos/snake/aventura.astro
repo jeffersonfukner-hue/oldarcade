@@ -11,6 +11,7 @@ import GameShare from '../../../components/GameShare.astro';
 import GameRanking from '../../../components/GameRanking.astro';
 const title='Snake Aventura — Níveis e desafios contínuos | OldArcade';
 const description='Snake Aventura gratuito: uma única partida, níveis progressivos, missões, fruta dourada e cristal de gelo. Avance sem reiniciar o tabuleiro.';
+import GameActivityStrip from '../../../components/GameActivityStrip.astro';
 import GameLayout from '../../../components/GameLayout.astro';
 import GameDevelopmentHistory from '../../../components/GameDevelopmentHistory.astro';
 import GameGuide from '../../../components/GameGuide.astro';
@@ -52,24 +53,16 @@ import SnakeEditorialArt from '../../../components/SnakeEditorialArt.astro';
      <button class="right" data-adventure-direction="right" aria-label="Direita">→</button>
     </div>
    </div>
-   <aside class="panel adventure-sidebar oa-performance-panel" aria-label="Progresso da Aventura">
-    <span class="eyebrow">Sua jornada</span>
-    <h2>Progresso</h2>
-    <div class="stats-list">
-     <div class="oa-metric-bridge" hidden aria-hidden="true"><strong id="adventure-sidebar-best">0</strong></div>
-     <div class="stat-row"><span>Maior nível alcançado</span><strong id="adventure-highest">1</strong></div>
-     <div class="stat-row"><span>Partidas neste navegador</span><strong id="adventure-plays">0</strong></div>
-     <div class="stat-row"><span>Item ativo</span><strong id="adventure-effect">Nenhum</strong></div>
-    </div>
-    <div class="global-stats"><h3>Comunidade · Aventura</h3><div class="stats-list"><div class="stat-row"><span>Visitas globais</span><strong id="adventure-global-visits">—</strong></div><div class="stat-row"><span>Partidas globais</span><strong id="adventure-global-plays">—</strong></div></div><p id="adventure-global-stats-status" class="small muted" role="status">Consultando Cloudflare…</p></div>
-    <h3>Missões por nível</h3>
+   <aside class="oa-compact-activity" aria-label="Atividade da Aventura">
+    <GameActivityStrip playsId="adventure-plays" prefix="adventure-global" />
+    <div hidden aria-hidden="true"><strong id="adventure-sidebar-best">0</strong><strong id="adventure-highest">1</strong><strong id="adventure-effect">Nenhum</strong></div>
+    <details class="oa-activity-details"><summary>Missões por nível</summary>
     <ol class="adventure-level-list">
      <li><strong>1 · Aquecimento</strong><span>5 maçãs e 50 pontos</span></li>
      <li><strong>2 · Caça ao tesouro</strong><span>1 dourada e 150 pontos</span></li>
      <li><strong>3 · Reflexos</strong><span>3 itens especiais e 300 pontos</span></li>
      <li><strong>4+ · Resistência</strong><span>Missões crescentes de maçãs e pontos, com novas barreiras</span></li>
-    </ol>
-    <p class="small muted">Protótipo de níveis progressivos. Depois do terceiro, a partida continua em modo sobrevivência. Barreiras aumentam progressivamente; a fruta de velocidade aparece a partir do nível 4. Seus resultados locais ficam separados do Clássico. Com uma conta conectada, também entram no ranking exclusivo do Aventura.</p>
+    </ol></details>
    </aside>
   </GameLayout>
 

@@ -13,22 +13,30 @@ import GameHud from './GameHud.astro';
 import GameProgressBar from './GameProgressBar.astro';
 import {firstLevel} from '../data/pixelQuest/level-1-1';
 const crystalsInLevel=firstLevel.entities.filter(entity=>entity.kind==='crystal').length;
-const enemiesInLevel=firstLevel.entities.filter(entity=>entity.kind==='patroller').length;
+const enemiesInLevel=firstLevel.entities.filter(entity=>['patroller','runner','hopper','sentry'].includes(entity.kind)).length;
 import GameLayout from './GameLayout.astro';
 import GameDevelopmentHistory from './GameDevelopmentHistory.astro';
 import GameGuide from './GameGuide.astro';
 import PixelQuestEditorialArt from './PixelQuestEditorialArt.astro';
 ---
-<GamePage modeId="pixel-quest" title="Jogar Pixel Quest — Plataforma 2D original | OldArcade" description="Jogue Pixel Quest, jogo original de plataforma 2D: colete cristais, vença inimigos e dispute o ranking por fase concluída.">
+<GamePage modeId="pixel-quest" title="Jogar Pixel Quest — Plataforma 2D original | OldArcade" description="Jogue Pixel Quest, jogo original de plataforma 2D: colete cristais, vença inimigos e dispute o ranking geral da campanha.">
  <div class="shell oa-game-page pq-shell">
-  <section class="hero" style="padding-bottom:16px"><span class="eyebrow">Jogo #003 · Etapa B · Protótipo não lançado</span><h1>Pixel <span class="accent">Quest</span></h1><p class="lede">Uma aventura de plataforma original em desenvolvimento. Explore a Trilha Esmeralda, colete cristais e alcance o portal de saída.</p></section>
+  <section class="hero" style="padding-bottom:16px"><span class="eyebrow">Jogo #003 · Etapa B · Protótipo não lançado</span><h1>Pixel <span class="accent">Quest</span></h1><p class="lede">Uma aventura de plataforma original em desenvolvimento. Explore três fases na Floresta Esmeralda, colete cristais, enfrente inimigos e derrote o Guardião.</p></section>
   <GameLayout label="Jogar Pixel Quest" className="section oa-stage-unified">
    <div class="panel game-stage" id="pq-stage" data-arcade-viewport data-board-shape="landscape">
     <GameStageHeader title="◈ PIXEL QUEST" subtitle="Trilha Esmeralda" pauseId="pq-pause" fullscreenId="pq-fullscreen" fullscreenLabel="Alternar tela cheia do Pixel Quest"></GameStageHeader>
     <div class="arcade-game-layout">
-     <GameHud compact statusId="pq-status" scoreId="pq-score" bestId="pq-best" globalId="pq-global" bestLabel="Melhor fase (local)" globalLabel="Recorde global" scoreLabel="Pontos" statId="pq-defeated" statLabel="Total de inimigos derrotados" secondStatId="pq-level-defeated" secondStatLabel="Derrotados neste nível" hideSecondStat hint="A/D ou ←/→ mover · Espaço/↑ duas vezes para salto duplo · P pausar">
+     <GameHud compact statusId="pq-status" scoreId="pq-score" bestId="pq-best" globalId="pq-global" bestLabel="Seu recorde na fase" globalLabel="Líder da fase" scoreLabel="Pontos da fase" statId="pq-defeated" statLabel="Eliminações nesta sessão" secondStatId="pq-level-defeated" secondStatLabel="Derrotados neste nível" hideSecondStat hint="A/D ou ←/→ mover · Espaço/↑ duas vezes para salto duplo · P pausar">
+      <div class="pq-campaign-total" aria-label="Total de pontos obtidos na campanha, incluindo a fase atual"><span>Total da campanha</span><strong id="pq-campaign-score">0</strong></div>
+      <div class="pq-enemy-kills" aria-label="Eliminações por tipo na campanha atual">
+       <span class="pq-enemy-kills-heading">Eliminações por tipo</span>
+       <div class="pq-enemy-kills-grid">
+        {(['patroller','runner','hopper','sentry'] as const).map(kind=><div class="pq-enemy-kill" title={{patroller:'Patrulheiro',runner:'Corredor',hopper:'Saltador',sentry:'Sentinela'}[kind]}><canvas id={'pq-enemy-'+kind+'-icon'} width="31" height="33" aria-hidden="true"></canvas><strong id={'pq-enemy-'+kind+'-count'}>0</strong></div>)}
+       </div>
+       <small>Esta sessão · inclui reaparições</small>
+      </div>
       <GameProgressBar id="pq-crystals-remaining" label="Cristais restantes" total={crystalsInLevel} color="crystal"/>
-      <GameProgressBar id="pq-enemies-remaining" label="Inimigos restantes" total={enemiesInLevel} color="enemy"/>
+      <div class="pq-active-enemies" aria-label="Quantidade de inimigos atualmente vivos; podem reaparecer"><span>Inimigos ativos agora</span><strong id="pq-enemies-active">{enemiesInLevel}</strong></div>
      </GameHud>
      <div class="pq-board-column oa-board-slot"><div id="pq-screen" class="screen-wrap oa-board-surface"><canvas id="pq-canvas" width="640" height="360" aria-label="Mapa interativo da fase 1-1, com cristais, inimigos e portal"></canvas>
       <div id="pq-overlay" class="game-overlay"><h2 id="pq-title">Preparado para explorar?</h2><p id="pq-description">Use as setas ou A/D para mover; pressione Espaço, W ou ↑, solte e pressione novamente para um salto duplo. No celular, toque em Pular duas vezes. Colete todos os cristais para liberar o portal!</p><strong id="pq-countdown" class="countdown-value" hidden></strong><button id="pq-start" type="button" class="btn">▶ Começar fase</button></div>
@@ -36,7 +44,7 @@ import PixelQuestEditorialArt from './PixelQuestEditorialArt.astro';
        <div class="pq-stage-intro-card"><span id="pq-intro-world">MUNDO 1 · FLORESTA ESMERALDA</span><strong id="pq-intro-progress">Fase 1/3</strong><span id="pq-intro-code">1-1</span></div>
       </div>
      </div>
-     <div class="pq-statusline" aria-label="Estado da fase"><span id="pq-level-label">Mundo 1 · Fase 1/3 · 1-1</span><span>Vidas: <strong id="pq-hearts" aria-label="Corações">♥♥♥</strong></span><span>Checkpoint: <strong id="pq-checkpoint">Não</strong></span><span id="pq-portal-status" role="status">Portal bloqueado · 0/6 cristais</span><span class="oa-metric-bridge" hidden aria-hidden="true">Inimigos no nível: <strong id="pq-level-enemies">3/3</strong></span><span class="oa-metric-bridge" hidden aria-hidden="true">Cristais no nível: <strong id="pq-crystals">0/6</strong></span></div>
+     <div class="pq-statusline" aria-label="Estado da fase"><span id="pq-level-label">Mundo 1 · Fase 1/3 · 1-1</span><span>Vidas: <strong id="pq-hearts" aria-label="Corações">♥♥♥</strong></span><span>Checkpoint: <strong id="pq-checkpoint">Não</strong></span><span id="pq-powerup-status" aria-live="off">Poderes: nenhum</span><span id="pq-portal-status" role="status">Portal bloqueado · 0/{crystalsInLevel} cristais</span><span class="oa-metric-bridge" hidden aria-hidden="true">Inimigos no nível: <strong id="pq-level-enemies">{enemiesInLevel}/{enemiesInLevel}</strong></span><span class="oa-metric-bridge" hidden aria-hidden="true">Cristais no nível: <strong id="pq-crystals">0/{crystalsInLevel}</strong></span></div>
     </div>
     </div>
     <div class="pq-touch-controls" aria-label="Controles de toque"><button type="button" data-pq-control="left" aria-label="Mover para esquerda">←</button><button type="button" data-pq-control="right" aria-label="Mover para direita">→</button><button type="button" data-pq-control="jump" aria-label="Saltar">↑ Pular</button></div>
@@ -47,7 +55,7 @@ import PixelQuestEditorialArt from './PixelQuestEditorialArt.astro';
   <GamePageSections>
    <GameRanking slot="rankings" game="pixel-quest" name="Pixel Quest" />
    <GameShare slot="share" gameSlug="pixel-quest" gameName="Pixel Quest" />
-   <GameGuide slot="guide"><h2>Como jogar</h2><PixelQuestEditorialArt art="how-to-play" /><p>Explore o caminho horizontal. Pressione para saltar; solte e pressione novamente enquanto estiver no ar para realizar o segundo salto. No celular, dê dois toques separados no botão Pular. O salto duplo recarrega quando você aterrissa. Depois de alcançar o checkpoint, você retorna a ele ao cair em abismos; contato lateral com inimigo tira um coração e provoca recuo. Pausas não consomem tempo de jogo.</p><PixelQuestEditorialArt art="checkpoint" /><h3>Pontuação</h3><p>Cristal: <strong>10 pontos</strong>; inimigo derrotado: <strong>50</strong>; portal: <strong>100</strong>; bônus de tempo: até <strong>500</strong>, reduzindo 2 pontos por segundo efetivo. O resultado só é registrado após concluir a fase.</p><p>Inimigos derrotados no nível reiniciam na próxima fase; o total acumula durante a campanha. A fase 1-1 concluída pode entrar no ranking global de contas. Marcas locais continuam disponíveis sem cadastro; campanhas futuras terão classificação própria e não serão misturadas com esta fase.</p><PixelQuestEditorialArt art="progression" /></GameGuide>
+   <GameGuide slot="guide"><h2>Como jogar</h2><PixelQuestEditorialArt art="how-to-play" /><p>Explore o caminho horizontal. Pressione para saltar; solte e pressione novamente enquanto estiver no ar para realizar o segundo salto. No celular, dê dois toques separados no botão Pular. O salto duplo recarrega quando você aterrissa. Encontre plataformas altas subindo por caminhos alternativos e, em alguns trechos, volte para alcançar diamantes escondidos. Escudo absorve um ataque, coração recupera vida e o bônus dourado dobra pontos por 10 segundos. Depois de alcançar o checkpoint, você retorna a ele ao cair em abismos; contato lateral com inimigo tira um coração e provoca recuo. Pausas não consomem tempo de jogo.</p><PixelQuestEditorialArt art="checkpoint" /><h3>Pontuação</h3><p>Cristal: <strong>10 pontos</strong>; inimigos: <strong>50 a 110</strong> conforme o tipo; portal: <strong>100</strong>; Guardião: bônus de combate; power-ups: <strong>30 pontos</strong>. O bônus de tempo chega a <strong>500</strong>, reduzindo 2 pontos por segundo efetivo. A pontuação da fase conta ao concluir ou perder; bônus de portal e tempo só contam na conclusão.</p><p>Inimigos reaparecem após intervalos por espécie e podem render pontos novamente. O painel por tipo contabiliza todas as eliminações da campanha atual. Ao abrir o portal, a janela de saída é proporcional à distância até ele; depois o atraso custa 12 pontos por segundo completo, sem tornar a pontuação negativa. O HUD mostra os recordes da fase atual; o ranking desta página considera o total acumulado, inclusive quando a campanha termina antes da última fase. Só contas autenticadas registram recordes públicos. Os registros antigos da 1-1 permanecem preservados.</p><PixelQuestEditorialArt art="progression" /></GameGuide>
    <PixelQuestHistory slot="history" />
    <HistoricalScreenings slot="screenings" game="pixel-quest" />
    <GameRelatedGames slot="related" currentGame="pixel-quest" />
@@ -56,6 +64,18 @@ import PixelQuestEditorialArt from './PixelQuestEditorialArt.astro';
  </div>
  <script>import '../scripts/pixelQuest/index.ts';</script>
  <style>
+  .pq-campaign-total{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid #35435d;padding:7px 0;color:#d8e4fb;font-size:.79rem}
+  .pq-campaign-total strong{font-variant-numeric:tabular-nums;color:#ffe29b;font-size:1.1rem}
+  .pq-active-enemies{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#afbdd5;font-size:.74rem}
+  .pq-active-enemies strong{color:#fff;font-variant-numeric:tabular-nums;font-size:.95rem}
+  .pq-enemy-kills{display:grid;gap:5px;min-width:0;color:#d9e7f5}
+  .pq-enemy-kills-heading{font-size:.72rem}
+  .pq-enemy-kills-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+  .pq-enemy-kill{display:flex;align-items:center;justify-content:center;gap:4px;min-width:0;padding:3px 2px;border:1px solid #425775;border-radius:6px;background:#172940;color:#fff}
+  .pq-enemy-kill canvas{width:29px;height:31px;image-rendering:pixelated;flex:none}
+  .pq-enemy-kill strong{font-size:.8rem;font-variant-numeric:tabular-nums}
+  .pq-enemy-kill strong::before{content:'× ';color:#9eb6c8}
+  .pq-enemy-kills small{font-size:.63rem;color:#9eb6c8}
   .pq-stage-intro{position:absolute;inset:0;z-index:6;display:grid;place-items:center;pointer-events:none;background:rgba(6,13,30,.5);overflow:hidden}
   .pq-stage-intro[hidden]{display:none}
   .pq-stage-intro-card{display:grid;gap:8px;justify-items:center;max-width:94%;padding:18px 25px;border:2px solid #92e9c3;border-radius:10px;background:rgba(10,28,43,.93);box-shadow:0 0 30px rgba(97,208,178,.22);color:#fff;text-align:center}

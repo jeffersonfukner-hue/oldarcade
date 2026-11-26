@@ -38,13 +38,16 @@ test('ranking e contadores consultam o mesmo catálogo, sem allowlists divergent
  assert.ok(page.includes('Object.entries(gameModes)'));
 });
 
-test('Pixel Quest só publica resultado competitivo quando a fase é concluída',()=>{
+test('Pixel Quest v2 registra total de campanha também após derrota, sem reclassificar a fase 1-1 legada',()=>{
  const source=readFileSync(new URL('../src/scripts/pixelQuest/index.ts',import.meta.url),'utf8');
- const finish=source.match(/function finish\(won:boolean\)\{([\s\S]*?)\n \}\n function startGame\(/)?.[1];
- assert.ok(finish,'função de encerramento do Quest existe');
- const victory=finish.match(/if\(won\)\{([\s\S]*?)\n  \}else description/)?.[1];
- assert.ok(victory,'ramo de vitória da fase existe');
- assert.match(victory,/oldarcade:game-finished/,'vitória deve notificar ranking e convite global');
- assert.ok(victory.includes("game:'pixel-quest',score:result.score,durationMs:Math.round(result.elapsedMs)"),'usar placar calculado e duração inteira aceita pelo servidor');
- assert.equal((finish.match(/oldarcade:game-finished/g)||[]).length,1,'derrota não deve registrar conclusão da fase');
+ const scoring=readFileSync(new URL('../src/scripts/pixelQuest/campaignLedger.ts',import.meta.url),'utf8');
+ const ranking=readFileSync(new URL('../src/scripts/modeRanking.ts',import.meta.url),'utf8');
+ assert.match(source,/function finish\(won:boolean\)/,'rotina de encerramento permanece');
+ assert.match(source,/if\(won\)\{/,'vitória permanece distinta da derrota');
+ assert.match(source,/campaignSnapshot\(results,\{score:run.score,elapsedMs:run.elapsedMs\},false\)/,'derrota preserva o acumulado com pontuação parcial');
+ assert.match(source,/stageRanks.record\(/,'cada fase envia um recorde independente');
+ assert.equal((source.match(/oldarcade:game-finished/g)||[]).length,2,'vitória e derrota notificam total à página');
+ assert.match(ranking,/api\/quest\/rankings\/total/,'página usa classificação total v2');
+ assert.match(scoring,/pixel-quest-stage-/,'chaves v2 independentes');
+ assert.doesNotMatch(source,/game:'pixel-quest',score:result.score/,'não reaproveitar pontuação somente da 1-1');
 });

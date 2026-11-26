@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import RankingsMode from '../components/RankingsMode.astro';
+import TetrisRankBrowser from '../components/TetrisRankBrowser.astro';
 import {gameModes} from '../data/gameModes.js';
 import {gameRegistry} from '../data/gameRegistry';
 const groups=Object.entries(gameRegistry)
@@ -24,6 +25,7 @@ const groups=Object.entries(gameRegistry)
     </header>
     <div class="rankings-modes">
      {group.modes.map((modeId,i)=><RankingsMode modeId={modeId} initiallyOpen={i===0} />)}
+     {group.gameId==='tetris'&&<TetrisRankBrowser />}
     </div>
    </section>)}
   </div>

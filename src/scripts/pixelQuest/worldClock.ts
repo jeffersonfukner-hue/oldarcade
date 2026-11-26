@@ -1,0 +1,52 @@
+/** Relógio simulado, não condicionado à direção ou à câmera. */
+export const WORLD_DAY_DURATION_MS=240_000;
+export type WorldTime={day:number;hour:number;minute:number;cycle:number;elapsedMs:number};
+export function worldTimeAt(elapsedMs:number):WorldTime{
+ const safe=Number.isFinite(elapsedMs)?Math.max(0,elapsedMs):0;
+ const cycle=(safe%WORLD_DAY_DURATION_MS)/WORLD_DAY_DURATION_MS;
+ const totalMinutes=Math.floor((6*60+cycle*24*60)%(24*60));
+ return {day:Math.floor(safe/WORLD_DAY_DURATION_MS)+1,
+  hour:Math.floor(totalMinutes/60),minute:totalMinutes%60,cycle,elapsedMs:safe};
+}
+export function formatWorldTime(time:WorldTime):string{
+ return String(time.hour).padStart(2,'0')+':'+String(time.minute).padStart(2,'0');
+}
+/** Céu suave ao longo do relógio do mundo, inclusive ao retroceder pelo mapa. */
+export function skyColors(elapsedMs:number):{top:string;bottom:string;sunVisible:boolean;moonVisible:boolean;orbX:number;orbY:number;sunX:number;sunY:number;moonX:number;moonY:number;sunAlpha:number;moonAlpha:number}{
+ const {cycle}=worldTimeAt(elapsedMs);
+ // Usar fração contínua do relógio, sem saltos de um minuto na cor do céu.
+ const h=(6+cycle*24)%24;
+ const stops=[
+  {h:0,top:'#0a1630',bottom:'#232d58'},
+  {h:5,top:'#182446',bottom:'#4c4168'},
+  {h:6,top:'#293456',bottom:'#735873'},
+  {h:7.5,top:'#6679a5',bottom:'#d8998b'},
+  {h:9.5,top:'#3798ce',bottom:'#a7e0e9'},
+  {h:14,top:'#398fc5',bottom:'#b8d9e7'},
+  {h:17,top:'#82659d',bottom:'#ed9b72'},
+  {h:19,top:'#242b58',bottom:'#be6973'},
+  {h:21,top:'#101b3b',bottom:'#344465'},
+  {h:24,top:'#0a1630',bottom:'#232d58'}
+ ];
+ const b=stops.findIndex((s,i)=>i>0&&h<=s.h);
+ const i=Math.max(1,b),before=stops[i-1],after=stops[i];
+ // Suavização das tangentes: sem mudanças abruptas de velocidade na passagem entre faixas.
+ const linear=Math.max(0,Math.min(1,(h-before.h)/(after.h-before.h)));
+ const t=linear*linear*(3-2*linear);
+ const color=(a:string,z:string)=>'#'+[1,3,5].map(k=>Math.round(parseInt(a.slice(k,k+2),16)*(1-t)+parseInt(z.slice(k,k+2),16)*t).toString(16).padStart(2,'0')).join('');
+ // Trajetórias independentes: Sol 06:00–19:00; Lua 19:00–06:00.
+ // Durante o crepúsculo e a aurora as duas luzes transitam gradualmente.
+ const limit=(x:number)=>Math.max(0,Math.min(1,x));
+ const smooth=(x:number)=>{const t=limit(x);return t*t*(3-2*t)};
+ const sunProgress=limit((h-6)/13);
+ const moonProgress=limit(h>=19?(h-19)/11:h<7?(h+5)/11:0);
+ const sunAlpha=smooth((h-5.5)/1.3)*(1-smooth((h-18.3)/1.3));
+ const moonAlpha=h>=12?smooth((h-18.3)/1.3):1-smooth((h-5.5)/1.3);
+ const sunX=40+560*sunProgress,moonX=40+560*moonProgress;
+ const sunY=175-Math.sin(Math.PI*sunProgress)*137;
+ const moonY=177-Math.sin(Math.PI*moonProgress)*128;
+ return {top:color(before.top,after.top),bottom:color(before.bottom,after.bottom),
+  sunVisible:sunAlpha>0,moonVisible:moonAlpha>0,
+  sunX,sunY,moonX,moonY,sunAlpha,moonAlpha,
+  orbX:sunAlpha>=moonAlpha?sunX:moonX,orbY:sunAlpha>=moonAlpha?sunY:moonY};
+}

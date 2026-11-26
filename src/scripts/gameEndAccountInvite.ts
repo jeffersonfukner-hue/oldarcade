@@ -10,6 +10,14 @@ if(box){
  // Mantém o convite dentro do palco, inclusive no fullscreen nativo.
  document.querySelector<HTMLElement>('.game-stage')?.append(box);
  let activeAccount=false,sequence=0,accountVersion=0;
+ async function confirmedVisitor(){
+  if(activeAccount)return false;
+  const version=accountVersion;
+  try{const response=await fetch('/api/auth/me',{cache:'no-store'});if(!response.ok||version!==accountVersion)return false;
+   const payload=await response.json() as {player?:{nickname:string}|null};if(version!==accountVersion)return false;
+   activeAccount=Boolean(payload.player);return payload.player===null;
+  }catch{return false;}
+ }
  const versionAtStart=accountVersion;
  const session=fetch('/api/auth/me',{cache:'no-store'}).then(async response=>{
   if(!response.ok)return;
@@ -30,15 +38,27 @@ if(box){
   activeAccount=Boolean(player);
   if(activeAccount)hide();
  });
+ document.addEventListener('oldarcade:tetris-mission-start',hide);
+ document.addEventListener('oldarcade:tetris-mission-finished',async event=>{
+  const detail=(event as CustomEvent<{scope:string;score:number;recordDelayMs:number}>).detail;
+  const current=++sequence;
+  await session;
+  await new Promise<void>(resolve=>window.setTimeout(resolve,detail.recordDelayMs));
+  if(current!==sequence||activeAccount||!await confirmedVisitor()||current!==sequence||activeAccount)return;
+  copy.textContent='Você marcou '+detail.score+' pontos nesta missão. Entre ou crie uma conta para registrar o resultado.';
+  link.href='/rankings/#tetris-v2';
+  box.hidden=false;dismiss.focus({preventScroll:true});
+ });
  document.addEventListener('oldarcade:game-finished',async event=>{
-  const detail=(event as CustomEvent<{game:string;score:number;recordDelayMs?:number}>).detail;
+  const detail=(event as CustomEvent<{game:string;score:number;recordDelayMs?:number;eligible?:boolean}>).detail;
   if(!detail||!gameMode(detail.game)||!Number.isFinite(detail.score))return;
+  if(detail.game==='pixel-quest'&&detail.eligible===false){hide();return}
   const current=++sequence;
   // Não disputar espaço visual com a animação de Game Over.
   const delay=Math.min(Math.max(detail.recordDelayMs??1000,800),7000);
   await session;
   await new Promise<void>(resolve=>window.setTimeout(resolve,delay));
-  if(current!==sequence||activeAccount)return;
+  if(current!==sequence||activeAccount||!await confirmedVisitor()||current!==sequence||activeAccount)return;
   copy.textContent='Você marcou '+formatRankingValue(detail.game,detail.score)+'. Entre ou crie uma conta para participar; os recordes dos outros jogadores já estão disponíveis.';
   link.href='/rankings/#ranking-'+encodeURIComponent(detail.game);
   box.hidden=false;
