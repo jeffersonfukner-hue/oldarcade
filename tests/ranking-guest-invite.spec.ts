@@ -132,3 +132,11 @@ test('Convite de missão não aparece se sessão se tornou autenticada',async({p
  await page.waitForTimeout(1200);
  await expect(page.locator('[data-end-account-invite]')).toBeHidden();
 });
+
+test('Falha ao consultar sessão não dispara convite de cadastro',async({page})=>{
+ await page.route('**/api/auth/me',r=>r.fulfill({status:503,json:{error:'Sessão indisponível'}}));
+ await page.goto('/jogos/tetris/sprint/');
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('oldarcade:tetris-mission-finished',{detail:{scope:'c1',score:5600,recordDelayMs:100}})));
+ await page.waitForTimeout(1200);
+ await expect(page.locator('[data-end-account-invite]')).toBeHidden();
+});

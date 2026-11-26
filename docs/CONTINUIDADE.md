@@ -1,3 +1,6 @@
+## ESTADO ATUAL PARA NOVO CHAT — CI convite de conta (26/11/2026)
+- CI #1305 (45747938776), commit 699af0b: tipos/build/API aprovados; E2E 388 aprovados, 50 skipped, 10 falhas (cinco testes Snake em desktop/mobile). Fixtures não simulavam sessão visitante confirmada; Preview estático não fornece API de autenticação. Mantido requisito de segurança de não mostrar convite quando sessão desconhecida. Fixtures explicitam player:null; novo teste cobre HTTP 503. Novo CI pendente. Sem merge, deploy ou D1. Tempo não registrado.
+
 ## ESTADO ATUAL PARA NOVO CHAT — consulta independente Tetris (26/11/2026)
 - CI #1304 aprovado (520 testes, 52 skipped). D1 Preview: consulta do proprietário confirmou c1/c2/c3 de Ratz (5600/5000/1900), sem c4; classic/e1/sprint/survival também preservados. Ranking vazio correspondia à c4. Seletor independente consulta campanha/extras sem mudar missão jogável, HUD ou destino do envio; opção inicial acompanha missão. Convite global exige confirmação de visitante antes de exibir, falhas de sessão não implicam visitante. Testes de independência e sessão alterada adicionados. Novo CI pendente; sem D1, merge ou deploy. Tempo não registrado.
 

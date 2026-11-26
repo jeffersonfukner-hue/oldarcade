@@ -297,6 +297,7 @@ test('limite da consulta live evita polling constante no plano gratuito',async({
 });
 
 test('ranking consulta na entrada e ao fim, nunca durante a partida',async({page})=>{
+ await page.route('**/api/auth/me',r=>r.fulfill({status:200,json:{player:null}}));
  let calls=0;
  await page.route('**/api/games/snake/leaderboard',route=>{
   if(route.request().method()==='GET')calls++;
@@ -314,6 +315,7 @@ test('ranking consulta na entrada e ao fim, nunca durante a partida',async({page
 });
 
 test('resumo no fim destaca quem ultrapassou e há quanto tempo',async({page})=>{
+ await page.route('**/api/auth/me',r=>r.fulfill({status:200,json:{player:null}}));
  let calls=0;
  await page.route('**/api/games/snake/leaderboard',route=>{
   calls++;
@@ -359,6 +361,7 @@ test('animação global é distinta e não solicita ranking extra',async({page})
 });
 
 test('placar mostra meta global provisória ao atingir pontuação e volta ao oficial no fim',async({page})=>{
+ await page.route('**/api/auth/me',r=>r.fulfill({status:200,json:{player:null}}));
  let gets=0;
  await page.route('**/api/games/snake/leaderboard',r=>{
   gets++;
@@ -379,6 +382,7 @@ test('placar mostra meta global provisória ao atingir pontuação e volta ao of
  await expect(page.locator('#hud-global-label')).not.toContainText('provisório');
 });
 test('erro de confirmação nunca mantém recorde provisório como oficial',async({page})=>{
+ await page.route('**/api/auth/me',r=>r.fulfill({status:200,json:{player:null}}));
  await page.route('**/api/games/snake/leaderboard',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Rival',score:5,rank:1}],mine:null})}));
  await page.goto('/jogos/snake/');
  await page.getByRole('button',{name:/Começar partida/}).click();
@@ -701,6 +705,7 @@ test('Aventura: Espaço controla pausa e retomada sem rolar página nem perder a
 });
 
 test('Clássico: Espaço reinicia após fim sem rolar página',async({page})=>{
+ await page.route('**/api/auth/me',r=>r.fulfill({status:200,json:{player:null}}));
  await page.goto('/jogos/snake/');
  await page.keyboard.press('Space');
  await expect(page.locator('#countdown-value')).toHaveText('3');
