@@ -84,5 +84,5 @@ export function setupTetrisVersionedRanking(defaultScope:string){
   own.textContent='';void refresh();if(player)void submit();
  });
  showView(false);void refresh();
- return {begin(){pending=null;},select(next:string){if(!tetrisScopes.includes(next)||next===scope)return;scope=next;pending=null;choice.disabled=scope!==defaultScope;showView(scope!==defaultScope||choice.value==='current');},finish(next:string,result:Result){if(next!==scope)return;pending={scope:next,result,busy:false};void submit();}};
+ return {begin(){pending=null;},select(next:string){if(!tetrisScopes.includes(next)||next===scope)return;scope=next;pending=null;choice.disabled=scope!==defaultScope;choice.closest<HTMLElement>('[data-tetris-ranking-choice]')!.hidden=scope!==defaultScope;showView(scope!==defaultScope||choice.value==='current');},finish(next:string,result:Result){if(next!==scope)return;pending={scope:next,result,busy:false};void submit();}};
 }

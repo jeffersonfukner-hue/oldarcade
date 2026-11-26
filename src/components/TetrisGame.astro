@@ -21,28 +21,28 @@ const survival=modeId==='tetris-survival';
 const timed=sprint||survival;
 const goal=gameModes['tetris-sprint'].targetLines;
 const game=gameRegistry.tetris;
-const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais rápidas a cada 30 segundos. Resista até o fim e dispute o maior tempo no ranking.':sprint?'Tetris Sprint grátis no OldArcade: elimine 40 linhas no menor tempo, desafie seus amigos e dispute o ranking de velocidade.':'Jogue nosso Tetris online grátis: gire peças, complete linhas, avance de nível e dispute recordes. Teclado e controles para celular.';
+const description=survival?'Tetris Sobrevivência grátis: as peças ficam mais rápidas a cada 30 segundos. Resista até o fim e dispute o maior tempo no ranking.':sprint?'Tetris Missões grátis no OldArcade: oito missões de campanha e quatro desafios extras de resistência.':'Jogue nosso Tetris online grátis: gire peças, complete linhas, avance de nível e dispute recordes. Teclado e controles para celular.';
 import GameLayout from './GameLayout.astro';
 import GameDevelopmentHistory from './GameDevelopmentHistory.astro';
 import GameGuide from './GameGuide.astro';
 import TetrisEditorialArt from './TetrisEditorialArt.astro';
 ---
-<GamePage modeId={modeId} title={survival?"Tetris Sobrevivência — Resista à velocidade | OldArcade":sprint?"Tetris Sprint — 40 linhas contra o relógio | OldArcade":"Jogar Tetris grátis — Blocos, linhas e recordes | OldArcade"} description={description}>
+<GamePage modeId={modeId} title={survival?"Tetris Sobrevivência — Resista à velocidade | OldArcade":sprint?"Tetris Missões — Campanha e desafios extras | OldArcade":"Jogar Tetris grátis — Blocos, linhas e recordes | OldArcade"} description={description}>
  <main class="shell oa-game-page">
   <section class="hero tetris-hero">
    <div class="eyebrow">OldArcade · Jogo #002 · Quebra-cabeça</div>
-   <h1>{survival?'Quanto tempo':sprint?'40 linhas.':'Peça por peça.'} <span class="accent">{survival?'você aguenta?':sprint?'O menor tempo vence.':'Linha por linha.'}</span></h1>
-   <p class="lede">{survival?'A cada 30 segundos a velocidade aumenta. Continue encaixando peças, mantenha a pilha sob controle e sobreviva o máximo possível. O maior tempo vence.':sprint?'Complete 40 linhas o mais rápido possível. O relógio só conta enquanto você joga e apenas desafios concluídos entram no ranking.':'Sete peças, um tabuleiro e aquela vontade de encaixar tudo perfeitamente. Jogue sem cadastro; se quiser, dispute um lugar no ranking.'}</p>
+   <h1>{survival?'Quanto tempo':sprint?'Campanha e':'Peça por peça.'} <span class="accent">{survival?'você aguenta?':sprint?'desafios extras.':'Linha por linha.'}</span></h1>
+   <p class="lede">{survival?'A cada 30 segundos a velocidade aumenta. Continue encaixando peças, mantenha a pilha sob controle e sobreviva o máximo possível. O maior tempo vence.':sprint?'Avance pelas oito missões da campanha ou escolha um desafio extra de resistência. Cada missão tem regras e classificação próprias.':'Sete peças, um tabuleiro e aquela vontade de encaixar tudo perfeitamente. Jogue sem cadastro; se quiser, dispute um lugar no ranking.'}</p>
    <nav class="tetris-mode-nav" aria-label="Modos do Tetris">
     <a href="/jogos/tetris/" aria-current={!timed?'page':undefined}>Clássico</a>
-    <a href="/jogos/tetris/sprint/" aria-current={sprint?'page':undefined}>Missões / Sprint</a>
+    <a href="/jogos/tetris/sprint/" aria-current={sprint?'page':undefined}>Missões</a>
     <a href="/jogos/tetris/sobrevivencia/" aria-current={survival?'page':undefined}>Sobrevivência · maior tempo</a>
    </nav>
   </section>
   {DAILY_CHALLENGES_ENABLED && (modeId==='tetris'?<DailyCalendar game="tetris" />:<p class="panel small">📅 <strong>Desafio Diário do Tetris:</strong> uma única tentativa por dia para jogadores com conta. <a href="/jogos/tetris/#daily-title-tetris">Conhecer o desafio →</a></p>)}
   <GameLayout label="Jogar Tetris" className="tetris-main-layout">
    <div class="panel game-stage" id="tetris-stage" data-game-mode={modeId} data-arcade-viewport data-board-shape="portrait">
-    <GameStageHeader title="▣ TETRIS" subtitle={survival?"Sobrevivência":sprint?"Missões / Sprint":"Clássico"} pauseId="tetris-pause" fullscreenId="tetris-fullscreen" fullscreenLabel="Alternar tela cheia do Tetris"><span class="oa-daily-playing-indicator" data-daily-play-indicator hidden>★ DESAFIO DIÁRIO EM ANDAMENTO</span></GameStageHeader>
+    <GameStageHeader title="▣ TETRIS" subtitle={survival?"Sobrevivência":sprint?"Missões":"Clássico"} pauseId="tetris-pause" fullscreenId="tetris-fullscreen" fullscreenLabel="Alternar tela cheia do Tetris"><span class="oa-daily-playing-indicator" data-daily-play-indicator hidden>★ DESAFIO DIÁRIO EM ANDAMENTO</span></GameStageHeader>
     <div class="arcade-game-layout">
      <div class="tetris-playfield oa-board-slot">
       <div class="tetris-board-shell screen-wrap oa-board-surface" id="tetris-screen">
@@ -68,11 +68,10 @@ import TetrisEditorialArt from './TetrisEditorialArt.astro';
        {sprint&&<section class="tetris-mini tetris-campaign-picker" aria-label="Campanha e desafios extras">
         <label for="tetris-campaign-select">Missões</label>
         <select id="tetris-campaign-select">
-         <option value="">Sprint · 40 linhas</option>
          <optgroup label="Campanha">{campaign.map((m,i)=><option value={m.id} disabled={i>0}>{i+1}. {m.title}</option>)}</optgroup>
          <optgroup label="Desafios extras">{extras.map(m=><option value={m.id}>{m.title}</option>)}</optgroup>
         </select>
-        <p id="tetris-campaign-info" class="small">Sprint original: 40 linhas, ranking por tempo.</p>
+        <p id="tetris-campaign-info" class="small">Elimine 40 linhas em 5 minutos.</p>
         <small>Progresso local para visitantes; por conta após registro confirmado.</small>
        </section>}
        <div class="tetris-mission-slot" data-daily-mission-sidebar data-daily-mission-inline hidden aria-label="Missão diária ao lado das linhas"></div>
@@ -106,9 +105,9 @@ import TetrisEditorialArt from './TetrisEditorialArt.astro';
    <GameRanking slot="rankings" game={modeId} name={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris Clássico"} tetrisUnified />
    <GameShare slot="share" gameSlug={modeId} gameName={survival?"Tetris Sobrevivência":sprint?"Tetris Sprint":"Tetris"} gamePath={survival?"/jogos/tetris/sobrevivencia/":sprint?"/jogos/tetris/sprint/":"/jogos/tetris/"} />
    <GameGuide slot="guide">
-   <h2>{survival?"Como jogar Sobrevivência":sprint?"Como jogar o Sprint":"Como jogar"}</h2>
+   <h2>{survival?"Como jogar Sobrevivência":sprint?"Como jogar as missões":"Como jogar"}</h2>
    <TetrisEditorialArt art={survival?"survival":sprint?"sprint":"how-to-play"} />
-   <p>{survival?'Mantenha o tabuleiro livre e resista à queda cada vez mais rápida. Não existe objetivo de linhas: sobreviva até o tabuleiro encher. O tempo efetivo é a sua marca.':sprint?'Limpe 40 linhas no menor tempo possível. Você pode limpar uma, duas, três ou quatro de cada vez; a corrida termina quando a meta é alcançada. O relógio é pausado quando você pausa ou troca de aba. Se o tabuleiro encher, a tentativa é encerrada sem entrar na classificação.':'Encaixe as peças que caem para preencher linhas horizontais. Uma linha completa desaparece, libera espaço e rende pontos, exibidos no tabuleiro no momento da limpeza. Movimentar peças não aumenta o placar. A partida termina quando uma nova peça já não consegue entrar no tabuleiro. A peça fantasma mostra onde a atual vai cair.'}</p>
+   <p>{survival?'Mantenha o tabuleiro livre e resista à queda cada vez mais rápida. Não existe objetivo de linhas: sobreviva até o tabuleiro encher. O tempo efetivo é a sua marca.':sprint?'Escolha uma missão da campanha ou um desafio extra. A campanha começa com 40 linhas em cinco minutos e desbloqueia as próximas missões conforme você avança. Os desafios extras exigem resistência com uma quantidade específica de linhas por eliminação. O relógio é pausado quando você pausa ou troca de aba.':'Encaixe as peças que caem para preencher linhas horizontais. Uma linha completa desaparece, libera espaço e rende pontos, exibidos no tabuleiro no momento da limpeza. Movimentar peças não aumenta o placar. A partida termina quando uma nova peça já não consegue entrar no tabuleiro. A peça fantasma mostra onde a atual vai cair.'}</p>
    <h3>Controles</h3>
    <TetrisEditorialArt art="controls" />
    <p><strong>← → / A D:</strong> mover. <strong>↑ / W / X:</strong> girar no sentido horário. <strong>Z:</strong> girar no sentido contrário. <strong>↓ / S:</strong> acelerar a descida. <strong>Espaço:</strong> queda rápida animada. <strong>C / Shift:</strong> guardar ou trocar uma peça (uma vez até travar a próxima). <strong>P:</strong> pausar. <strong>F:</strong> tela cheia.</p>

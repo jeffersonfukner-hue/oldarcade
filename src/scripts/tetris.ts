@@ -62,7 +62,7 @@ let board:Cell[][]=[],piece:Falling|null=null,bag:PieceName[]=[],queue:PieceName
 let reserve:PieceName|null=null,reserveUsed=false,score=0,lines=0,level=1,state:State='ready';
 let clearStats=createTetrisClearStats();
 type Mission=typeof missions[number];
-let selectedMission:Mission|null=null,activeMission:Mission|null=null;
+let selectedMission:Mission|null=sprint?campaign[0]:null,activeMission:Mission|null=null;
 const progressKey='oldarcade:tetris:campaign:v1';
 let campaignCompleted:string[]=[];
 let accountCampaign=false,progressRevision=0,identityRevision=0,roundIdentity=0;
@@ -81,7 +81,7 @@ async function refreshAccountCampaign(){
    accountCampaign=true;campaignCompleted=completedCampaign(data.completed);
   }else return;
   if(state==='ready'||state==='over'){
-   if(selectedMission&&!missionUnlocked(selectedMission.id,campaignCompleted)){selectedMission=null;if(missionSelect)missionSelect.value='';versionedRanking.select(legacyScope);}
+   if(selectedMission&&!missionUnlocked(selectedMission.id,campaignCompleted)){selectedMission=campaign[0];if(missionSelect)missionSelect.value=selectedMission.id;campaignState=newMissionState();versionedRanking.select(selectedMission.id);update();}
    refreshMissionPicker();
   }
  }catch{}
@@ -97,6 +97,7 @@ function submitVersioned(scope:string,duration:number){
 let campaignState=newMissionState();
 const missionSelect=document.querySelector<HTMLSelectElement>('#tetris-campaign-select');
 const missionInfo=document.getElementById('tetris-campaign-info');
+if(missionSelect&&selectedMission){missionSelect.value=selectedMission.id;versionedRanking.select(selectedMission.id);}
 function refreshMissionPicker(){
  if(!missionSelect)return;
  for(const option of Array.from(missionSelect.options)){
@@ -105,7 +106,7 @@ function refreshMissionPicker(){
  missionSelect.disabled=state==='playing'||state==='countdown'||state==='paused';
  if(missionInfo){
   const m=activeMission??selectedMission;
-  missionInfo.textContent=m?m.description+' · '+(m.kind==='survive'||m.kind==='endurance'?Math.floor(campaignState.progress/1000)+' s':campaignState.progress+'/'+m.target)+(m.limit?' · '+Math.max(0,Math.ceil((m.limit-campaignState.elapsed)/1000))+' s restantes':''):'Sprint original: 40 linhas, ranking por tempo.';
+  missionInfo.textContent=m?m.description+' · '+(m.kind==='survive'||m.kind==='endurance'?Math.floor(campaignState.progress/1000)+' s':campaignState.progress+'/'+m.target)+(m.limit?' · '+Math.max(0,Math.ceil((m.limit-campaignState.elapsed)/1000))+' s restantes':''):'Selecione uma missão.';
  }
 }
 function missionEvent(type:'lock'|'tick'|'end',count=0){
@@ -173,9 +174,9 @@ function dailyProgress(){
 }
 function update(){
  node('tetris-status').textContent=state==='playing'?'● Jogando':state==='paused'?'● Pausado':state==='countdown'?'● Preparando':state==='over'?'● Fim de jogo':'● Pronto';
- node('tetris-score').textContent=survival?formatRankingValue(modeId,clock.milliseconds()):sprint?(activeMission?String(lines):lines+'/'+TARGET_LINES):String(score);
+ node('tetris-score').textContent=survival?formatRankingValue(modeId,clock.milliseconds()):sprint?((activeMission??selectedMission)?.kind==='lines'?lines+'/'+(activeMission??selectedMission)!.target:String(lines)):String(score);
  if(!selectedMission)node('tetris-best').textContent=personalTarget===null?'—':timed?formatRankingValue(modeId,personalTarget):String(personalTarget);
- node('tetris-lines').textContent=sprint&&!activeMission?Math.min(lines,TARGET_LINES)+'/'+TARGET_LINES:String(lines);
+ node('tetris-lines').textContent=sprint&&(activeMission??selectedMission)?.kind==='lines'?lines+'/'+(activeMission??selectedMission)!.target:String(lines);
  node('tetris-combo-points').textContent=String(clearStats.points);
  for(let count=1;count<=4;count++)node('tetris-clear-'+count).textContent=String(clearStats.counts[count]);
  if(!timed)node('tetris-level').textContent=String(level);
@@ -549,8 +550,8 @@ if(sprint){
 missionSelect?.addEventListener('change',()=>{
  if(state==='playing'||state==='paused'||state==='countdown')return;
  const id=missionSelect.value;
- selectedMission=missions.find(m=>m.id===id&&missionUnlocked(id,campaignCompleted))??null;
- nextMissionId=null;campaignState=newMissionState();versionedRanking.select(selectedMission?.id??legacyScope);update();
+ selectedMission=missions.find(m=>m.id===id&&missionUnlocked(id,campaignCompleted))??campaign[0];
+ missionSelect.value=selectedMission.id;nextMissionId=null;campaignState=newMissionState();versionedRanking.select(selectedMission.id);update();
 });
 startButton.addEventListener('click',()=>{
  if(startButton.dataset.dailyRetry==='true'){void submitDailyFinish();return}

@@ -1,3 +1,6 @@
+## ESTADO ATUAL PARA NOVO CHAT — seletor Missões (25/11/2026)
+- CI #1300 aprovado, 514 testes aprovados, 52 ignorados, zero falhas. Proprietário pediu remover Sprint avulso do seletor. Somente grupos Campanha (8) e Desafios extras (4), c1 inicial e fallback após troca de conta, sem exclusão de históricos. Rota /jogos/tetris/sprint/ preservada por compatibilidade. Título/guia contextualizados e testes adaptados. Novo CI pendente. Sem D1, merge ou deploy. Tempo não registrado.
+
 ## ESTADO ATUAL PARA NOVO CHAT — correção visual ranking Tetris (25/11/2026)
 - CI #1299 (45735177687), commit f4ca5b7: check, build e API aprovados; Playwright 386 aprovados, 50 skipped, duas falhas desktop/mobile do novo teste. CSS de stats-list sobrepunha atributo hidden. Regra explícita de ocultação contextual nos três blocos e largura de desempenho de missão; teste ampliado para volta ao Sprint. Novo CI pendente. D1 0012 confirmado; sem nova migração, merge ou deploy. Tempo não registrado.
 

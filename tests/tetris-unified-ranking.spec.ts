@@ -3,6 +3,9 @@ test('Missão troca o ranking único e oculta estatísticas Sprint',async({page}
  await page.route('**/api/tetris/progress',route=>route.fulfill({status:401,body:'{}'}));
  await page.route('**/api/tetris/rankings/*',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({available:true,top:[{nickname:'Jogador',points:200,durationMs:44501,rank:1}],mine:{points:200,durationMs:44501}})}));
  await page.goto('/jogos/tetris/sprint/');
+ await expect(page.locator('#tetris-campaign-select')).toHaveValue('c1');
+ await expect(page.locator('#tetris-campaign-select > option')).toHaveCount(0);
+ await expect(page.locator('#tetris-campaign-select optgroup')).toHaveCount(2);
  await page.locator('#tetris-campaign-select').selectOption('e1');
  await expect(page.locator('[data-mode-ranking]')).toHaveCount(1);
  await expect(page.locator('[data-rank-heading]')).toContainText('Resistência 1L');
@@ -12,8 +15,9 @@ test('Missão troca o ranking único e oculta estatísticas Sprint',async({page}
  await expect(page.locator('#tetris-legacy-performance')).toBeHidden();
  await expect(page.locator('[data-tetris-rank-view]')).toBeDisabled();
  await expect(page.locator('#tetris-mission-performance')).toBeVisible();
- await page.locator('#tetris-campaign-select').selectOption('');
- await expect(page.locator('#tetris-mission-performance')).toBeHidden();
- await expect(page.locator('#tetris-legacy-performance')).toBeVisible();
- await expect(page.locator('#tetris-legacy-community')).toBeVisible();
+ await page.locator('#tetris-campaign-select').selectOption('c1');
+ await expect(page.locator('[data-rank-heading]')).toContainText('Corrida das 40');
+ await expect(page.locator('#tetris-mission-performance')).toBeVisible();
+ await expect(page.locator('#tetris-legacy-performance')).toBeHidden();
+ await expect(page.locator('#tetris-legacy-community')).toBeHidden();
 });
